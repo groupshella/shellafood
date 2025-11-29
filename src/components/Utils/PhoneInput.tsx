@@ -674,7 +674,6 @@ export default function PhoneInputField({
             border border-red-200 dark:border-red-800/50
           `}
         >
-          <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5" />
           <span className="font-medium leading-relaxed">
             {error || (
               isArabic 

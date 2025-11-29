@@ -327,23 +327,44 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 	// Load offer booking data if available
 	useEffect(() => {
 		if (typeof window !== "undefined") {
+			// Check URL parameter
+			const urlParams = new URLSearchParams(window.location.search);
+			const fromOffer = urlParams.get("fromOffer");
+			
+			// Always try to load offerBooking from sessionStorage first
 			try {
 				const offerDataStr = sessionStorage.getItem("offerBooking");
 				if (offerDataStr) {
 					const offerData = JSON.parse(offerDataStr);
-					setOfferBooking(offerData);
-					setHasPreSelectedDriver(true);
-					console.log("Offer booking data loaded:", offerData);
+					// Only set hasPreSelectedDriver if there's actually a pre-selected driver
+					if (offerData?.preSelectedDriver) {
+						setOfferBooking(offerData);
+						setHasPreSelectedDriver(true);
+						console.log("Offer booking data loaded:", offerData);
+						// Keep the offerBooking even if fromOffer param is not in URL
+						// This allows offerBooking to persist when navigating between pages
+						return;
+					}
 				}
 			} catch (error) {
 				console.error("Error loading offer data:", error);
 			}
-
-			// Also check URL parameter
-			const urlParams = new URLSearchParams(window.location.search);
-			const fromOffer = urlParams.get("fromOffer");
-			if (fromOffer === "true") {
-				setHasPreSelectedDriver(true);
+			
+			// Only clear if explicitly not from offer (fromOffer === "false")
+			// or if fromOffer is not set and there's no offerBooking in sessionStorage
+			if (fromOffer === "false") {
+				// Explicitly not from offer - clear any existing offerBooking data
+				sessionStorage.removeItem("offerBooking");
+				setOfferBooking(null);
+				setHasPreSelectedDriver(false);
+			} else if (fromOffer !== "true") {
+				// No fromOffer param - check if offerBooking exists
+				// If it doesn't exist, we're not from an offer
+				const offerDataStr = sessionStorage.getItem("offerBooking");
+				if (!offerDataStr) {
+					setHasPreSelectedDriver(false);
+				}
+				// If offerBooking exists, it will be loaded above and we return early
 			}
 		}
 	}, []);
@@ -551,8 +572,35 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 			sessionStorage.setItem("orderPricing", JSON.stringify(pricingData));
 		}
 		
+		// If coming from offer with pre-selected driver, skip driver selection and go directly to payment
+		if (hasPreSelectedDriver && offerBooking?.preSelectedDriver) {
+			const preSelectedDriver = offerBooking.preSelectedDriver;
+			// Store driver data in sessionStorage
+			if (typeof window !== "undefined") {
+				const driverData = {
+					id: preSelectedDriver.id,
+					name: preSelectedDriver.name || "",
+					nameAr: preSelectedDriver.nameAr || "",
+					avatar: preSelectedDriver.avatar || "/driver1.jpg",
+					rating: preSelectedDriver.rating || 4.5,
+					reviewsCount: preSelectedDriver.reviewsCount || 0,
+					vehicleType: preSelectedDriver.vehicleType || (isMotorbike ? "motorbike" : "truck"),
+					vehicleModel: preSelectedDriver.vehicleModel || "",
+					licensePlate: preSelectedDriver.licensePlate || "",
+					phone: preSelectedDriver.phone || "+966500000000",
+					location: preSelectedDriver.location || "Riyadh",
+					distance: preSelectedDriver.distance || 0,
+					estimatedTime: preSelectedDriver.estimatedTime || 15,
+				};
+				sessionStorage.setItem(`driver_${preSelectedDriver.id}`, JSON.stringify(driverData));
+			}
+			// Navigate directly to payment
+			router.push(`/pickandorder/${transportType}/order/payment?type=${orderType}&driverId=${preSelectedDriver.id}&fromOffer=true`);
+			return;
+		}
+		
 		router.push(`/pickandorder/${transportType}/order/choose-driver?type=${orderType}`);
-	}, [router, transportType, orderType, completionPercentage, showIncompleteNotification, pricingData]);
+	}, [router, transportType, orderType, completionPercentage, showIncompleteNotification, pricingData, hasPreSelectedDriver, offerBooking, isMotorbike]);
 
 	const handlePlatformRecommendation = useCallback(() => {
 		console.log("handlePlatformRecommendation - completionPercentage:", completionPercentage);
@@ -583,16 +631,69 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 		sessionStorage.removeItem("autoSelectModalOpen");
 		sessionStorage.removeItem("autoSelectModalDriverId");
 		
+		// If coming from offer with pre-selected driver, skip waiting and go directly to payment
+		if (hasPreSelectedDriver && offerBooking?.preSelectedDriver) {
+			const preSelectedDriver = offerBooking.preSelectedDriver;
+			// Store driver data in sessionStorage
+			if (typeof window !== "undefined") {
+				const driverData = {
+					id: preSelectedDriver.id,
+					name: preSelectedDriver.name || "",
+					nameAr: preSelectedDriver.nameAr || "",
+					avatar: preSelectedDriver.avatar || "/driver1.jpg",
+					rating: preSelectedDriver.rating || 4.5,
+					reviewsCount: preSelectedDriver.reviewsCount || 0,
+					vehicleType: preSelectedDriver.vehicleType || (isMotorbike ? "motorbike" : "truck"),
+					vehicleModel: preSelectedDriver.vehicleModel || "",
+					licensePlate: preSelectedDriver.licensePlate || "",
+					phone: preSelectedDriver.phone || "+966500000000",
+					location: preSelectedDriver.location || "Riyadh",
+					distance: preSelectedDriver.distance || 0,
+					estimatedTime: preSelectedDriver.estimatedTime || 15,
+				};
+				sessionStorage.setItem(`driver_${preSelectedDriver.id}`, JSON.stringify(driverData));
+			}
+			// Store pricing data for payment page
+			if (pricingData && typeof window !== "undefined") {
+				sessionStorage.setItem("orderPricing", JSON.stringify(pricingData));
+			}
+			// Navigate directly to payment
+			setTimeout(() => {
+				router.push(`/pickandorder/${transportType}/order/payment?type=${orderType}&driverId=${preSelectedDriver.id}&fromOffer=true`);
+			}, 300);
+			return;
+		}
+		
+		// Store driver data in sessionStorage before navigating
+		if (typeof window !== "undefined" && selectedDriver) {
+			const driverData = {
+				id: selectedDriver.id,
+				name: isArabic ? selectedDriver.name.split(" ").reverse().join(" ") : selectedDriver.name,
+				nameAr: isArabic ? selectedDriver.name : selectedDriver.name,
+				avatar: selectedDriver.avatar || "/driver1.jpg",
+				rating: selectedDriver.rating,
+				reviewsCount: selectedDriver.completedTrips || 0,
+				vehicleType: selectedDriver.vehicleType.toLowerCase() as "truck" | "motorbike",
+				vehicleModel: selectedDriver.vehicleModel,
+				licensePlate: selectedDriver.licensePlate,
+				phone: selectedDriver.phone || "+966500000000",
+				location: "Riyadh",
+				distance: parseFloat(selectedDriver.distance.replace(/[^0-9.]/g, "")) || 0,
+				estimatedTime: parseInt(selectedDriver.estimatedArrival.replace(/[^0-9]/g, "")) || 15,
+			};
+			sessionStorage.setItem(`driver_${selectedDriver.id}`, JSON.stringify(driverData));
+		}
+		
 		// Store pricing data for payment page
 		if (pricingData && typeof window !== "undefined") {
 			sessionStorage.setItem("orderPricing", JSON.stringify(pricingData));
 		}
 		
-		// Navigate to payment/confirmation page
+		// Navigate to waiting driver page
 		setTimeout(() => {
-			router.push(`/pickandorder/${transportType}/order/payment?type=${orderType}&autoSelect=true&driverId=${selectedDriver.id}`);
+			router.push(`/pickandorder/${transportType}/order/waiting-driver?type=${orderType}&autoSelect=true&driverId=${selectedDriver.id}`);
 		}, 300);
-	}, [router, transportType, orderType, selectedDriver.id, pricingData]);
+	}, [router, transportType, orderType, selectedDriver, pricingData, isArabic, hasPreSelectedDriver, offerBooking, isMotorbike]);
 
 	const VehicleIcon = isMotorbike ? Bike : Truck;
 
@@ -1420,7 +1521,7 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 						</button>
 
 						{/* Pre-Selected Driver Card (when from offer) */}
-						{hasPreSelectedDriver && offerBooking ? (
+						{hasPreSelectedDriver && offerBooking && offerBooking.preSelectedDriver ? (
 							<motion.div
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}

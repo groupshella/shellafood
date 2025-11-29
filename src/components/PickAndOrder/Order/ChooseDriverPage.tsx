@@ -381,6 +381,23 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 		libraries: MAP_CONFIG.libraries
 	});
 
+	// Check for timeout/rejection notification
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			const urlParams = new URLSearchParams(window.location.search);
+			const timeout = urlParams.get("timeout");
+			const rejected = urlParams.get("rejected");
+			
+			if (timeout === "true" || rejected === "true") {
+				// Show notification (you can add a toast notification here)
+				console.log("Driver timeout or rejected");
+				// Clean up URL params
+				const newUrl = window.location.pathname + "?type=" + (urlParams.get("type") || "one-way");
+				window.history.replaceState({}, "", newUrl);
+			}
+		}
+	}, []);
+
 	// Get pickup location from order data
 	useEffect(() => {
 		if (typeof window !== "undefined") {
@@ -449,6 +466,11 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 		
 		const referenceLocation = pickupLocation || { lat: 24.7136, lng: 46.6753 };
 		await new Promise((resolve) => setTimeout(resolve, 1500));
+
+		// Get rejected drivers from sessionStorage
+		const rejectedDrivers = typeof window !== "undefined" 
+			? JSON.parse(sessionStorage.getItem("rejectedDrivers") || "[]")
+			: [];
 
 		const generateDriverPosition = (distanceKm: number, angleDegrees: number) => {
 			const distanceInDegrees = distanceKm / 111;
@@ -542,7 +564,12 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 			},
 		];
 
-		const driversWithDistanceAndTime: Driver[] = allDriversRaw.map((driver) => {
+		// Filter out rejected drivers
+		const availableDriversRaw = allDriversRaw.filter(
+			(driver) => !rejectedDrivers.includes(driver.id)
+		);
+
+		const driversWithDistanceAndTime: Driver[] = availableDriversRaw.map((driver) => {
 			const distance = calculateDistance(
 				referenceLocation.lat,
 				referenceLocation.lng,
@@ -641,8 +668,8 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 				console.error("❌ Error loading order data for pricing:", error);
 			}
 			
-			// Navigate after pricing is calculated and stored
-			router.push(`/pickandorder/${transportType}/order/payment?type=${orderType}&driverId=${selectedDriver}`);
+			// Navigate to waiting driver page
+			router.push(`/pickandorder/${transportType}/order/waiting-driver?type=${orderType}&driverId=${selectedDriver}`);
 		}
 	}, [selectedDriver, router, transportType, orderType]);
 

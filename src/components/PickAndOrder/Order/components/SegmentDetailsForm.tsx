@@ -899,7 +899,7 @@ export const SegmentDetailsForm: React.FC<SegmentDetailsFormProps> = ({
                         initial={{ opacity: 0, scale: 0.95, y: -5 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -5 }}
-                        className={`absolute ${isArabic ? "left-0" : "right-0"} top-6 sm:top-7 z-50 w-40 sm:w-48 md:w-56 p-2 sm:p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg text-[10px] sm:text-xs text-gray-700 dark:text-gray-300 ${isArabic ? "text-right" : "text-left"}`}
+                        className={`absolute ${isArabic ? "right-0 md:right-1/2 md:translate-x-1/2" : "left-0 md:left-1/2 md:-translate-x-1/2"} top-6 sm:top-7 z-50 w-40 sm:w-48 md:w-56 p-2 sm:p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg text-[10px] sm:text-xs text-gray-700 dark:text-gray-300 ${isArabic ? "text-right" : "text-left"}`}
                         dir={isArabic ? "rtl" : "ltr"}
                       >
                         <p className="font-semibold mb-1 text-gray-900 dark:text-gray-100">

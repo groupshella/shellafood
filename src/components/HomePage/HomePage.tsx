@@ -17,6 +17,7 @@ import { getCartItemsCount } from "@/lib/utils/cartStorage";
 import { TEST_STORES, TEST_CATEGORIES, TEST_PRODUCTS } from "@/lib/data/categories/testData";
 import { ArrowUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ServiceRequestsSection from "./ServiceRequestsSection";
 
 export default function HomePage() {
 	const router = useRouter();
@@ -107,7 +108,7 @@ export default function HomePage() {
 
 				{/* Promotional Banner */}
 				<PromotionalBanner />
-
+{/* <ServiceRequestsSection /> */}
 				{/* Offers Strip */}
 				<OffersStrip />
 

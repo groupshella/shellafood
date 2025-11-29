@@ -16,6 +16,7 @@ import {
 	Info,
 	X,
 	AlertCircle,
+	Clock,
 } from "lucide-react";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { MAP_CONFIG } from "@/lib/maps/utils";
@@ -91,6 +92,11 @@ export default function OrderDetailsPageMultiDirection({
 		}];
 	});
 
+	// Service type
+	const [serviceType, setServiceType] = useState<"instant" | "scheduled">("scheduled");
+	const [scheduledDate, setScheduledDate] = useState("");
+	const [scheduledTime, setScheduledTime] = useState("");
+
 	// Vehicle options
 	const [vehicleOptions, setVehicleOptions] = useState<VehicleOptions>({
 		truckType: "",
@@ -131,6 +137,19 @@ export default function OrderDetailsPageMultiDirection({
 	});
 
 	const defaultCenter = useMemo(() => MAP_CONFIG.defaultCenter, []);
+
+	// Clear offerBooking if not coming from an offer
+	React.useEffect(() => {
+		if (typeof window !== "undefined") {
+			const urlParams = new URLSearchParams(window.location.search);
+			const fromOffer = urlParams.get("fromOffer");
+			
+			// If not coming from an offer, clear any existing offerBooking data
+			if (fromOffer !== "true") {
+				sessionStorage.removeItem("offerBooking");
+			}
+		}
+	}, []);
 
 	// Load existing data from sessionStorage if available (when editing)
 	useEffect(() => {
@@ -327,6 +346,20 @@ export default function OrderDetailsPageMultiDirection({
 			allErrors = { ...allErrors, ...segmentErrors };
 		});
 
+		// Service type validation (required)
+		if (!serviceType) {
+			allErrors.serviceType = isArabic ? "يرجى اختيار نوع الخدمة" : "Please select service type";
+		}
+		// Date and time validation (required if scheduled)
+		if (serviceType === "scheduled") {
+			if (!scheduledDate.trim()) {
+				allErrors.scheduledDate = isArabic ? "يرجى اختيار التاريخ" : "Please select date";
+			}
+			if (!scheduledTime.trim()) {
+				allErrors.scheduledTime = isArabic ? "يرجى اختيار الوقت" : "Please select time";
+			}
+		}
+
 		// Vehicle validation
 		if (transportType === "truck" && !vehicleOptions.truckType) {
 			allErrors.truckType = isArabic ? "اختر نوع الشاحنة" : "Select truck type";
@@ -337,7 +370,7 @@ export default function OrderDetailsPageMultiDirection({
 
 		setErrors(allErrors);
 		return Object.keys(allErrors).length === 0;
-	}, [routeSegments, transportType, vehicleOptions.truckType, motorbikeOptions.packageType, validateSegment, isArabic]);
+	}, [routeSegments, transportType, vehicleOptions.truckType, motorbikeOptions.packageType, validateSegment, isArabic, serviceType, scheduledDate, scheduledTime]);
 
 	// Final submit - defined before goToNextStep to avoid hoisting issues
 	const handleFinalSubmit = useCallback(() => {
@@ -354,6 +387,10 @@ export default function OrderDetailsPageMultiDirection({
 			routeSegments,
 			vehicleOptions: isMotorbike ? motorbikeOptions : vehicleOptions,
 			returnToPickup: !isMultiDirection ? returnToPickup : false, // Only for one-direction
+			// Service type
+			serviceType,
+			scheduledDate: serviceType === "scheduled" ? scheduledDate : "",
+			scheduledTime: serviceType === "scheduled" ? scheduledTime : "",
 			createdAt: new Date().toISOString(),
 		};
 
@@ -362,7 +399,7 @@ export default function OrderDetailsPageMultiDirection({
 		setTimeout(() => {
 			router.push(`/pickandorder/${transportType}/order/summary?type=${orderType}`);
 		}, 800);
-	}, [validateAllSegments, transportType, orderType, routeSegments, vehicleOptions, motorbikeOptions, isMotorbike, returnToPickup, isMultiDirection, router]);
+	}, [validateAllSegments, transportType, orderType, routeSegments, vehicleOptions, motorbikeOptions, isMotorbike, returnToPickup, isMultiDirection, router, serviceType, scheduledDate, scheduledTime]);
 
 	// Navigation
 	const goToNextStep = useCallback(() => {
@@ -589,7 +626,139 @@ export default function OrderDetailsPageMultiDirection({
 
 
 					{currentStep === "vehicle-options" && (
-						<motion.div key="vehicle-options" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+						<motion.div key="vehicle-options" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4 sm:space-y-6">
+							{/* Service Type Section */}
+							<motion.div
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200/80 dark:border-gray-700 backdrop-blur-sm"
+							>
+								<div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+									<div className="w-9 h-9 sm:w-10 sm:h-10 bg-green-500 dark:bg-green-600 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+										<Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+									</div>
+									<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 dark:text-gray-100">
+										{isArabic ? "نوع الخدمة" : "Service Type"}
+										<span className="text-red-500 ml-1">*</span>
+									</h3>
+								</div>
+
+								<div className="space-y-4 sm:space-y-6">
+									{/* Service Type Selection */}
+									<div>
+										<div className="grid grid-cols-2 gap-3 sm:gap-4">
+											<button
+												type="button"
+												onClick={() => {
+													setServiceType("instant");
+													setScheduledDate("");
+													setScheduledTime("");
+													setTouched((prev) => ({ ...prev, serviceType: true }));
+													setErrors((prev) => ({ ...prev, serviceType: "", scheduledDate: "", scheduledTime: "" }));
+												}}
+												className={`p-4 rounded-lg border-2 transition-all touch-manipulation focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 ${
+													serviceType === "instant"
+														? "border-green-600 dark:border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold"
+														: "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 active:border-gray-300 text-gray-700 dark:text-gray-300"
+												} ${touched.serviceType && errors.serviceType ? "border-red-500 dark:border-red-400" : ""}`}
+											>
+												<span className="text-sm sm:text-base">{isArabic ? "فوري" : "Instant"}</span>
+											</button>
+											<button
+												type="button"
+												onClick={() => {
+													setServiceType("scheduled");
+													setTouched((prev) => ({ ...prev, serviceType: true }));
+													setErrors((prev) => ({ ...prev, serviceType: "" }));
+												}}
+												className={`p-4 rounded-lg border-2 transition-all touch-manipulation focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 ${
+													serviceType === "scheduled"
+														? "border-green-600 dark:border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold"
+														: "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 active:border-gray-300 text-gray-700 dark:text-gray-300"
+												} ${touched.serviceType && errors.serviceType ? "border-red-500 dark:border-red-400" : ""}`}
+											>
+												<span className="text-sm sm:text-base">{isArabic ? "مجدول" : "Scheduled"}</span>
+											</button>
+										</div>
+										{touched.serviceType && errors.serviceType && (
+											<p className="text-red-500 dark:text-red-400 text-xs sm:text-sm mt-2 flex items-center gap-1">
+												<AlertCircle className="w-3 h-3" />
+												{errors.serviceType}
+											</p>
+										)}
+									</div>
+
+									{/* Date & Time (only for scheduled) */}
+									{serviceType === "scheduled" && (
+										<>
+											<div>
+												<label className="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
+													{isArabic ? "التاريخ" : "Date"}
+													<span className="text-red-500 ml-1">*</span>
+												</label>
+												<input
+													type="date"
+													value={scheduledDate}
+													onChange={(e) => {
+														setScheduledDate(e.target.value);
+														setTouched((prev) => ({ ...prev, scheduledDate: true }));
+														setErrors((prev) => ({ ...prev, scheduledDate: "" }));
+													}}
+													onBlur={() => setTouched((prev) => ({ ...prev, scheduledDate: true }))}
+													min={new Date().toISOString().split("T")[0]}
+													className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border-2 focus:border-[#31A342] dark:focus:border-green-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation shadow-sm hover:shadow-md ${
+														touched.scheduledDate && errors.scheduledDate
+															? "border-red-500 dark:border-red-400"
+															: "border-gray-300 dark:border-gray-700"
+													}`}
+												/>
+												{touched.scheduledDate && errors.scheduledDate && (
+													<p className="text-red-500 dark:text-red-400 text-xs sm:text-sm mt-1 flex items-center gap-1">
+														<AlertCircle className="w-3 h-3" />
+														{errors.scheduledDate}
+													</p>
+												)}
+											</div>
+											<div>
+												<label className="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
+													{isArabic ? "الوقت" : "Time"}
+													<span className="text-red-500 ml-1">*</span>
+												</label>
+												<div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 sm:gap-3">
+													{["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"].map((time) => (
+														<button
+															key={time}
+															type="button"
+															onClick={() => {
+																setScheduledTime(time);
+																setTouched((prev) => ({ ...prev, scheduledTime: true }));
+																setErrors((prev) => ({ ...prev, scheduledTime: "" }));
+															}}
+															className={`py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg border-2 transition-all text-xs sm:text-sm touch-manipulation focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 ${
+																scheduledTime === time
+																	? "border-green-600 dark:border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold"
+																	: touched.scheduledTime && errors.scheduledTime
+																	? "border-red-500 dark:border-red-400"
+																	: "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 active:border-gray-300 text-gray-700 dark:text-gray-300"
+															}`}
+														>
+															{time}
+														</button>
+													))}
+												</div>
+												{touched.scheduledTime && errors.scheduledTime && (
+													<p className="text-red-500 dark:text-red-400 text-xs sm:text-sm mt-1 flex items-center gap-1">
+														<AlertCircle className="w-3 h-3" />
+														{errors.scheduledTime}
+													</p>
+												)}
+											</div>
+										</>
+									)}
+								</div>
+							</motion.div>
+
+							{/* Vehicle-Specific Fields */}
 							<VehicleSpecificFields
 								transportType={isMotorbike ? "motorbike" : "truck"}
 								isArabic={isArabic}

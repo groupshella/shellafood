@@ -367,24 +367,9 @@ export const SegmentCard: React.FC<SegmentCardProps> = ({
 									)}
 								</>
 							) : (
-								<div className="flex items-center gap-2 flex-wrap">
-									<p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 italic">
-										{isArabic ? "غير محدد" : "Not selected"}
-									</p>
-									{!isReviewMode && onClick && (
-										<motion.button
-											whileHover={{ scale: 1.05 }}
-											whileTap={{ scale: 0.95 }}
-											onClick={(e) => {
-												e.stopPropagation();
-												onClick();
-											}}
-											className="text-[10px] sm:text-xs font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 underline touch-manipulation"
-										>
-											{isArabic ? "حدد الآن" : "Select Now"}
-										</motion.button>
-									)}
-								</div>
+								<p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 italic">
+									{isArabic ? "غير محدد" : "Not selected"}
+								</p>
 							)}
 						</div>
 					</div>
@@ -488,24 +473,9 @@ export const SegmentCard: React.FC<SegmentCardProps> = ({
 									)}
 								</>
 							) : (
-								<div className="flex items-center gap-2 flex-wrap">
-									<p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 italic">
-										{isArabic ? "غير محدد" : "Not selected"}
-									</p>
-									{!isReviewMode && onClick && (
-										<motion.button
-											whileHover={{ scale: 1.05 }}
-											whileTap={{ scale: 0.95 }}
-											onClick={(e) => {
-												e.stopPropagation();
-												onClick();
-											}}
-											className="text-[10px] sm:text-xs font-semibold text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 underline touch-manipulation"
-										>
-											{isArabic ? "حدد الآن" : "Select Now"}
-										</motion.button>
-									)}
-								</div>
+								<p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 italic">
+									{isArabic ? "غير محدد" : "Not selected"}
+								</p>
 							)}
 						</div>
 					</div>
@@ -565,22 +535,6 @@ export const SegmentCard: React.FC<SegmentCardProps> = ({
 											{isArabic ? "غير محدد" : "Not added"}
 										</p>
 									</div>
-								</div>
-								<div className="flex items-center gap-2 flex-wrap">
-									
-									{onClick && (
-										<motion.button
-											whileHover={{ scale: 1.05 }}
-											whileTap={{ scale: 0.95 }}
-											onClick={(e) => {
-												e.stopPropagation();
-												onClick();
-											}}
-											className="text-[10px] sm:text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline touch-manipulation"
-										>
-											{isArabic ? "أضف الآن" : "Add Now"}
-										</motion.button>
-									)}
 								</div>
 							</div>
 						</div>
