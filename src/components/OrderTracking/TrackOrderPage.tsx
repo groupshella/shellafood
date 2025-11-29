@@ -408,9 +408,9 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 				/>
 
 				{/* Main Content Grid */}
-				<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-					{/* Left Column - Timeline & Details */}
-					<div className="lg:col-span-2 space-y-6">
+				<div className={`grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6 ${isArabic ? "lg:grid-flow-row-dense" : ""}`}>
+					{/* Left/Right Column - Timeline & Details */}
+					<div className={`lg:col-span-2 space-y-4 sm:space-y-6 ${isArabic ? "lg:col-start-2 lg:col-end-3" : ""}`}>
 						{/* Tracking Timeline */}
 						<TrackingTimeline
 							language={language}
@@ -424,8 +424,8 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 						<OrderDetailsSection orderData={orderData} language={language} />
 					</div>
 
-					{/* Right Column - Map & Actions */}
-					<div className="lg:col-span-1 space-y-6">
+					{/* Right/Left Column - Map & Actions */}
+					<div className={`lg:col-span-1 space-y-4 sm:space-y-6 ${isArabic ? "lg:col-start-1 lg:col-end-2 lg:row-start-1" : ""}`}>
 						{/* Live Map */}
 						<LiveMapContainer
 							mapData={orderData.map}

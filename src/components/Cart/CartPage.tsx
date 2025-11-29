@@ -1,323 +1,167 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Package, ArrowLeft, Sparkles, Store as StoreIcon, Trash2, AlertTriangle } from "lucide-react";
+import { ShoppingCart, ArrowLeft, Sparkles, Trash2, AlertTriangle, Store as StoreIcon } from "lucide-react";
+import { ToastContainer, useToast } from "@/components/ui/Toast";
+
+// Import existing components (will be refactored later)
 import CartItemCard from "./CartItemCard";
 import CouponSection from "./CouponSection";
 import AddressSelector from "./AddressSelector";
 import PaymentOptions from "./PaymentOptions";
 import OrderSummary from "./OrderSummary";
-import EmptyCartState from "./EmptyCartState";
-import ConfirmCheckoutModal from "./ConfirmCheckoutModal";
-import { ToastContainer, useToast } from "@/components/ui/Toast";
-import { CartItemSkeleton, OrderSummarySkeleton } from "./SkeletonLoader";
-import { getCartItems, updateCartItemQuantity as updateCartItemQuantityStorage, removeCartItem as removeCartItemStorage, clearCartStorage, type CartProductItem } from "@/lib/utils/cartStorage";
+import EmptyCartState from "./ui/EmptyCartState";
+import { CartItemSkeleton } from "./ui/skeletons/CartItemSkeleton";
+import { OrderSummarySkeleton } from "./ui/skeletons/SummarySkeleton";
+import ConfirmCheckoutModal from "./modals/ConfirmCheckoutModal";
 
-interface Coupon {
-	id: string;
-	code: string;
-	titleEn: string;
-	titleAr?: string;
-	discountValue: number;
-	discountType: "percentage" | "fixed";
-}
+// Import new hooks and utilities
+import { useCartItems } from "./hooks/useCartItems";
+import { useCartCalculations } from "./hooks/useCartCalculations";
+import { useCartValidation } from "./hooks/useCartValidation";
+import { useCheckout } from "./hooks/useCheckout";
+import { useCoupon } from "./hooks/useCoupon";
+import { useAddress } from "./hooks/useAddress";
+import { usePayment } from "./hooks/usePayment";
+import { groupItemsByStore } from "./utils/grouping.utils";
+import { calculateRemainingForFreeDelivery } from "./utils/pricing.utils";
+import { CART_CONSTANTS } from "./constants/cart.constants";
+import { CartItem, Coupon } from "./types/cart.types";
 
 export default function CartPage() {
 	const { language } = useLanguage();
 	const router = useRouter();
 	const isArabic = language === "ar";
 	const { toasts, showToast, removeToast } = useToast();
-	
-	// Use refs to avoid re-renders from toast functions
-	const showToastRef = useRef(showToast);
-	const isArabicRef = useRef(isArabic);
-	
-	// Update refs when values change
-	useEffect(() => {
-		showToastRef.current = showToast;
-		isArabicRef.current = isArabic;
-	}, [showToast, isArabic]);
 
-	// State
-	const [productItems, setProductItems] = useState<CartProductItem[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [isUpdating, setIsUpdating] = useState(false);
-	const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"apple_pay" | "stc_pay" | "card" | "cash" | "kaidha" | null>(null);
-	const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+	// Cart items management
+	const {
+		items,
+		isLoading,
+		isUpdating,
+		updateQuantity,
+		removeItem,
+		clearAll,
+	} = useCartItems();
+
+	// Coupon management
+	const {
+		appliedCoupon,
+		isValidating: isCouponValidating,
+		error: couponError,
+		validateCoupon,
+		removeCoupon,
+	} = useCoupon();
+
+	// Address management
+	const {
+		selectedAddressId,
+		addresses,
+		selectAddress,
+		isLoading: isAddressLoading,
+	} = useAddress(language);
+
+	// Payment management
+	const {
+		selectedPaymentMethod,
+		cardDetails,
+		selectPaymentMethod,
+		updateCardDetails,
+	} = usePayment();
+
+	// Calculations
+	const calculations = useCartCalculations(items, appliedCoupon);
+
+	// Validation
+	const { canCheckout, validationErrors } = useCartValidation(
+		items,
+		selectedAddressId,
+		selectedPaymentMethod,
+		cardDetails
+	);
+
+	// Checkout
+	const { processCheckout, isProcessing, error: checkoutError } = useCheckout();
+
+	// Local state
 	const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-	const [isProcessing, setIsProcessing] = useState(false);
 	const [showClearAllModal, setShowClearAllModal] = useState(false);
 
-	// Initial cart load - only runs once
-	useEffect(() => {
-		let mounted = true;
-		setIsLoading(true);
-		
-		// Simulate realistic loading time
-		const timeoutId = setTimeout(() => {
-			if (!mounted) return;
-			
-			try {
-				const items = getCartItems();
-				setProductItems(items);
-			} catch (error) {
-				console.error("Error fetching cart data:", error);
-				if (mounted) {
-					showToastRef.current(
-						isArabicRef.current ? "حدث خطأ في تحميل السلة" : "Error loading cart",
-						"error",
-						isArabicRef.current ? "حدث خطأ في تحميل السلة" : undefined
-					);
-				}
-			} finally {
-				if (mounted) {
-					setIsLoading(false);
-				}
-			}
-		}, 500);
-		
-		return () => {
-			mounted = false;
-			clearTimeout(timeoutId);
-		};
-	}, []); // Only run on mount
+	// Group items by store
+	const productsByStore = useMemo(() => {
+		return groupItemsByStore(items);
+	}, [items]);
 
-	// Listen for cart updates
-	useEffect(() => {
-		const handleCartUpdate = () => {
-			// Directly update from localStorage without delay for real-time updates
-			try {
-				const items = getCartItems();
-				setProductItems(items);
-			} catch (error) {
-				console.error("Error fetching cart data:", error);
-			}
-		};
-		
-		window.addEventListener('cartUpdated', handleCartUpdate);
-		return () => {
-			window.removeEventListener('cartUpdated', handleCartUpdate);
-		};
-	}, []); // Only run on mount
+	// Handle coupon applied (bridge to existing CouponSection)
+	const handleCouponApplied = useCallback((coupon: Coupon) => {
+		// The useCoupon hook manages state, but CouponSection expects a callback
+		// This is a temporary bridge until CouponSection is refactored
+		validateCoupon(coupon.code);
+	}, [validateCoupon]);
 
-	// Update product quantity with instant feedback
-	const updateProductQuantity = useCallback(async (itemId: string, quantity: number) => {
-		// Optimistic update for instant feedback
-		setProductItems(prev => 
-			prev.map(item => 
-				item.id === itemId ? { ...item, quantity } : item
-			)
-		);
-
-		setIsUpdating(true);
-		try {
-			const success = updateCartItemQuantityStorage(itemId, quantity);
-			if (!success) {
-				// Revert on error - sync from localStorage
-				const items = getCartItems();
-				setProductItems(items);
-				showToastRef.current(
-					isArabicRef.current ? "حدث خطأ في تحديث الكمية" : "Error updating quantity",
-					"error",
-					isArabicRef.current ? "حدث خطأ في تحديث الكمية" : undefined
+	// Handle checkout click
+	const handleCheckoutClick = useCallback(() => {
+		if (!canCheckout) {
+			validationErrors.forEach(error => {
+				showToast(
+					isArabic ? error : error,
+					"warning",
+					isArabic ? error : undefined
 				);
-			}
-			// No need to call fetchCartData on success - optimistic update is already applied
-		} catch (error) {
-			console.error("Error updating quantity:", error);
-			// Revert on error - sync from localStorage
-			const items = getCartItems();
-			setProductItems(items);
-			showToastRef.current(
-				isArabicRef.current ? "حدث خطأ في تحديث الكمية" : "Error updating quantity",
-				"error",
-				isArabicRef.current ? "حدث خطأ في تحديث الكمية" : undefined
-			);
-		} finally {
-			setIsUpdating(false);
-		}
-	}, []); // No dependencies - uses refs
-
-	// Remove product with animation
-	const removeProduct = useCallback(async (itemId: string) => {
-		setIsUpdating(true);
-		try {
-			const success = removeCartItemStorage(itemId);
-			if (success) {
-				// Remove from state immediately for smooth animation
-				setProductItems(prev => prev.filter(item => item.id !== itemId));
-				showToastRef.current(
-					isArabicRef.current ? "تم إزالة المنتج من السلة" : "Product removed from cart",
-					"success",
-					isArabicRef.current ? "تم إزالة المنتج من السلة" : undefined
-				);
-			} else {
-				// Sync from localStorage on error
-				const items = getCartItems();
-				setProductItems(items);
-				showToastRef.current(
-					isArabicRef.current ? "حدث خطأ في إزالة المنتج" : "Error removing product",
-					"error",
-					isArabicRef.current ? "حدث خطأ في إزالة المنتج" : undefined
-				);
-			}
-		} catch (error) {
-			console.error("Error removing item:", error);
-			// Sync from localStorage on error
-			const items = getCartItems();
-			setProductItems(items);
-			showToastRef.current(
-				isArabicRef.current ? "حدث خطأ في إزالة المنتج" : "Error removing product",
-				"error",
-				isArabicRef.current ? "حدث خطأ في إزالة المنتج" : undefined
-			);
-		} finally {
-			setIsUpdating(false);
-		}
-	}, []); // No dependencies - uses refs
-
-	// Clear all products from cart
-	const clearAllProducts = useCallback(() => {
-		setIsUpdating(true);
-		try {
-			clearCartStorage();
-			setProductItems([]);
-			setAppliedCoupon(null); // Clear coupon when clearing cart
-			setShowClearAllModal(false);
-			showToastRef.current(
-				isArabicRef.current ? "تم مسح جميع المنتجات من السلة" : "All products cleared from cart",
-				"success",
-				isArabicRef.current ? "تم مسح جميع المنتجات من السلة" : undefined
-			);
-		} catch (error) {
-			console.error("Error clearing cart:", error);
-			showToastRef.current(
-				isArabicRef.current ? "حدث خطأ في مسح السلة" : "Error clearing cart",
-				"error",
-				isArabicRef.current ? "حدث خطأ في مسح السلة" : undefined
-			);
-		} finally {
-			setIsUpdating(false);
-		}
-	}, []); // No dependencies - uses refs
-
-	// Calculate totals with memoization
-	const totals = useMemo(() => {
-		const productSubtotal = productItems.reduce((sum, item) => {
-			return sum + item.priceAtAdd * item.quantity;
-		}, 0);
-
-		const subtotal = productSubtotal;
-
-		// Calculate discount
-		let discount = 0;
-		if (appliedCoupon) {
-			if (appliedCoupon.discountType === "percentage") {
-				discount = (subtotal * appliedCoupon.discountValue) / 100;
-			} else {
-				discount = appliedCoupon.discountValue;
-			}
-		}
-
-		// Delivery fee (only for products)
-		const deliveryFee = productItems.length > 0 ? 10 : 0;
-
-		const total = Math.max(0, subtotal + deliveryFee - discount);
-
-		return {
-			subtotal,
-			deliveryFee,
-			discount,
-			total,
-			itemsCount: productItems.reduce((sum, item) => sum + item.quantity, 0),
-		};
-	}, [productItems, appliedCoupon]);
-
-	// Handle checkout with validation
-	const handleCheckout = useCallback(async () => {
-		if (!selectedAddressId) {
-			showToastRef.current(
-				isArabicRef.current ? "الرجاء اختيار عنوان التوصيل" : "Please select a delivery address",
-				"warning",
-				isArabicRef.current ? "الرجاء اختيار عنوان التوصيل" : undefined
-			);
+			});
 			return;
 		}
-
-		if (!selectedPaymentMethod) {
-			showToastRef.current(
-				isArabicRef.current ? "الرجاء اختيار طريقة الدفع" : "Please select a payment method",
-				"warning",
-				isArabicRef.current ? "الرجاء اختيار طريقة الدفع" : undefined
-			);
-			return;
-		}
-
 		setShowCheckoutModal(true);
-	}, [selectedAddressId, selectedPaymentMethod]); // No showToast dependency
+	}, [canCheckout, validationErrors, isArabic, showToast]);
 
-	const confirmCheckout = useCallback(async () => {
-		setIsProcessing(true);
+	// Handle checkout confirmation
+	const handleCheckoutConfirm = useCallback(async () => {
 		try {
-			// Simulate realistic processing time
-			await new Promise((resolve) => setTimeout(resolve, 2500));
-
-			// Redirect to confirmation
-			router.push(`/checkout/confirmation?type=products`);
+			await processCheckout({
+				addressId: selectedAddressId!,
+				paymentMethod: selectedPaymentMethod!,
+				totals: calculations,
+				couponCode: appliedCoupon?.code,
+			});
 		} catch (error) {
-			console.error("Checkout error:", error);
-			showToastRef.current(
-				isArabicRef.current ? "حدث خطأ أثناء معالجة الطلب" : "An error occurred processing your order",
-				"error",
-				isArabicRef.current ? "حدث خطأ أثناء معالجة الطلب" : undefined
-			);
-			setIsProcessing(false);
-		}
-	}, [router]); // No showToast dependency
-
-	// Memoized callbacks
-	const handleCouponRemoved = useCallback(() => {
-		setAppliedCoupon(null);
-	}, []);
-
-	const handleModalCancel = useCallback(() => {
-		if (!isProcessing) {
 			setShowCheckoutModal(false);
 		}
-	}, [isProcessing]);
+	}, [processCheckout, selectedAddressId, selectedPaymentMethod, calculations, appliedCoupon]);
 
-	// Group products by store with store info
-	const productsByStore = useMemo(() => {
-		const grouped: Record<string, { items: CartProductItem[]; storeName: string; storeNameAr?: string; storeLogo?: string }> = {};
-		productItems.forEach((item) => {
-			if (!grouped[item.storeId]) {
-				grouped[item.storeId] = {
-					items: [],
-					storeName: item.storeName,
-					storeNameAr: item.storeNameAr,
-					storeLogo: item.storeLogo,
-				};
-			}
-			grouped[item.storeId].items.push(item);
-		});
-		return grouped;
-	}, [productItems]);
+	// Handle clear all
+	const handleClearAll = useCallback(async () => {
+		try {
+			await clearAll();
+			setShowClearAllModal(false);
+			removeCoupon(); // Clear coupon when clearing cart
+			showToast(
+				isArabic ? "تم مسح جميع المنتجات من السلة" : "All products cleared from cart",
+				"success",
+				isArabic ? "تم مسح جميع المنتجات من السلة" : undefined
+			);
+		} catch (error) {
+			showToast(
+				isArabic ? "حدث خطأ في مسح السلة" : "Error clearing cart",
+				"error",
+				isArabic ? "حدث خطأ في مسح السلة" : undefined
+			);
+		}
+	}, [clearAll, removeCoupon, isArabic, showToast]);
 
-	// Memoize order summary to prevent unnecessary re-renders
+	// Order summary object
 	const orderSummary = useMemo(() => ({
-		subtotal: totals.subtotal,
-		deliveryFee: totals.deliveryFee,
-		discount: totals.discount,
-		total: totals.total,
-		itemsCount: totals.itemsCount,
-	}), [totals.subtotal, totals.deliveryFee, totals.discount, totals.total, totals.itemsCount]);
+		subtotal: calculations.subtotal,
+		deliveryFee: calculations.deliveryFee,
+		discount: calculations.discount,
+		total: calculations.total,
+		itemsCount: calculations.itemsCount,
+	}), [calculations]);
 
 	// Empty state
-	if (!isLoading && productItems.length === 0) {
+	if (!isLoading && items.length === 0) {
 		return (
 			<>
 				<EmptyCartState language={language} />
@@ -325,6 +169,9 @@ export default function CartPage() {
 			</>
 		);
 	}
+
+	// Calculate remaining for free delivery
+	const remainingForFreeDelivery = calculateRemainingForFreeDelivery(calculations.subtotal);
 
 	return (
 		<div
@@ -347,13 +194,13 @@ export default function CartPage() {
 								className="relative"
 							>
 								<ShoppingCart className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-600 dark:text-emerald-400" />
-								{productItems.length > 0 && (
+								{items.length > 0 && (
 									<motion.div
 										initial={{ scale: 0 }}
 										animate={{ scale: 1 }}
 										className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 dark:bg-emerald-400 rounded-full flex items-center justify-center"
 									>
-										<span className="text-xs font-bold text-white">{totals.itemsCount}</span>
+										<span className="text-xs font-bold text-white">{calculations.itemsCount}</span>
 									</motion.div>
 								)}
 							</motion.div>
@@ -363,8 +210,8 @@ export default function CartPage() {
 								</h1>
 								<p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
 									{isArabic
-										? `${totals.itemsCount} ${totals.itemsCount === 1 ? "عنصر" : "عناصر"} في السلة`
-										: `${totals.itemsCount} ${totals.itemsCount === 1 ? "item" : "items"} in cart`}
+										? `${calculations.itemsCount} ${calculations.itemsCount === 1 ? "عنصر" : "عناصر"} في السلة`
+										: `${calculations.itemsCount} ${calculations.itemsCount === 1 ? "item" : "items"} in cart`}
 								</p>
 							</div>
 						</div>
@@ -380,7 +227,7 @@ export default function CartPage() {
 					</div>
 
 					{/* Promo Banner */}
-					{productItems.length > 0 && totals.subtotal < 100 && (
+					{items.length > 0 && calculations.subtotal < CART_CONSTANTS.FREE_DELIVERY_THRESHOLD && (
 						<motion.div
 							initial={{ opacity: 0, y: -10 }}
 							animate={{ opacity: 1, y: 0 }}
@@ -389,8 +236,8 @@ export default function CartPage() {
 							<Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
 							<p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
 								{isArabic
-									? `أضف ${(100 - totals.subtotal).toFixed(2)} ريال أخرى للحصول على توصيل مجاني!`
-									: `Add ${(100 - totals.subtotal).toFixed(2)} SAR more for free delivery!`}
+									? `أضف ${remainingForFreeDelivery.toFixed(2)} ريال أخرى للحصول على توصيل مجاني!`
+									: `Add ${remainingForFreeDelivery.toFixed(2)} SAR more for free delivery!`}
 							</p>
 						</motion.div>
 					)}
@@ -412,7 +259,7 @@ export default function CartPage() {
 						{/* Left Column - Items */}
 						<div className="lg:col-span-2 space-y-6">
 							{/* Clear All Button */}
-							{productItems.length > 0 && (
+							{items.length > 0 && (
 								<motion.div
 									initial={{ opacity: 0, y: -10 }}
 									animate={{ opacity: 1, y: 0 }}
@@ -431,7 +278,7 @@ export default function CartPage() {
 							)}
 
 							{/* Products Section with Store Grouping */}
-							{productItems.length > 0 && (
+							{items.length > 0 && (
 								<motion.div
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
@@ -448,14 +295,14 @@ export default function CartPage() {
 										>
 											{/* Store Header */}
 											<div className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-												{storeData.storeLogo ? (
+												{storeData.store.logo ? (
 													<div className="relative w-10 h-10 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700">
 														<img
-															src={storeData.storeLogo}
-															alt={isArabic ? storeData.storeNameAr || storeData.storeName : storeData.storeName}
+															src={storeData.store.logo}
+															alt={isArabic ? storeData.store.nameAr || storeData.store.name : storeData.store.name}
 															className="w-full h-full object-cover"
 														/>
-												</div>
+													</div>
 												) : (
 													<div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
 														<StoreIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -463,7 +310,7 @@ export default function CartPage() {
 												)}
 												<div className="flex-1">
 													<h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-														{isArabic ? storeData.storeNameAr || storeData.storeName : storeData.storeName}
+														{isArabic ? storeData.store.nameAr || storeData.store.name : storeData.store.name}
 													</h2>
 													<p className="text-xs text-gray-500 dark:text-gray-400">
 														{storeData.items.length} {isArabic ? "منتج" : "product"}{storeData.items.length !== 1 ? (isArabic ? "ات" : "s") : ""}
@@ -483,10 +330,10 @@ export default function CartPage() {
 														layout
 													>
 														<CartItemCard
-															item={item}
+															item={item as any}
 															language={language}
-															onUpdateQuantity={updateProductQuantity}
-															onRemove={removeProduct}
+															onUpdateQuantity={updateQuantity}
+															onRemove={removeItem}
 														/>
 													</motion.div>
 												))}
@@ -497,13 +344,13 @@ export default function CartPage() {
 							)}
 						</div>
 
-						{/* Right Column - Summary & Options (Sticky on large screens) */}
+						{/* Right Column - Summary & Options */}
 						<div className="lg:col-span-1 space-y-6">
 							{/* Coupon Section */}
 							<CouponSection
 								language={language}
-								onCouponApplied={setAppliedCoupon}
-								onCouponRemoved={handleCouponRemoved}
+								onCouponApplied={handleCouponApplied}
+								onCouponRemoved={removeCoupon}
 								appliedCoupon={appliedCoupon}
 							/>
 
@@ -511,29 +358,29 @@ export default function CartPage() {
 							<AddressSelector
 								language={language}
 								selectedAddressId={selectedAddressId || undefined}
-								onAddressSelect={setSelectedAddressId}
+								onAddressSelect={selectAddress}
 							/>
 
 							{/* Payment Options */}
 							<PaymentOptions
 								language={language}
 								selectedMethod={selectedPaymentMethod}
-								onMethodSelect={setSelectedPaymentMethod}
+								onMethodSelect={selectPaymentMethod}
 							/>
 
-							{/* Order Summary - Sticky */}
+							{/* Order Summary */}
 							<OrderSummary
 								language={language}
-								subtotal={totals.subtotal}
-								deliveryFee={totals.deliveryFee}
-								discount={totals.discount}
+								subtotal={calculations.subtotal}
+								deliveryFee={calculations.deliveryFee}
+								discount={calculations.discount}
 								couponDiscount={0}
-								total={totals.total}
+								total={calculations.total}
 								isLoading={isProcessing}
-								onCheckout={handleCheckout}
-								canCheckout={!isUpdating && totals.total > 0 && selectedAddressId !== null && selectedPaymentMethod !== null}
-								estimatedDeliveryTime={productItems.length > 0 ? "30-45 min" : undefined}
-								estimatedDeliveryTimeAr={productItems.length > 0 ? "30-45 دقيقة" : undefined}
+								onCheckout={handleCheckoutClick}
+								canCheckout={canCheckout && !isUpdating && calculations.total > 0}
+								estimatedDeliveryTime={items.length > 0 ? "30-45 min" : undefined}
+								estimatedDeliveryTimeAr={items.length > 0 ? "30-45 دقيقة" : undefined}
 							/>
 						</div>
 					</div>
@@ -544,7 +391,6 @@ export default function CartPage() {
 			<AnimatePresence>
 				{showClearAllModal && (
 					<>
-						{/* Backdrop */}
 						<motion.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
@@ -552,8 +398,6 @@ export default function CartPage() {
 							onClick={() => setShowClearAllModal(false)}
 							className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
 						/>
-						
-						{/* Modal */}
 						<div className="fixed inset-0 z-50 flex items-center justify-center p-4" dir={isArabic ? "rtl" : "ltr"}>
 							<motion.div
 								initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -563,26 +407,19 @@ export default function CartPage() {
 								className="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6"
 								onClick={(e) => e.stopPropagation()}
 							>
-								{/* Icon */}
 								<div className="flex justify-center mb-4">
 									<div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
 										<AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
 									</div>
 								</div>
-
-								{/* Title */}
 								<h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
 									{isArabic ? "مسح جميع المنتجات؟" : "Clear All Products?"}
 								</h3>
-
-								{/* Message */}
 								<p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-6">
 									{isArabic
 										? "هل أنت متأكد من أنك تريد مسح جميع المنتجات من السلة؟ لا يمكن التراجع عن هذا الإجراء."
 										: "Are you sure you want to clear all products from your cart? This action cannot be undone."}
 								</p>
-
-								{/* Actions */}
 								<div className={`flex gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
 									<button
 										onClick={() => setShowClearAllModal(false)}
@@ -592,7 +429,7 @@ export default function CartPage() {
 										{isArabic ? "إلغاء" : "Cancel"}
 									</button>
 									<button
-										onClick={clearAllProducts}
+										onClick={handleClearAll}
 										disabled={isUpdating}
 										className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 									>
@@ -611,8 +448,8 @@ export default function CartPage() {
 				isOpen={showCheckoutModal}
 				language={language}
 				isProcessing={isProcessing}
-				onConfirm={confirmCheckout}
-				onCancel={handleModalCancel}
+				onConfirm={handleCheckoutConfirm}
+				onCancel={() => setShowCheckoutModal(false)}
 				orderSummary={orderSummary}
 			/>
 

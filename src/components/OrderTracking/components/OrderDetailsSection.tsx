@@ -172,9 +172,9 @@ export default React.memo(function OrderDetailsSection({
 									{orderData.items.map((item, index) => (
 										<div
 											key={index}
-											className={`flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0 gap-2 `}
+											className={`flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0 gap-2 ${isArabic ? "flex-row-reverse" : ""}`}
 										>
-											<span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 truncate flex-1">
+											<span className={`text-xs sm:text-sm text-gray-700 dark:text-gray-300 truncate flex-1 ${isArabic ? "text-right" : "text-left"}`}>
 												{isArabic ? item.nameAr || item.name : item.name} × {item.quantity}
 											</span>
 											<span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
@@ -182,8 +182,8 @@ export default React.memo(function OrderDetailsSection({
 											</span>
 										</div>
 									))}
-									<div className={`pt-2 sm:pt-3 border-t-2 border-gray-200 dark:border-gray-700 flex items-center justify-between gap-2 `}>
-										<span className="font-bold text-sm sm:text-base text-gray-900 dark:text-gray-100">{isArabic ? "المجموع:" : "Total:"}</span>
+									<div className={`pt-2 sm:pt-3 border-t-2 border-gray-200 dark:border-gray-700 flex items-center justify-between gap-2 ${isArabic ? "flex-row-reverse" : ""}`}>
+										<span className={`font-bold text-sm sm:text-base text-gray-900 dark:text-gray-100 ${isArabic ? "text-right" : "text-left"}`}>{isArabic ? "المجموع:" : "Total:"}</span>
 										<span className="text-base sm:text-lg font-extrabold text-green-600 dark:text-green-400 whitespace-nowrap">
 											{(orderData.totalAmount ?? 0).toFixed(2)} {isArabic ? "ريال" : "SAR"}
 										</span>
@@ -283,9 +283,9 @@ export default React.memo(function OrderDetailsSection({
 										</div>
 									)}
 									{orderData.scheduledTime && (
-										<div className="flex items-center gap-2">
+										<div className={`flex items-center gap-2 ${isArabic ? "flex-row-reverse" : ""}`}>
 											<Clock className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-											<div>
+											<div className={isArabic ? "text-right" : "text-left"}>
 												<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-0.5">
 													{isArabic ? "الموعد المحدد" : "Scheduled Time"}
 												</p>
@@ -336,7 +336,7 @@ export default React.memo(function OrderDetailsSection({
 								<div className={`p-3 sm:p-4 space-y-4 ${isArabic ? "text-right" : "text-left"}`}>
 									{/* Transport and Order Type */}
 									<div className="grid grid-cols-2 gap-3">
-										<div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+										<div className={`bg-green-50 dark:bg-green-900/20 p-3 rounded-lg ${isArabic ? "text-right" : "text-left"}`}>
 											<p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
 												{isArabic ? "نوع النقل" : "Transport Type"}
 											</p>
@@ -346,7 +346,7 @@ export default React.memo(function OrderDetailsSection({
 													: (isArabic ? "شاحنة" : "Truck")}
 											</p>
 										</div>
-										<div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
+										<div className={`bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg ${isArabic ? "text-right" : "text-left"}`}>
 											<p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
 												{isArabic ? "نوع التوصيل" : "Order Type"}
 											</p>
@@ -360,33 +360,33 @@ export default React.memo(function OrderDetailsSection({
 
 									{/* Pickup and Dropoff */}
 									<div className="space-y-3">
-										<div className="border-l-4 border-green-500 pl-3">
-											<p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+										<div className={`${isArabic ? "border-r-4 pr-3" : "border-l-4 pl-3"} border-green-500`}>
+											<p className={`text-xs text-gray-600 dark:text-gray-400 mb-1 ${isArabic ? "text-right" : "text-left"}`}>
 												{isArabic ? "موقع الاستلام" : "Pickup Location"}
 											</p>
-											<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+											<p className={`text-sm font-semibold text-gray-900 dark:text-gray-100 ${isArabic ? "text-right" : "text-left"}`}>
 												{(orderData as any).order_details.pickupLocation}
 											</p>
 											{(orderData as any).order_details.senderName && (
-												<div className="mt-2 flex items-center gap-2">
-													<Phone className="w-3 h-3 text-gray-400" />
-													<p className="text-xs text-gray-600 dark:text-gray-400">
+												<div className={`mt-2 flex items-center gap-2 ${isArabic ? "flex-row-reverse" : ""}`}>
+													<Phone className="w-3 h-3 text-gray-400 flex-shrink-0" />
+													<p className={`text-xs text-gray-600 dark:text-gray-400 ${isArabic ? "text-right" : "text-left"}`}>
 														{(orderData as any).order_details.senderName} - {(orderData as any).order_details.senderPhone}
 													</p>
 												</div>
 											)}
 										</div>
-										<div className="border-l-4 border-orange-500 pl-3">
-											<p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+										<div className={`${isArabic ? "border-r-4 pr-3" : "border-l-4 pl-3"} border-orange-500`}>
+											<p className={`text-xs text-gray-600 dark:text-gray-400 mb-1 ${isArabic ? "text-right" : "text-left"}`}>
 												{isArabic ? "موقع التسليم" : "Dropoff Location"}
 											</p>
-											<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+											<p className={`text-sm font-semibold text-gray-900 dark:text-gray-100 ${isArabic ? "text-right" : "text-left"}`}>
 												{(orderData as any).order_details.dropoffLocation}
 											</p>
 											{(orderData as any).order_details.receiverName && (
-												<div className="mt-2 flex items-center gap-2">
-													<Phone className="w-3 h-3 text-gray-400" />
-													<p className="text-xs text-gray-600 dark:text-gray-400">
+												<div className={`mt-2 flex items-center gap-2 ${isArabic ? "flex-row-reverse" : ""}`}>
+													<Phone className="w-3 h-3 text-gray-400 flex-shrink-0" />
+													<p className={`text-xs text-gray-600 dark:text-gray-400 ${isArabic ? "text-right" : "text-left"}`}>
 														{(orderData as any).order_details.receiverName} - {(orderData as any).order_details.receiverPhone}
 													</p>
 												</div>
@@ -398,7 +398,7 @@ export default React.memo(function OrderDetailsSection({
 									{((orderData as any).order_details.packageDescription || 
 									  (orderData as any).order_details.packageWeight ||
 									  (orderData as any).order_details.packageDimensions) && (
-										<div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg space-y-2">
+										<div className={`bg-gray-50 dark:bg-gray-800 p-3 rounded-lg space-y-2 ${isArabic ? "text-right" : "text-left"}`}>
 											<p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
 												{isArabic ? "تفاصيل الطرد" : "Package Details"}
 											</p>
@@ -415,7 +415,7 @@ export default React.memo(function OrderDetailsSection({
 											{((orderData as any).order_details.packageWeight || (orderData as any).order_details.packageDimensions) && (
 												<div className="grid grid-cols-2 gap-2 mt-2">
 													{(orderData as any).order_details.packageWeight && (
-														<div>
+														<div className={isArabic ? "text-right" : "text-left"}>
 															<p className="text-xs text-gray-600 dark:text-gray-400">
 																{isArabic ? "الوزن:" : "Weight:"}
 															</p>
@@ -425,7 +425,7 @@ export default React.memo(function OrderDetailsSection({
 														</div>
 													)}
 													{(orderData as any).order_details.packageDimensions && (
-														<div>
+														<div className={isArabic ? "text-right" : "text-left"}>
 															<p className="text-xs text-gray-600 dark:text-gray-400">
 																{isArabic ? "الأبعاد:" : "Dimensions:"}
 															</p>
@@ -441,7 +441,7 @@ export default React.memo(function OrderDetailsSection({
 
 									{/* Special Instructions */}
 									{(orderData as any).order_details.specialInstructions && (
-										<div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+										<div className={`bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800 ${isArabic ? "text-right" : "text-left"}`}>
 											<p className="text-xs font-bold text-blue-900 dark:text-blue-100 mb-1">
 												{isArabic ? "تعليمات خاصة:" : "Special Instructions:"}
 											</p>

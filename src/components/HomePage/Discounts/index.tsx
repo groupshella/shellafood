@@ -151,7 +151,7 @@ export default function Discounts({ products }: DiscountsProps) {
 					</h2>
 				</div>
 				<button
-					onClick={() => router.push("/discounts")}
+					onClick={() => router.push("/offers")}
 					className="text-sm font-medium text-green-600 transition-colors hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
 				>
 					{isArabic ? "عرض الكل" : "View All"} →

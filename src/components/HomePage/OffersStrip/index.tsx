@@ -3,6 +3,9 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import offerService from '@/services/offer.service';
+import { Offer as OfferType } from '@/types/offer.types';
 
 interface Offer {
 	id: string;
@@ -13,86 +16,83 @@ interface Offer {
 	link?: string;
 }
 
-const OFFERS: Offer[] = [
-	{
-		id: '1',
-		title: 'Free Delivery',
-		titleAr: 'توصيل مجاني',
-		discount: 'Orders over 100 SAR',
-		discountAr: 'للطلبات فوق 100 ريال',
-		link: '/home',
-	},
-	{
-		id: '2',
-		title: 'Save 25% Off',
-		titleAr: 'وفر 25%',
-		discount: 'First 3 Orders',
-		discountAr: 'أول 3 طلبات',
-		link: '/home',
-	},
-	{
-		id: '3',
-		title: 'Fast Delivery',
-		titleAr: 'توصيل سريع',
-		discount: 'Under 30 Minutes',
-		discountAr: 'أقل من 30 دقيقة',
-		link: '/home',
-	},
-	{
-		id: '4',
-		title: 'Exclusive Deals',
-		titleAr: 'عروض حصرية',
-		discount: 'Premium Members',
-		discountAr: 'للأعضاء المميزين',
-		link: '/home',
-	},
-	{
-		id: '5',
-		title: 'Happy Hour',
-		titleAr: 'ساعة سعيدة',
-		discount: '3 PM - 6 PM Daily',
-		discountAr: '3 م - 6 م يومياً',
-		link: '/home',
-	},
-	{
-		id: '6',
-		title: 'Loyalty Points',
-		titleAr: 'نقاط الولاء',
-		discount: 'Earn on Every Order',
-		discountAr: 'اكسب مع كل طلب',
-		link: '/home',
-	},
-	{
-		id: '7',
-		title: 'Weekend Special',
-		titleAr: 'عرض نهاية الأسبوع',
-		discount: 'Up to 40% Off',
-		discountAr: 'خصم حتى 40%',
-		link: '/home',
-	},
-	{
-		id: '8',
-		title: 'New User Bonus',
-		titleAr: 'مكافأة العضو الجديد',
-		discount: '50 SAR Credit',
-		discountAr: 'رصيد 50 ريال',
-		link: '/register',
-	},
-];
-
-// Duplicate offers for seamless infinite loop
-const DUPLICATED_OFFERS = [...OFFERS, ...OFFERS, ...OFFERS, ...OFFERS];
-
 export default function OffersStrip() {
 	const { language } = useLanguage();
 	const isArabic = language === 'ar';
 	const router = useRouter();
+	const [offers, setOffers] = useState<OfferType[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+
+	// Fetch real offers
+	useEffect(() => {
+		async function loadOffers() {
+			try {
+				const fetchedOffers = await offerService.getAllOffers();
+				// Filter out offer with id 1 (general offer) and only show offers with discounts
+				const validOffers = fetchedOffers.filter(
+					(offer) => offer.id !== 1 && offer.discount && offer.discount.value > 0
+				);
+				setOffers(validOffers);
+			} catch (error) {
+				console.error('Error loading offers:', error);
+			} finally {
+				setIsLoading(false);
+			}
+		}
+		loadOffers();
+	}, []);
+
+	// Convert OfferType to Offer format for display
+	const displayOffers = useMemo(() => {
+		return offers.map((offer) => {
+			const discountText = offer.discount
+				? offer.discount.type === 'percentage'
+					? `${offer.discount.value}% ${isArabic ? 'خصم' : 'OFF'}`
+					: `${offer.discount.value} ${isArabic ? 'ر.س خصم' : 'SAR OFF'}`
+				: '';
+
+			const discountDetails = offer.discount?.minOrder
+				? isArabic
+					? `للطلبات فوق ${offer.discount.minOrder} ريال`
+					: `Orders over ${offer.discount.minOrder} SAR`
+				: isArabic
+					? 'عرض خاص'
+					: 'Special Offer';
+
+			return {
+				id: offer.id.toString(),
+				title: offer.titleEn,
+				titleAr: offer.title,
+				discount: discountText || discountDetails,
+				discountAr: discountText || discountDetails,
+				link: offer.link || `/offers/${offer.id}`,
+			};
+		});
+	}, [offers, isArabic]);
+
+	// Duplicate offers for seamless infinite loop
+	const DUPLICATED_OFFERS = useMemo(() => {
+		if (displayOffers.length === 0) return [];
+		return [...displayOffers, ...displayOffers, ...displayOffers, ...displayOffers];
+	}, [displayOffers]);
 
 	const handleOfferClick = (offer: Offer) => {
 		if (offer.link) {
-			router.push(offer.link);
+			// If link is to pickandorder, navigate to offer details page instead
+			if (offer.link.includes('/pickandorder/')) {
+				// Extract offer ID from the offer object
+				const offerId = offer.id;
+				router.push(`/offers/${offerId}`);
+			} else {
+				router.push(offer.link);
+			}
 		}
 	};
+
+	// Don't render if loading or no offers
+	if (isLoading || displayOffers.length === 0) {
+		return null;
+	}
 
 	return (
 		<section className="my-6 sm:my-8 border-y border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
@@ -160,4 +160,3 @@ export default function OffersStrip() {
 		</section>
 	);
 }
-

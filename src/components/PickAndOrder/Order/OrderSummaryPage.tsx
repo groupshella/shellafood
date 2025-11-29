@@ -27,6 +27,8 @@ import {
 	Video,
 	X,
 	Loader2,
+	MessageCircle,
+	Tag,
 } from "lucide-react";
 import Image from "next/image";
 import { AutoSelectConfirmModal } from "./components";
@@ -86,6 +88,8 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 	const [showNotification, setShowNotification] = useState(false);
 	const [showAutoSelectModal, setShowAutoSelectModal] = useState(false);
 	const [isAutoSelectLoading, setIsAutoSelectLoading] = useState(false);
+	const [offerBooking, setOfferBooking] = useState<any | null>(null);
+	const [hasPreSelectedDriver, setHasPreSelectedDriver] = useState(false);
 
 	// User info - try to get from localStorage or use sender info from order
 	const currentUser = useMemo(() => {
@@ -221,8 +225,28 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 		});
 	}, [orderData, isMotorbike, isArabic, calculateDistance, calculateEstimatedTime]);
 
-	// Select best driver (highest rating, closest distance)
+	// Select best driver (highest rating, closest distance) or use pre-selected from offer
 	const selectedDriver = useMemo(() => {
+		// If there's a pre-selected driver from offer, use it
+		if (offerBooking?.preSelectedDriver) {
+			const preSelected = offerBooking.preSelectedDriver;
+			return {
+				id: preSelected.id,
+				name: isArabic ? preSelected.nameAr : preSelected.name,
+				rating: preSelected.rating,
+				completedTrips: preSelected.reviewsCount,
+				vehicleType: preSelected.vehicleType === "motorbike" ? "Motorbike" : "Truck",
+				vehicleModel: preSelected.vehicleModel,
+				licensePlate: preSelected.licensePlate,
+				phone: preSelected.phone,
+				distance: isArabic ? `${preSelected.distance} كم` : `${preSelected.distance} km`,
+				estimatedArrival: isArabic
+					? `${preSelected.estimatedTime} دقيقة`
+					: `${preSelected.estimatedTime} mins`,
+				avatar: preSelected.avatar,
+			};
+		}
+
 		if (!availableDrivers.length) {
 			// Fallback mock data
 			return {
@@ -262,7 +286,7 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 				: `${bestDriver.estimatedTime} mins`,
 			avatar: bestDriver.avatar,
 		};
-	}, [availableDrivers, isArabic, isMotorbike]);
+	}, [availableDrivers, isArabic, isMotorbike, offerBooking]);
 
 	// Calculate completion percentage
 	const completionPercentage = useMemo(() => {
@@ -299,6 +323,30 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 		
 		return total > 0 ? Math.round((completed / total) * 100) : 0;
 	}, [orderData, transportType]);
+
+	// Load offer booking data if available
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			try {
+				const offerDataStr = sessionStorage.getItem("offerBooking");
+				if (offerDataStr) {
+					const offerData = JSON.parse(offerDataStr);
+					setOfferBooking(offerData);
+					setHasPreSelectedDriver(true);
+					console.log("Offer booking data loaded:", offerData);
+				}
+			} catch (error) {
+				console.error("Error loading offer data:", error);
+			}
+
+			// Also check URL parameter
+			const urlParams = new URLSearchParams(window.location.search);
+			const fromOffer = urlParams.get("fromOffer");
+			if (fromOffer === "true") {
+				setHasPreSelectedDriver(true);
+			}
+		}
+	}, []);
 
 	// Load order data from sessionStorage - supports both old and new formats
 	useEffect(() => {
@@ -415,6 +463,34 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 	const deliveryFee = useMemo(() => {
 		return pricingData?.total.toFixed(2) || "0.00";
 	}, [pricingData]);
+
+	// Calculate final price with offer discount
+	const finalPrice = useMemo(() => {
+		if (!pricingData || !offerBooking?.discount) return pricingData?.total || 0;
+
+		const baseTotal = pricingData.total;
+		const discount = offerBooking.discount;
+
+		if (discount.type === "percentage") {
+			const discountAmount = (baseTotal * discount.value) / 100;
+			const cappedDiscount = discount.maxDiscount
+				? Math.min(discountAmount, discount.maxDiscount)
+				: discountAmount;
+			return Math.max(0, baseTotal - cappedDiscount);
+		} else if (discount.type === "fixed") {
+			return Math.max(0, baseTotal - discount.value);
+		} else if (discount.type === "free") {
+			return 0;
+		}
+
+		return baseTotal;
+	}, [pricingData, offerBooking]);
+
+	// Calculate discount amount
+	const discountAmount = useMemo(() => {
+		if (!pricingData || !offerBooking?.discount) return 0;
+		return pricingData.total - finalPrice;
+	}, [pricingData, offerBooking, finalPrice]);
 
 	// Calculate price breakdown for confirmation modal
 	const priceBreakdown = useMemo(() => {
@@ -1150,30 +1226,65 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 										</h3>
 								</div>
 
-									<div className="space-y-3">
-										{/* Distance */}
-										<div className="pb-3 border-b border-gray-200 dark:border-gray-700">
-											<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-												{isArabic ? "المسافة" : "Distance"}
-											</p>
-											<p className="text-lg font-semibold text-gray-900 dark:text-white">
-												{totalDistance} <span className="text-sm text-gray-500">{isArabic ? "كم" : "km"}</span>
-											</p>
-						</div>
+								<div className="space-y-3">
+									{/* Distance */}
+									<div className="pb-3 border-b border-gray-200 dark:border-gray-700">
+										<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+											{isArabic ? "المسافة" : "Distance"}
+										</p>
+										<p className="text-lg font-semibold text-gray-900 dark:text-white">
+											{totalDistance} <span className="text-sm text-gray-500">{isArabic ? "كم" : "km"}</span>
+										</p>
+					</div>
 
-										{/* Estimated Fee */}
-										<div>
-											<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+									{/* Pricing Breakdown */}
+									<div className="space-y-2">
+										{/* Original Price */}
+										{offerBooking && discountAmount > 0 ? (
+											<>
+												<div className="flex justify-between text-sm">
+													<span className="text-gray-500 dark:text-gray-400">
+														{isArabic ? "السعر الأصلي" : "Original Price"}
+													</span>
+													<span className="line-through text-gray-400">
+														{deliveryFee} {isArabic ? "ريال" : "SAR"}
+													</span>
+												</div>
+												<div className="flex justify-between text-sm font-semibold">
+													<span className="text-green-600 dark:text-green-400">
+														{isArabic ? "الخصم" : "Discount"} ({offerBooking.discount.type === "percentage" ? `${offerBooking.discount.value}%` : ""})
+													</span>
+													<span className="text-green-600 dark:text-green-400">
+														-{discountAmount.toFixed(2)} {isArabic ? "ريال" : "SAR"}
+													</span>
+												</div>
+												<div className="flex justify-between items-baseline pt-2 border-t border-gray-200 dark:border-gray-700">
+													<p className="text-xs text-gray-500 dark:text-gray-400">
+														{isArabic ? "المجموع النهائي" : "Final Total"}
+													</p>
+													<p className="text-2xl font-bold text-green-600 dark:text-green-500">
+														{finalPrice.toFixed(2)} <span className="text-sm">{isArabic ? "ريال" : "SAR"}</span>
+													</p>
+												</div>
+											</>
+										) : (
+											<div>
+												<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
 													{isArabic ? "الرسوم المتوقعة" : "Estimated Fee"}
-											</p>
-											<p className="text-2xl font-bold text-gray-900 dark:text-white">
-												{deliveryFee} <span className="text-sm text-gray-500">{isArabic ? "ريال" : "SAR"}</span>
-											</p>
-											<p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-												{isArabic ? "* السعر النهائي بعد اختيار السائق" : "* Final price after driver selection"}
-									</p>
+												</p>
+												<p className="text-2xl font-bold text-gray-900 dark:text-white">
+													{deliveryFee} <span className="text-sm text-gray-500">{isArabic ? "ريال" : "SAR"}</span>
+												</p>
+											</div>
+										)}
+										<p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+											{hasPreSelectedDriver 
+												? (isArabic ? "* السعر نهائي مع السائق المختار" : "* Final price with selected driver")
+												: (isArabic ? "* السعر النهائي بعد اختيار السائق" : "* Final price after driver selection")
+											}
+										</p>
+									</div>
 								</div>
-							</div>
 						</div>
 					</motion.div>
 
@@ -1308,39 +1419,205 @@ export default function OrderSummaryPage({ transportType, orderType }: OrderSumm
 							<span>{isArabic ? "تعديل التفاصيل" : "Edit Details"}</span>
 						</button>
 
-						{/* Driver Selection - One Row */}
-						<div className="flex flex-row gap-2 sm:gap-3 w-full">
-							{/* Platform Auto */}
-							<button
-								onClick={handlePlatformRecommendation}
-								disabled={isAutoSelectLoading}
-								className="flex-1 flex items-center justify-center gap-2 px-3 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors text-sm sm:text-base disabled:opacity-70 disabled:cursor-not-allowed"
+						{/* Pre-Selected Driver Card (when from offer) */}
+						{hasPreSelectedDriver && offerBooking ? (
+							<motion.div
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border-2 border-green-500 dark:border-green-600 shadow-lg"
 							>
-								{isAutoSelectLoading ? (
-									<Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0 animate-spin" />
-								) : (
-									<Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
-								)}
-								<span className="truncate">
-									{isAutoSelectLoading 
-										? (isArabic ? "جاري الاختيار..." : "Selecting...")
-										: (isArabic ? "المنصة تختار" : "Auto Select")
-									}
-								</span>
-								{!isAutoSelectLoading && (
-									<ArrowRight className={`w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0 ${isArabic ? "rotate-180" : ""}`} />
-								)}
-							</button>
+								<div className="flex items-center gap-2 mb-4">
+									<Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
+									<span className="text-sm font-bold text-green-700 dark:text-green-400">
+										{isArabic ? "سائق مختار من العرض" : "Pre-Selected from Offer"}
+									</span>
+								</div>
 
-							{/* Manual Selection */}
-							<button
-								onClick={handleChooseDriver}
-								className="flex-1 flex items-center justify-center gap-2 px-3 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-semibold transition-colors text-sm sm:text-base"
-							>
-								<span className="truncate">{isArabic ? "أختار بنفسي" : "I Choose Myself"}</span>
-								<ArrowRight className={`w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0 ${isArabic ? "rotate-180" : ""}`} />
-							</button>
-						</div>
+								{/* Driver Info Card */}
+								<div className="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-4">
+									{/* Avatar & Name */}
+									<div className="flex items-center gap-3">
+										<div className="relative">
+											<div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 p-0.5">
+												<div className="w-full h-full rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+													<UserCircle className="w-10 h-10 text-gray-400" />
+												</div>
+											</div>
+											<div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1">
+												<CheckCircle2 className="w-4 h-4 text-white" />
+											</div>
+										</div>
+										<div className="flex-1">
+											<p className="font-bold text-gray-900 dark:text-white text-lg">
+												{selectedDriver.name}
+											</p>
+											<div className="flex items-center gap-2 mt-1">
+												<div className="flex items-center gap-0.5">
+													{[...Array(5)].map((_, i) => (
+														<svg
+															key={i}
+															className={`w-3.5 h-3.5 ${
+																i < Math.floor(selectedDriver.rating)
+																	? "text-yellow-400 fill-yellow-400"
+																	: "text-gray-300 dark:text-gray-600"
+															}`}
+															fill="currentColor"
+															viewBox="0 0 20 20"
+														>
+															<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+														</svg>
+													))}
+												</div>
+												<span className="text-sm font-semibold text-gray-900 dark:text-white">
+													{selectedDriver.rating}
+												</span>
+												<span className="text-xs text-gray-500 dark:text-gray-400">
+													({selectedDriver.completedTrips.toLocaleString()})
+												</span>
+											</div>
+										</div>
+									</div>
+
+									{/* Quick Stats */}
+									<div className="grid grid-cols-2 gap-2">
+										<div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2.5">
+											<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+												{isArabic ? "المسافة" : "Distance"}
+											</p>
+											<p className="text-sm font-bold text-gray-900 dark:text-white">
+												{selectedDriver.distance}
+											</p>
+										</div>
+										<div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2.5">
+											<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+												{isArabic ? "الوصول" : "ETA"}
+											</p>
+											<p className="text-sm font-bold text-gray-900 dark:text-white">
+												{selectedDriver.estimatedArrival}
+											</p>
+										</div>
+										<div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2.5">
+											<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+												{isArabic ? "المركبة" : "Vehicle"}
+											</p>
+											<p className="text-sm font-bold text-gray-900 dark:text-white">
+												{selectedDriver.vehicleModel}
+											</p>
+										</div>
+										<div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2.5">
+											<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+												{isArabic ? "اللوحة" : "Plate"}
+											</p>
+											<p className="text-sm font-bold text-gray-900 dark:text-white font-mono" dir="ltr">
+												{selectedDriver.licensePlate}
+											</p>
+										</div>
+									</div>
+
+									{/* Action Buttons */}
+									<div className="flex gap-2">
+										<button
+											onClick={() => router.push(`/driver/${selectedDriver.id}`)}
+											className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-sm font-semibold transition-colors"
+										>
+											<UserCircle className="w-4 h-4" />
+											{isArabic ? "الملف" : "Profile"}
+										</button>
+										<button
+											onClick={() => router.push(`/driver/${selectedDriver.id}/chat`)}
+											className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold transition-colors"
+										>
+											<MessageCircle className="w-4 h-4" />
+											{isArabic ? "محادثة" : "Chat"}
+										</button>
+									</div>
+								</div>
+
+								{/* Offer Discount Badge */}
+								<div className="mt-3 flex items-center justify-between bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
+									<div className="flex items-center gap-2">
+										<Tag className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
+										<span className="text-sm font-bold text-yellow-700 dark:text-yellow-400">
+											{isArabic ? offerBooking.offerTitle : offerBooking.offerTitleEn}
+										</span>
+									</div>
+									<span className="text-xs font-semibold text-green-600 dark:text-green-400">
+										{isArabic ? "مطبق ✓" : "Applied ✓"}
+									</span>
+								</div>
+
+								{/* Confirm Button */}
+								<button
+									onClick={() => {
+										// Store final order data
+										if (pricingData && typeof window !== "undefined") {
+											const orderConfirmation = {
+												...orderData,
+												pricing: {
+													baseTotal: pricingData.total,
+													discount: discountAmount,
+													finalTotal: finalPrice,
+												},
+												driver: selectedDriver,
+												offer: {
+													id: offerBooking.offerId,
+													title: offerBooking.offerTitle,
+													promoCode: offerBooking.promoCode,
+												},
+											};
+											sessionStorage.setItem("orderConfirmation", JSON.stringify(orderConfirmation));
+										}
+										router.push(
+											`/pickandorder/${transportType}/order/payment?type=${orderType}&driverId=${selectedDriver.id}&fromOffer=true`
+										);
+									}}
+									disabled={completionPercentage < 100}
+									className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+								>
+									<span>{isArabic ? "تأكيد الطلب" : "Confirm Order"}</span>
+									{discountAmount > 0 && (
+										<span className="text-sm">
+											({finalPrice.toFixed(2)} {isArabic ? "ريال" : "SAR"})
+										</span>
+									)}
+									<ArrowRight className={`w-5 h-5 ${isArabic ? "rotate-180" : ""}`} />
+								</button>
+							</motion.div>
+						) : (
+							/* Driver Selection - One Row (original for non-offer bookings) */
+							<div className="flex flex-row gap-2 sm:gap-3 w-full">
+								{/* Platform Auto */}
+								<button
+									onClick={handlePlatformRecommendation}
+									disabled={isAutoSelectLoading}
+									className="flex-1 flex items-center justify-center gap-2 px-3 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors text-sm sm:text-base disabled:opacity-70 disabled:cursor-not-allowed"
+								>
+									{isAutoSelectLoading ? (
+										<Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0 animate-spin" />
+									) : (
+										<Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
+									)}
+									<span className="truncate">
+										{isAutoSelectLoading 
+											? (isArabic ? "جاري الاختيار..." : "Selecting...")
+											: (isArabic ? "المنصة تختار" : "Auto Select")
+										}
+									</span>
+									{!isAutoSelectLoading && (
+										<ArrowRight className={`w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0 ${isArabic ? "rotate-180" : ""}`} />
+									)}
+								</button>
+
+								{/* Manual Selection */}
+								<button
+									onClick={handleChooseDriver}
+									className="flex-1 flex items-center justify-center gap-2 px-3 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-semibold transition-colors text-sm sm:text-base"
+								>
+									<span className="truncate">{isArabic ? "أختار بنفسي" : "I Choose Myself"}</span>
+									<ArrowRight className={`w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0 ${isArabic ? "rotate-180" : ""}`} />
+								</button>
+							</div>
+						)}
 					</div>
 
 					{/* Info Notice */}
