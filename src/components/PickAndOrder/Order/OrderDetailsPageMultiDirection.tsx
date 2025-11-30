@@ -138,14 +138,34 @@ export default function OrderDetailsPageMultiDirection({
 
 	const defaultCenter = useMemo(() => MAP_CONFIG.defaultCenter, []);
 
-	// Clear offerBooking if not coming from an offer
+	// Clear sessionStorage for new order (except when coming from offer or editing)
 	React.useEffect(() => {
 		if (typeof window !== "undefined") {
 			const urlParams = new URLSearchParams(window.location.search);
 			const fromOffer = urlParams.get("fromOffer");
+			const isEditing = urlParams.get("edit") === "true";
 			
-			// If not coming from an offer, clear any existing offerBooking data
-			if (fromOffer !== "true") {
+			// If not coming from an offer and not editing, clear all order-related sessionStorage
+			if (fromOffer !== "true" && !isEditing) {
+				// Clear order-related data
+				sessionStorage.removeItem("offerBooking");
+				sessionStorage.removeItem("acceptedDrivers");
+				sessionStorage.removeItem("rejectedDrivers");
+				sessionStorage.removeItem("orderPricing");
+				
+				// Clear driver data (all driver_* keys)
+				const keysToRemove: string[] = [];
+				for (let i = 0; i < sessionStorage.length; i++) {
+					const key = sessionStorage.key(i);
+					if (key && key.startsWith("driver_")) {
+						keysToRemove.push(key);
+					}
+				}
+				keysToRemove.forEach(key => sessionStorage.removeItem(key));
+				
+				console.log("✅ Cleared sessionStorage for new order");
+			} else if (fromOffer !== "true") {
+				// Still clear offerBooking if not from offer
 				sessionStorage.removeItem("offerBooking");
 			}
 		}
@@ -401,6 +421,13 @@ export default function OrderDetailsPageMultiDirection({
 		}, 800);
 	}, [validateAllSegments, transportType, orderType, routeSegments, vehicleOptions, motorbikeOptions, isMotorbike, returnToPickup, isMultiDirection, router, serviceType, scheduledDate, scheduledTime]);
 
+	// Scroll to top when step changes
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			window.scrollTo({ top: 0, behavior: "smooth" });
+		}
+	}, [currentStep]);
+
 	// Navigation
 	const goToNextStep = useCallback(() => {
 		if (currentStep === "plan-route") {
@@ -573,14 +600,15 @@ export default function OrderDetailsPageMultiDirection({
 									<h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">
 										{isArabic ? "المسارات" : "Route Segments"}
 									</h3>
+									{/* Desktop Button - Show only on desktop */}
 									{isMultiDirection && (
 										<button
 											onClick={handleAddSegment}
-											className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-[#31A342] hover:bg-[#2a8f38] active:bg-[#258533] dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors touch-manipulation shadow-md hover:shadow-lg min-h-[44px] text-sm sm:text-base"
-											aria-label={isArabic ? "إضافة مسار" : "Add Segment"}
+											className="hidden sm:flex sm:w-auto px-4 py-2 bg-[#31A342] hover:bg-[#2a8f38] active:bg-[#258533] dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg font-semibold items-center justify-center gap-2 transition-colors touch-manipulation shadow-md hover:shadow-lg min-h-[44px] text-sm sm:text-base"
+											aria-label={isArabic ? "إضافة مسار جديد" : "Add New Segment"}
 										>
 											<Plus className="w-4 h-4" />
-											<span>{isArabic ? "إضافة مسار" : "Add Segment"}</span>
+											<span>{isArabic ? "إضافة مسار جديد" : "Add New Segment"}</span>
 										</button>
 									)}
 								</div>
@@ -601,6 +629,17 @@ export default function OrderDetailsPageMultiDirection({
 										/>
 									))}
 								</div>
+								{/* Mobile Button - Show only on mobile, under segment cards */}
+								{isMultiDirection && (
+									<button
+										onClick={handleAddSegment}
+										className="sm:hidden w-full px-4 py-2.5 bg-[#31A342] hover:bg-[#2a8f38] active:bg-[#258533] dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors touch-manipulation shadow-md hover:shadow-lg min-h-[44px] text-sm"
+										aria-label={isArabic ? "إضافة مسار جديد" : "Add New Segment"}
+									>
+										<Plus className="w-4 h-4" />
+										<span>{isArabic ? "إضافة مسار جديد" : "Add New Segment"}</span>
+									</button>
+								)}
 							</div>
 
 							{/* Continue Button - Go directly to vehicle/package options */}

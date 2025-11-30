@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Bike, Truck, CheckCircle2 } from "lucide-react";
-import { ANIMATION_VARIANTS, VIEWPORT_SETTINGS, ANIMATION_DURATION } from "./constants";
-import { getTextAlign, getFloatAlign, getFlexDirection } from "./utils/rtl";
+import { ANIMATION_VARIANTS, VIEWPORT_SETTINGS, ANIMATION_DURATION } from "../constants";
+import { getTextAlign, getFloatAlign, getFlexDirection } from "../utils/rtl";
 
 /**
  * Transport Type Selection Section - Clean & Modern Design

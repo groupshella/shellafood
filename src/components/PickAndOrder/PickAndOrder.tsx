@@ -2,10 +2,7 @@
 
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { HeroSection } from "./HeroSection";
-import { TransportTypeSection } from "./TransportTypeSection";
-import { FeaturesSection } from "./FeaturesSection";
-import { StepsSection } from "./StepsSection";
+import { HeroSection, TransportTypeSection, FeaturesSection, StepsSection } from "./sections";
 import ShellaFooter from "../ShellaFooter/ShellaFooter";
 
 /**

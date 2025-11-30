@@ -56,6 +56,8 @@ export const SegmentDetailsForm: React.FC<SegmentDetailsFormProps> = ({
   const [isGeocoding, setIsGeocoding] = useState(false);
   const pickupMapRef = useRef<google.maps.Map | null>(null);
   const dropoffMapRef = useRef<google.maps.Map | null>(null);
+  const formContainerRef = useRef<HTMLDivElement | null>(null);
+  const activeTabButtonRef = useRef<HTMLButtonElement | null>(null);
 
   // Close tooltips when clicking outside
   useEffect(() => {
@@ -70,6 +72,20 @@ export const SegmentDetailsForm: React.FC<SegmentDetailsFormProps> = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+ 
+
+  // Focus active tab button when tab changes
+  useEffect(() => {
+    // Small delay to ensure the button is rendered
+    const timer = setTimeout(() => {
+      if (activeTabButtonRef.current) {
+        activeTabButtonRef.current.focus();
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [activeTab]);
 
   const toggleHelp = (key: string) => {
     setShowHelp((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -396,6 +412,7 @@ export const SegmentDetailsForm: React.FC<SegmentDetailsFormProps> = ({
           return (
             <button
               key={tab.id}
+              ref={isActive ? activeTabButtonRef : null}
               onClick={() => {
                 // Only allow clicking on accessible tabs (current or previous)
                 if (accessible) {
@@ -408,7 +425,7 @@ export const SegmentDetailsForm: React.FC<SegmentDetailsFormProps> = ({
                 border-b-2 -mb-px relative
                 ${isActive
                   ? tab.color === "green"
-                    ? "border-green-500 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 shadow-sm"
+                    ? "border-green-500  text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 shadow-sm"
                     : tab.color === "orange"
                     ? "border-orange-500 text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 shadow-sm"
                     : "border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-sm"

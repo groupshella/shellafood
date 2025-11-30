@@ -4,7 +4,7 @@ import React, { useState, useCallback, useMemo, useEffect, useRef, memo } from "
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Star, MapPin, CheckCircle, Loader2, Expand, Truck, Bike, Eye, MessageCircle } from "lucide-react";
+import { Star, MapPin, CheckCircle, Loader2, Expand, Truck, Bike, Eye, MessageCircle, Send } from "lucide-react";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { MAP_CONFIG } from "@/lib/maps/utils";
 
@@ -77,8 +77,8 @@ const DriverCard = memo<{
 
 	return (
 		<div
-			className={`bg-gradient-to-br ${bgGradient} border-2 rounded-2xl p-4 sm:p-5 cursor-pointer transition-all duration-200 ${borderColor} ${
-				isSelected ? "shadow-xl scale-[1.02] ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900" + (isTruck ? " ring-green-500/50" : " ring-orange-500/50") : "hover:shadow-lg"
+			className={`bg-gradient-to-br ${bgGradient} border-2 rounded-2xl p-4 sm:p-5 cursor-pointer transition-all duration-300 ${borderColor} ${
+				isSelected ? "shadow-2xl scale-[1.02] ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900" + (isTruck ? " ring-green-500/50" : " ring-yellow-500/50") : "hover:shadow-xl hover:scale-[1.01]"
 			}`}
 			onClick={() => onSelect(driver.id)}
 		>
@@ -166,17 +166,9 @@ const DriverCard = memo<{
 					</div>
 				</div>
 
-				{/* Price + Distance */}
-				<div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-					<div>
-						<p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
-							{isArabic ? "السعر" : "Price"}
-						</p>
-						<p className="text-lg font-bold" style={{ color: primaryColor }}>
-							{driver.pricePerKm} <span className="text-sm">{isArabic ? "ر.س/كم" : "SAR/km"}</span>
-						</p>
-					</div>
-					{driver.distance !== undefined && (
+				{/* Distance */}
+				{driver.distance !== undefined && (
+					<div className="flex items-center justify-end p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
 						<div className={`text-right ${isArabic ? "text-left" : ""}`}>
 							<p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
 								{isArabic ? "المسافة" : "Distance"}
@@ -190,21 +182,21 @@ const DriverCard = memo<{
 								</p>
 							)}
 						</div>
-					)}
-				</div>
+					</div>
+				)}
 
 				{/* Action Buttons */}
 				<div className="flex gap-2">
 					<button
 						onClick={handleViewDetailsClick}
-						className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-white dark:hover:bg-gray-700 transition-all text-sm"
+						className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm shadow-sm hover:shadow-md"
 					>
 						<Eye className="w-4 h-4" />
 						<span>{isArabic ? "التفاصيل" : "Details"}</span>
 					</button>
 					<button
 						onClick={handleChatClick}
-						className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-blue-500 text-blue-500 rounded-xl font-semibold hover:bg-blue-500 hover:text-white transition-all text-sm"
+						className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-blue-500 text-blue-500 rounded-xl font-semibold hover:bg-blue-500 hover:text-white transition-all text-sm shadow-sm hover:shadow-md"
 					>
 						<MessageCircle className="w-4 h-4" />
 					</button>
@@ -300,15 +292,9 @@ const DriverCard = memo<{
 
 					{/* Bottom Section */}
 					<div className="flex items-end justify-between gap-4">
-						{/* Price & Distance */}
-						<div className={`${isArabic ? "text-right" : "text-left"}`}>
-							<p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-								{isArabic ? "السعر" : "Price"}
-							</p>
-							<p className="text-xl lg:text-2xl font-bold mb-2" style={{ color: primaryColor }}>
-								{driver.pricePerKm} <span className="text-sm">{isArabic ? "ر.س/كم" : "SAR/km"}</span>
-							</p>
-							{driver.distance !== undefined && (
+						{/* Distance */}
+						{driver.distance !== undefined && (
+							<div className={`${isArabic ? "text-right" : "text-left"}`}>
 								<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
 									<span className="font-semibold">{driver.distance.toFixed(1)} {isArabic ? "كم" : "km"}</span>
 									{driver.estimatedTime !== undefined && (
@@ -318,21 +304,21 @@ const DriverCard = memo<{
 										</>
 									)}
 								</div>
-							)}
-						</div>
+							</div>
+						)}
 
 						{/* Action Buttons */}
 						<div className="flex items-center gap-2">
 							<button
 								onClick={handleViewDetailsClick}
-								className="p-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all"
+								className="p-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm hover:shadow-md"
 								title={isArabic ? "عرض التفاصيل" : "View Details"}
 							>
 								<Eye className="w-5 h-5" />
 							</button>
 							<button
 								onClick={handleChatClick}
-								className="p-3 border-2 border-blue-500 text-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all"
+								className="p-3 border-2 border-blue-500 text-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all shadow-sm hover:shadow-md"
 								title={isArabic ? "محادثة" : "Chat"}
 							>
 								<MessageCircle className="w-5 h-5" />
@@ -371,6 +357,7 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 	const [pickupLocation, setPickupLocation] = useState<{ lat: number; lng: number } | null>(null);
 	const [searchRadius, setSearchRadius] = useState(5);
 	const [isExpanding, setIsExpanding] = useState(false);
+	const [isSendingToAll, setIsSendingToAll] = useState(false);
 	
 	const mapRef = useRef<google.maps.Map | null>(null);
 
@@ -562,6 +549,8 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 				phone: "+966 55 567 8901",
 				...generateDriverPosition(4.8, 180),
 			},
+		
+
 		];
 
 		// Filter out rejected drivers
@@ -705,6 +694,83 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 		router.push(`/driver/${driverId}/chat`);
 	}, [router]);
 
+	const handleSendToAll = useCallback(async () => {
+		if (isSendingToAll || drivers.length === 0) return;
+		
+		setIsSendingToAll(true);
+		
+		try {
+			// Filter drivers by vehicle type
+			const targetVehicleType = isMotorbike ? "motorbike" : "truck";
+			const availableDrivers = drivers.filter(driver => driver.vehicleType === targetVehicleType);
+			
+			if (availableDrivers.length === 0) {
+				setIsSendingToAll(false);
+				return;
+			}
+			
+			// Store all driver data in sessionStorage
+			availableDrivers.forEach((driver) => {
+				sessionStorage.setItem(`driver_${driver.id}`, JSON.stringify({
+					id: driver.id,
+					name: driver.name,
+					nameAr: driver.nameAr,
+					avatar: driver.avatar,
+					rating: driver.rating,
+					reviewsCount: driver.reviewsCount,
+					pricePerKm: driver.pricePerKm,
+					experience: driver.experience,
+					vehicleType: driver.vehicleType,
+					vehicleModel: driver.vehicleModel,
+					licensePlate: driver.licensePlate,
+					phone: driver.phone || "+966500000000",
+					location: driver.location,
+					lat: driver.lat,
+					lng: driver.lng,
+					distance: driver.distance,
+					estimatedTime: driver.estimatedTime,
+				}));
+			});
+			
+			// Store all driver IDs for sending
+			const allDriverIds = availableDrivers.map(driver => driver.id);
+			
+			// Calculate and store pricing before navigating
+			try {
+				const { loadAndConvertOrderData } = await import("./utils/dataConverter");
+				const { calculateOrderPricing } = await import("./utils/pricing");
+				
+				const orderData = loadAndConvertOrderData();
+				
+				if (orderData && orderData.locationPoints && orderData.locationPoints.length > 0) {
+					const validLocationPoints = orderData.locationPoints.filter(
+						(point: any) => point.location && point.location.lat && point.location.lng
+					);
+					
+					if (validLocationPoints.length > 0) {
+						const pricing = calculateOrderPricing({
+							transportType: (transportType === "motorbike" ? "motorbike" : "truck") as "motorbike" | "truck",
+							locationPoints: validLocationPoints,
+							isExpress: orderData.isExpress || false,
+							requiresRefrigeration: orderData.requiresRefrigeration || false,
+							loadingEquipmentNeeded: orderData.loadingEquipmentNeeded || false,
+						});
+						
+						sessionStorage.setItem("orderPricing", JSON.stringify(pricing));
+					}
+				}
+			} catch (error) {
+				console.error("Error calculating pricing:", error);
+			}
+			
+			// Navigate to waiting driver page with all driver IDs
+			router.push(`/pickandorder/${transportType}/order/waiting-driver?type=${orderType}&driverIds=${allDriverIds.join(',')}&sendToAll=true`);
+		} catch (error) {
+			console.error("Error sending to all drivers:", error);
+			setIsSendingToAll(false);
+		}
+	}, [isSendingToAll, drivers, isMotorbike, router, transportType, orderType]);
+
 
 	const mapCenter = useMemo(() => {
 		if (pickupLocation) return pickupLocation;
@@ -717,6 +783,11 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 	const selectedDriverData = useMemo(() => {
 		return drivers.find((d) => d.id === selectedDriver);
 	}, [selectedDriver, drivers]);
+
+	const availableDriversCount = useMemo(() => {
+		const targetVehicleType = isMotorbike ? "motorbike" : "truck";
+		return drivers.filter(driver => driver.vehicleType === targetVehicleType).length;
+	}, [drivers, isMotorbike]);
 
 	const onLoad = useCallback((map: google.maps.Map) => {
 		mapRef.current = map;
@@ -741,9 +812,6 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 		
 		// Then apply sorting based on active filter
 		switch (activeFilter) {
-			case "price":
-				filtered.sort((a, b) => a.pricePerKm - b.pricePerKm);
-				break;
 			case "rating":
 				filtered.sort((a, b) => b.rating - a.rating);
 				break;
@@ -759,7 +827,6 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 
 	const filterButtons = useMemo(() => [
 		{ key: "all", label: isArabic ? "الكل" : "All" },
-		{ key: "price", label: isArabic ? "السعر" : "Price" },	
 		{ key: "rating", label: isArabic ? "الأعلى تقييماً" : "Highest Rated" },
 		{ key: "closest", label: isArabic ? "الأقرب" : "Closest" }
 	], [isArabic]);
@@ -770,7 +837,6 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 			url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
 				<svg width="${isSelected ? 40 : 32}" height="${isSelected ? 40 : 32}" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<circle cx="16" cy="16" r="14" fill="${isSelected ? '#31A342' : '#eab308'}" stroke="white" stroke-width="3"/>
-					<text x="16" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="bold">${driver.pricePerKm}</text>
 				</svg>
 			`),
 			scaledSize: new google.maps.Size(isSelected ? 40 : 32, isSelected ? 40 : 32),
@@ -779,11 +845,11 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 	}, [isLoaded]);
 
 	return (
-		<div className={`min-h-screen bg-white dark:bg-gray-900 ${isArabic ? "rtl" : "ltr"}`} dir={isArabic ? "rtl" : "ltr"}>
-			<div className="p-4 lg:p-8">
+		<div className={`min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 ${isArabic ? "rtl" : "ltr"}`} dir={isArabic ? "rtl" : "ltr"}>
+			<div className="p-4 lg:p-6 xl:p-8">
 				{/* Mobile Map - Full Width at Top */}
 				<div className="block lg:hidden mb-6">
-					<div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md border border-gray-200 dark:border-gray-700">
+					<div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg border-2 border-gray-200 dark:border-gray-700">
 						{loadError ? (
 							<div className="h-[250px] bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
 								<div className="text-center">
@@ -849,20 +915,20 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 
 				{/* Header */}
 				<div className="mb-4 sm:mb-6">
-					<div className="flex items-center gap-3 mb-3">
-						<div className={`p-2.5 sm:p-3 rounded-xl ${
+					<div className="flex items-center gap-3 sm:gap-4 mb-3">
+						<div className={`p-3 sm:p-4 rounded-2xl shadow-md ${
 							isMotorbike 
-								? "bg-yellow-100 dark:bg-yellow-900/30" 
-								: "bg-green-100 dark:bg-green-900/30"
+								? "bg-gradient-to-br from-yellow-100 to-yellow-50 dark:from-yellow-900/30 dark:to-yellow-800/20" 
+								: "bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-800/20"
 						}`}>
 							{isMotorbike ? (
-								<Bike className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-500" />
+								<Bike className="w-7 h-7 sm:w-8 sm:h-8 text-yellow-500" />
 							) : (
-								<Truck className="w-6 h-6 sm:w-7 sm:h-7 text-[#31A342]" />
+								<Truck className="w-7 h-7 sm:w-8 sm:h-8 text-[#31A342]" />
 							)}
 						</div>
 						<div className={`flex-1 ${isArabic ? "text-right" : "text-left"}`}>
-							<h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-0.5">
+							<h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
 								{isArabic ? "اختر السائق" : "Choose Driver"}
 							</h2>
 							<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
@@ -883,15 +949,15 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 					<div className="px-4 pb-4 lg:px-8 lg:pb-8">
 
 					{/* Filter Buttons */}
-					<div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 mb-4 sm:mb-6">
+					<div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
 						{filterButtons.map((filter) => (
 							<button
 								key={filter.key}
 								onClick={() => setActiveFilter(filter.key)}
-								className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+								className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm hover:shadow-md ${
 									activeFilter === filter.key
-										? `text-white shadow-lg ${isMotorbike ? "bg-yellow-500" : "bg-[#31A342]"}`
-										: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+										? `text-white shadow-lg ${isMotorbike ? "bg-yellow-500 hover:bg-yellow-600" : "bg-[#31A342] hover:bg-[#2a8f3a]"}`
+										: "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border-2 border-gray-200 dark:border-gray-700"
 								}`}
 							>
 								{filter.label}
@@ -900,11 +966,11 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 					</div>
 
 					{/* Expand Search Button */}
-					{!isLoadingDrivers && (
+					{!isLoadingDrivers && drivers.length == 0 && (
 						<button
 							onClick={handleExpandSearch}
 							disabled={isExpanding}
-							className={`w-full flex items-center justify-center gap-2 px-4 py-3 mb-4 sm:mb-6 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base ${
+							className={`w-full flex items-center justify-center gap-2 px-4 py-3.5 mb-4 sm:mb-6 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base ${
 								isArabic ? "flex-row-reverse" : ""
 							} ${isMotorbike ? "bg-yellow-500 hover:bg-yellow-600" : "bg-[#31A342] hover:bg-[#2a8f3a]"}`}
 						>
@@ -925,11 +991,40 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 							)}
 						</button>
 					)}
+					{/* Send to All Drivers Button - Show when drivers are found */}
+					{!isLoadingDrivers && availableDriversCount > 0 && (
+						<button
+							onClick={handleSendToAll}
+							disabled={isSendingToAll}
+							className={`w-full flex items-center justify-center gap-2 px-4 py-3.5 mb-4 sm:mb-6 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base ${
+								isArabic ? "flex-row-reverse" : ""
+							} ${isMotorbike ? "bg-yellow-500 hover:bg-yellow-600" : "bg-[#31A342] hover:bg-[#2a8f3a]"}`}
+						>
+							{isSendingToAll ? (
+								<>
+									<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+									<span>{isArabic ? "جاري الإرسال..." : "Sending to all drivers..."}</span>
+								</>
+							) : (
+								<>
+									<Send className="w-4 h-4 sm:w-5 sm:h-5" />
+									<span>
+										{isArabic 
+											? `إرسال لجميع السائقين (${availableDriversCount})` 
+											: `Send to All Drivers (${availableDriversCount})`}
+									</span>
+								</>
+							)}
+						</button>
+					)}
 
 					{/* Loading State */}
-					{isLoadingDrivers && (
-						<div className="flex flex-col items-center justify-center py-12 sm:py-16 space-y-3 sm:space-y-4">
-							<Loader2 className={`w-10 h-10 sm:w-12 sm:h-12 animate-spin ${isMotorbike ? "text-yellow-500" : "text-[#31A342]"}`} />
+					{isLoadingDrivers  && (
+						<div className="flex flex-col items-center justify-center py-16 sm:py-20 space-y-4">
+							<div className="relative">
+								<Loader2 className={`w-12 h-12 sm:w-16 sm:h-16 animate-spin ${isMotorbike ? "text-yellow-500" : "text-[#31A342]"}`} />
+								<div className={`absolute inset-0 rounded-full border-4 border-transparent border-t-current opacity-20 ${isMotorbike ? "text-yellow-500" : "text-[#31A342]"}`}></div>
+							</div>
 							<p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium text-center px-4">
 								{isArabic ? "جاري البحث عن أقرب السائقين..." : "Searching for closest drivers..."}
 							</p>
@@ -938,11 +1033,11 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 
 						{/* Drivers List */}
 						{!isLoadingDrivers && (
-							<div className="space-y-4">
+							<div className="space-y-4 sm:space-y-5">
 								{drivers.length === 0 ? (
-									<div className="text-center py-16">
-										<MapPin className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-										<p className="text-gray-600 dark:text-gray-400 font-medium mb-2">
+									<div className="text-center py-16 sm:py-20 bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 shadow-sm">
+										<MapPin className="w-16 h-16 sm:w-20 sm:h-20 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+										<p className="text-gray-600 dark:text-gray-400 font-semibold mb-2 text-lg">
 											{isArabic ? "لا يوجد سائقين في هذا النطاق" : "No drivers found in this range"}
 										</p>
 										<p className="text-sm text-gray-500 dark:text-gray-400">
@@ -970,7 +1065,7 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 				</div>
 
 				{/* Right Section - Map (Desktop Only) */}
-				<div className="w-full hidden lg:block lg:w-1/2 lg:border-l border-gray-200 dark:border-gray-700 h-full">
+				<div className="w-full hidden lg:block lg:w-1/2 lg:border-l-2 border-gray-200 dark:border-gray-700 h-full bg-white dark:bg-gray-800 rounded-r-2xl shadow-inner">
 					{loadError ? (
 						<div className="h-full bg-gray-100 flex items-center justify-center">
 							<div className="text-center">
@@ -1119,23 +1214,6 @@ export default function ChooseDriverPage({ transportType, orderType }: ChooseDri
 							</p>
 						</div>
 
-						{/* Price */}
-						<div className={`inline-flex items-baseline gap-2 px-4 py-2.5 rounded-xl ${
-							isMotorbike 
-								? "bg-yellow-100 dark:bg-yellow-900/30" 
-								: "bg-green-100 dark:bg-green-900/30"
-						}`}>
-							<span className={`text-xl sm:text-2xl font-bold ${
-								isMotorbike ? "text-yellow-600 dark:text-yellow-400" : "text-green-600 dark:text-green-400"
-							}`}>
-								{selectedDriverData.pricePerKm}
-							</span>
-							<span className={`text-sm font-medium ${
-								isMotorbike ? "text-yellow-600 dark:text-yellow-400" : "text-green-600 dark:text-green-400"
-							}`}>
-								{isArabic ? "ر.س/كم" : "SAR/km"}
-							</span>
-						</div>
 					</div>
 
 					{/* Info Notice */}
