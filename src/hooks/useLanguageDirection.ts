@@ -3,7 +3,7 @@
  * Centralizes RTL/LTR logic to avoid duplication
  */
 
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/providers';
 import { useMemo } from 'react';
 
 export interface LanguageDirection {

@@ -3,7 +3,7 @@
  * Prevents runtime errors from missing data
  */
 
-import { Product, Store } from "@/types/categories";
+import { Product, Store } from "@/shared/types";
 
 export const safeAccess = {
 	product: {

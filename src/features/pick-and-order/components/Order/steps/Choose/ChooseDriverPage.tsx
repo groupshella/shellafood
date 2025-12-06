@@ -1,0 +1,1249 @@
+"use client";
+
+import React, { useState, useCallback, useMemo, useEffect, useRef, memo } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useLanguage } from "@/providers";
+import { Star, MapPin, CheckCircle, Loader2, Expand, Truck, Bike, Eye, MessageCircle, Send } from "lucide-react";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { MAP_CONFIG } from "@/lib/maps/utils";
+
+interface ChooseDriverPageProps {
+	transportType: string;
+	orderType: string;
+}
+
+interface Driver {
+	id: string;
+	name: string;
+	nameAr: string;
+	avatar: string;
+	rating: number;
+	reviewsCount: number;
+	pricePerKm: number;
+	experience: string;
+	location: string;
+	lat: number;
+	lng: number;
+	distance?: number;
+	estimatedTime?: number;
+	vehicleType: "truck" | "motorbike";
+	vehicleModel: string;
+	licensePlate: string;
+	phone?: string;
+}
+
+// Cache for Distance Matrix API results
+const distanceCache = new Map<string, { distance: number; time: number }>();
+
+const getCacheKey = (origin: { lat: number; lng: number }, destination: { lat: number; lng: number }): string => {
+	return `${origin.lat.toFixed(4)}_${origin.lng.toFixed(4)}_${destination.lat.toFixed(4)}_${destination.lng.toFixed(4)}`;
+};
+
+// Memoized Driver Card Component
+const DriverCard = memo<{
+	driver: Driver;
+	isSelected: boolean;
+	onSelect: (id: string) => void;
+	onChoose: (id: string) => void;
+	onViewDetails: (driver: Driver) => void;
+	onChat: (driverId: string) => void;
+	isArabic: boolean;
+	isTruck: boolean;
+}>(({ driver, isSelected, onSelect, onChoose, onViewDetails, onChat, isArabic, isTruck }) => {
+	const handleChooseClick = useCallback((e: React.MouseEvent) => {
+		e.stopPropagation();
+		onChoose(driver.id);
+	}, [driver.id, onChoose]);
+
+	const handleViewDetailsClick = useCallback((e: React.MouseEvent) => {
+		e.stopPropagation();
+		onViewDetails(driver);
+	}, [driver, onViewDetails]);
+
+	const handleChatClick = useCallback((e: React.MouseEvent) => {
+		e.stopPropagation();
+		onChat(driver.id);
+	}, [driver.id, onChat]);
+
+	// Theme colors based on vehicle type
+	const primaryColor = isTruck ? "#31A342" : "#eab308"; // yellow-500
+	const bgGradient = isTruck 
+		? "from-green-50 to-white dark:from-green-900/10 dark:to-gray-800" 
+		: "from-yellow-50 to-white dark:from-yellow-900/10 dark:to-gray-800";
+	const borderColor = isSelected 
+		? (isTruck ? "border-[#31A342] dark:border-green-500" : "border-yellow-500 dark:border-yellow-500")
+		: "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600";
+
+	return (
+		<div
+			className={`bg-gradient-to-br ${bgGradient} border-2 rounded-2xl p-4 sm:p-5 cursor-pointer transition-all duration-300 ${borderColor} ${
+				isSelected ? "shadow-2xl scale-[1.02] ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-900" + (isTruck ? " ring-green-500/50" : " ring-yellow-500/50") : "hover:shadow-xl hover:scale-[1.01]"
+			}`}
+			onClick={() => onSelect(driver.id)}
+		>
+			{/* Mobile Layout */}
+			<div className="flex flex-col sm:hidden gap-4">
+				{/* Header Row - Avatar + Basic Info */}
+				<div className="flex items-start gap-3">
+					{/* Driver Avatar */}
+					<div className="relative flex-shrink-0">
+						<Image
+							src={driver.avatar}
+							alt={driver.name}
+							width={80}
+							height={80}
+							className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover ring-4 ring-white dark:ring-gray-700 shadow-lg"
+							loading="lazy"
+							priority={false}
+						/>
+						{isSelected && (
+							<div className={`absolute -top-1 ${isArabic ? "-left-1" : "-right-1"} w-7 h-7 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-gray-800 shadow-md`}
+								style={{ backgroundColor: primaryColor }}
+							>
+								<CheckCircle className="w-5 h-5 text-white" />
+							</div>
+						)}
+						<div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-md">
+							{isTruck ? (
+								<Truck className="w-4 h-4" style={{ color: primaryColor }} />
+							) : (
+								<Bike className="w-4 h-4" style={{ color: primaryColor }} />
+							)}
+						</div>
+					</div>
+
+					{/* Name + Badge */}
+					<div className="flex-1 min-w-0">
+						<h3 className={`font-bold text-gray-900 dark:text-gray-100 text-base mb-1 ${isArabic ? "text-right" : "text-left"}`}>
+							{isArabic ? driver.nameAr : driver.name}
+						</h3>
+						<div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${
+							isTruck 
+								? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" 
+								: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
+						}`}>
+							{isTruck ? <Truck className="w-3 h-3" /> : <Bike className="w-3 h-3" />}
+							<span>{isArabic ? (isTruck ? "شاحنة" : "دراجة نارية") : (isTruck ? "Truck" : "Motorbike")}</span>
+						</div>
+					</div>
+				</div>
+
+				{/* Rating + Experience */}
+				<div className={`flex items-center justify-between `}>
+					<div className={`flex items-center gap-1 `}>
+						<div className="flex items-center gap-0.5">
+							{[...Array(5)].map((_, i) => (
+								<Star
+									key={i}
+									className={`w-3.5 h-3.5 ${
+										i < Math.floor(driver.rating)
+											? "text-yellow-400 fill-yellow-400"
+											: "text-gray-300 dark:text-gray-600"
+									}`}
+								/>
+							))}
+						</div>
+						<span className="text-xs font-semibold text-gray-700 dark:text-gray-300 ml-1">
+							{driver.rating} <span className="text-gray-400">({driver.reviewsCount})</span>
+						</span>
+					</div>
+					<span className="text-xs font-medium px-2 py-1 bg-white dark:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-300">
+						{driver.experience}
+					</span>
+				</div>
+
+				{/* Vehicle Info Card */}
+				<div className="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+					<p className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+						{isArabic ? "معلومات المركبة" : "Vehicle Details"}
+					</p>
+					<p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-0.5">
+						{driver.vehicleModel}
+					</p>
+					<div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+						<span>{driver.licensePlate}</span>
+					</div>
+				</div>
+
+				{/* Distance */}
+				{driver.distance !== undefined && (
+					<div className="flex items-center justify-end p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+						<div className={`text-right ${isArabic ? "text-left" : ""}`}>
+							<p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
+								{isArabic ? "المسافة" : "Distance"}
+							</p>
+							<p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+								{driver.distance.toFixed(1)} {isArabic ? "كم" : "km"}
+							</p>
+							{driver.estimatedTime !== undefined && (
+								<p className="text-xs text-gray-500 dark:text-gray-400">
+									~{driver.estimatedTime} {isArabic ? "دقيقة" : "min"}
+								</p>
+							)}
+						</div>
+					</div>
+				)}
+
+				{/* Action Buttons */}
+				<div className="flex gap-2">
+					<button
+						onClick={handleViewDetailsClick}
+						className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm shadow-sm hover:shadow-md"
+					>
+						<Eye className="w-4 h-4" />
+						<span>{isArabic ? "التفاصيل" : "Details"}</span>
+					</button>
+					<button
+						onClick={handleChatClick}
+						className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-blue-500 text-blue-500 rounded-xl font-semibold hover:bg-blue-500 hover:text-white transition-all text-sm shadow-sm hover:shadow-md"
+					>
+						<MessageCircle className="w-4 h-4" />
+					</button>
+					<button
+						onClick={handleChooseClick}
+						className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all text-sm"
+						style={{ backgroundColor: primaryColor }}
+					>
+						<CheckCircle className="w-4 h-4" />
+						<span>{isArabic ? "اختيار" : "Choose"}</span>
+					</button>
+				</div>
+			</div>
+
+			{/* Desktop Layout */}
+			<div className="hidden sm:flex items-start gap-4">
+				{/* Driver Avatar */}
+				<div className="relative flex-shrink-0">
+					<Image
+						src={driver.avatar}
+						alt={driver.name}
+						width={90}
+						height={90}
+						className="w-20 lg:w-24 h-20 lg:h-24 rounded-full object-cover ring-4 ring-white dark:ring-gray-700 shadow-lg"
+						loading="lazy"
+						priority={false}
+					/>
+					{isSelected && (
+						<div className={`absolute -top-1 ${isArabic ? "-left-1" : "-right-1"} w-8 h-8 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-gray-800 shadow-md`}
+							style={{ backgroundColor: primaryColor }}
+						>
+							<CheckCircle className="w-6 h-6 text-white" />
+						</div>
+					)}
+					<div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 rounded-full p-2 shadow-md">
+						{isTruck ? (
+							<Truck className="w-5 h-5" style={{ color: primaryColor }} />
+						) : (
+							<Bike className="w-5 h-5" style={{ color: primaryColor }} />
+						)}
+					</div>
+				</div>
+
+				{/* Driver Info */}
+				<div className="flex-1 min-w-0">
+					<div className={`flex items-start justify-between mb-3 `}>
+						<div className={`${isArabic ? "text-right" : "text-left"}`}>
+							<h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg lg:text-xl mb-1">
+								{isArabic ? driver.nameAr : driver.name}
+							</h3>
+							<div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold ${
+								isTruck 
+									? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" 
+									: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
+							}`}>
+								{isTruck ? <Truck className="w-4 h-4" /> : <Bike className="w-4 h-4" />}
+								<span>{driver.experience} {isArabic ? "خبرة" : "experience"}</span>
+							</div>
+						</div>
+					</div>
+
+					{/* Rating */}
+					<div className={`flex items-center gap-1 mb-3 `}>
+						<div className="flex items-center gap-0.5">
+							{[...Array(5)].map((_, i) => (
+								<Star
+									key={i}
+									className={`w-4 h-4 ${
+										i < Math.floor(driver.rating)
+											? "text-yellow-400 fill-yellow-400"
+											: "text-gray-300 dark:text-gray-600"
+									}`}
+								/>
+							))}
+						</div>
+						<span className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+							{driver.rating} <span className="text-gray-400 font-normal">({driver.reviewsCount} {isArabic ? "تقييم" : "reviews"})</span>
+						</span>
+					</div>
+
+					{/* Vehicle Info */}
+					<div className="mb-3 p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+						<p className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+							{isArabic ? "معلومات المركبة" : "Vehicle Details"}
+						</p>
+						<p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-0.5">
+							{driver.vehicleModel}
+						</p>
+						<p className="text-xs text-gray-500 dark:text-gray-400">
+							{isArabic ? "لوحة:" : "Plate:"} {driver.licensePlate}
+						</p>
+					</div>
+
+					{/* Bottom Section */}
+					<div className="flex items-end justify-between gap-4">
+						{/* Distance */}
+						{driver.distance !== undefined && (
+							<div className={`${isArabic ? "text-right" : "text-left"}`}>
+								<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+									<span className="font-semibold">{driver.distance.toFixed(1)} {isArabic ? "كم" : "km"}</span>
+									{driver.estimatedTime !== undefined && (
+										<>
+											<span>•</span>
+											<span>{driver.estimatedTime} {isArabic ? "دقيقة" : "min"}</span>
+										</>
+									)}
+								</div>
+							</div>
+						)}
+
+						{/* Action Buttons */}
+						<div className="flex items-center gap-2">
+							<button
+								onClick={handleViewDetailsClick}
+								className="p-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm hover:shadow-md"
+								title={isArabic ? "عرض التفاصيل" : "View Details"}
+							>
+								<Eye className="w-5 h-5" />
+							</button>
+							<button
+								onClick={handleChatClick}
+								className="p-3 border-2 border-blue-500 text-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all shadow-sm hover:shadow-md"
+								title={isArabic ? "محادثة" : "Chat"}
+							>
+								<MessageCircle className="w-5 h-5" />
+							</button>
+							<button
+								onClick={handleChooseClick}
+								className="px-6 py-3 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+								style={{ backgroundColor: primaryColor }}
+							>
+								<CheckCircle className="w-5 h-5" />
+								<span>{isArabic ? "اختيار" : "Choose"}</span>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+});
+
+DriverCard.displayName = "DriverCard";
+
+export default function ChooseDriverPage({ transportType, orderType }: ChooseDriverPageProps) {
+	const { language } = useLanguage();
+	const router = useRouter();
+	const isArabic = language === "ar";
+	// Handle both "track" and "truck" for truck transport type
+	const isMotorbike = transportType === "motorbike";
+	const isTruck = transportType === "truck" || transportType === "track";
+	
+	const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
+	const [activeFilter, setActiveFilter] = useState("all");
+	const [showConfirmModal, setShowConfirmModal] = useState(false);
+	const [isLoadingDrivers, setIsLoadingDrivers] = useState(true);
+	const [drivers, setDrivers] = useState<Driver[]>([]);
+	const [pickupLocation, setPickupLocation] = useState<{ lat: number; lng: number } | null>(null);
+	const [searchRadius, setSearchRadius] = useState(5);
+	const [isExpanding, setIsExpanding] = useState(false);
+	const [isSendingToAll, setIsSendingToAll] = useState(false);
+	
+	const mapRef = useRef<google.maps.Map | null>(null);
+
+	// Load Google Maps
+	const { isLoaded, loadError } = useJsApiLoader({
+		id: 'google-map-script',
+		googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+		libraries: MAP_CONFIG.libraries
+	});
+
+	// Check for timeout/rejection notification
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			const urlParams = new URLSearchParams(window.location.search);
+			const timeout = urlParams.get("timeout");
+			const rejected = urlParams.get("rejected");
+			
+			if (timeout === "true" || rejected === "true") {
+				// Show notification (you can add a toast notification here)
+				console.log("Driver timeout or rejected");
+				// Clean up URL params - type is now in the path, so just remove query params
+				window.history.replaceState({}, "", window.location.pathname);
+			}
+		}
+	}, []);
+
+	// Get pickup location from order data
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			try {
+				const storedData = sessionStorage.getItem("pickAndOrderDetails");
+				if (storedData) {
+					const parsed = JSON.parse(storedData);
+					
+					// Check if it's new format (routeSegments)
+					if (parsed.routeSegments && Array.isArray(parsed.routeSegments) && parsed.routeSegments.length > 0) {
+						const firstSegment = parsed.routeSegments[0];
+						if (firstSegment.pickupPoint && firstSegment.pickupPoint.location) {
+							setPickupLocation({
+								lat: firstSegment.pickupPoint.location.lat,
+								lng: firstSegment.pickupPoint.location.lng,
+							});
+							return;
+						}
+					}
+					
+					// Old format (locationPoints)
+					if (parsed.locationPoints && Array.isArray(parsed.locationPoints)) {
+						const firstPickup = parsed.locationPoints.find((p: any) => p.type === "pickup");
+						if (firstPickup && firstPickup.location) {
+							setPickupLocation({
+								lat: firstPickup.location.lat,
+								lng: firstPickup.location.lng,
+							});
+							return;
+						}
+					}
+				}
+			} catch (error) {
+				console.error("Error loading pickup location:", error);
+			}
+		}
+		
+		// Fallback to default location (Riyadh)
+		setPickupLocation({ lat: 24.7136, lng: 46.6753 });
+	}, []);
+
+	// Calculate distance using Haversine formula
+	const calculateDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number): number => {
+		const R = 6371;
+		const dLat = ((lat2 - lat1) * Math.PI) / 180;
+		const dLon = ((lon2 - lon1) * Math.PI) / 180;
+		const a =
+			Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+			Math.cos((lat1 * Math.PI) / 180) *
+			Math.cos((lat2 * Math.PI) / 180) *
+			Math.sin(dLon / 2) *
+			Math.sin(dLon / 2);
+		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		return R * c;
+	}, []);
+
+	const calculateEstimatedTime = useCallback((distance: number): number => {
+		const averageSpeed = 50;
+		const timeInHours = distance / averageSpeed;
+		return Math.ceil(timeInHours * 60);
+	}, []);
+
+	// Mock function to fetch drivers
+	const fetchDrivers = useCallback(async (radius: number) => {
+		setIsLoadingDrivers(true);
+		
+		const referenceLocation = pickupLocation || { lat: 24.7136, lng: 46.6753 };
+		await new Promise((resolve) => setTimeout(resolve, 1500));
+
+		// Get rejected drivers from sessionStorage
+		const rejectedDrivers = typeof window !== "undefined" 
+			? JSON.parse(sessionStorage.getItem("rejectedDrivers") || "[]")
+			: [];
+
+		const generateDriverPosition = (distanceKm: number, angleDegrees: number) => {
+			const distanceInDegrees = distanceKm / 111;
+			const angleInRadians = (angleDegrees * Math.PI) / 180;
+			return {
+				lat: referenceLocation.lat + distanceInDegrees * Math.cos(angleInRadians),
+				lng: referenceLocation.lng + distanceInDegrees * Math.sin(angleInRadians) / Math.cos(referenceLocation.lat * Math.PI / 180),
+			};
+		};
+
+		const allDriversRaw: Omit<Driver, 'distance' | 'estimatedTime'>[] = [
+			{
+				id: "1",
+				name: "Ahmed Mohammed",
+				nameAr: "أحمد محمد",
+				avatar: "/driver1.jpg",
+				rating: 4.9,
+				reviewsCount: 234,
+				pricePerKm: isMotorbike ? 2.5 : 5.0,
+				experience: isArabic ? "8 سنوات" : "8 years",
+				location: isArabic ? "الرياض" : "Riyadh",
+				vehicleType: isMotorbike ? "motorbike" : "truck",
+				vehicleModel: isMotorbike ? "Honda CB500X 2023" : "Isuzu D-Max 2022",
+				licensePlate: "ABC 1234",
+				phone: "+966 55 123 4567",
+				...generateDriverPosition(1.5, 0),
+			},
+			{
+				id: "2",
+				name: "Mohammed Ali",
+				nameAr: "محمد علي",
+				avatar: "/driver2.jpg",
+				rating: 4.8,
+				reviewsCount: 189,
+				pricePerKm: isMotorbike ? 2.3 : 4.8,
+				experience: isArabic ? "6 سنوات" : "6 years",
+				location: isArabic ? "الرياض" : "Riyadh",
+				vehicleType: isMotorbike ? "motorbike" : "truck",
+				vehicleModel: isMotorbike ? "Yamaha MT-07 2022" : "Toyota Hilux 2021",
+				licensePlate: "XYZ 5678",
+				phone: "+966 50 234 5678",
+				...generateDriverPosition(2.8, 45),
+			},
+			{
+				id: "3",
+				name: "Khalid Al-Saad",
+				nameAr: "خالد السعد",
+				avatar: "/driver1.jpg",
+				rating: 4.7,
+				reviewsCount: 312,
+				pricePerKm: isMotorbike ? 2.2 : 4.5,
+				experience: isArabic ? "10 سنوات" : "10 years",
+				location: isArabic ? "الرياض" : "Riyadh",
+				vehicleType: isMotorbike ? "motorbike" : "truck",
+				vehicleModel: isMotorbike ? "Kawasaki Ninja 400" : "Ford Ranger 2023",
+				licensePlate: "DEF 9012",
+				phone: "+966 55 345 6789",
+				...generateDriverPosition(1.2, 90),
+			},
+			{
+				id: "4",
+				name: "Abdullah Al-Otaibi",
+				nameAr: "عبدالله العتيبي",
+				avatar: "/driver2.jpg",
+				rating: 4.9,
+				reviewsCount: 278,
+				pricePerKm: isMotorbike ? 2.6 : 5.2,
+				experience: isArabic ? "7 سنوات" : "7 years",
+				location: isArabic ? "الرياض" : "Riyadh",
+				vehicleType: isMotorbike ? "motorbike" : "truck",
+				vehicleModel: isMotorbike ? "Suzuki V-Strom 650" : "Mitsubishi L200",
+				licensePlate: "GHI 3456",
+				phone: "+966 50 456 7890",
+				...generateDriverPosition(3.5, 135),
+			},
+			{
+				id: "5",
+				name: "Fahad Al-Mutairi",
+				nameAr: "فهد المطيري",
+				avatar: "/driver1.jpg",
+				rating: 4.6,
+				reviewsCount: 198,
+				pricePerKm: isMotorbike ? 2.4 : 4.9,
+				experience: isArabic ? "5 سنوات" : "5 years",
+				location: isArabic ? "الرياض" : "Riyadh",
+				vehicleType: isMotorbike ? "motorbike" : "truck",
+				vehicleModel: isMotorbike ? "BMW F 750 GS" : "Nissan Navara 2022",
+				licensePlate: "JKL 7890",
+				phone: "+966 55 567 8901",
+				...generateDriverPosition(4.8, 180),
+			},
+		
+
+		];
+
+		// Filter out rejected drivers
+		const availableDriversRaw = allDriversRaw.filter(
+			(driver) => !rejectedDrivers.includes(driver.id)
+		);
+
+		const driversWithDistanceAndTime: Driver[] = availableDriversRaw.map((driver) => {
+			const distance = calculateDistance(
+				referenceLocation.lat,
+				referenceLocation.lng,
+				driver.lat,
+				driver.lng
+			);
+			return {
+				...driver,
+				distance: Math.round(distance * 10) / 10,
+				estimatedTime: calculateEstimatedTime(distance),
+			};
+		});
+
+		const filteredDrivers = driversWithDistanceAndTime.filter((driver) => 
+			driver.distance !== undefined && driver.distance <= radius
+		);
+
+		filteredDrivers.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+
+		setDrivers(filteredDrivers);
+		setIsLoadingDrivers(false);
+	}, [pickupLocation, isMotorbike, isArabic, calculateDistance, calculateEstimatedTime]);
+
+	useEffect(() => {
+		if (pickupLocation) {
+			fetchDrivers(searchRadius);
+		}
+	}, [fetchDrivers, searchRadius, pickupLocation]);
+
+	const handleExpandSearch = useCallback(async () => {
+		if (isExpanding) return;
+		setIsExpanding(true);
+		const newRadius = searchRadius + 5;
+		try {
+			await fetchDrivers(newRadius);
+			setSearchRadius(newRadius);
+		} finally {
+			setIsExpanding(false);
+		}
+	}, [isExpanding, searchRadius, fetchDrivers]);
+
+	const handleDriverSelect = useCallback((driverId: string) => {
+		setSelectedDriver(driverId);
+	}, []);
+
+	const handleChooseDriver = useCallback((driverId: string) => {
+		setSelectedDriver(driverId);
+		setShowConfirmModal(true);
+	}, []);
+
+	const handleConfirmDriver = useCallback(async () => {
+		if (selectedDriver) {
+			setShowConfirmModal(false);
+			
+			// Calculate and store pricing before navigating to payment page
+			try {
+				// Import utilities
+				const { loadAndConvertOrderData, calculateOrderPricing } = await import("@/features/pick-and-order/lib/utils");
+				
+				// Load order data
+				const orderData = loadAndConvertOrderData();
+				
+				if (orderData && orderData.locationPoints && orderData.locationPoints.length > 0) {
+					// Filter valid location points
+					const validLocationPoints = orderData.locationPoints.filter(
+						(point: any) => point.location && point.location.lat && point.location.lng
+					);
+					
+					if (validLocationPoints.length > 0) {
+						try {
+							const pricing = calculateOrderPricing({
+								transportType: (transportType === "motorbike" ? "motorbike" : "truck") as "motorbike" | "truck",
+								locationPoints: validLocationPoints,
+								isExpress: orderData.isExpress || false,
+								requiresRefrigeration: orderData.requiresRefrigeration || false,
+								loadingEquipmentNeeded: orderData.loadingEquipmentNeeded || false,
+							});
+							
+							// Store pricing for payment page
+							sessionStorage.setItem("orderPricing", JSON.stringify(pricing));
+							console.log("✅ Pricing calculated and stored from choose-driver:", pricing);
+							
+							// Small delay to ensure storage is complete
+							await new Promise(resolve => setTimeout(resolve, 100));
+						} catch (error) {
+							console.error("❌ Error calculating pricing:", error);
+						}
+					} else {
+						console.warn("⚠️ No valid location points found for pricing calculation");
+					}
+				} else {
+					console.warn("⚠️ No order data or location points found");
+				}
+			} catch (error) {
+				console.error("❌ Error loading order data for pricing:", error);
+			}
+			
+			// Navigate to waiting driver page
+			router.push(`/pickandorder/${transportType}/${orderType}/order/waiting-driver?driverId=${selectedDriver}`);
+		}
+	}, [selectedDriver, router, transportType, orderType]);
+
+	const handleViewDriverDetails = useCallback((driver: Driver) => {
+		// Store driver data in sessionStorage for the profile page
+		sessionStorage.setItem(`driver_${driver.id}`, JSON.stringify({
+			id: driver.id,
+			name: driver.name,
+			nameAr: driver.nameAr,
+			avatar: driver.avatar,
+			rating: driver.rating,
+			reviewsCount: driver.reviewsCount,
+			pricePerKm: driver.pricePerKm,
+			experience: driver.experience,
+			vehicleType: driver.vehicleType,
+			vehicleModel: driver.vehicleModel,
+			licensePlate: driver.licensePlate,
+			phone: driver.phone || "+966500000000",
+			location: driver.location,
+			lat: driver.lat,
+			lng: driver.lng,
+			distance: driver.distance,
+			estimatedTime: driver.estimatedTime,
+		}));
+		
+		// Navigate to driver profile page instead of modal
+		const returnUrl = encodeURIComponent(`/pickandorder/${transportType}/${orderType}/order/choose-driver`);
+		router.push(`/driver/${driver.id}?returnUrl=${returnUrl}&transportType=${transportType}&orderType=${orderType}`);
+	}, [router, transportType, orderType]);
+
+	const handleChatWithDriver = useCallback((driverId: string) => {
+		// Navigate to chat page
+		router.push(`/driver/${driverId}/chat`);
+	}, [router]);
+
+	const handleSendToAll = useCallback(async () => {
+		if (isSendingToAll || drivers.length === 0) return;
+		
+		setIsSendingToAll(true);
+		
+		try {
+			// Filter drivers by vehicle type
+			const targetVehicleType = isMotorbike ? "motorbike" : "truck";
+			const availableDrivers = drivers.filter(driver => driver.vehicleType === targetVehicleType);
+			
+			if (availableDrivers.length === 0) {
+				setIsSendingToAll(false);
+				return;
+			}
+			
+			// Store all driver data in sessionStorage
+			availableDrivers.forEach((driver) => {
+				sessionStorage.setItem(`driver_${driver.id}`, JSON.stringify({
+					id: driver.id,
+					name: driver.name,
+					nameAr: driver.nameAr,
+					avatar: driver.avatar,
+					rating: driver.rating,
+					reviewsCount: driver.reviewsCount,
+					pricePerKm: driver.pricePerKm,
+					experience: driver.experience,
+					vehicleType: driver.vehicleType,
+					vehicleModel: driver.vehicleModel,
+					licensePlate: driver.licensePlate,
+					phone: driver.phone || "+966500000000",
+					location: driver.location,
+					lat: driver.lat,
+					lng: driver.lng,
+					distance: driver.distance,
+					estimatedTime: driver.estimatedTime,
+				}));
+			});
+			
+			// Store all driver IDs for sending
+			const allDriverIds = availableDrivers.map(driver => driver.id);
+			
+			// Calculate and store pricing before navigating
+			try {
+				const { loadAndConvertOrderData, calculateOrderPricing } = await import("@/features/pick-and-order/lib/utils");
+				
+				const orderData = loadAndConvertOrderData();
+				
+				if (orderData && orderData.locationPoints && orderData.locationPoints.length > 0) {
+					const validLocationPoints = orderData.locationPoints.filter(
+						(point: any) => point.location && point.location.lat && point.location.lng
+					);
+					
+					if (validLocationPoints.length > 0) {
+						const pricing = calculateOrderPricing({
+							transportType: (transportType === "motorbike" ? "motorbike" : "truck") as "motorbike" | "truck",
+							locationPoints: validLocationPoints,
+							isExpress: orderData.isExpress || false,
+							requiresRefrigeration: orderData.requiresRefrigeration || false,
+							loadingEquipmentNeeded: orderData.loadingEquipmentNeeded || false,
+						});
+						
+						sessionStorage.setItem("orderPricing", JSON.stringify(pricing));
+					}
+				}
+			} catch (error) {
+				console.error("Error calculating pricing:", error);
+			}
+			
+			// Navigate to waiting driver page with all driver IDs
+			router.push(`/pickandorder/${transportType}/${orderType}/order/waiting-driver?driverIds=${allDriverIds.join(',')}&sendToAll=true`);
+		} catch (error) {
+			console.error("Error sending to all drivers:", error);
+			setIsSendingToAll(false);
+		}
+	}, [isSendingToAll, drivers, isMotorbike, router, transportType, orderType]);
+
+
+	const mapCenter = useMemo(() => {
+		if (pickupLocation) return pickupLocation;
+		if (drivers.length === 0) return MAP_CONFIG.defaultCenter;
+		const avgLat = drivers.reduce((sum, w) => sum + w.lat, 0) / drivers.length;
+		const avgLng = drivers.reduce((sum, w) => sum + w.lng, 0) / drivers.length;
+		return { lat: avgLat, lng: avgLng };
+	}, [drivers, pickupLocation]);
+
+	const selectedDriverData = useMemo(() => {
+		return drivers.find((d) => d.id === selectedDriver);
+	}, [selectedDriver, drivers]);
+
+	const availableDriversCount = useMemo(() => {
+		const targetVehicleType = isMotorbike ? "motorbike" : "truck";
+		return drivers.filter(driver => driver.vehicleType === targetVehicleType).length;
+	}, [drivers, isMotorbike]);
+
+	const onLoad = useCallback((map: google.maps.Map) => {
+		mapRef.current = map;
+	}, []);
+
+	const onUnmount = useCallback(() => {
+		mapRef.current = null;
+	}, []);
+
+	const filteredAndSortedDrivers = useMemo(() => {
+		// Filter by vehicle type first
+		const targetVehicleType = isMotorbike ? "motorbike" : "truck";
+		let filtered = drivers.filter(driver => driver.vehicleType === targetVehicleType);
+		
+		// Debug logging
+		console.log('Transport Type:', transportType);
+		console.log('Is Motorbike:', isMotorbike);
+		console.log('Target Vehicle Type:', targetVehicleType);
+		console.log('Total Drivers:', drivers.length);
+		console.log('Drivers Vehicle Types:', drivers.map(d => ({ id: d.id, type: d.vehicleType })));
+		console.log('Filtered Drivers:', filtered.length);
+		
+		// Then apply sorting based on active filter
+		switch (activeFilter) {
+			case "rating":
+				filtered.sort((a, b) => b.rating - a.rating);
+				break;
+			case "closest":
+				filtered.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+				break;
+			default:
+				break;
+		}
+		
+		return filtered;
+	}, [drivers, activeFilter, isMotorbike, transportType]);
+
+	const filterButtons = useMemo(() => [
+		{ key: "all", label: isArabic ? "الكل" : "All" },
+		{ key: "rating", label: isArabic ? "الأعلى تقييماً" : "Highest Rated" },
+		{ key: "closest", label: isArabic ? "الأقرب" : "Closest" }
+	], [isArabic]);
+
+	const getDriverMarkerIcon = useCallback((driver: Driver, isSelected: boolean) => {
+		if (!isLoaded || !window.google?.maps) return undefined;
+		return {
+			url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+				<svg width="${isSelected ? 40 : 32}" height="${isSelected ? 40 : 32}" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<circle cx="16" cy="16" r="14" fill="${isSelected ? '#31A342' : '#eab308'}" stroke="white" stroke-width="3"/>
+				</svg>
+			`),
+			scaledSize: new google.maps.Size(isSelected ? 40 : 32, isSelected ? 40 : 32),
+			anchor: new google.maps.Point(isSelected ? 20 : 16, isSelected ? 20 : 16)
+		};
+	}, [isLoaded]);
+
+	return (
+		<div className={`min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 ${isArabic ? "rtl" : "ltr"}`} dir={isArabic ? "rtl" : "ltr"}>
+			<div className="p-4 lg:p-6 xl:p-8">
+				{/* Mobile Map - Full Width at Top */}
+				<div className="block lg:hidden mb-6">
+					<div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg border-2 border-gray-200 dark:border-gray-700">
+						{loadError ? (
+							<div className="h-[250px] bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+								<div className="text-center">
+									<MapPin className="w-12 h-12 text-red-400 mx-auto mb-3" />
+									<p className="text-sm text-red-600">{isArabic ? "خطأ في تحميل الخريطة" : "Error loading map"}</p>
+								</div>
+							</div>
+						) : !isLoaded ? (
+							<div className="h-[250px] bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+								<div className="text-center">
+									<Loader2 className="w-10 h-10 text-[#31A342] animate-spin mx-auto mb-3" />
+									<p className="text-sm text-gray-600 dark:text-gray-400">{isArabic ? "جاري تحميل الخريطة..." : "Loading map..."}</p>
+								</div>
+							</div>
+						) : (
+							<GoogleMap
+								mapContainerStyle={{ width: "100%", height: "250px" }}
+								center={mapCenter}
+								zoom={13}
+								onLoad={onLoad}
+								onUnmount={onUnmount}
+								options={{
+									streetViewControl: false,
+									mapTypeControl: false,
+									fullscreenControl: false,
+									zoomControl: true,
+								}}
+							>
+								{/* Pickup Location Marker */}
+								{pickupLocation && (
+									<Marker
+										position={pickupLocation}
+										title={isArabic ? "موقع الالتقاط" : "Pickup Location"}
+										icon={{
+											url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+												<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+													<circle cx="20" cy="20" r="18" fill="#EF4444" stroke="white" stroke-width="4"/>
+												</svg>
+											`),
+											scaledSize: new google.maps.Size(40, 40),
+											anchor: new google.maps.Point(20, 20)
+										}}
+									/>
+								)}
+								
+								{/* Driver Markers */}
+								{filteredAndSortedDrivers.map((driver) => (
+									<Marker
+										key={driver.id}
+										position={{ lat: driver.lat, lng: driver.lng }}
+										title={driver.name}
+										onClick={() => {
+											setSelectedDriver(driver.id);
+											setShowConfirmModal(true);
+										}}
+										icon={getDriverMarkerIcon(driver, selectedDriver === driver.id)}
+									/>
+								))}
+							</GoogleMap>
+						)}
+					</div>
+				</div>
+
+				{/* Header */}
+				<div className="mb-4 sm:mb-6">
+					<div className="flex items-center gap-3 sm:gap-4 mb-3">
+						<div className={`p-3 sm:p-4 rounded-2xl shadow-md ${
+							isMotorbike 
+								? "bg-gradient-to-br from-yellow-100 to-yellow-50 dark:from-yellow-900/30 dark:to-yellow-800/20" 
+								: "bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-800/20"
+						}`}>
+							{isMotorbike ? (
+								<Bike className="w-7 h-7 sm:w-8 sm:h-8 text-yellow-500" />
+							) : (
+								<Truck className="w-7 h-7 sm:w-8 sm:h-8 text-[#31A342]" />
+							)}
+						</div>
+						<div className={`flex-1 ${isArabic ? "text-right" : "text-left"}`}>
+							<h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+								{isArabic ? "اختر السائق" : "Choose Driver"}
+							</h2>
+							<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+								{isArabic 
+									? (isMotorbike ? "اختر سائق الدراجة النارية الأنسب" : "اختر سائق الشاحنة الأنسب")
+									: (isMotorbike ? "Select the best motorbike driver" : "Select the best truck driver")
+								}
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{/* Main Content - Two Section Layout */}
+			<div className="flex flex-col lg:flex-row h-[calc(100vh-300px)] lg:h-[calc(100vh-200px)]">
+				{/* Left Section - Drivers List */}
+				<div className="flex-1 overflow-y-auto lg:max-h-full">
+					<div className="px-4 pb-4 lg:px-8 lg:pb-8">
+
+					{/* Filter Buttons */}
+					<div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
+						{filterButtons.map((filter) => (
+							<button
+								key={filter.key}
+								onClick={() => setActiveFilter(filter.key)}
+								className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm hover:shadow-md ${
+									activeFilter === filter.key
+										? `text-white shadow-lg ${isMotorbike ? "bg-yellow-500 hover:bg-yellow-600" : "bg-[#31A342] hover:bg-[#2a8f3a]"}`
+										: "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border-2 border-gray-200 dark:border-gray-700"
+								}`}
+							>
+								{filter.label}
+							</button>
+						))}
+					</div>
+
+					{/* Expand Search Button */}
+					{!isLoadingDrivers && drivers.length == 0 && (
+						<button
+							onClick={handleExpandSearch}
+							disabled={isExpanding}
+							className={`w-full flex items-center justify-center gap-2 px-4 py-3.5 mb-4 sm:mb-6 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base ${
+								isArabic ? "flex-row-reverse" : ""
+							} ${isMotorbike ? "bg-yellow-500 hover:bg-yellow-600" : "bg-[#31A342] hover:bg-[#2a8f3a]"}`}
+						>
+							{isExpanding ? (
+								<>
+									<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+									<span>{isArabic ? "جاري توسيع البحث..." : "Expanding search..."}</span>
+								</>
+							) : (
+								<>
+									<Expand className="w-4 h-4 sm:w-5 sm:h-5" />
+									<span>
+										{isArabic 
+											? `توسيع البحث (${searchRadius} كم)` 
+											: `Expand Search (${searchRadius} km)`}
+									</span>
+								</>
+							)}
+						</button>
+					)}
+					{/* Send to All Drivers Button - Show when drivers are found */}
+					{!isLoadingDrivers && availableDriversCount > 0 && (
+						<button
+							onClick={handleSendToAll}
+							disabled={isSendingToAll}
+							className={`w-full flex items-center justify-center gap-2 px-4 py-3.5 mb-4 sm:mb-6 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base ${
+								isArabic ? "flex-row-reverse" : ""
+							} ${isMotorbike ? "bg-yellow-500 hover:bg-yellow-600" : "bg-[#31A342] hover:bg-[#2a8f3a]"}`}
+						>
+							{isSendingToAll ? (
+								<>
+									<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+									<span>{isArabic ? "جاري الإرسال..." : "Sending to all drivers..."}</span>
+								</>
+							) : (
+								<>
+									<Send className="w-4 h-4 sm:w-5 sm:h-5" />
+									<span>
+										{isArabic 
+											? `إرسال لجميع السائقين (${availableDriversCount})` 
+											: `Send to All Drivers (${availableDriversCount})`}
+									</span>
+								</>
+							)}
+						</button>
+					)}
+
+					{/* Loading State */}
+					{isLoadingDrivers  && (
+						<div className="flex flex-col items-center justify-center py-16 sm:py-20 space-y-4">
+							<div className="relative">
+								<Loader2 className={`w-12 h-12 sm:w-16 sm:h-16 animate-spin ${isMotorbike ? "text-yellow-500" : "text-[#31A342]"}`} />
+								<div className={`absolute inset-0 rounded-full border-4 border-transparent border-t-current opacity-20 ${isMotorbike ? "text-yellow-500" : "text-[#31A342]"}`}></div>
+							</div>
+							<p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium text-center px-4">
+								{isArabic ? "جاري البحث عن أقرب السائقين..." : "Searching for closest drivers..."}
+							</p>
+						</div>
+					)}
+
+						{/* Drivers List */}
+						{!isLoadingDrivers && (
+							<div className="space-y-4 sm:space-y-5">
+								{drivers.length === 0 ? (
+									<div className="text-center py-16 sm:py-20 bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 shadow-sm">
+										<MapPin className="w-16 h-16 sm:w-20 sm:h-20 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+										<p className="text-gray-600 dark:text-gray-400 font-semibold mb-2 text-lg">
+											{isArabic ? "لا يوجد سائقين في هذا النطاق" : "No drivers found in this range"}
+										</p>
+										<p className="text-sm text-gray-500 dark:text-gray-400">
+											{isArabic ? "حاول توسيع نطاق البحث" : "Try expanding your search range"}
+										</p>
+									</div>
+							) : (
+								filteredAndSortedDrivers.map((driver) => (
+									<DriverCard
+										key={driver.id}
+										driver={driver}
+										isSelected={selectedDriver === driver.id}
+										onSelect={handleDriverSelect}
+										onChoose={handleChooseDriver}
+										onViewDetails={handleViewDriverDetails}
+										onChat={handleChatWithDriver}
+										isArabic={isArabic}
+										isTruck={!isMotorbike}
+									/>
+								))
+							)}
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* Right Section - Map (Desktop Only) */}
+				<div className="w-full hidden lg:block lg:w-1/2 lg:border-l-2 border-gray-200 dark:border-gray-700 h-full bg-white dark:bg-gray-800 rounded-r-2xl shadow-inner">
+					{loadError ? (
+						<div className="h-full bg-gray-100 flex items-center justify-center">
+							<div className="text-center">
+								<MapPin className="w-16 h-16 text-red-400 mx-auto mb-4" />
+								<p className="text-red-600">{isArabic ? "خطأ في تحميل الخريطة" : "Error loading map"}</p>
+							</div>
+						</div>
+					) : !isLoaded ? (
+						<div className="h-full bg-gray-100 flex items-center justify-center">
+							<div className="text-center">
+								<Loader2 className="h-16 w-16 text-[#31A342] animate-spin mx-auto mb-4" />
+								<p className="text-gray-600 dark:text-gray-400">{isArabic ? "جاري تحميل الخريطة..." : "Loading map..."}</p>
+							</div>
+						</div>
+					) : (
+						<GoogleMap
+							mapContainerStyle={{ width: "100%", height: "100%" }}
+							center={mapCenter}
+							zoom={MAP_CONFIG.defaultZoom}
+							onLoad={onLoad}
+							onUnmount={onUnmount}
+							options={{
+								streetViewControl: false,
+								mapTypeControl: false,
+								fullscreenControl: false,
+								zoomControl: true,
+							}}
+						>
+							{/* Pickup Location Marker */}
+							{pickupLocation && (
+								<Marker
+									position={pickupLocation}
+									title={isArabic ? "موقع الالتقاط" : "Pickup Location"}
+									icon={{
+										url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+											<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<circle cx="20" cy="20" r="18" fill="#EF4444" stroke="white" stroke-width="4"/>
+											</svg>
+										`),
+										scaledSize: new google.maps.Size(40, 40),
+										anchor: new google.maps.Point(20, 20)
+									}}
+								/>
+							)}
+							
+							{/* Driver Markers */}
+							{filteredAndSortedDrivers.map((driver) => (
+								<Marker
+									key={driver.id}
+									position={{ lat: driver.lat, lng: driver.lng }}
+									title={driver.name}
+									onClick={() => setSelectedDriver(driver.id)}
+									icon={getDriverMarkerIcon(driver, selectedDriver === driver.id)}
+								/>
+							))}
+						</GoogleMap>
+					)}
+				</div>
+			</div>
+
+		{/* Confirmation Modal */}
+		{showConfirmModal && selectedDriverData && (
+			<div 
+				className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+				onClick={() => setShowConfirmModal(false)}
+			>
+				<div 
+					className={`bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-2xl shadow-2xl max-w-lg w-full p-5 sm:p-8 max-h-[90vh] overflow-y-auto ${
+						isArabic ? "text-right" : "text-left"
+					}`}
+					onClick={(e) => e.stopPropagation()}
+					dir={isArabic ? "rtl" : "ltr"}
+				>
+					{/* Header with Vehicle Type Badge */}
+					<div className="flex items-center justify-between mb-5 sm:mb-6">
+						<h3 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+							{isArabic ? "تأكيد اختيار السائق" : "Confirm Driver Selection"}
+						</h3>
+						<div className={`p-2 rounded-lg ${
+							isMotorbike 
+								? "bg-yellow-100 dark:bg-yellow-900/30" 
+								: "bg-green-100 dark:bg-green-900/30"
+						}`}>
+							{isMotorbike ? (
+								<Bike className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
+							) : (
+								<Truck className="w-5 h-5 sm:w-6 sm:h-6 text-[#31A342]" />
+							)}
+						</div>
+					</div>
+
+					{/* Driver Info Card */}
+					<div className={`p-4 sm:p-5 rounded-2xl mb-5 sm:mb-6 bg-gradient-to-br ${
+						isMotorbike 
+							? "from-yellow-50 to-white dark:from-yellow-900/10 dark:to-gray-800 border-2 border-yellow-100 dark:border-yellow-900/30" 
+							: "from-green-50 to-white dark:from-green-900/10 dark:to-gray-800 border-2 border-green-100 dark:border-green-900/30"
+					}`}>
+						<div className="flex items-start gap-3 sm:gap-4 mb-4">
+							<Image
+								src={selectedDriverData.avatar}
+								alt={selectedDriverData.name}
+								width={80}
+								height={80}
+								className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover ring-4 ring-white dark:ring-gray-700 shadow-lg flex-shrink-0"
+							/>
+							<div className="flex-1 min-w-0">
+								<h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 mb-1.5 sm:mb-2">
+									{isArabic ? selectedDriverData.nameAr : selectedDriverData.name}
+								</h4>
+								<div className="flex items-center gap-1 mb-2">
+									{[...Array(5)].map((_, i) => (
+										<Star
+											key={i}
+											className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
+												i < Math.floor(selectedDriverData.rating)
+													? "text-yellow-400 fill-yellow-400"
+													: "text-gray-300 dark:text-gray-600"
+											}`}
+										/>
+									))}
+									<span className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+										{selectedDriverData.rating} <span className="text-gray-400 font-normal">({selectedDriverData.reviewsCount})</span>
+									</span>
+								</div>
+								<div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${
+									isMotorbike 
+										? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400" 
+										: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+								}`}>
+									{isMotorbike ? <Bike className="w-3 h-3" /> : <Truck className="w-3 h-3" />}
+									<span>{selectedDriverData.experience}</span>
+								</div>
+							</div>
+						</div>
+						
+						{/* Vehicle Details */}
+						<div className="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 mb-3">
+							<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+								{isArabic ? "معلومات المركبة" : "Vehicle Details"}
+							</p>
+							<p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+								{selectedDriverData.vehicleModel}
+							</p>
+							<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+								{selectedDriverData.licensePlate}
+							</p>
+						</div>
+
+					</div>
+
+					{/* Info Notice */}
+					<div className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded-xl mb-5 sm:mb-6">
+						<p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300">
+							{isArabic
+								? "سيتم تحويلك إلى صفحة الدفع لإتمام الطلب"
+								: "You will be redirected to the payment page to complete your order"}
+						</p>
+					</div>
+
+					{/* Action Buttons */}
+					<div className={`flex flex-col sm:flex-row gap-2 sm:gap-3 ${isArabic ? "sm:flex-row-reverse" : ""}`}>
+						<button
+							onClick={() => setShowConfirmModal(false)}
+							className="w-full sm:flex-1 px-5 sm:px-6 py-3 sm:py-3.5 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm sm:text-base"
+						>
+							{isArabic ? "إلغاء" : "Cancel"}
+						</button>
+						<button
+							onClick={handleConfirmDriver}
+							className={`w-full sm:flex-1 px-5 sm:px-6 py-3 sm:py-3.5 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm sm:text-base ${
+								isMotorbike ? "bg-yellow-500 hover:bg-yellow-600" : "bg-[#31A342] hover:bg-[#2a8f3a]"
+							}`}
+						>
+							<CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+							{isArabic ? "تأكيد الطلب" : "Confirm Order"}
+						</button>
+					</div>
+				</div>
+			</div>
+		)}
+		</div>
+	);
+}
+

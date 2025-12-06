@@ -3,7 +3,7 @@
  */
 
 
-import { Department } from '@/components/Utils/DepartmentCard';
+import { Department } from '@/shared/components';
 import { TEST_PRODUCTS, TEST_DEPARTMENTS } from './testData';
 
 /**

@@ -7,12 +7,12 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useCart } from "./useCart";
+import { useCart } from "@/shared/hooks";
 import { useProductFavorites } from "./useFavorites";
-import { useToast } from "@/components/ui/Toast";
-import { Product } from "@/types/categories";
+import { useToast } from "@/shared/components/ui";
+import { Product } from "@/shared/types";
 import { navigateToProductFromContext } from "@/lib/utils/categories/navigation";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/providers";
 
 export function useProductActions() {
 	const { addToCart } = useCart();

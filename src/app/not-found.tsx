@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/providers";
 import { Home, Search, ArrowRight, ArrowLeft } from "lucide-react";
 
 /**

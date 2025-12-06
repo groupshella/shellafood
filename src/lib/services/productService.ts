@@ -3,7 +3,7 @@
  * Business logic for product filtering, sorting, and manipulation
  */
 
-import { Product } from "@/types/categories";
+import { Product } from "@/shared/types";
 
 export interface FilterState {
 	inStock?: boolean;

@@ -3,7 +3,7 @@
  * Reusable helpers for product-related calculations and formatting
  */
 
-import { Product } from "@/types/categories";
+import { Product } from "@/shared/types";
 
 /**
  * Calculate discount percentage

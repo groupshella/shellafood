@@ -9,8 +9,8 @@ import {
 	type FavoriteProduct,
 	type FavoriteStore,
 } from '@/lib/utils/favoritesStorage';
-import { useToast } from '@/components/ui/Toast';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useToast } from '@/shared/components/ui';
+import { useLanguage } from '@/providers';
 
 interface UseFavoritesReturn {
 	isFavorite: boolean;

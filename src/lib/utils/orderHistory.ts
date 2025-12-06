@@ -1,4 +1,4 @@
-import { Product } from '@/components/Utils/ProductCard';
+import { Product } from '@/shared/components';
 import { TEST_PRODUCTS } from '@/lib/data/categories/testData';
 
 /**

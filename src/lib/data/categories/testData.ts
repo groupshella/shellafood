@@ -1,7 +1,4 @@
-import { Category } from '@/components/Utils/CategoryCard';
-import { Store } from '@/components/Utils/StoreCard';
-import { Product } from '@/components/Utils/ProductCard';
-import { Department } from '@/components/Utils/DepartmentCard';
+import { Category, Store, Product, Department } from '@/shared/components';
 
 function generateSlug(name: string): string {
 	return name
@@ -15,6 +12,7 @@ export const TEST_CATEGORIES: (Category & { slug: string })[] = [
 		id: "1",
 		slug: "restaurants",
 		name: "مطاعم",
+		nameAr: "مطاعم",
 		description: "اكتشف أفضل المطاعم والمأكولات من جميع أنحاء المدينة. طلبك المفضل في متناول يدك",
 		image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop",
 	},
@@ -22,6 +20,7 @@ export const TEST_CATEGORIES: (Category & { slug: string })[] = [
 		id: "2",
 		slug: "supermarket",
 		name: "سوبرماركت",
+		nameAr: "سوبرماركت",
 		description: "تسوق بسهولة من سوبرماركتنا واجلب كل ما تحتاجه إلى باب منزلك",
 		image: "https://images.unsplash.com/photo-1556910096-6f5e72db6803?w=800&h=600&fit=crop",
 	},
@@ -29,6 +28,7 @@ export const TEST_CATEGORIES: (Category & { slug: string })[] = [
 		id: "3",
 		slug: "pharmacy",
 		name: "صيدلية",
+		nameAr: "صيدلية",
 		description: "احصل على الأدوية والمنتجات الصحية بسرعة وأمان",
 		image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&h=600&fit=crop",
 	},
@@ -36,6 +36,7 @@ export const TEST_CATEGORIES: (Category & { slug: string })[] = [
 		id: "4",
 		slug: "cafe",
 		name: "مقهى",
+		nameAr: "مقهى",
 		description: "استمتع بأفضل أنواع القهوة والمشروبات الساخنة والباردة",
 		image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=600&fit=crop",
 	},
@@ -43,6 +44,7 @@ export const TEST_CATEGORIES: (Category & { slug: string })[] = [
 		id: "5",
 		slug: "hypermarket",
 		name: "هايبرماركت",
+		nameAr: "هايبرماركت",
 		description: "تسوق شامل من هايبرماركتنا واحصل على كل ما تحتاجه",
 		image: "/supermarketpic.jpg",
 	},
@@ -50,6 +52,7 @@ export const TEST_CATEGORIES: (Category & { slug: string })[] = [
 		id: "6",
 		slug: "pet-store",
 		name: "متجر الحيوانات الأليفة",
+		nameAr: "متجر الحيوانات الأليفة",
 		description: "كل ما تحتاجه لحيواناتك الأليفة من طعام وألعاب ومستلزمات",
 		image: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800&h=600&fit=crop",
 	},
@@ -892,7 +895,7 @@ export const TEST_DEPARTMENTS: Department[] = [
 		name: 'Beverages', 
 		nameAr: 'مشروبات', 
 		slug: 'beverages',
-		image: 'https://	images.unsplash.com/photo-1523677011783-c91d1bbe2fdc?w=200&h=200&fit=crop'
+		image: 'https://images.unsplash.com/photo-1523677011783-c91d1bbe2fdc?w=200&h=200&fit=crop'
 	},
 		{ 
 			id: '3',

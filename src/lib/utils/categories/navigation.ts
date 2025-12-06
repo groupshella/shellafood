@@ -1,7 +1,5 @@
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-import { Store } from '@/components/Utils/StoreCard';
-import { Product } from '@/components/Utils/ProductCard';
-import { Department } from '@/components/Utils/DepartmentCard';
+import { Store, Product, Department } from '@/shared/components';
 import { extractRouteSegments, validateSlug } from './url';
 
 export function navigateToStore(
