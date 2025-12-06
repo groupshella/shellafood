@@ -48,7 +48,7 @@ function CategoryCard({ category, index = 0, storeCount = 0 }: CategoryCardProps
           {category.image ? (
             <Image
               src={category.image}
-              alt={category.name}
+              alt={isArabic && category.nameAr ? category.nameAr : category.name}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-500"
               sizes={getImageSizes('card')}
@@ -81,11 +81,11 @@ function CategoryCard({ category, index = 0, storeCount = 0 }: CategoryCardProps
         {/* Content */}
         <div className="text-right rtl:text-right ltr:text-left">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-            {category.name}
+            {isArabic && category.nameAr ? category.nameAr : category.name}
           </h3>
           {category.description && (
             <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-              {category.description}
+              {isArabic && category.descriptionAr ? category.descriptionAr : category.description}
             </p>
           )}
         </div>
