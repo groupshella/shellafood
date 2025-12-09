@@ -66,11 +66,6 @@ export function useServiceCategory(serviceSlug: string, isArabic: boolean) {
 		[isArabic, serviceData]
 	);
 
-	const keyServices = useMemo(() => 
-		isArabic ? serviceData?.keyServices.ar : serviceData?.keyServices.en, 
-		[isArabic, serviceData]
-	);
-
 	const whyChooseUs = useMemo(() => 
 		isArabic ? serviceData?.whyChooseUs.ar : serviceData?.whyChooseUs.en, 
 		[isArabic, serviceData]
@@ -88,12 +83,8 @@ export function useServiceCategory(serviceSlug: string, isArabic: boolean) {
 				router.prefetch(service.path);
 			});
 		}
-		if (keyServices) {
-			keyServices.forEach((service) => {
-				router.prefetch(service.path);
-			});
-		}
-	}, [router, mainServices, keyServices]);
+	
+	}, [router, mainServices]);
 
 	// Event handlers
 	const handleSearch = useCallback((e: React.FormEvent) => {
@@ -128,7 +119,6 @@ export function useServiceCategory(serviceSlug: string, isArabic: boolean) {
 		title,
 		description,
 		mainServices,
-		keyServices,
 		whyChooseUs,
 		availableWorkshops,
 		

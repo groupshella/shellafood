@@ -115,11 +115,11 @@ export default function ConfirmationPage({ service, serviceType }: { service: st
 								{isArabic ? "تفاصيل الحجز" : "Booking Details"}
 							</h2>
 							<div className="space-y-3">
-								<div className="flex justify-between items-center">
+								<div className="flex gap-3 items-center">
 									<span className="text-sm text-gray-600 dark:text-gray-400">{isArabic ? "رقم الحجز:" : "Booking ID:"}</span>
 									<span className="font-semibold text-gray-900 dark:text-gray-100">{bookingData.bookingId}</span>
 								</div>
-								<div className="flex justify-between items-center">
+								<div className="flex gap-3 items-center">
 									<span className="text-sm text-gray-600 dark:text-gray-400">{isArabic ? "الخدمة:" : "Service:"}</span>
 									<span className="font-semibold text-gray-900 dark:text-gray-100 text-right max-w-[60%]">
 										{isArabic ? bookingData.serviceNameAr : bookingData.serviceName}

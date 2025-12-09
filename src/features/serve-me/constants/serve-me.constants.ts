@@ -2,7 +2,7 @@
  * Serve Me Feature Constants
  */
 
-import type { BookingStep } from '../types/serve-me.types';
+import type { BookingStep, ServiceItem, FeatureItem, ReviewItem } from '../types/serve-me.types';
 
 export const SERVE_ME_CONSTANTS = {
 	BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://shellafood.com',
@@ -61,85 +61,91 @@ export const DEFAULT_LOCATION = {
 // Serve Me Main Page Constants
 // ============================================================================
 
-export interface ServiceItem {
-	slug: string;
-	path: string;
-	translationKey: string;
-	iconName: 'Car' | 'Truck' | 'Wrench' | 'Plane' | 'Baby' | 'Scale' | 'Scissors' | 'Hammer';
-	image: string;
-}
 
-export interface FeatureItem {
-	iconName: 'MapPin' | 'Headphones' | 'CheckCircle';
-	titleKey: string;
-	descriptionKey: string;
-}
 
 // Services data
-export const SERVE_ME_SERVICES: ServiceItem[] = [
-	{
-		slug: "car-maintenance",
-		path: "/serve-me/car-maintenance",
-		translationKey: "serveMe.carMaintenance",
-		iconName: "Car",
-		image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&h=600&fit=crop",
-	},
-	{
-		slug: "teachers-training",
-		path: "/serve-me/teachers-training",
-		translationKey: "serveMe.delivery",
-		iconName: "Truck",
-		image: "/helpsupport.jpg",
-	},
-	{
-		slug: "home-maintenance",
-		path: "/serve-me/home-maintenance",
-		translationKey: "serveMe.repair",
-		iconName: "Wrench",
-		image: "/serveme-hero.png",
-	},
-	{
-		slug: "travel-yemen",
-		path: "/serve-me/travel-yemen",
-		translationKey: "serveMe.travel",
-		iconName: "Plane",
-		image: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=800&h=600&fit=crop",
-	},
-	{
-		slug: "babysitting",
-		path: "/serve-me/babysitting",
-		translationKey: "serveMe.babysitting",
-		iconName: "Baby",
-		image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&h=600&fit=crop",
-	},
-	{
-		slug: "legal-services",
-		path: "/serve-me/legal-services",
-		translationKey: "serveMe.legal",
-		iconName: "Scale",
-		image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=600&fit=crop",
-	},
-	{
-		slug: "women-salons",
-		path: "/serve-me/women-salons",
-		translationKey: "serveMe.womenSalons",
-		iconName: "Scissors",
-		image: "/serveme-hero.png",
-	},
-	{
-		slug: "men-salons",
-		path: "/serve-me/men-salons",
-		translationKey: "serveMe.menSalons",
-		iconName: "Scissors",
-		image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&h=600&fit=crop",
-	},
-	{
-		slug: "construction-materials",
-		path: "/serve-me/construction-materials",
-		translationKey: "serveMe.construction",
-		iconName: "Hammer",
-		image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop",
-	},
+export const SERVE_ME_SERVICES: ServiceItem[] = [ 
+	{ 
+		slug: "car-maintenance", 
+		path: "/serve-me/car-maintenance", 
+		translationKey: "serveMe.carMaintenance", 
+		description: "Professional car maintenance and repair services including oil changes, tire rotation, brake service, and diagnostics", 
+		descriptionAr: "خدمات صيانة وإصلاح السيارات الاحترافية بما في ذلك تغيير الزيت وتدوير الإطارات وخدمة الفرامل والتشخيص", 
+		iconName: "Car", 
+		image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&h=600&fit=crop", 
+	}, 
+	{ 
+		slug: "teachers-training", 
+		path: "/serve-me/teachers-training", 
+		translationKey: "serveMe.delivery", 
+		description: "Comprehensive teacher training programs and professional development courses for educators", 
+		descriptionAr: "برامج تدريب المعلمين الشاملة ودورات التطوير المهني للمعلمين", 
+		iconName: "Truck", 
+		image: "/helpsupport.jpg", 
+	}, 
+	{ 
+		slug: "home-maintenance", 
+		path: "/serve-me/home-maintenance", 
+		translationKey: "serveMe.repair", 
+		description: "Complete home maintenance and repair services including plumbing, electrical, carpentry, and general handyman work", 
+		descriptionAr: "خدمات صيانة وإصلاح المنازل الكاملة بما في ذلك السباكة والكهرباء والنجارة وأعمال الصيانة العامة", 
+		iconName: "Wrench", 
+		image: "/home-maintenance.jpg" 
+	}, 
+	{ 
+		slug: "travel-yemen", 
+		path: "/serve-me/travel-yemen", 
+		translationKey: "serveMe.travel", 
+		description: "Travel arrangements and tour packages to Yemen including booking, accommodation, and guided tours", 
+		descriptionAr: "ترتيبات السفر والجولات السياحية إلى اليمن بما في ذلك الحجز والإقامة والجولات المصحوبة بمرشدين", 
+		iconName: "Plane", 
+		image: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=800&h=600&fit=crop", 
+	}, 
+	{ 
+		slug: "babysitting", 
+		path: "/serve-me/babysitting", 
+		translationKey: "serveMe.babysitting", 
+		description: "Trusted babysitting and childcare services with qualified and experienced caregivers", 
+		descriptionAr: "خدمات رعاية الأطفال الموثوقة مع مقدمي رعاية مؤهلين وذوي خبرة", 
+		iconName: "Baby", 
+		image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&h=600&fit=crop", 
+	}, 
+	{ 
+		slug: "legal-services", 
+		path: "/serve-me/legal-services", 
+		translationKey: "serveMe.legal", 
+		description: "Professional legal consultation and services including contracts, documentation, and legal representation", 
+		descriptionAr: "الاستشارات والخدمات القانونية المهنية بما في ذلك العقود والوثائق والتمثيل القانوني", 
+		iconName: "Scale", 
+		image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=600&fit=crop", 
+	}, 
+	{ 
+		slug: "women-salons", 
+		path: "/serve-me/women-salons", 
+		translationKey: "serveMe.womenSalons", 
+		description: "Premium women's salon services including hair styling, makeup, skincare, and beauty treatments", 
+		descriptionAr: "خدمات صالونات نسائية فاخرة بما في ذلك تصفيف الشعر والمكياج والعناية بالبشرة وعلاجات التجميل", 
+		iconName: "Scissors", 
+		image: "/serveme-hero.png", 
+	}, 
+	{ 
+		slug: "men-salons", 
+		path: "/serve-me/men-salons", 
+		translationKey: "serveMe.menSalons", 
+		description: "Modern men's grooming services including haircuts, beard trimming, shaving, and styling", 
+		descriptionAr: "خدمات العناية الرجالية الحديثة بما في ذلك قص الشعر وتشذيب اللحية والحلاقة والتصفيف", 
+		iconName: "Scissors", 
+		image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&h=600&fit=crop", 
+	}, 
+	{ 
+		slug: "construction-materials", 
+		path: "/serve-me/construction-materials", 
+		translationKey: "serveMe.construction", 
+		description: "Quality construction materials supply including cement, steel, wood, tiles, and building supplies", 
+		descriptionAr: "توريد مواد البناء عالية الجودة بما في ذلك الأسمنت والحديد والخشب والبلاط ومستلزمات البناء", 
+		iconName: "Hammer", 
+		image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop", 
+	}, 
 ] as const;
 
 // Features data
@@ -165,21 +171,9 @@ export const SERVE_ME_FEATURES: FeatureItem[] = [
 // Individual Service Page Constants
 // ============================================================================
 
-export interface ReviewItem {
-	name: string;
-	rating: number;
-	comment: string;
-	date: string;
-	verified: boolean;
-}
-
-export interface FAQItem {
-	question: string;
-	answer: string;
-}
 
 // Mock customer reviews (Arabic and English)
-export const INDIVIDUAL_SERVICE_REVIEWS = {
+export const INDIVIDUAL_SERVICE_REVIEW:Record<string, ReviewItem[]> = {
 	ar: [
 		{
 			name: "أحمد محمد",
@@ -231,42 +225,62 @@ export const INDIVIDUAL_SERVICE_REVIEWS = {
 // FAQ Data (Arabic and English)
 export const INDIVIDUAL_SERVICE_FAQS = {
 	ar: [
-		{
-			question: "كم من الوقت يستغرق الحجز؟",
-			answer: "يمكنك الحجز فوراً! نحن متاحون على مدار الساعة ويمكننا تلبية طلبك خلال 24 ساعة أو أقل.",
-		},
-		{
-			question: "هل السعر ثابت؟",
-			answer: "نعم، السعر المعلن هو السعر النهائي. لا توجد رسوم مخفية. السعر يشمل جميع الخدمات المذكورة.",
-		},
-		{
-			question: "متى أدفع - قبل أم بعد الخدمة؟",
-			answer: "يمكنك الدفع بعد إتمام الخدمة والتأكد من رضاك. نقدم أيضاً خيارات دفع متعددة لراحتك.",
-		},
-		{
-			question: "هل الخدمة مضمونة؟",
-			answer: "نعم، نضمن 100% رضا العملاء. إذا لم تكن راضياً عن الخدمة، سنقوم بإصلاحها مجاناً أو استرداد المبلغ.",
-		},
+	  {
+		question: "كم يستغرق وصول الفني؟",
+		answer:
+		  "يصل الفني خلال مدة تتراوح بين 60 إلى 120 دقيقة داخل نفس المدينة، أو خلال الموعد المحدد عند الحجز. يعتمد الوقت على توفر أقرب فني ومتطلبات الخدمة.",
+	  },
+	  {
+		question: "هل السعر شامل كل شيء؟",
+		answer:
+		  "السعر يشمل أجور الزيارة والكشف. قد تختلف تكلفة الإصلاح حسب القطع المطلوبة أو طبيعة المشكلة، ويتم إبلاغك بالسعر النهائي قبل البدء في العمل.",
+	  },
+	  {
+		question: "متى يتم الدفع؟",
+		answer:
+		  "يتم الدفع بعد انتهاء الخدمة والتأكد من رضاك التام. يمكنك الدفع عبر مدى، Apple Pay، STC Pay، أو نقداً حسب الخدمة المتاحة.",
+	  },
+	  {
+		question: "هل يوجد ضمان على الخدمة؟",
+		answer:
+		  "نعم، تقدم جميع خدمات الصيانة ضماناً يتراوح بين 14 إلى 30 يوماً حسب نوع الخدمة. يشمل الضمان إعادة الإصلاح مجاناً في حال ظهور نفس المشكلة.",
+	  },
+	  {
+		question: "هل يمكن إلغاء الحجز؟",
+		answer:
+		  "يمكنك إلغاء الحجز بدون رسوم قبل وصول الفني أو قبل الموعد المحدد بوقت كافٍ. بعد بدء العمل، قد تُطبق رسوم زيارة حسب السياسة.",
+	  },
 	],
+  
 	en: [
-		{
-			question: "How soon can I book?",
-			answer: "You can book immediately! We're available 24/7 and can fulfill your request within 24 hours or less.",
-		},
-		{
-			question: "Is the price fixed?",
-			answer: "Yes, the advertised price is the final price. There are no hidden fees. The price includes all mentioned services.",
-		},
-		{
-			question: "When do I pay - before or after service?",
-			answer: "You can pay after the service is completed and you're satisfied. We also offer multiple payment options for your convenience.",
-		},
-		{
-			question: "Is the service guaranteed?",
-			answer: "Yes, we guarantee 100% customer satisfaction. If you're not satisfied with the service, we'll fix it for free or refund the amount.",
-		},
+	  {
+		question: "How long until the technician arrives?",
+		answer:
+		  "A technician typically arrives within 60–120 minutes in the same city, or at the scheduled appointment time. Arrival depends on technician availability and service requirements.",
+	  },
+	  {
+		question: "Is the price all-inclusive?",
+		answer:
+		  "The price includes the visit and inspection fee. Repair costs may vary depending on required parts or the issue's complexity, and the final price is shared with you before any work begins.",
+	  },
+	  {
+		question: "When do I pay?",
+		answer:
+		  "Payment is made after the service is completed and you’re fully satisfied. You can pay via Mada, Apple Pay, STC Pay, or cash depending on availability.",
+	  },
+	  {
+		question: "Is the service guaranteed?",
+		answer:
+		  "Yes. All maintenance services include a guarantee ranging from 14 to 30 days depending on the service type. The guarantee covers free re-repair if the same issue reappears.",
+	  },
+	  {
+		question: "Can I cancel the booking?",
+		answer:
+		  "Yes. You can cancel the booking free of charge before the technician arrives or before the scheduled time. After work begins, a visit fee may apply depending on policy.",
+	  },
 	],
-} as const;
+  } as const;
+  
 
 // ============================================================================
 // Booking Stepper Navigation Constants

@@ -15,7 +15,7 @@ export { ServiceCard } from './components/Service/ServiceCard';
 export { default as IndividualServicePage } from './components/ServiceType/IndividualServicePage';
 export { default as ChooseWorker } from './components/Worker/ChooseWorker';
 export { default as ScheduleService } from './components/Worker/ScheduleService';
-export { default as BookingDetailsPage } from './components/Booking/steps/BookingDetailsPage';
+export { default as BookingDetailsPage } from './components/Booking/steps/BookingDetailsPage/BookingDetailsPage'
 export { default as BookingSummaryPage } from './components/Booking/steps/BookingSummaryPage';
 export { default as ConfirmationPage } from './components/Booking/steps/ConfirmationPage';
 export { default as PaymentPage } from './components/Booking/steps/PaymentPage';

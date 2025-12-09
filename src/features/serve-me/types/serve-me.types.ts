@@ -14,7 +14,21 @@ export interface Service {
 	image?: string;
 	category: string;
 }
+export interface ServiceItem {
+	slug: string;
+	path: string;
+	description: string;
+	descriptionAr: string;
+	translationKey: string;
+	iconName: 'Car' | 'Truck' | 'Wrench' | 'Plane' | 'Baby' | 'Scale' | 'Scissors' | 'Hammer';
+	image: string;
+}
 
+export interface FeatureItem {
+	iconName: 'MapPin' | 'Headphones' | 'CheckCircle';
+	titleKey: string;
+	descriptionKey: string;
+}
 export interface ServiceType {
 	id: string;
 	name: string;
@@ -96,9 +110,22 @@ export interface NotificationState {
 export interface ServiceGridItem {
 	slug: string;
 	title: string;
+	description: string;
 	icon: React.ReactNode;
 	path: string;
 	image: string;
+}
+export interface ReviewItem {
+	name: string;
+	rating: number;
+	comment: string;
+	date: string;
+	verified: boolean;
+}
+
+export interface FAQItem {
+	question: string;
+	answer: string;
 }
 
 // ============================================================================

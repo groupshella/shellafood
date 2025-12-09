@@ -103,14 +103,11 @@ const IndividualServicePage: React.FC<{ serviceSlug: string; serviceTypeSlug: st
 							
 							{/* Trust Elements Inline */}
 							<div className={`flex flex-wrap items-center gap-6 mb-8 text-white/80 `}>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center  gap-2">
 									<Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
 									<span className="text-sm font-medium">{serviceData?.rating} ({serviceData?.reviewsCount} {reviewsText})</span>
 								</div>
-								<div className="flex items-center gap-2">
-									<MapPin className="w-5 h-5" />
-									<span className="text-sm">{isArabic ? "خدمة في الرياض وجدة" : "Serving Riyadh & Jeddah"}</span>
-								</div>
+								
 								<div className="flex items-center gap-2">
 									<Award className="w-5 h-5" />
 									<span className="text-sm">{isArabic ? "5+ سنوات خبرة" : "5+ Years Experience"}</span>
@@ -213,7 +210,7 @@ const IndividualServicePage: React.FC<{ serviceSlug: string; serviceTypeSlug: st
 
 				{/* Gallery Section - Image Slider with Thumbnails */}
 				<section className="mb-16 sm:mb-20">
-					<h2 className={`text-3xl sm:text-4xl font-bold text-gray-900 mb-8 ${isArabic ? "text-right" : "text-left"}`}>
+				<h2 className={`text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-12 ${isArabic ? "text-right" : "text-left"}`}>
 						{isArabic ? "معرض أعمالنا" : "Our Work Gallery"}
 					</h2>
 					
@@ -283,7 +280,7 @@ const IndividualServicePage: React.FC<{ serviceSlug: string; serviceTypeSlug: st
 
 				{/* Service Details - Vertical List */}
 				<section className="mb-16 sm:mb-20">
-					<h2 className={`text-3xl sm:text-4xl font-bold text-gray-900 mb-8 ${isArabic ? "text-right" : "text-left"}`}>
+				<h2 className={`text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-12 ${isArabic ? "text-right" : "text-left"}`}>
 						{isArabic ? "ما تشمله الخدمة" : "What the Service Includes"}
 					</h2>
 					<div className="space-y-4">
@@ -347,7 +344,7 @@ const IndividualServicePage: React.FC<{ serviceSlug: string; serviceTypeSlug: st
 
 				{/* FAQ Section - Minimal Accordion */}
 				<section className="mb-16 sm:mb-20">
-					<h2 className={`text-3xl sm:text-4xl font-bold text-gray-900 mb-8 ${isArabic ? "text-right" : "text-left"}`}>
+				<h2 className={`text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-12 ${isArabic ? "text-right" : "text-left"}`}>
 						{isArabic ? "الأسئلة الشائعة" : "Frequently Asked Questions"}
 					</h2>
 					<div className="space-y-1">

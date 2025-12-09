@@ -19,6 +19,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'www.vecteezy.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'images.deliveryhero.io',
         pathname: '/**',
       },

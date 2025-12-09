@@ -9,7 +9,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { IndividualServiceData, getIndividualService as getDemoIndividualService } from "@/lib/data/services";
 import { getIndividualService } from "../api/serve-me.api";
-import { INDIVIDUAL_SERVICE_REVIEWS, INDIVIDUAL_SERVICE_FAQS } from "../constants/serve-me.constants";
+import { INDIVIDUAL_SERVICE_REVIEW, INDIVIDUAL_SERVICE_FAQS } from "../constants/serve-me.constants";
 
 export function useIndividualService(serviceSlug: string, serviceTypeSlug: string, isArabic: boolean) {
 	const router = useRouter();
@@ -99,6 +99,7 @@ export function useIndividualService(serviceSlug: string, serviceTypeSlug: strin
 	}, [router, bookingPath]);
 
 	const handleBookingMouseEnter = useCallback(() => {
+		localStorage.removeItem("bookingData");
 		router.prefetch(bookingPath);
 	}, [router, bookingPath]);
 
@@ -116,8 +117,8 @@ export function useIndividualService(serviceSlug: string, serviceTypeSlug: strin
 
 	// Get reviews from constants
 	const reviews = useMemo(() => 
-		isArabic ? INDIVIDUAL_SERVICE_REVIEWS.ar : INDIVIDUAL_SERVICE_REVIEWS.en,
-		[isArabic]
+		INDIVIDUAL_SERVICE_REVIEW[isArabic ? "ar" : "en"],
+		[isArabic, INDIVIDUAL_SERVICE_REVIEW]
 	);
 
 	// Get FAQs from constants

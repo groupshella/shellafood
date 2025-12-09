@@ -550,17 +550,16 @@ export default function OrderDetailsPageMultiDirection({
 									</div>
 									<div className="min-w-0 flex-1">
 										<h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 truncate">
-											{currentStep === "plan-route" && (isArabic ? "خطط مسارك" : "Plan Your Route")}
-											{currentStep === "vehicle-options" && (isArabic ? "خيارات المركبة" : "Vehicle Options")}
+											{isArabic ? "خطط مسارك" : "Plan Your Route"}
 										</h1>
 										<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">
 											{currentStep === "plan-route" && (isArabic ? "حدد نقاط الالتقاط والتوصيل" : "Select pickup and dropoff points")}
-											{currentStep === "vehicle-options" && (isArabic ? "اختر تفضيلات المركبة" : "Choose vehicle preferences")}
+											{currentStep === "vehicle-options" && (isArabic ? "إكمال الطلب" : "Complete your order")}
 										</p>
 									</div>
 								</div>
 							</div>
-							<div className="flex-shrink-0 self-center sm:self-auto">
+						{currentStep !== "vehicle-options" && (	<div className="flex-shrink-0 self-center sm:self-auto">
 								<div className="w-16 h-16 sm:w-20 sm:h-20 relative">
 									<svg className="w-full h-full transform -rotate-90">
 										<circle cx="50%" cy="50%" r="45%" stroke="currentColor" strokeWidth="3" fill="none" className="text-gray-200 dark:text-gray-700" />
@@ -583,7 +582,7 @@ export default function OrderDetailsPageMultiDirection({
 										</div>
 									</div>
 								</div>
-							</div>
+							</div>)}
 						</div>
 					</div>
 				</motion.div>

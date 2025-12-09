@@ -199,7 +199,7 @@ export default function WorkerAutoSelectConfirmModal({
                 <div className="p-5 space-y-5">
                   {/* Worker Card */}
                   <div className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
-                    <div className={`flex items-start gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+                    <div className={`flex items-start gap-3 `}>
                       {/* Avatar */}
                       <div className="relative flex-shrink-0">
                         <div className="relative w-16 h-16 rounded-lg overflow-hidden border-2 border-white dark:border-gray-800">
@@ -221,7 +221,7 @@ export default function WorkerAutoSelectConfirmModal({
 
                       {/* Worker Info */}
                       <div className="flex-1 min-w-0">
-                        <div className={`flex items-start justify-between gap-2 mb-2 ${isArabic ? "flex-row-reverse" : ""}`}>
+                        <div className={`flex items-start justify-between gap-2 mb-2 `}>
                           <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                             {workerName}
                           </h3>
@@ -229,7 +229,7 @@ export default function WorkerAutoSelectConfirmModal({
                         </div>
 
                         {/* Stats Row */}
-                        <div className={`flex items-center gap-3 mb-3 flex-wrap ${isArabic ? "flex-row-reverse" : ""}`}>
+                        <div className={`flex items-center gap-3 mb-3 flex-wrap `}>
                           <div className="flex items-center gap-1.5 text-sm">
                             <Award className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                             <span className="font-bold text-gray-900 dark:text-white">
@@ -267,7 +267,7 @@ export default function WorkerAutoSelectConfirmModal({
 
                         {/* Arrival Time */}
                         {worker.estimatedTime && (
-                          <div className={`mt-2 flex items-center gap-2 text-sm ${isArabic ? "flex-row-reverse" : ""}`}>
+                          <div className={`mt-2 flex items-center gap-2 text-sm `}>
                             <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                             <span className="text-gray-600 dark:text-gray-400">
                               {isArabic ? "الوصول خلال:" : "Arrives in:"}
@@ -281,7 +281,7 @@ export default function WorkerAutoSelectConfirmModal({
                     </div>
 
                     {/* Actions Row */}
-                    <div className={`mt-3 flex gap-2 ${isArabic ? "flex-row-reverse" : ""}`}>
+                    <div className={`mt-3 flex gap-2 `}>
                       <button
                         onClick={handleViewDetails}
                         className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg font-medium text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -309,7 +309,7 @@ export default function WorkerAutoSelectConfirmModal({
                   <div className="space-y-3">
                     <button
                       onClick={() => setShowPriceDetails(!showPriceDetails)}
-                      className={`w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${isArabic ? "flex-row-reverse" : ""}`}
+                      className={`w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors `}
                     >
                       <div className={isArabic ? "text-right" : "text-left"}>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -346,7 +346,7 @@ export default function WorkerAutoSelectConfirmModal({
                         >
                           <div className="p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg space-y-2">
                             {/* Base Price */}
-                            <div className={`flex items-center justify-between text-sm ${isArabic ? "flex-row-reverse" : ""}`}>
+                            <div className={`flex items-center justify-between text-sm `}>
                               <span className="text-gray-600 dark:text-gray-400">
                                 {isArabic ? "السعر الأساسي" : "Base Price"}
                               </span>
@@ -357,7 +357,7 @@ export default function WorkerAutoSelectConfirmModal({
                             </div>
 
                             {/* Platform Fee */}
-                            <div className={`flex items-center justify-between text-sm ${isArabic ? "flex-row-reverse" : ""}`}>
+                            <div className={`flex items-center justify-between text-sm `}>
                               <span className="text-gray-600 dark:text-gray-400">
                                 {isArabic ? "رسوم المنصة" : "Platform Fee"}
                               </span>
@@ -368,7 +368,7 @@ export default function WorkerAutoSelectConfirmModal({
                             </div>
 
                             {/* Subtotal */}
-                            <div className={`flex items-center justify-between text-sm ${isArabic ? "flex-row-reverse" : ""}`}>
+                            <div className={`flex items-center justify-between text-sm `}>
                               <span className="text-gray-600 dark:text-gray-400">
                                 {isArabic ? "المجموع الفرعي" : "Subtotal"}
                               </span>
@@ -379,7 +379,7 @@ export default function WorkerAutoSelectConfirmModal({
                             </div>
 
                             {/* VAT */}
-                            <div className={`flex items-center justify-between text-sm ${isArabic ? "flex-row-reverse" : ""}`}>
+                            <div className={`flex items-center justify-between text-sm `}>
                               <span className="text-gray-600 dark:text-gray-400">
                                 {isArabic ? "ضريبة القيمة المضافة" : "VAT (15%)"}
                               </span>
@@ -391,7 +391,7 @@ export default function WorkerAutoSelectConfirmModal({
 
                             {/* Divider */}
                             <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
-                              <div className={`flex items-center justify-between ${isArabic ? "flex-row-reverse" : ""}`}>
+                              <div className={`flex items-center justify-between `}>
                                 <span className="text-sm font-semibold text-gray-900 dark:text-white">
                                   {isArabic ? "الإجمالي" : "Total"}
                                 </span>

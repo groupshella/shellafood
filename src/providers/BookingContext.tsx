@@ -24,6 +24,17 @@ export interface BookingData {
 		phone: string;
 		coordinates: { lat: number; lng: number };
 	} | null;
+	// Car information (for car maintenance services)
+	carInfo?: {
+		make: string;
+		model: string;
+		year: string;
+		plateNumber?: string;
+		mileage: string;
+		transmission: string;
+		fuelType: string;
+		vinNumber?: string;
+	};
 	subtotal: number;
 	vat: number;
 	total: number;

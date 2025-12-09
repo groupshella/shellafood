@@ -41,9 +41,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = memo(({
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
 					{services.map((service) => {
 						// Generate description based on service title
-						const description = isArabic 
-							? `${service.title} - خدمة احترافية عالية الجودة مع فريق متخصص`
-							: `${service.title} - Professional high-quality service with specialized team`;
+						
 						
 						return (
 							<ServiceCard
@@ -55,7 +53,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = memo(({
 								buttonText={buttonText}
 								isArabic={isArabic}
 								serviceSlug={service.slug}
-								description={description}
+								description={service.description}
 								onClick={() => handleServiceClick(service.title)}
 							/>
 						);

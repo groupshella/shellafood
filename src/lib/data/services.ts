@@ -1,4 +1,4 @@
-import { Wrench, Zap, Droplet, Wind, Hammer, Paintbrush, Sparkles, Shield, CircleDot } from "lucide-react";
+import { Wrench, Shield, CircleDot, Hammer, Zap } from "lucide-react";
 import React from "react";
 
 /**
@@ -39,12 +39,8 @@ export interface ServiceCategoryData {
 	heroImage: string; // Main hero image
 	videoThumbnail: string; // Video section thumbnail
 	mainServices: {
-		ar: Array<{ slug: string; title: string; image: string; path: string }>;
-		en: Array<{ slug: string; title: string; image: string; path: string }>;
-	};
-	keyServices: {
-		ar: Array<{ slug: string; title: string; image: string;path: string, icon: React.ReactNode }>;
-		en: Array<{ slug: string; title: string; image: string;path: string, icon: React.ReactNode }>;
+		ar: Array<{ slug: string; title: string; image: string; path: string,description: string }>;
+		en: Array<{ slug: string; title: string; image: string; path: string,description: string }>;
 	};
 	whyChooseUs: {
 		ar: Array<{ title: string; description: string; icon: React.ReactNode }>;
@@ -69,773 +65,324 @@ export interface ServiceCategoryData {
 }
 
 export const serviceCategoriesData: Record<string, ServiceCategoryData> = {
-	"home-maintenance": {
-		slug: "home-maintenance",
-		titleAr: "خدمات الصيانة المنزلية المتكاملة",
-		titleEn: "Complete Home Maintenance Services",
-		descriptionAr: "حلول احترافية لجميع احتياجاتك",
-		descriptionEn: "Professional solutions for all your needs",
-		heroImage: "/serveme-hero.png",
-		videoThumbnail: "https://images.unsplash.com/photo-1621905251918-48116d8b6d82?w=1200&h=800&fit=crop",
-		mainServices: {
-			ar: [
-				{ slug: "pest-control", title: "مكافحة الحشرات", image: "https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/pest-control" },
-				{ slug: "electrical-services", title: "خدمات الكهرباء", image: "/serveme-hero.png", path: "/serve-me/home-maintenance/electrical-services" },
-				{ slug: "plumbing-services", title: "خدمات السباكة", image: "/serveme-hero.png", path: "/serve-me/home-maintenance/plumbing-services" },
-				{ slug: "home-cleaning", title: "تنظيف المنازل والحدائق", image: "/serveme-hero.png", path: "/serve-me/home-maintenance/home-cleaning" },
-				{ slug: "ac-maintenance", title: "اصلاح وصيانة المكيفات", image: "/serveme-hero.png", path: "/serve-me/home-maintenance/ac-maintenance" },
-			
-				{ slug: "carpentry-services", title: "خدمات النجارة", image: "/serveme-hero.png", path: "/serve-me/home-maintenance/carpentry-services" },
-		
-			],
-			en: [
-				{ slug: "pest-control", title: "Pest Control", image: "https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/pest-control"		 },
-				{ slug: "electrical-services", title: "Electrical Services", image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/electrical-services" },
-				{ slug: "plumbing-services", title: "Plumbing Services", image: "https://images.unsplash.com/photo-1621905252472-6af3f59fd39e?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/plumbing-services" },
-				{ slug: "home-cleaning", title: "Home and Garden Cleaning", image: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/home-cleaning" },
-				{ slug: "ac-maintenance", title: "AC Repair and Maintenance", image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/ac-maintenance" },
-				{ slug: "carpentry-services", title: "Carpentry Services", image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/carpentry-services" },
-			],
-		},
-		keyServices: {
-			ar: [
-				{ slug: "water-tank-cleaning", title: "تنظيف خزانات المياه", image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/water-tank-cleaning", icon: React.createElement(Droplet, { className: "w-8 h-8" }) },
-				{ slug: "indoor-cleaning", title: "تنظيف وفحص الوحدة الداخلية", image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/indoor-cleaning", icon: React.createElement(Wind, { className: "w-8 h-8" }) },
-				{ slug: "tank-maintenance", title: "صيانة وتنظيف خزانات المياه", image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/tank-maintenance", icon: React.createElement(Sparkles, { className: "w-8 h-8" }) },
-			],
-			en: [
-				{ slug: "water-tank-cleaning", title: "Water Tank Cleaning", image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/water-tank-cleaning", icon: React.createElement(Droplet, { className: "w-8 h-8" }) },
-				{ slug: "indoor-cleaning", title: "Indoor Unit Cleaning and Inspection", image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/indoor-cleaning", icon: React.createElement(Wind, { className: "w-8 h-8" }) },
-				{ slug: "tank-maintenance", title: "Water Tank Maintenance and Cleaning", image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&h=400&fit=crop", path: "/serve-me/home-maintenance/tank-maintenance", icon: React.createElement(Sparkles, { className: "w-8 h-8" }) },
-			],
-		},
-		whyChooseUs: {
-			ar: [
-				{ title: "ضمان الجودة", description: "نضمن جودة عالية في جميع خدماتنا", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "خدمة 24/24", description: "متوفرون على مدار الساعة", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "خبرة متخصصة", description: "فريق من الخبراء المحترفين", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-			en: [
-				{ title: "Quality Guarantee", description: "We guarantee high quality in all our services", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "24/7 Service", description: "Available around the clock", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "Specialized Expertise", description: "Team of professional experts", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-		},
-		availableWorkshops: {
-			ar: [
-				{ 
-					name: "ورشة المحترف", 
-					image: "/serveme-hero.png", 
-					rating: 4.7, 
-					distance: "2.5 كم", 
-					availableHours: "متاح اليوم من: 9 ص - 6 م"
-				},
-				{ 
-					name: "ورشة الخبراء", 
-					image: "https://images.unsplash.com/photo-1621905251918-48116d8b6d82?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "3.2 كم", 
-					availableHours: "متاح اليوم من: 8 ص - 7 م"
-				},
-			],
-			en: [
-				{ 
-					name: "Professional Workshop", 
-					image: "/serveme-hero.png", 
-					rating: 4.7, 
-					distance: "2.5 km", 
-					availableHours: "Available today: 9 AM - 6 PM"
-				},
-				{ 
-					name: "Experts Workshop", 
-					image: "https://images.unsplash.com/photo-1621905251918-48116d8b6d82?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "3.2 km", 
-					availableHours: "Available today: 8 AM - 7 PM"
-				},
-			],
-		},
+"home-maintenance": {
+	slug: "home-maintenance",
+	titleAr: "صيانة المنازل الشاملة",
+	titleEn: "Complete Home Maintenance",
+	descriptionAr: "نوفر لك حلول صيانة متكاملة تشمل السباكة، الكهرباء، النجارة، التكييف، والدهانات بجودة عالية وأسعار تنافسية",
+	descriptionEn: "We provide comprehensive maintenance solutions including plumbing, electrical, carpentry, AC, and painting with high quality and competitive prices",
+	heroImage: "/home-maintenance.jpg",
+	videoThumbnail: "/ac-condition.jpg",
+	mainServices: {
+		ar: [
+			{ 
+				slug: "plumbing-water-services", 
+				title: "السباكة وأعمال المياه", 
+				description: "خدمات شاملة للسباكة تشمل إصلاح التسريبات، تسليك المجاري، تركيب الأدوات الصحية والسخانات",
+				image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/plumbing-water-services" 
+			},
+			{ 
+				slug: "electrical-lighting-services", 
+				title: "الكهرباء والإنارة", 
+				description: "تركيب وصيانة الأسلاك، إصلاح الأعطال الكهربائية، تركيب الإضاءة واللوحات الكهربائية",
+				image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/electrical-lighting-services" 
+			},
+			{ 
+				slug: "ac-cooling-services", 
+				title: "التكييف والتبريد", 
+				description: "تنظيف وصيانة المكيفات، إصلاح الأعطال، تعبئة الغاز، فك وتركيب جميع الأنواع",
+				image: "/ac-condition.jpg", 
+				path: "/serve-me/home-maintenance/ac-cooling-services" 
+			},
+			{ 
+				slug: "carpentry-furniture-services", 
+				title: "النجارة والأثاث", 
+				description: "إصلاح الأبواب والنوافذ، تركيب الأثاث، الأقفال، والتركيبات الجدارية المختلفة",
+				image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/carpentry-furniture-services" 
+			},
+			{ 
+				slug: "painting-decoration-services", 
+				title: "الدهانات والديكورات", 
+				description: "دهان الجدران والأسقف، معالجة الرطوبة والتشققات، تركيب ورق الجدران",
+				image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/painting-decoration-services" 
+			},
+			{ 
+				slug: "structure-finishing-services", 
+				title: "صيانة البنية والتشطيبات", 
+				description: "تركيب وإصلاح البلاط والسيراميك، أعمال العزل، واللحام والمعادن",
+				image: "https://images.unsplash.com/photo-1581092918484-8313e1f128b7?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/structure-finishing-services" 
+			},
+			{ 
+				slug: "home-cleaning", 
+				title: "التنظيف المنزلي", 
+				description: "تنظيف شامل للمنزل، تلميع الأرضيات، تنظيف النوافذ والمفروشات",
+				image: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/home-cleaning" 
+			},
+			{ 
+				slug: "pest-control", 
+				title: "مكافحة الآفات", 
+				description: "رش المبيدات الآمنة، مكافحة الحشرات والقوارض، حلول وقائية فعالة",
+				image: "https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/pest-control" 
+			},
+		],
+		en: [
+			{ 
+				slug: "plumbing-water-services", 
+				title: "Plumbing & Water Services", 
+				description: "Comprehensive plumbing services including leak repair, drain cleaning, sanitary fixtures and heater installation",
+				image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/plumbing-water-services" 
+			},
+			{ 
+				slug: "electrical-lighting-services", 
+				title: "Electrical & Lighting Services", 
+				description: "Wiring installation and maintenance, electrical fault repair, lighting and electrical panel installation",
+				image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/electrical-lighting-services" 
+			},
+			{ 
+				slug: "ac-cooling-services", 
+				title: "AC & Cooling Services", 
+				description: "AC cleaning and maintenance, fault repair, gas refilling, installation and removal of all types",
+				image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/ac-cooling-services" 
+			},
+			{ 
+				slug: "carpentry-furniture-services", 
+				title: "Carpentry & Furniture Services", 
+				description: "Door and window repair, furniture assembly, locks installation, and various wall mounting services",
+				image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/carpentry-furniture-services" 
+			},
+			{ 
+				slug: "painting-decoration-services", 
+				title: "Painting & Decoration Services", 
+				description: "Wall and ceiling painting, moisture and crack treatment, wallpaper installation",
+				image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/painting-decoration-services" 
+			},
+			{ 
+				slug: "structure-finishing-services", 
+				title: "Structure & Finishing Services", 
+				description: "Tile and ceramic installation and repair, insulation work, welding and metalwork",
+				image: "https://images.unsplash.com/photo-1581092918484-8313e1f128b7?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/structure-finishing-services" 
+			},
+			{ 
+				slug: "home-cleaning", 
+				title: "Home Cleaning", 
+				description: "Complete home cleaning, floor polishing, window and upholstery cleaning",
+				image: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/home-cleaning" 
+			},
+			{ 
+				slug: "pest-control", 
+				title: "Pest Control", 
+				description: "Safe pesticide spraying, insect and rodent control, effective preventive solutions",
+				image: "https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=600&h=400&fit=crop", 
+				path: "/serve-me/home-maintenance/pest-control" 
+			},
+		],
 	},
-	"car-maintenance": {
-		slug: "car-maintenance",
-		titleAr: "خدمات صيانة السيارات المتكاملة",
-		titleEn: "Complete Car Maintenance Services",
-		descriptionAr: "صيانة وإصلاح احترافية لسيارتك",
-		descriptionEn: "Professional maintenance and repair for your car",
-		heroImage: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=1200&h=800&fit=crop",
-		videoThumbnail: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=1200&h=800&fit=crop",
-		mainServices: {
-			ar: [
-				{ slug: "comprehensive-inspection", title: "فحص شامل", image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/comprehensive-inspection" },
-				{ slug: "oil-change", title: "تغيير الزيوت", image: "https://images.unsplash.com/photo-1633158829589-9d44e0e1d844?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/oil-change" },
-				{ slug: "brake-inspection", title: "فحص الفرامل", image: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/brake-inspection" },
-				{ slug: "engine-maintenance", title: "صيانة المحرك", image: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/engine-maintenance" },
-				{ slug: "tire-inspection", title: "فحص الإطارات", image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/tire-inspection" },
-				{ slug: "ac-maintenance-car", title: "صيانة التكييف", image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/ac-maintenance" },
-			],
-			en: [
-				{ slug: "comprehensive-inspection", title: "Comprehensive Inspection", image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/comprehensive-inspection" },
-				{ slug: "oil-change", title: "Oil Change", image: "https://images.unsplash.com/photo-1633158829589-9d44e0e1d844?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/oil-change" },
-				{ slug: "brake-inspection", title: "Brake Inspection", image: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/brake-inspection" },
-				{ slug: "engine-maintenance", title: "Engine Maintenance", image: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/engine-maintenance" },
-				{ slug: "tire-inspection", title: "Tire Inspection", image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/tire-inspection" },
-				{ slug: "ac-maintenance-car", title: "AC Maintenance", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/ac-maintenance" },
-			],
-		},
-		keyServices: {
-			ar: [
-				{ slug: "periodic-maintenance", title: "صيانة دورية", image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/periodic-maintenance", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "breakdown-repair", title: "إصلاح الأعطال", image: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/breakdown-repair", icon: React.createElement(Hammer, { className: "w-8 h-8" }) },
-				{ slug: "electrical-inspection-car", title: "فحص كهربائي", image: "https://images.unsplash.com/photo-1621905251918-48116d8b6d82?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/electrical-inspection", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-			],
-			en: [
-				{ slug: "periodic-maintenance", title: "Periodic Maintenance", image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/periodic-maintenance", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "breakdown-repair", title: "Breakdown Repair", image: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/breakdown-repair", icon: React.createElement(Hammer, { className: "w-8 h-8" }) },
-				{ slug: "electrical-inspection-car", title: "Electrical Inspection", image: "https://images.unsplash.com/photo-1621905251918-48116d8b6d82?w=600&h=400&fit=crop", path: "/serve-me/car-maintenance/electrical-inspection", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-			],
-		},
-		whyChooseUs: {
-			ar: [
-				{ title: "فنيون معتمدون", description: "فريق من الفنيين المعتمدين والمحترفين", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "خدمة سريعة", description: "إنجاز العمل في الوقت المحدد", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "ضمان الخدمة", description: "ضمان على جميع أعمال الصيانة", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-			en: [
-				{ title: "Certified Technicians", description: "Team of certified professional technicians", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "Fast Service", description: "Work completed on time", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "Service Warranty", description: "Warranty on all maintenance work", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-		},
-		availableWorkshops: {
-			ar: [
-				{ 
-					name: "ورشة السيارات المتقدمة", 
-					image: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop", 
-					rating: 4.9, 
-					distance: "1.8 كم", 
-					availableHours: "متاح اليوم من: 8 ص - 8 م"
-				},
-				{ 
-					name: "مركز الصيانة السريع", 
-					image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop", 
-					rating: 4.6, 
-					distance: "2.3 كم", 
-					availableHours: "متاح اليوم من: 9 ص - 7 م"
-				},
-			],
-			en: [
-				{ 
-					name: "Advanced Auto Workshop", 
-					image: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop", 
-					rating: 4.9, 
-					distance: "1.8 km", 
-					availableHours: "Available today: 8 AM - 8 PM"
-				},
-				{ 
-					name: "Quick Service Center", 
-					image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop", 
-					rating: 4.6, 
-					distance: "2.3 km", 
-					availableHours: "Available today: 9 AM - 7 PM"
-				},
-			],
-		},
+	whyChooseUs: {
+		ar: [
+			{ title: "ضمان الجودة", description: "نلتزم بأعلى معايير الجودة في كل خدمة", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
+			{ title: "خدمة على مدار الساعة", description: "دعم فني متاح 24/7 لحالات الطوارئ", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
+			{ title: "فنيون محترفون", description: "فريق من الخبراء المعتمدين وذوي الخبرة", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
+		],
+		en: [
+			{ title: "Quality Guarantee", description: "We commit to the highest quality standards in every service", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
+			{ title: "24/7 Service", description: "Technical support available round the clock for emergencies", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
+			{ title: "Professional Technicians", description: "Team of certified and experienced experts", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
+		],
 	},
-	"teachers-training": {
-		slug: "teachers-training",
-		titleAr: "خدمات المعلمون والتدريب",
-		titleEn: "Teachers and Training Services",
-		descriptionAr: "تعليم وتدريب احترافي في جميع المجالات",
-		descriptionEn: "Professional education and training in all fields",
-		heroImage: "/helpsupport.jpg",
-		videoThumbnail: "/helpsupport.jpg",
-		mainServices: {
-			ar: [
-				{ slug: "private-tutoring", title: "دروس خصوصية", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/private-tutoring" },
-				{ slug: "professional-training", title: "تدريب مهني", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/professional-training" },
-				{ slug: "language-learning", title: "تعليم اللغات", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/language-learning" },
-				{ slug: "development-courses", title: "دورات تطوير", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/development-courses" },
-				{ slug: "sports-training", title: "تدريب رياضي", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/sports-training" },
-				{ slug: "computer-education", title: "تعليم الحاسوب", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/computer-education" },
-			],
-			en: [
-				{ slug: "private-tutoring", title: "Private Tutoring", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/private-tutoring" },
-				{ slug: "professional-training", title: "Professional Training", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/professional-training" },
-				{ slug: "language-learning", title: "Language Learning", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/language-learning" },
-				{ slug: "development-courses", title: "Development Courses", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/development-courses" },
-				{ slug: "sports-training", title: "Sports Training", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/sports-training" },
-				{ slug: "computer-education", title: "Computer Education", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/computer-education" },
-			],
-		},
-		keyServices: {
-			ar: [
-				{ slug: "individual-learning", title: "تعليم فردي", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/individual-learning", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "intensive-courses", title: "دورات مكثفة", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/intensive-courses", icon: React.createElement(Hammer, { className: "w-8 h-8" }) },
-				{ slug: "practical-training", title: "تدريب عملي", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/practical-training", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-			],
-			en: [
-				{ slug: "individual-learning", title: "Individual Learning", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/individual-learning", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "intensive-courses", title: "Intensive Courses", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/intensive-courses", icon: React.createElement(Hammer, { className: "w-8 h-8" }) },
-				{ slug: "practical-training", title: "Practical Training", image: "/helpsupport.jpg", path: "/serve-me/teachers-training/practical-training", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-			],
-		},
-		whyChooseUs: {
-			ar: [
-				{ title: "معلمون خبراء", description: "معلمون ذوو خبرة عالية", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "جداول مرنة", description: "مواعيد تناسب احتياجاتك", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "نتائج مضمونة", description: "تحسين ملحوظ في الأداء", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-			en: [
-				{ title: "Expert Teachers", description: "Highly experienced teachers", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "Flexible Schedules", description: "Timings that suit your needs", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "Guaranteed Results", description: "Noticeable performance improvement", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-		},
-		availableWorkshops: {
-			ar: [
-				{ 
-					name: "مركز التدريب المتميز", 
-					image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "1.5 كم", 
-					availableHours: "متاح اليوم من: 10 ص - 8 م"
-				},
-				{ 
-					name: "أكاديمية المحترفين", 
-					image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&h=400&fit=crop", 
-					rating: 4.9, 
-					distance: "2.1 كم", 
-					availableHours: "متاح اليوم من: 9 ص - 9 م"
-				},
-			],
-			en: [
-				{ 
-					name: "Excellence Training Center", 
-					image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "1.5 km", 
-					availableHours: "Available today: 10 AM - 8 PM"
-				},
-				{ 
-					name: "Professionals Academy", 
-					image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&h=400&fit=crop", 
-					rating: 4.9, 
-					distance: "2.1 km", 
-					availableHours: "Available today: 9 AM - 9 PM"
-				},
-			],
-		},
+	availableWorkshops: {
+		ar: [
+		  { 
+			name: "ورشة النخبة الحديثة", 
+			image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop", 
+			rating: 4.9, 
+			distance: "0.8 كم", 
+			availableHours: "متاح اليوم: 24 ساعة"
+		  },
+		  { 
+			name: "خدمات المحترف للصيانة", 
+			image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&h=400&fit=crop", 
+			rating: 4.5, 
+			distance: "5.2 كم", 
+			availableHours: "متاح اليوم: 10 ص - 6 م"
+		  },
+		],
+		en: [
+		  { 
+			name: "Elite Modern Workshop", 
+			image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop", 
+			rating: 4.9, 
+			distance: "0.8 km", 
+			availableHours: "Available today: 24 Hours"
+		  },
+		  { 
+			name: "Pro Maintenance Services", 
+			image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&h=400&fit=crop", 
+			rating: 4.5, 
+			distance: "5.2 km", 
+			availableHours: "Available today: 10 AM - 6 PM"
+		  },
+		],
+	  }
+},
+"car-maintenance": {
+	slug: "car-maintenance",
+	titleAr: "خدمات صيانة السيارات المتكاملة",
+	titleEn: "Complete Car Maintenance Services",
+	descriptionAr: "صيانة وإصلاح احترافية لسيارتك بأيدي خبراء معتمدين وقطع غيار أصلية",
+	descriptionEn: "Professional maintenance and repair for your car by certified experts with original spare parts",
+	heroImage: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=1200&h=800&fit=crop",
+	videoThumbnail: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=1200&h=800&fit=crop",
+	mainServices: {
+		ar: [
+			{ 
+				slug: "periodic-maintenance", 
+				title: "الصيانة الدورية", 
+				image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/periodic-maintenance",
+				description: "صيانة دورية شاملة حسب عداد الكيلومترات مع فحص كامل للسيارة"
+			},
+			{ 
+				slug: "mechanical-repair", 
+				title: "إصلاح ميكانيكي", 
+				image: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/mechanical-repair",
+				description: "إصلاح المحرك، ناقل الحركة، نظام التعليق وجميع الأعطال الميكانيكية"
+			},
+			{ 
+				slug: "electrical-repair", 
+				title: "إصلاح كهربائي", 
+				image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/electrical-repair",
+				description: "إصلاح الأنظمة الكهربائية، البطارية، المولد والإلكترونيات"
+			},
+			{ 
+				slug: "tire-services", 
+				title: "خدمات الإطارات", 
+				image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/tire-services",
+				description: "بيع وتركيب الإطارات، ترصيص، موازنة وفحص شامل للإطارات"
+			},
+			{ 
+				slug: "car-care", 
+				title: "العناية بالسيارة", 
+				image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/car-care",
+				description: "غسيل، تلميع، تنظيف داخلي، معالجة الخدوش والعناية الكاملة"
+			},
+			{ 
+				slug: "spare-parts", 
+				title: "قطع الغيار", 
+				image: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/spare-parts",
+				description: "توفير قطع غيار أصلية ومضمونة لجميع أنواع السيارات"
+			},
+		],
+		en: [
+			{ 
+				slug: "periodic-maintenance", 
+				title: "Periodic Maintenance", 
+				image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/periodic-maintenance",
+				description: "Comprehensive periodic maintenance according to mileage with complete car inspection"
+			},
+			{ 
+				slug: "mechanical-repair", 
+				title: "Mechanical Repair", 
+				image: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/mechanical-repair",
+				description: "Engine, transmission, suspension system repair and all mechanical faults"
+			},
+			{ 
+				slug: "electrical-repair", 
+				title: "Electrical Repair", 
+				image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/electrical-repair",
+				description: "Electrical systems, battery, alternator and electronics repair"
+			},
+			{ 
+				slug: "tire-services", 
+				title: "Tire Services", 
+				image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/tire-services",
+				description: "Tire sales and installation, alignment, balancing and comprehensive tire inspection"
+			},
+			{ 
+				slug: "car-care", 
+				title: "Car Care", 
+				image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/car-care",
+				description: "Washing, polishing, interior cleaning, scratch treatment and complete care"
+			},
+			{ 
+				slug: "spare-parts", 
+				title: "Spare Parts", 
+				image: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=600&h=400&fit=crop", 
+				path: "/serve-me/car-maintenance/spare-parts",
+				description: "Original and guaranteed spare parts for all car types"
+			},
+		],
 	},
-	"travel-yemen": {
-		slug: "travel-yemen",
-		titleAr: "خدمات السفر من اليمن",
-		titleEn: "Travel Services from Yemen",
-		descriptionAr: "خدمات سفر متكاملة وحجوزات موثوقة",
-		descriptionEn: "Complete travel services and reliable bookings",
-		heroImage: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&h=800&fit=crop",
-		videoThumbnail: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=1200&h=800&fit=crop",
-		mainServices: {
-			ar: [
-				{ slug: "flight-booking", title: "حجز تذاكر الطيران", image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/flight-booking" },
-				{ slug: "hotel-reservations", title: "حجز الفنادق", image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/hotel-reservations" },
-				{ slug: "visa-processing", title: "استخراج التأشيرات", image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/visa-processing" },
-				{ slug: "tour-organization", title: "تنظيم الرحلات", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/tour-organization" },
-				{ slug: "transportation-services", title: "خدمات النقل", image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/transportation-services" },
-				{ slug: "travel-insurance", title: "التأمين السياحي", image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/travel-insurance" },
-			],
-			en: [
-				{ slug: "flight-booking", title: "Flight Ticket Booking", image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/flight-booking" },
-				{ slug: "hotel-reservations", title: "Hotel Reservations", image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/hotel-reservations" },
-				{ slug: "visa-processing", title: "Visa Processing", image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/visa-processing" },
-				{ slug: "tour-organization", title: "Tour Organization", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/tour-organization" },
-				{ slug: "transportation-services", title: "Transportation Services", image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/transportation-services" },
-				{ slug: "travel-insurance", title: "Travel Insurance", image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/travel-insurance" },
-			],
-		},
-		keyServices: {
-			ar: [
-				{ slug: "special-offers", title: "عروض مميزة", image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/special-offers", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "support-24-7", title: "دعم على مدار الساعة", image: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/support-24-7", icon: React.createElement(Hammer, { className: "w-8 h-8" }) },
-				{ slug: "competitive-prices", title: "أسعار تنافسية", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/competitive-prices", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-			],
-			en: [
-				{ slug: "special-offers", title: "Special Offers", image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/special-offers", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "support-24-7", title: "24/7 Support", image: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/support-24-7", icon: React.createElement(Hammer, { className: "w-8 h-8" }) },
-				{ slug: "competitive-prices", title: "Competitive Prices", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&h=400&fit=crop", path: "/serve-me/travel-yemen/competitive-prices", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-			],
-		},
-		whyChooseUs: {
-			ar: [
-				{ title: "خبرة طويلة", description: "سنوات من الخبرة في مجال السفر", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "معاملات آمنة", description: "حماية كاملة لبياناتك", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "أفضل الأسعار", description: "عروض حصرية وأسعار مميزة", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-			en: [
-				{ title: "Long Experience", description: "Years of experience in travel", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "Secure Transactions", description: "Complete protection for your data", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "Best Prices", description: "Exclusive offers and special prices", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-		},
-		availableWorkshops: {
-			ar: [
-				{ 
-					name: "وكالة السفر الذهبية", 
-					image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=400&fit=crop", 
-					rating: 4.7, 
-					distance: "3.0 كم", 
-					availableHours: "متاح اليوم من: 9 ص - 6 م"
-				},
-				{ 
-					name: "مركز الحجوزات السريع", 
-					image: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=600&h=400&fit=crop", 
-					rating: 4.5, 
-					distance: "1.9 كم", 
-					availableHours: "متاح اليوم من: 10 ص - 7 م"
-				},
-			],
-			en: [
-				{ 
-					name: "Golden Travel Agency", 
-					image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=400&fit=crop", 
-					rating: 4.7, 
-					distance: "3.0 km", 
-					availableHours: "Available today: 9 AM - 6 PM"
-				},
-				{ 
-					name: "Quick Reservations Center", 
-					image: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=600&h=400&fit=crop", 
-					rating: 4.5, 
-					distance: "1.9 km", 
-					availableHours: "Available today: 10 AM - 7 PM"
-				},
-			],
-		},
+	whyChooseUs: {
+		ar: [
+			{ title: "فنيون معتمدون", description: "فريق من الفنيين المعتمدين والمحترفين", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
+			{ title: "خدمة سريعة", description: "إنجاز العمل في الوقت المحدد", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
+			{ title: "ضمان الخدمة", description: "ضمان على جميع أعمال الصيانة", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
+		],
+		en: [
+			{ title: "Certified Technicians", description: "Team of certified professional technicians", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
+			{ title: "Fast Service", description: "Work completed on time", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
+			{ title: "Service Warranty", description: "Warranty on all maintenance work", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
+		],
 	},
-	"babysitting": {
-		slug: "babysitting",
-		titleAr: "خدمة خذ ابني مع ابنك",
-		titleEn: "Take My Child with You Service",
-		descriptionAr: "رعاية أطفال موثوقة ومشاركة التوصيل",
-		descriptionEn: "Reliable childcare and shared transportation",
-		heroImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1200&h=800&fit=crop",
-		videoThumbnail: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=1200&h=800&fit=crop",
-		mainServices: {
-			ar: [
-				{ slug: "school-transportation", title: "توصيل المدرسة", image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&h=400&fit=crop", path: "/serve-me/babysitting/school-transportation" },
-				{ slug: "childcare", title: "رعاية الأطفال", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&h=400&fit=crop", path: "/serve-me/babysitting/childcare" },
-				{ slug: "activity-sharing", title: "مشاركة الأنشطة", image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&h=400&fit=crop", path: "/serve-me/babysitting/activity-sharing" },
-				{ slug: "safe-transportation", title: "التوصيل الآمن", image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&h=400&fit=crop", path: "/serve-me/babysitting/safe-transportation" },
-				{ slug: "child-monitoring", title: "متابعة الأطفال", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&h=400&fit=crop", path: "/serve-me/babysitting/child-monitoring" },
-				{ slug: "parent-coordination", title: "تنسيق مع الأهالي", image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&h=400&fit=crop", path: "/serve-me/babysitting/parent-coordination" },
-			],
-			en: [
-				{ slug: "school-transportation", title: "School Transportation", image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&h=400&fit=crop", path: "/serve-me/babysitting/school-transportation" },
-				{ slug: "childcare", title: "Childcare", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&h=400&fit=crop", path: "/serve-me/babysitting/childcare" },
-				{ slug: "activity-sharing", title: "Activity Sharing", image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&h=400&fit=crop", path: "/serve-me/babysitting/activity-sharing" },
-				{ slug: "safe-transportation", title: "Safe Transportation", image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&h=400&fit=crop", path: "/serve-me/babysitting/safe-transportation" },
-				{ slug: "child-monitoring", title: "Child Monitoring", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&h=400&fit=crop", path: "/serve-me/babysitting/child-monitoring" },
-				{ slug: "parent-coordination", title: "Parent Coordination", image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&h=400&fit=crop", path: "/serve-me/babysitting/parent-coordination" },
-			],
-		},
-		keyServices: {
-			ar: [
-				{ slug: "safety-trust", title: "أمان وثقة", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&h=400&fit=crop", path: "/serve-me/babysitting/safety-trust", icon: React.createElement(Shield, { className: "w-8 h-8" }) },
-				{ slug: "cost-savings", title: "توفير التكاليف", image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&h=400&fit=crop", path: "/serve-me/babysitting/cost-savings", icon: React.createElement(Hammer, { className: "w-8 h-8" }) },
-				{ slug: "continuous-monitoring", title: "مراقبة مستمرة", image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&h=400&fit=crop", path: "/serve-me/babysitting/continuous-monitoring", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-			],
-			en: [
-				{ slug: "safety-trust", title: "Safety and Trust", image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&h=400&fit=crop", path: "/serve-me/babysitting/safety-trust", icon: React.createElement(Shield, { className: "w-8 h-8" }) },
-				{ slug: "cost-savings", title: "Cost Savings", image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&h=400&fit=crop", path: "/serve-me/babysitting/cost-savings", icon: React.createElement(Hammer, { className: "w-8 h-8" }) },
-				{ slug: "continuous-monitoring", title: "Continuous Monitoring", image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&h=400&fit=crop", path: "/serve-me/babysitting/continuous-monitoring", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-			],
-		},
-		whyChooseUs: {
-			ar: [
-				{ title: "راحة البال", description: "أطفالك في أيدٍ أمينة", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "توفير الوقت", description: "حل مثالي للأهالي المشغولين", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "تفاعل اجتماعي", description: "بناء صداقات للأطفال", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-			en: [
-				{ title: "Peace of Mind", description: "Your children in safe hands", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "Time Saving", description: "Ideal solution for busy parents", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "Social Interaction", description: "Building friendships for children", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-		},
-		availableWorkshops: {
-			ar: [
-				{ 
-					name: "مركز رعاية الأطفال الآمن", 
-					image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&h=400&fit=crop", 
-					rating: 4.9, 
-					distance: "1.2 كم", 
-					availableHours: "متاح اليوم من: 7 ص - 7 م"
-				},
-				{ 
-					name: "خدمات التوصيل المشترك", 
-					image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "0.8 كم", 
-					availableHours: "متاح اليوم من: 6 ص - 8 م"
-				},
-			],
-			en: [
-				{ 
-					name: "Safe Childcare Center", 
-					image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&h=400&fit=crop", 
-					rating: 4.9, 
-					distance: "1.2 km", 
-					availableHours: "Available today: 7 AM - 7 PM"
-				},
-				{ 
-					name: "Shared Transportation Services", 
-					image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "0.8 km", 
-					availableHours: "Available today: 6 AM - 8 PM"
-				},
-			],
-		},
+	availableWorkshops: {
+		ar: [
+			{ 
+				name: "ورشة السيارات المتقدمة", 
+				image: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop", 
+				rating: 4.9, 
+				distance: "1.8 كم", 
+				availableHours: "متاح اليوم من: 8 ص - 8 م"
+			},
+			{ 
+				name: "مركز الصيانة السريع", 
+				image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop", 
+				rating: 4.6, 
+				distance: "2.3 كم", 
+				availableHours: "متاح اليوم من: 9 ص - 7 م"
+			},
+		],
+		en: [
+			{ 
+				name: "Advanced Auto Workshop", 
+				image: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop", 
+				rating: 4.9, 
+				distance: "1.8 km", 
+				availableHours: "Available today: 8 AM - 8 PM"
+			},
+			{ 
+				name: "Quick Service Center", 
+				image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop", 
+				rating: 4.6, 
+				distance: "2.3 km", 
+				availableHours: "Available today: 9 AM - 7 PM"
+			},
+		],
 	},
-	"legal-services": {
-		slug: "legal-services",
-		titleAr: "خدمات المعاملات القانونية",
-		titleEn: "Legal Transaction Services",
-		descriptionAr: "استشارات قانونية من محامين معتمدين",
-		descriptionEn: "Legal consultations from certified lawyers",
-		heroImage: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&h=800&fit=crop",
-		videoThumbnail: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1200&h=800&fit=crop",
-		mainServices: {
-			ar: [
-				{ slug: "legal-consultations", title: "استشارات قانونية", image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=400&fit=crop", path: "/serve-me/legal-services/legal-consultations" },
-				{ slug: "contract-drafting", title: "صياغة العقود", image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&h=400&fit=crop", path: "/serve-me/legal-services/contract-drafting" },
-				{ slug: "legal-representation", title: "التمثيل القانوني", image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop", path: "/serve-me/legal-services/legal-representation" },
-				{ slug: "government-transactions", title: "المعاملات الحكومية", image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=400&fit=crop", path: "/serve-me/legal-services/government-transactions" },
-				{ slug: "dispute-resolution", title: "حل النزاعات", image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&h=400&fit=crop", path: "/serve-me/legal-services/dispute-resolution" },
-				{ slug: "real-estate-registration", title: "الشهر العقاري", image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop", path: "/serve-me/legal-services/real-estate-registration" },
-			],
-			en: [
-				{ slug: "legal-consultations", title: "Legal Consultations", image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=400&fit=crop", path: "/serve-me/legal-services/legal-consultations" },
-				{ slug: "contract-drafting", title: "Contract Drafting", image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&h=400&fit=crop", path: "/serve-me/legal-services/contract-drafting" },
-				{ slug: "legal-representation", title: "Legal Representation", image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop", path: "/serve-me/legal-services/legal-representation" },
-				{ slug: "government-transactions", title: "Government Transactions", image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=400&fit=crop", path: "/serve-me/legal-services/government-transactions" },
-				{ slug: "dispute-resolution", title: "Dispute Resolution", image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&h=400&fit=crop", path: "/serve-me/legal-services/dispute-resolution" },
-				{ slug: "real-estate-registration", title: "Real Estate Registration", image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop", path: "/serve-me/legal-services/real-estate-registration" },
-			],
-		},
-		keyServices: {
-			ar: [
-				{ slug: "specialized-consultations", title: "استشارات متخصصة", image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=400&fit=crop", path: "/serve-me/legal-services/specialized-consultations", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "complete-confidentiality", title: "سرية تامة", image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop", path: "/serve-me/legal-services/complete-confidentiality", icon: React.createElement(Shield, { className: "w-8 h-8" }) },
-				{ slug: "precise-follow-up", title: "متابعة دقيقة", image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=400&fit=crop", path: "/serve-me/legal-services/precise-follow-up", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-			],
-			en: [
-				{ slug: "specialized-consultations", title: "Specialized Consultations", image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=400&fit=crop", path: "/serve-me/legal-services/specialized-consultations", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "complete-confidentiality", title: "Complete Confidentiality", image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop", path: "/serve-me/legal-services/complete-confidentiality", icon: React.createElement(Shield, { className: "w-8 h-8" }) },
-				{ slug: "precise-follow-up", title: "Precise Follow-up", image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=400&fit=crop", path: "/serve-me/legal-services/precise-follow-up", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-			],
-		},
-		whyChooseUs: {
-			ar: [
-				{ title: "محامون أكفاء", description: "فريق من المحامين المعتمدين", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "أسعار مناسبة", description: "أسعار تنافسية وعادلة", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "خبرة واسعة", description: "خبرة في مختلف المجالات القانونية", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-			en: [
-				{ title: "Competent Lawyers", description: "Team of certified lawyers", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "Reasonable Prices", description: "Competitive and fair prices", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "Wide Experience", description: "Experience in various legal fields", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-		},
-		availableWorkshops: {
-			ar: [
-				{ 
-					name: "مكتب المحاماة المتخصص", 
-					image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "2.7 كم", 
-					availableHours: "متاح اليوم من: 9 ص - 5 م"
-				},
-				{ 
-					name: "مركز الاستشارات القانونية", 
-					image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop", 
-					rating: 4.7, 
-					distance: "3.5 كم", 
-					availableHours: "متاح اليوم من: 10 ص - 6 م"
-				},
-			],
-			en: [
-				{ 
-					name: "Specialized Law Office", 
-					image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "2.7 km", 
-					availableHours: "Available today: 9 AM - 5 PM"
-				},
-				{ 
-					name: "Legal Consultations Center", 
-					image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop", 
-					rating: 4.7, 
-					distance: "3.5 km", 
-					availableHours: "Available today: 10 AM - 6 PM"
-				},
-			],
-		},
-	},
-	"women-salons": {
-		slug: "women-salons",
-		titleAr: "خدمات الصالونات النسائية",
-		titleEn: "Women's Salon Services",
-		descriptionAr: "عناية بالجمال من خبيرات محترفات",
-		descriptionEn: "Beauty care from professional experts",
-		heroImage: "/serveme-hero.png",
-		videoThumbnail: "/serveme-hero.png",
-		mainServices: {
-			ar: [
-				{ slug: "hair-cutting-styling", title: "قص وتصفيف الشعر", image: "/serveme-hero.png", path: "/serve-me/women-salons/hair-cutting-styling" },
-				{ slug: "hair-coloring", title: "صبغ الشعر", image: "/serveme-hero.png", path: "/serve-me/women-salons/hair-coloring" },
-				{ slug: "skin-care", title: "عناية بالبشرة", image: "/serveme-hero.png", path: "/serve-me/women-salons/skin-care" },
-				{ slug: "makeup-events", title: "مكياج ومناسبات", image: "/serveme-hero.png", path: "/serve-me/women-salons/makeup-events" },
-				{ slug: "nail-care", title: "عناية بالأظافر", image: "/serveme-hero.png", path: "/serve-me/women-salons/nail-care" },
-				{ slug: "hair-treatment", title: "علاج الشعر", image: "/serveme-hero.png", path: "/serve-me/women-salons/hair-treatment" },
-			],
-			en: [
-				{ slug: "hair-cutting-styling", title: "Hair Cutting and Styling", image: "/serveme-hero.png", path: "/serve-me/women-salons/hair-cutting-styling" },
-				{ slug: "hair-coloring", title: "Hair Coloring", image: "/serveme-hero.png", path: "/serve-me/women-salons/hair-coloring" },
-				{ slug: "skin-care", title: "Skin Care", image: "/serveme-hero.png", path: "/serve-me/women-salons/skin-care" },
-				{ slug: "makeup-events", title: "Makeup and Events", image: "/serveme-hero.png", path: "/serve-me/women-salons/makeup-events" },
-				{ slug: "nail-care", title: "Nail Care", image: "/serveme-hero.png", path: "/serve-me/women-salons/nail-care" },
-				{ slug: "hair-treatment", title: "Hair Treatment", image: "/serveme-hero.png", path: "/serve-me/women-salons/hair-treatment" },
-			],
-		},
-		keyServices: {
-			ar: [
-				{ slug: "beauty-experts", title: "خبيرات تجميل", image: "/serveme-hero.png", path: "/serve-me/women-salons/beauty-experts", icon: React.createElement(Sparkles, { className: "w-8 h-8" }) },
-				{ slug: "original-products", title: "منتجات أصلية", image: "/serveme-hero.png", path: "/serve-me/women-salons/original-products", icon: React.createElement(Shield, { className: "w-8 h-8" }) },
-				{ slug: "elegant-atmosphere", title: "أجواء راقية", image: "/serveme-hero.png", path: "/serve-me/women-salons/elegant-atmosphere", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-			],
-			en: [
-				{ slug: "beauty-experts", title: "Beauty Experts", image: "/serveme-hero.png", path: "/serve-me/women-salons/beauty-experts", icon: React.createElement(Sparkles, { className: "w-8 h-8" }) },
-				{ slug: "original-products", title: "Original Products", image: "/serveme-hero.png", path: "/serve-me/women-salons/original-products", icon: React.createElement(Shield, { className: "w-8 h-8" }) },
-				{ slug: "elegant-atmosphere", title: "Elegant Atmosphere", image: "/serveme-hero.png", path: "/serve-me/women-salons/elegant-atmosphere", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-			],
-		},
-		whyChooseUs: {
-			ar: [
-				{ title: "خبيرات محترفات", description: "فريق من خبيرات التجميل", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "منتجات عالمية", description: "استخدام أفضل المنتجات", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "خصوصية تامة", description: "بيئة مريحة وخاصة", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-			en: [
-				{ title: "Professional Experts", description: "Team of beauty experts", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "International Products", description: "Using the best products", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "Complete Privacy", description: "Comfortable and private environment", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-		},
-		availableWorkshops: {
-			ar: [
-				{ 
-					name: "صالون الجمال المتميز", 
-					image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&h=400&fit=crop", 
-					rating: 4.9, 
-					distance: "1.3 كم", 
-					availableHours: "متاح اليوم من: 9 ص - 9 م"
-				},
-				{ 
-					name: "مركز العناية بالجمال", 
-					image: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "2.4 كم", 
-					availableHours: "متاح اليوم من: 10 ص - 8 م"
-				},
-			],
-			en: [
-				{ 
-					name: "Excellence Beauty Salon", 
-					image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&h=400&fit=crop", 
-					rating: 4.9, 
-					distance: "1.3 km", 
-					availableHours: "Available today: 9 AM - 9 PM"
-				},
-				{ 
-					name: "Beauty Care Center", 
-					image: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "2.4 km", 
-					availableHours: "Available today: 10 AM - 8 PM"
-				},
-			],
-		},
-	},
-	"men-salons": {
-		slug: "men-salons",
-		titleAr: "خدمات الصالونات الرجالية",
-		titleEn: "Men's Salon Services",
-		descriptionAr: "عناية رجالية متميزة من حلاقين محترفين",
-		descriptionEn: "Premium men's care from professional barbers",
-		heroImage: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=1200&h=800&fit=crop",
-		videoThumbnail: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=1200&h=800&fit=crop",
-		mainServices: {
-			ar: [
-				{ slug: "modern-haircuts", title: "قص شعر عصري", image: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=600&h=400&fit=crop", path: "/serve-me/men-salons/modern-haircuts" },
-				{ slug: "beard-shaving", title: "حلاقة ذقن", image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&h=400&fit=crop", path: "/serve-me/men-salons/beard-shaving" },
-				{ slug: "styling-grooming", title: "تصفيف وتنسيق", image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&h=400&fit=crop", path: "/serve-me/men-salons/styling-grooming" },
-				{ slug: "beard-care", title: "عناية باللحية", image: "https://images.unsplash.com/photo-1622293296315-8e4eb54aae26?w=600&h=400&fit=crop", path: "/serve-me/men-salons/beard-care" },
-				{ slug: "masks-treatments", title: "ماسكات وعلاجات", image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d5de?w=600&h=400&fit=crop", path: "/serve-me/men-salons/masks-treatments" },
-				{ slug: "hair-coloring-men", title: "تلوين الشعر", image: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=600&h=400&fit=crop", path: "/serve-me/men-salons/hair-coloring" },
-			],
-			en: [
-				{ slug: "modern-haircuts", title: "Modern Haircuts", image: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=600&h=400&fit=crop", path: "/serve-me/men-salons/modern-haircuts" },
-				{ slug: "beard-shaving", title: "Beard Shaving", image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&h=400&fit=crop", path: "/serve-me/men-salons/beard-shaving" },
-				{ slug: "styling-grooming", title: "Styling and Grooming", image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&h=400&fit=crop", path: "/serve-me/men-salons/styling-grooming" },
-				{ slug: "beard-care", title: "Beard Care", image: "https://images.unsplash.com/photo-1622293296315-8e4eb54aae26?w=600&h=400&fit=crop", path: "/serve-me/men-salons/beard-care" },
-				{ slug: "masks-treatments", title: "Masks and Treatments", image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d5de?w=600&h=400&fit=crop", path: "/serve-me/men-salons/masks-treatments" },
-				{ slug: "hair-coloring-men", title: "Hair Coloring", image: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=600&h=400&fit=crop", path: "/serve-me/men-salons/hair-coloring" },
-			],
-		},
-		keyServices: {
-			ar: [
-				{ slug: "expert-barbers", title: "حلاقون خبراء", image: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=600&h=400&fit=crop", path: "/serve-me/men-salons/expert-barbers", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "modern-techniques", title: "تقنيات حديثة", image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&h=400&fit=crop", path: "/serve-me/men-salons/modern-techniques", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-				{ slug: "original-products-men", title: "منتجات أصلية", image: "https://images.unsplash.com/photo-1622293296315-8e4eb54aae26?w=600&h=400&fit=crop", path: "/serve-me/men-salons/original-products", icon: React.createElement(Shield, { className: "w-8 h-8" }) },
-			],
-			en: [
-				{ slug: "expert-barbers", title: "Expert Barbers", image: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=600&h=400&fit=crop", path: "/serve-me/men-salons/expert-barbers", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "modern-techniques", title: "Modern Techniques", image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&h=400&fit=crop", path: "/serve-me/men-salons/modern-techniques", icon: React.createElement(Zap, { className: "w-8 h-8" }) },
-				{ slug: "original-products-men", title: "Original Products", image: "https://images.unsplash.com/photo-1622293296315-8e4eb54aae26?w=600&h=400&fit=crop", path: "/serve-me/men-salons/original-products", icon: React.createElement(Shield, { className: "w-8 h-8" }) },
-			],
-		},
-		whyChooseUs: {
-			ar: [
-				{ title: "حلاقون محترفون", description: "فريق من الحلاقين ذوي الخبرة", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "أجواء راقية", description: "صالون بتصميم عصري", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "خدمة سريعة", description: "خدمة فعالة دون انتظار طويل", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-			en: [
-				{ title: "Professional Barbers", description: "Team of experienced barbers", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "Elegant Atmosphere", description: "Salon with modern design", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "Fast Service", description: "Efficient service without long wait", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-		},
-		availableWorkshops: {
-			ar: [
-				{ 
-					name: "صالون الرجال الفاخر", 
-					image: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "1.6 كم", 
-					availableHours: "متاح اليوم من: 9 ص - 10 م"
-				},
-				{ 
-					name: "حلاق الخبراء", 
-					image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&h=400&fit=crop", 
-					rating: 4.7, 
-					distance: "2.2 كم", 
-					availableHours: "متاح اليوم من: 10 ص - 9 م"
-				},
-			],
-			en: [
-				{ 
-					name: "Luxury Men's Salon", 
-					image: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=600&h=400&fit=crop", 
-					rating: 4.8, 
-					distance: "1.6 km", 
-					availableHours: "Available today: 9 AM - 10 PM"
-				},
-				{ 
-					name: "Experts Barber", 
-					image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&h=400&fit=crop", 
-					rating: 4.7, 
-					distance: "2.2 km", 
-					availableHours: "Available today: 10 AM - 9 PM"
-				},
-			],
-		},
-	},
-	"construction-materials": {
-		slug: "construction-materials",
-		titleAr: "خدمات مواد البناء",
-		titleEn: "Construction Materials Services",
-		descriptionAr: "توريد وتوصيل جميع مواد البناء",
-		descriptionEn: "Supply and delivery of all construction materials",
-		heroImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop",
-		videoThumbnail: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&h=800&fit=crop",
-		mainServices: {
-			ar: [
-				{ slug: "cement-bricks", title: "أسمنت وطوب", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/cement-bricks" },
-				{ slug: "iron-steel", title: "حديد وصلب", image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/iron-steel" },
-				{ slug: "tiles-ceramics", title: "بلاط وسيراميك", image: "/serveme-hero.png", path: "/serve-me/construction-materials/tiles-ceramics" },
-				{ slug: "sanitary-ware", title: "أدوات صحية", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/sanitary-ware" },
-				{ slug: "doors-windows", title: "أبواب ونوافذ", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/doors-windows" },
-				{ slug: "paints-insulation", title: "دهانات وعوازل", image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/paints-insulation" },
-			],
-			en: [
-				{ slug: "cement-bricks", title: "Cement and Bricks", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/cement-bricks" },
-				{ slug: "iron-steel", title: "Iron and Steel", image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/iron-steel" },
-				{ slug: "tiles-ceramics", title: "Tiles and Ceramics", image: "/serveme-hero.png", path: "/serve-me/construction-materials/tiles-ceramics" },
-				{ slug: "sanitary-ware", title: "Sanitary Ware", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/sanitary-ware" },
-				{ slug: "doors-windows", title: "Doors and Windows", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/doors-windows" },
-				{ slug: "paints-insulation", title: "Paints and Insulation", image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/paints-insulation" },
-			],
-		},
-		keyServices: {
-			ar: [
-				{ slug: "fast-delivery", title: "توصيل سريع", image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/fast-delivery", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "best-prices", title: "أفضل الأسعار", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/best-prices", icon: React.createElement(Hammer, { className: "w-8 h-8" }) },
-				{ slug: "high-quality-products", title: "منتجات عالية الجودة", image: "/serveme-hero.png", path: "/serve-me/construction-materials/high-quality-products", icon: React.createElement(Shield, { className: "w-8 h-8" }) },
-			],
-			en: [
-				{ slug: "fast-delivery", title: "Fast Delivery", image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/fast-delivery", icon: React.createElement(Wrench, { className: "w-8 h-8" }) },
-				{ slug: "best-prices", title: "Best Prices", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop", path: "/serve-me/construction-materials/best-prices", icon: React.createElement(Hammer, { className: "w-8 h-8" }) },
-				{ slug: "high-quality-products", title: "High Quality Products", image: "/serveme-hero.png", path: "/serve-me/construction-materials/high-quality-products", icon: React.createElement(Shield, { className: "w-8 h-8" }) },
-			],
-		},
-		whyChooseUs: {
-			ar: [
-				{ title: "جودة مضمونة", description: "منتجات عالية الجودة ومضمونة", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "توصيل للموقع", description: "نوصل إلى موقع البناء مباشرة", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "أسعار تنافسية", description: "أفضل الأسعار في السوق", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-			en: [
-				{ title: "Guaranteed Quality", description: "High quality guaranteed products", icon: React.createElement(Shield, { className: "w-12 h-12" }) },
-				{ title: "Site Delivery", description: "We deliver directly to the construction site", icon: React.createElement(CircleDot, { className: "w-12 h-12" }) },
-				{ title: "Competitive Prices", description: "Best prices in the market", icon: React.createElement(Wrench, { className: "w-12 h-12" }) },
-			],
-		},
-		availableWorkshops: {
-			ar: [
-				{ 
-					name: "مستودع مواد البناء الكبير", 
-					image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop", 
-					rating: 4.6, 
-					distance: "5.0 كم", 
-					availableHours: "متاح اليوم من: 7 ص - 6 م"
-				},
-				{ 
-					name: "معرض مواد البناء المتكامل", 
-					image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop", 
-					rating: 4.7, 
-					distance: "4.2 كم", 
-					availableHours: "متاح اليوم من: 8 ص - 7 م"
-				},
-			],
-			en: [
-				{ 
-					name: "Large Construction Materials Warehouse", 
-					image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop", 
-					rating: 4.6, 
-					distance: "5.0 km", 
-					availableHours: "Available today: 7 AM - 6 PM"
-				},
-				{ 
-					name: "Complete Construction Materials Showroom", 
-					image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop", 
-					rating: 4.7, 
-					distance: "4.2 km", 
-					availableHours: "Available today: 8 AM - 7 PM"
-				},
-			],
-		},
-	},
+},
 };
 
 /**
@@ -843,361 +390,365 @@ export const serviceCategoriesData: Record<string, ServiceCategoryData> = {
  * Maps `${categorySlug}/${serviceSlug}` to service details
  */
 export const individualServicesData: Record<string, IndividualServiceData> = {
+
+
 	// ============================================
-	// HOME MAINTENANCE SERVICES
+	// CLEANING & PEST CONTROL (EXISTING SERVICES)
 	// ============================================
 	"home-maintenance/pest-control": {
 		slug: "pest-control",
-		titleAr: "مكافحة الحشرات",
-		titleEn: "Pest Control",
-		descriptionAr: "خدمة مكافحة الحشرات المحترفة بأحدث التقنيات",
-		descriptionEn: "Professional pest control service with the latest technologies",
-		heroImage: "https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=1200&h=800&fit=crop",
-		priceStartsFrom: 200,
+		titleAr: "مكافحة الآفات والحشرات",
+		titleEn: "Pest and Insect Control",
+		descriptionAr: "حلول متقدمة لمكافحة الحشرات والآفات باستخدام مواد آمنة ومعتمدة صحياً",
+		descriptionEn: "Advanced pest and insect control solutions using safe and health-approved materials",
+		heroImage: "https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=600&h=400&fit=crop",
+		priceStartsFrom: 250,
 		rating: 4.8,
-		reviewsCount: 320,
+		reviewsCount: 387,
 		features: {
 			ar: [
-				{ text: "فحص شامل للمنزل", included: true },
-				{ text: "مواد آمنة وصحية", included: true },
-				{ text: "ضمان لمدة 6 أشهر", included: true },
-				{ text: "خدمة طوارئ 24/7", included: false },
+				{ text: "فحص مجاني للمنزل قبل الخدمة", included: true },
+				{ text: "مبيدات آمنة معتمدة من وزارة الصحة", included: true },
+				{ text: "ضمان شامل لمدة 3 أشهر", included: true },
+				{ text: "خدمة متابعة مجانية بعد شهر", included: true },
+				{ text: "خدمة طوارئ على مدار الساعة", included: false },
 			],
 			en: [
-				{ text: "Comprehensive home inspection", included: true },
-				{ text: "Safe and healthy materials", included: true },
-				{ text: "6-month warranty", included: true },
+				{ text: "Free home inspection before service", included: true },
+				{ text: "Safe pesticides approved by Ministry of Health", included: true },
+				{ text: "Comprehensive 3-month warranty", included: true },
+				{ text: "Free follow-up service after one month", included: true },
 				{ text: "24/7 emergency service", included: false },
 			],
 		},
 		serviceDetails: {
 			ar: [
-				{ text: "رش المبيدات الآمنة" },
-				{ text: "معالجة النمل الأبيض" },
-				{ text: "مكافحة الصراصير والفئران" },
-				{ text: "تعقيم وتطهير شامل" },
+				{ text: "رش ومكافحة الصراصير بتقنية الجل الألماني" },
+				{ text: "معالجة النمل الأبيض والقضاء على الأعشاش" },
+				{ text: "مكافحة القوارض وإغلاق منافذ الدخول" },
+				{ text: "رش المبيدات الخارجية للحديقة والمحيط" },
+				{ text: "تعقيم وتطهير شامل بعد المكافحة" },
 			],
 			en: [
-				{ text: "Safe pesticide spraying" },
-				{ text: "Termite treatment" },
-				{ text: "Cockroach and rodent control" },
-				{ text: "Comprehensive sterilization" },
+				{ text: "Cockroach control using German gel technology" },
+				{ text: "Termite treatment and nest elimination" },
+				{ text: "Rodent control and entry point sealing" },
+				{ text: "Exterior pesticide spraying for garden and perimeter" },
+				{ text: "Comprehensive sterilization after treatment" },
 			],
 		},
 	},
-	"home-maintenance/electrical-services": {
-		slug: "electrical-services",
-		titleAr: "خدمات الكهرباء",
-		titleEn: "Electrical Services",
-		descriptionAr: "خدمات كهربائية شاملة من فنيين معتمدين",
-		descriptionEn: "Comprehensive electrical services from certified technicians",
-		heroImage: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1200&h=800&fit=crop",
-		priceStartsFrom: 150,
-		rating: 4.7,
-		reviewsCount: 280,
-		features: {
-			ar: [
-				{ text: "فنيون معتمدون", included: true },
-				{ text: "ضمان على الأعمال", included: true },
-				{ text: "أدوات حديثة", included: true },
-				{ text: "صيانة دورية مجانية", included: false },
-			],
-			en: [
-				{ text: "Certified technicians", included: true },
-				{ text: "Work warranty", included: true },
-				{ text: "Modern tools", included: true },
-				{ text: "Free periodic maintenance", included: false },
-			],
-		},
-		serviceDetails: {
-			ar: [
-				{ text: "تركيب وصيانة الإضاءة" },
-				{ text: "إصلاح الأعطال الكهربائية" },
-				{ text: "تمديد الأسلاك" },
-				{ text: "تركيب اللوحات الكهربائية" },
-			],
-			en: [
-				{ text: "Lighting installation and maintenance" },
-				{ text: "Electrical fault repair" },
-				{ text: "Wire installation" },
-				{ text: "Electrical panel installation" },
-			],
-		},
-	},
-	"home-maintenance/plumbing-services": {
-		slug: "plumbing-services",
-		titleAr: "خدمات السباكة",
-		titleEn: "Plumbing Services",
-		descriptionAr: "حلول سباكة سريعة وموثوقة",
-		descriptionEn: "Fast and reliable plumbing solutions",
-		heroImage: "https://images.unsplash.com/photo-1621905252472-6af3f59fd39e?w=1200&h=800&fit=crop",
-		priceStartsFrom: 120,
-		rating: 4.6,
-		reviewsCount: 350,
-		features: {
-			ar: [
-				{ text: "استجابة سريعة", included: true },
-				{ text: "قطع غيار أصلية", included: true },
-				{ text: "ضمان على الإصلاحات", included: true },
-				{ text: "كشف تسربات متقدم", included: false },
-			],
-			en: [
-				{ text: "Quick response", included: true },
-				{ text: "Original spare parts", included: true },
-				{ text: "Repair warranty", included: true },
-				{ text: "Advanced leak detection", included: false },
-			],
-		},
-		serviceDetails: {
-			ar: [
-				{ text: "إصلاح الصنابير والمواسير" },
-				{ text: "كشف وإصلاح التسربات" },
-				{ text: "تسليك المجاري" },
-				{ text: "تركيب السخانات" },
-			],
-			en: [
-				{ text: "Faucet and pipe repair" },
-				{ text: "Leak detection and repair" },
-				{ text: "Drain unclogging" },
-				{ text: "Water heater installation" },
-			],
-		},
-	},
+
 	"home-maintenance/home-cleaning": {
 		slug: "home-cleaning",
-		titleAr: "تنظيف المنازل والحدائق",
+		titleAr: "التنظيف المنزلي والحدائق",
 		titleEn: "Home and Garden Cleaning",
-		descriptionAr: "خدمات تنظيف شاملة للمنازل والحدائق",
-		descriptionEn: "Comprehensive cleaning services for homes and gardens",
-		heroImage: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=1200&h=800&fit=crop",
-		priceStartsFrom: 180,
+		descriptionAr: "خدمات تنظيف شاملة ومتخصصة للمنازل والحدائق بفريق مدرب ومواد صديقة للبيئة",
+		descriptionEn: "Comprehensive specialized cleaning services for homes and gardens with trained team and eco-friendly materials",
+		heroImage: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=600&h=400&fit=crop",
+		priceStartsFrom: 220,
 		rating: 4.9,
-		reviewsCount: 420,
+		reviewsCount: 531,
 		features: {
 			ar: [
-				{ text: "فريق محترف", included: true },
-				{ text: "مواد تنظيف صديقة للبيئة", included: true },
-				{ text: "تأمين شامل", included: true },
-				{ text: "خدمة شهرية مخفضة", included: false },
+				{ text: "فريق محترف مدرب ومؤمن بالكامل", included: true },
+				{ text: "مواد تنظيف عضوية آمنة للأطفال", included: true },
+				{ text: "تأمين شامل على الممتلكات", included: true },
+				{ text: "معدات تنظيف حديثة ومعقمة", included: true },
+				{ text: "اشتراك شهري بخصم 20%", included: false },
 			],
 			en: [
-				{ text: "Professional team", included: true },
-				{ text: "Eco-friendly cleaning materials", included: true },
-				{ text: "Comprehensive insurance", included: true },
-				{ text: "Discounted monthly service", included: false },
+				{ text: "Professional fully trained and insured team", included: true },
+				{ text: "Organic cleaning materials safe for children", included: true },
+				{ text: "Comprehensive property insurance", included: true },
+				{ text: "Modern and sterilized cleaning equipment", included: true },
+				{ text: "Monthly subscription with 20% discount", included: false },
 			],
 		},
 		serviceDetails: {
 			ar: [
-				{ text: "تنظيف شامل للمنزل" },
-				{ text: "تنظيف النوافذ والزجاج" },
-				{ text: "تنظيف وتنسيق الحدائق" },
-				{ text: "تلميع الأرضيات" },
+				{ text: "تنظيف شامل لجميع الغرف والمرافق والحمامات" },
+				{ text: "تنظيف وتلميع النوافذ والزجاج من الداخل والخارج" },
+				{ text: "غسيل وتنظيف السجاد والمفروشات بالبخار" },
+				{ text: "تنظيف وتنسيق الحدائق وقص الأشجار" },
+				{ text: "تلميع الأرضيات الرخامية والخشبية بمواد متخصصة" },
 			],
 			en: [
-				{ text: "Comprehensive home cleaning" },
-				{ text: "Window and glass cleaning" },
-				{ text: "Garden cleaning and landscaping" },
-				{ text: "Floor polishing" },
+				{ text: "Comprehensive cleaning of all rooms, facilities, and bathrooms" },
+				{ text: "Interior and exterior window and glass cleaning and polishing" },
+				{ text: "Carpet and upholstery steam washing and cleaning" },
+				{ text: "Garden cleaning, landscaping, and tree trimming" },
+				{ text: "Marble and wooden floor polishing with specialized materials" },
 			],
 		},
 	},
-	"home-maintenance/ac-maintenance": {
-		slug: "ac-maintenance",
-		titleEn: "AC Repair and Maintenance",
-		titleAr: "اصلاح وصيانة المكيفات",
-		descriptionAr: "صيانة وإصلاح المكيفات بخبرة عالية",
-		descriptionEn: "AC maintenance and repair with high expertise",
-		heroImage: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&h=800&fit=crop",
+	// ============================================
+	// MAIN SERVICES (Category-level services)
+	// ============================================
+	"home-maintenance/plumbing-water-services": {
+		slug: "plumbing-water-services",
+		titleAr: "السباكة وأعمال المياه",
+		titleEn: "Plumbing & Water Services",
+		descriptionAr: "خدمات شاملة للسباكة تشمل إصلاح التسريبات، تسليك المجاري، تركيب الأدوات الصحية والسخانات",
+		descriptionEn: "Comprehensive plumbing services including leak repair, drain cleaning, sanitary fixtures and heater installation",
+		heroImage: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=400&fit=crop",
+		priceStartsFrom: 150,
+		rating: 4.8,
+		reviewsCount: 456,
+		features: {
+			ar: [
+				{ text: "فنيون محترفون ومرخصون", included: true },
+				{ text: "استجابة سريعة للطوارئ", included: true },
+				{ text: "قطع غيار أصلية معتمدة", included: true },
+				{ text: "ضمان 6 أشهر على جميع الأعمال", included: true },
+				{ text: "خدمة طوارئ 24 ساعة", included: false },
+			],
+			en: [
+				{ text: "Professional and licensed technicians", included: true },
+				{ text: "Quick emergency response", included: true },
+				{ text: "Certified original spare parts", included: true },
+				{ text: "6-month warranty on all works", included: true },
+				{ text: "24-hour emergency service", included: false },
+			],
+		},
+		serviceDetails: {
+			ar: [
+				{ text: "إصلاح تسريبات المياه المخفية والظاهرة" },
+				{ text: "تسليك المجاري والبلاعات" },
+				{ text: "تركيب وصيانة الأدوات الصحية" },
+				{ text: "تركيب وصيانة السخانات" },
+				{ text: "تركيب وصيانة مضخات المياه" },
+			],
+			en: [
+				{ text: "Hidden and visible water leak repair" },
+				{ text: "Drain and sewer unclogging" },
+				{ text: "Sanitary fixtures installation and maintenance" },
+				{ text: "Water heater installation and maintenance" },
+				{ text: "Water pump installation and maintenance" },
+			],
+		},
+	},
+
+	"home-maintenance/electrical-lighting-services": {
+		slug: "electrical-lighting-services",
+		titleAr: "الكهرباء والإنارة",
+		titleEn: "Electrical & Lighting Services",
+		descriptionAr: "تركيب وصيانة الأسلاك، إصلاح الأعطال الكهربائية، تركيب الإضاءة واللوحات الكهربائية",
+		descriptionEn: "Wiring installation and maintenance, electrical fault repair, lighting and electrical panel installation",
+		heroImage: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&h=400&fit=crop",
 		priceStartsFrom: 180,
 		rating: 4.7,
-		reviewsCount: 290,
+		reviewsCount: 412,
 		features: {
 			ar: [
-				{ text: "فنيون متخصصون", included: true },
-				{ text: "فحص شامل", included: true },
-				{ text: "ضمان على الخدمة", included: true },
-				{ text: "عقد صيانة سنوي", included: false },
+				{ text: "فنيون مرخصون من الدفاع المدني", included: true },
+				{ text: "ضمان سنة على جميع الأعمال", included: true },
+				{ text: "مواد وكابلات أصلية معتمدة", included: true },
+				{ text: "فحص مجاني للوحة الكهربائية", included: true },
+				{ text: "خدمة طوارئ على مدار الساعة", included: false },
 			],
 			en: [
-				{ text: "Specialized technicians", included: true },
-				{ text: "Comprehensive inspection", included: true },
-				{ text: "Service warranty", included: true },
-				{ text: "Annual maintenance contract", included: false },
+				{ text: "Civil Defense licensed technicians", included: true },
+				{ text: "One-year warranty on all works", included: true },
+				{ text: "Certified original materials and cables", included: true },
+				{ text: "Free electrical panel inspection", included: true },
+				{ text: "24/7 emergency service", included: false },
 			],
 		},
 		serviceDetails: {
 			ar: [
-				{ text: "تنظيف وصيانة المكيفات" },
-				{ text: "إصلاح الأعطال" },
-				{ text: "شحن الفريون" },
-				{ text: "فحص الأداء" },
+				{ text: "تركيب وصيانة جميع أنواع الإضاءة" },
+				{ text: "إصلاح الأعطال الكهربائية الطارئة" },
+				{ text: "تركيب المفاتيح والأفياش" },
+				{ text: "تركيب وصيانة اللوحات الكهربائية" },
+				{ text: "تمديد الكابلات والتأسيس الكهربائي" },
 			],
 			en: [
-				{ text: "AC cleaning and maintenance" },
-				{ text: "Fault repair" },
-				{ text: "Freon recharge" },
-				{ text: "Performance check" },
+				{ text: "Installation and maintenance of all lighting types" },
+				{ text: "Emergency electrical fault repair" },
+				{ text: "Switch and socket installation" },
+				{ text: "Electrical panel installation and maintenance" },
+				{ text: "Cable extension and electrical installation" },
 			],
 		},
 	},
-	"home-maintenance/carpentry-services": {
-		slug: "carpentry-services",
-		titleAr: "خدمات النجارة",
-		titleEn: "Carpentry Services",
-		descriptionAr: "أعمال نجارة احترافية وتصاميم عصرية",
-		descriptionEn: "Professional carpentry work and modern designs",
-		heroImage: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=1200&h=800&fit=crop",
-		priceStartsFrom: 250,
+
+	"home-maintenance/ac-cooling-services": {
+		slug: "ac-cooling-services",
+		titleAr: "التكييف والتبريد",
+		titleEn: "AC & Cooling Services",
+		descriptionAr: "تنظيف وصيانة المكيفات، إصلاح الأعطال، تعبئة الغاز، فك وتركيب جميع الأنواع",
+		descriptionEn: "AC cleaning and maintenance, fault repair, gas refilling, installation and removal of all types",
+		heroImage: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&h=400&fit=crop",
+		priceStartsFrom: 200,
 		rating: 4.8,
-		reviewsCount: 180,
+		reviewsCount: 523,
 		features: {
 			ar: [
-				{ text: "نجارون محترفون", included: true },
-				{ text: "تصاميم حديثة", included: true },
-				{ text: "خامات عالية الجودة", included: true },
-				{ text: "تصميم ثلاثي الأبعاد", included: false },
+				{ text: "فنيون متخصصون في جميع الماركات", included: true },
+				{ text: "فحص شامل لجميع المكونات", included: true },
+				{ text: "ضمان 3 أشهر على الصيانة", included: true },
+				{ text: "غاز فريون أصلي معتمد", included: true },
+				{ text: "عقد صيانة سنوي شامل", included: false },
 			],
 			en: [
-				{ text: "Professional carpenters", included: true },
-				{ text: "Modern designs", included: true },
-				{ text: "High-quality materials", included: true },
-				{ text: "3D design", included: false },
+				{ text: "Technicians specialized in all brands", included: true },
+				{ text: "Comprehensive inspection of all components", included: true },
+				{ text: "3-month maintenance warranty", included: true },
+				{ text: "Original certified Freon gas", included: true },
+				{ text: "Comprehensive annual maintenance contract", included: false },
 			],
 		},
 		serviceDetails: {
 			ar: [
-				{ text: "تفصيل خزائن ومطابخ" },
-				{ text: "صيانة الأبواب والشبابيك" },
-				{ text: "أعمال الديكور الخشبي" },
-				{ text: "تركيب الأرضيات الخشبية" },
+				{ text: "تنظيف وغسيل المكيفات بالبخار" },
+				{ text: "إصلاح الأعطال الفنية" },
+				{ text: "تعبئة غاز الفريون" },
+				{ text: "فك وتركيب جميع أنواع المكيفات" },
+				{ text: "فحص الأداء والتبريد" },
 			],
 			en: [
-				{ text: "Custom cabinets and kitchens" },
-				{ text: "Door and window maintenance" },
-				{ text: "Wooden decoration work" },
-				{ text: "Wooden floor installation" },
+				{ text: "AC cleaning and steam washing" },
+				{ text: "Technical fault repair" },
+				{ text: "Freon gas refilling" },
+				{ text: "Installation and removal of all AC types" },
+				{ text: "Performance and cooling inspection" },
 			],
 		},
 	},
-	"home-maintenance/water-tank-cleaning": {
-		slug: "water-tank-cleaning",
-		titleAr: "تنظيف خزانات المياه",
-		titleEn: "Water Tank Cleaning",
-		descriptionAr: "تنظيف وتعقيم خزانات المياه بأحدث الأجهزة",
-		descriptionEn: "Water tank cleaning and sterilization with latest equipment",
-		heroImage: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&h=800&fit=crop",
-		priceStartsFrom: 300,
-		rating: 4.9,
-		reviewsCount: 210,
+
+	"home-maintenance/carpentry-furniture-services": {
+		slug: "carpentry-furniture-services",
+		titleAr: "النجارة والأثاث",
+		titleEn: "Carpentry & Furniture Services",
+		descriptionAr: "إصلاح الأبواب والنوافذ، تركيب الأثاث، الأقفال، والتركيبات الجدارية المختلفة",
+		descriptionEn: "Door and window repair, furniture assembly, locks installation, and various wall mounting services",
+		heroImage: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&h=400&fit=crop",
+		priceStartsFrom: 150,
+		rating: 4.7,
+		reviewsCount: 467,
 		features: {
 			ar: [
-				{ text: "تعقيم كامل", included: true },
-				{ text: "فحص جودة المياه", included: true },
-				{ text: "شهادة صحية", included: true },
-				{ text: "صيانة دورية", included: false },
+				{ text: "نجارون محترفون بخبرة طويلة", included: true },
+				{ text: "تركيب سريع ودقيق", included: true },
+				{ text: "ضمان 3 أشهر على الأعمال", included: true },
+				{ text: "قطع غيار أصلية متوفرة", included: true },
+				{ text: "تصاميم مخصصة حسب الطلب", included: false },
 			],
 			en: [
-				{ text: "Complete sterilization", included: true },
-				{ text: "Water quality check", included: true },
-				{ text: "Health certificate", included: true },
-				{ text: "Periodic maintenance", included: false },
+				{ text: "Professional carpenters with extensive experience", included: true },
+				{ text: "Fast and accurate installation", included: true },
+				{ text: "3-month warranty on works", included: true },
+				{ text: "Original spare parts available", included: true },
+				{ text: "Custom designs on request", included: false },
 			],
 		},
 		serviceDetails: {
 			ar: [
-				{ text: "تفريغ وتنظيف الخزان" },
-				{ text: "تعقيم بمواد معتمدة" },
-				{ text: "فحص التسربات" },
-				{ text: "إصدار شهادة" },
+				{ text: "إصلاح الأبواب والنوافذ الخشبية" },
+				{ text: "تركيب الأثاث المُفَكَّك" },
+				{ text: "تركيب الأقفال والمقابض" },
+				{ text: "التركيبات الجدارية" },
+				{ text: "صيانة وترميم الأثاث" },
 			],
 			en: [
-				{ text: "Tank emptying and cleaning" },
-				{ text: "Sterilization with approved materials" },
-				{ text: "Leak inspection" },
-				{ text: "Certificate issuance" },
+				{ text: "Wooden door and window repair" },
+				{ text: "Disassembled furniture assembly" },
+				{ text: "Locks and handles installation" },
+				{ text: "Wall mounting services" },
+				{ text: "Furniture maintenance and restoration" },
 			],
 		},
 	},
-	"home-maintenance/indoor-cleaning": {
-		slug: "indoor-cleaning",
-		titleAr: "تنظيف وفحص الوحدة الداخلية",
-		titleEn: "Indoor Unit Cleaning and Inspection",
-		descriptionAr: "تنظيف وصيانة الوحدات الداخلية للمكيفات",
-		descriptionEn: "Indoor AC unit cleaning and maintenance",
-		heroImage: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1200&h=800&fit=crop",
-		priceStartsFrom: 120,
-		rating: 4.6,
-		reviewsCount: 190,
-		features: {
-			ar: [
-				{ text: "تنظيف عميق", included: true },
-				{ text: "فحص شامل", included: true },
-				{ text: "ضمان على الخدمة", included: true },
-				{ text: "تغيير الفلاتر", included: false },
-			],
-			en: [
-				{ text: "Deep cleaning", included: true },
-				{ text: "Comprehensive inspection", included: true },
-				{ text: "Service warranty", included: true },
-				{ text: "Filter replacement", included: false },
-			],
-		},
-		serviceDetails: {
-			ar: [
-				{ text: "تنظيف الفلاتر" },
-				{ text: "فحص المروحة" },
-				{ text: "تعقيم الوحدة" },
-				{ text: "اختبار الأداء" },
-			],
-			en: [
-				{ text: "Filter cleaning" },
-				{ text: "Fan inspection" },
-				{ text: "Unit sterilization" },
-				{ text: "Performance testing" },
-			],
-		},
-	},
-	"home-maintenance/tank-maintenance": {
-		slug: "tank-maintenance",
-		titleAr: "صيانة وتنظيف خزانات المياه",
-		titleEn: "Water Tank Maintenance and Cleaning",
-		descriptionAr: "صيانة شاملة وتنظيف دوري لخزانات المياه",
-		descriptionEn: "Comprehensive maintenance and periodic cleaning of water tanks",
-		heroImage: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&h=800&fit=crop",
-		priceStartsFrom: 350,
+
+	"home-maintenance/painting-decoration-services": {
+		slug: "painting-decoration-services",
+		titleAr: "الدهانات والديكورات",
+		titleEn: "Painting & Decoration Services",
+		descriptionAr: "دهان الجدران والأسقف، معالجة الرطوبة والتشققات، تركيب ورق الجدران",
+		descriptionEn: "Wall and ceiling painting, moisture and crack treatment, wallpaper installation",
+		heroImage: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&h=400&fit=crop",
+		priceStartsFrom: 15,
 		rating: 4.8,
-		reviewsCount: 160,
+		reviewsCount: 398,
 		features: {
 			ar: [
-				{ text: "صيانة دورية", included: true },
-				{ text: "تنظيف وتعقيم", included: true },
-				{ text: "فحص الأنابيب", included: true },
-				{ text: "عقد صيانة سنوي", included: false },
+				{ text: "دهانات عالية الجودة ومعتمدة", included: true },
+				{ text: "عمال ماهرون ومدربون", included: true },
+				{ text: "ضمان سنة على الدهان", included: true },
+				{ text: "تنظيف شامل بعد العمل", included: true },
+				{ text: "استشارة مجانية للألوان", included: false },
 			],
 			en: [
-				{ text: "Periodic maintenance", included: true },
-				{ text: "Cleaning and sterilization", included: true },
-				{ text: "Pipe inspection", included: true },
-				{ text: "Annual maintenance contract", included: false },
+				{ text: "High quality and certified paints", included: true },
+				{ text: "Skilled and trained workers", included: true },
+				{ text: "One-year painting warranty", included: true },
+				{ text: "Comprehensive cleaning after work", included: true },
+				{ text: "Free color consultation", included: false },
 			],
 		},
 		serviceDetails: {
 			ar: [
-				{ text: "فحص شامل للخزان" },
-				{ text: "إصلاح التسربات" },
-				{ text: "تنظيف وتعقيم" },
-				{ text: "اختبار جودة المياه" },
+				{ text: "دهان جدران وأسقف بجميع الألوان" },
+				{ text: "معالجة التشققات والرطوبة" },
+				{ text: "تركيب ورق الجدران" },
+				{ text: "دهانات ديكورية وتأثيرات خاصة" },
+				{ text: "دهان أبواب ونوافذ خشبية" },
 			],
 			en: [
-				{ text: "Comprehensive tank inspection" },
-				{ text: "Leak repair" },
-				{ text: "Cleaning and sterilization" },
-				{ text: "Water quality testing" },
+				{ text: "Wall and ceiling painting in all colors" },
+				{ text: "Crack and moisture treatment" },
+				{ text: "Wallpaper installation" },
+				{ text: "Decorative paints and special effects" },
+				{ text: "Wooden door and window painting" },
 			],
 		},
 	},
-	
+
+	"home-maintenance/structure-finishing-services": {
+		slug: "structure-finishing-services",
+		titleAr: "صيانة البنية والتشطيبات",
+		titleEn: "Structure & Finishing Services",
+		descriptionAr: "تركيب وإصلاح البلاط والسيراميك، أعمال العزل، واللحام والمعادن",
+		descriptionEn: "Tile and ceramic installation and repair, insulation work, welding and metalwork",
+		heroImage: "https://images.unsplash.com/photo-1581092918484-8313e1f128b7?w=600&h=400&fit=crop",
+		priceStartsFrom: 200,
+		rating: 4.8,
+		reviewsCount: 312,
+		features: {
+			ar: [
+				{ text: "عمال محترفون ومهرة", included: true },
+				{ text: "مواد عالية الجودة", included: true },
+				{ text: "ضمان سنة على الأعمال", included: true },
+				{ text: "دقة في التنفيذ", included: true },
+				{ text: "تنظيف شامل بعد الانتهاء", included: false },
+			],
+			en: [
+				{ text: "Professional and skilled workers", included: true },
+				{ text: "High quality materials", included: true },
+				{ text: "One-year warranty on works", included: true },
+				{ text: "Precision in execution", included: true },
+				{ text: "Comprehensive cleaning after completion", included: false },
+			],
+		},
+		serviceDetails: {
+			ar: [
+				{ text: "تركيب وإصلاح البلاط والسيراميك" },
+				{ text: "أعمال العزل المائي والحراري" },
+				{ text: "اللحام والمعادن" },
+				{ text: "أعمال الجلي والتلميع" },
+				{ text: "صيانة البنية التحتية" },
+			],
+			en: [
+				{ text: "Tile and ceramic installation and repair" },
+				{ text: "Water and thermal insulation work" },
+				{ text: "Welding and metalwork" },
+				{ text: "Grinding and polishing works" },
+				{ text: "Infrastructure maintenance" },
+			],
+		},
+	},
+
 	// ============================================
 	// LEGAL SERVICES
 	// ============================================
@@ -1207,7 +758,7 @@ export const individualServicesData: Record<string, IndividualServiceData> = {
 		titleEn: "Legal Consultation",
 		descriptionAr: "نقدم خدمات قانونية واستشارية متكاملة",
 		descriptionEn: "We provide complete legal and consultative services",
-		heroImage: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1200&h=800&fit=crop",
+		heroImage: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=400&fit=crop",
 		priceStartsFrom: 150,
 		rating: 4.7,
 		reviewsCount: 250,
@@ -1240,6 +791,271 @@ export const individualServicesData: Record<string, IndividualServiceData> = {
 			],
 		},
 	},
+
+	
+"car-maintenance/periodic-maintenance": {
+	slug: "periodic-maintenance",
+	titleAr: "الصيانة الدورية الشاملة",
+	titleEn: "Comprehensive Periodic Maintenance",
+	descriptionAr: "صيانة دورية كاملة للسيارة وفق جدول الشركة المصنعة لضمان الأداء الأمثل",
+	descriptionEn: "Complete periodic car maintenance according to manufacturer's schedule for optimal performance",
+	heroImage: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&h=400&fit=crop",
+	priceStartsFrom: 350,
+	rating: 4.9,
+	reviewsCount: 542,
+	features: {
+		ar: [
+			{ text: "فحص شامل بأجهزة إلكترونية متطورة", included: true },
+			{ text: "تغيير زيت المحرك والفلاتر", included: true },
+			{ text: "فحص جميع السوائل والمكابح", included: true },
+			{ text: "تقرير فني مفصل بحالة السيارة", included: true },
+			{ text: "غسيل مجاني للسيارة", included: false },
+		],
+		en: [
+			{ text: "Comprehensive inspection with advanced electronic devices", included: true },
+			{ text: "Engine oil and filter change", included: true },
+			{ text: "All fluids and brakes inspection", included: true },
+			{ text: "Detailed technical report on car condition", included: true },
+			{ text: "Free car wash", included: false },
+		],
+	},
+	serviceDetails: {
+		ar: [
+			{ text: "تغيير زيت المحرك والفلتر حسب نوع السيارة" },
+			{ text: "فحص وتعبئة سوائل الفرامل والمقود والمبرد" },
+			{ text: "فحص البطارية ونظام الشحن" },
+			{ text: "فحص الفرامل والبريكات والديسكات" },
+			{ text: "فحص الإطارات والضغط والتآكل" },
+		],
+		en: [
+			{ text: "Engine oil and filter change according to car type" },
+			{ text: "Brake, steering and coolant fluid inspection and refill" },
+			{ text: "Battery and charging system inspection" },
+			{ text: "Brakes, pads and discs inspection" },
+			{ text: "Tire, pressure and wear inspection" },
+		],
+	},
+},
+
+"car-maintenance/mechanical-repair": {
+	slug: "mechanical-repair",
+	titleAr: "الإصلاح الميكانيكي المتخصص",
+	titleEn: "Specialized Mechanical Repair",
+	descriptionAr: "إصلاح شامل لجميع الأعطال الميكانيكية بقطع غيار أصلية وضمان موثوق",
+	descriptionEn: "Comprehensive repair of all mechanical faults with original spare parts and reliable warranty",
+	heroImage: "https://images.unsplash.com/photo-1633158829875-7a508d44dcd8?w=600&h=400&fit=crop",
+	priceStartsFrom: 500,
+	rating: 4.8,
+	reviewsCount: 423,
+	features: {
+		ar: [
+			{ text: "تشخيص دقيق بأجهزة الكمبيوتر", included: true },
+			{ text: "فنيون متخصصون معتمدون", included: true },
+			{ text: "قطع غيار أصلية مضمونة", included: true },
+			{ text: "ضمان 6 أشهر على الإصلاح", included: true },
+			{ text: "خدمة سحب وتوصيل مجانية", included: false },
+		],
+		en: [
+			{ text: "Accurate diagnosis with computer equipment", included: true },
+			{ text: "Certified specialized technicians", included: true },
+			{ text: "Guaranteed original spare parts", included: true },
+			{ text: "6-month repair warranty", included: true },
+			{ text: "Free pick-up and delivery service", included: false },
+		],
+	},
+	serviceDetails: {
+		ar: [
+			{ text: "إصلاح وصيانة المحرك الكاملة" },
+			{ text: "إصلاح ناقل الحركة (قير عادي وأوتوماتيك)" },
+			{ text: "إصلاح نظام التعليق والمساعدات" },
+			{ text: "إصلاح نظام العادم والشكمان" },
+			{ text: "إصلاح نظام التبريد والرديتر" },
+		],
+		en: [
+			{ text: "Complete engine repair and maintenance" },
+			{ text: "Transmission repair (manual and automatic)" },
+			{ text: "Suspension system and shock absorbers repair" },
+			{ text: "Exhaust system and muffler repair" },
+			{ text: "Cooling system and radiator repair" },
+		],
+	},
+},
+
+"car-maintenance/electrical-repair": {
+	slug: "electrical-repair",
+	titleAr: "الإصلاح الكهربائي والإلكتروني",
+	titleEn: "Electrical and Electronic Repair",
+	descriptionAr: "إصلاح وصيانة جميع الأنظمة الكهربائية والإلكترونية في السيارة",
+	descriptionEn: "Repair and maintenance of all electrical and electronic systems in the car",
+	heroImage: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
+	priceStartsFrom: 200,
+	rating: 4.7,
+	reviewsCount: 367,
+	features: {
+		ar: [
+			{ text: "فحص إلكتروني شامل بأحدث الأجهزة", included: true },
+			{ text: "كهربائيون متخصصون في السيارات", included: true },
+			{ text: "ضمان 3 أشهر على القطع والعمل", included: true },
+			{ text: "برمجة وتحديث أنظمة السيارة", included: true },
+			{ text: "خدمة طوارئ على الطريق", included: false },
+		],
+		en: [
+			{ text: "Comprehensive electronic inspection with latest equipment", included: true },
+			{ text: "Automotive electrical specialists", included: true },
+			{ text: "3-month warranty on parts and labor", included: true },
+			{ text: "Car system programming and updating", included: true },
+			{ text: "Roadside emergency service", included: false },
+		],
+	},
+	serviceDetails: {
+		ar: [
+			{ text: "فحص واستبدال البطارية والمولد (الدينمو)" },
+			{ text: "إصلاح نظام الإضاءة الداخلية والخارجية" },
+			{ text: "إصلاح السلف (المارش) ونظام التشغيل" },
+			{ text: "إصلاح شاشة السيارة ونظام الملاحة" },
+			{ text: "إصلاح نوافذ كهربائية وأقفال مركزية" },
+		],
+		en: [
+			{ text: "Battery and alternator inspection and replacement" },
+			{ text: "Interior and exterior lighting system repair" },
+			{ text: "Starter motor and ignition system repair" },
+			{ text: "Car screen and navigation system repair" },
+			{ text: "Power windows and central locking repair" },
+		],
+	},
+},
+
+"car-maintenance/tire-services": {
+	slug: "tire-services",
+	titleAr: "خدمات الإطارات الشاملة",
+	titleEn: "Comprehensive Tire Services",
+	descriptionAr: "جميع خدمات الإطارات من بيع وتركيب وترصيص وموازنة بأحدث المعدات",
+	descriptionEn: "All tire services from sale, installation, alignment and balancing with latest equipment",
+	heroImage: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=600&h=400&fit=crop",
+	priceStartsFrom: 150,
+	rating: 4.8,
+	reviewsCount: 489,
+	features: {
+		ar: [
+			{ text: "إطارات من أفضل الماركات العالمية", included: true },
+			{ text: "ترصيص وموازنة بأجهزة محوسبة", included: true },
+			{ text: "فحص مجاني للإطارات والضغط", included: true },
+			{ text: "ضمان على الإطارات الجديدة", included: true },
+			{ text: "تركيب إطارات في الموقع", included: false },
+		],
+		en: [
+			{ text: "Tires from top international brands", included: true },
+			{ text: "Alignment and balancing with computerized equipment", included: true },
+			{ text: "Free tire and pressure inspection", included: true },
+			{ text: "Warranty on new tires", included: true },
+			{ text: "On-site tire installation", included: false },
+		],
+	},
+	serviceDetails: {
+		ar: [
+			{ text: "بيع وتركيب إطارات جديدة بجميع المقاسات" },
+			{ text: "ترصيص وضبط زوايا العجلات (عفريت)" },
+			{ text: "موازنة الإطارات بأجهزة حديثة" },
+			{ text: "إصلاح الثقوب والبنشر (لحام)" },
+			{ text: "تبديل الإطارات الموسمية (صيفي/شتوي)" },
+		],
+		en: [
+			{ text: "New tire sales and installation in all sizes" },
+			{ text: "Wheel alignment and angle adjustment" },
+			{ text: "Tire balancing with modern equipment" },
+			{ text: "Puncture and flat tire repair (welding)" },
+			{ text: "Seasonal tire change (summer/winter)" },
+		],
+	},
+},
+
+"car-maintenance/car-care": {
+	slug: "car-care",
+	titleAr: "العناية الكاملة بالسيارة",
+	titleEn: "Complete Car Care",
+	descriptionAr: "خدمات عناية شاملة تشمل الغسيل، التلميع، التنظيف الداخلي وحماية الطلاء",
+	descriptionEn: "Comprehensive care services including washing, polishing, interior cleaning and paint protection",
+	heroImage: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&h=400&fit=crop",
+	priceStartsFrom: 100,
+	rating: 4.9,
+	reviewsCount: 612,
+	features: {
+		ar: [
+			{ text: "مواد تنظيف وتلميع عالمية", included: true },
+			{ text: "عمال متخصصون ومدربون", included: true },
+			{ text: "غسيل خارجي وداخلي شامل", included: true },
+			{ text: "تلميع وحماية الطلاء", included: true },
+			{ text: "خدمة سيراميك وحماية كاملة", included: false },
+		],
+		en: [
+			{ text: "International cleaning and polishing materials", included: true },
+			{ text: "Specialized and trained workers", included: true },
+			{ text: "Comprehensive exterior and interior washing", included: true },
+			{ text: "Paint polishing and protection", included: true },
+			{ text: "Ceramic coating and full protection service", included: false },
+		],
+	},
+	serviceDetails: {
+		ar: [
+			{ text: "غسيل خارجي بضغط عالي وتنظيف عميق" },
+			{ text: "تنظيف داخلي شامل للمقاعد والفرش" },
+			{ text: "تلميع الهيكل الخارجي وإزالة الخدوش البسيطة" },
+			{ text: "تنظيف وتلميع الجنوط والإطارات" },
+			{ text: "تعطير وتعقيم السيارة من الداخل" },
+		],
+		en: [
+			{ text: "High pressure exterior washing and deep cleaning" },
+			{ text: "Comprehensive interior cleaning for seats and upholstery" },
+			{ text: "Exterior body polishing and minor scratch removal" },
+			{ text: "Rim and tire cleaning and polishing" },
+			{ text: "Car interior perfuming and sterilization" },
+		],
+	},
+},
+
+"car-maintenance/spare-parts": {
+	slug: "spare-parts",
+	titleAr: "قطع الغيار الأصلية",
+	titleEn: "Original Spare Parts",
+	descriptionAr: "توفير وتركيب قطع غيار أصلية ومضمونة لجميع أنواع وموديلات السيارات",
+	descriptionEn: "Supply and installation of original and guaranteed spare parts for all car types and models",
+	heroImage: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=600&h=400&fit=crop",
+	priceStartsFrom: 50,
+	rating: 4.8,
+	reviewsCount: 445,
+	features: {
+		ar: [
+			{ text: "قطع غيار أصلية 100%", included: true },
+			{ text: "ضمان الوكالة على القطع", included: true },
+			{ text: "توفر سريع لجميع القطع", included: true },
+			{ text: "تركيب احترافي مجاني", included: true },
+			{ text: "خدمة توصيل للمنزل", included: false },
+		],
+		en: [
+			{ text: "100% original spare parts", included: true },
+			{ text: "Agency warranty on parts", included: true },
+			{ text: "Fast availability of all parts", included: true },
+			{ text: "Free professional installation", included: true },
+			{ text: "Home delivery service", included: false },
+		],
+	},
+	serviceDetails: {
+		ar: [
+			{ text: "توفير قطع محرك (بساتم، شنابر، سيور)" },
+			{ text: "قطع فرامل (بريكات، ديسكات، طنابير)" },
+			{ text: "قطع تعليق (مساعدات، مقصات، جلود)" },
+			{ text: "قطع كهربائية (بطاريات، دينمو، سلف)" },
+			{ text: "إكسسوارات وقطع تجميل السيارة" },
+		],
+		en: [
+			{ text: "Engine parts supply (pistons, rings, belts)" },
+			{ text: "Brake parts (pads, discs, drums)" },
+			{ text: "Suspension parts (shocks, control arms, bushings)" },
+			{ text: "Electrical parts (batteries, alternators, starters)" },
+			{ text: "Accessories and car beautification parts" },
+		],
+	},
+},
 };
 
 /**

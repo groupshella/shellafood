@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import { BookingDetailsPage } from "@/features/serve-me";
 import { getAllIndividualServicePaths } from "@/lib/data/services";
+import BookingDetailsPage from "@/features/serve-me/components/Booking/steps/BookingDetailsPage/BookingDetailsPage";
 
 export async function generateStaticParams() {
 	const paths = getAllIndividualServicePaths();

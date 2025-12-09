@@ -1,56 +1,51 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useLanguage } from "@/providers";
-import { useBooking } from "@/providers";
-import StepperNavigation from "../StepperNavigation";
+import { useBooking, BookingData } from "@/providers";
+import StepperNavigation from "../../StepperNavigation";
 import { AddEditAddressModal } from "@/features/profile";
-import DescriptionTooltipModal from "../modals/DescriptionTooltipModal";
-import AttachmentGuidelinesModal from "../modals/AttachmentGuidelinesModal";
-import { Calendar, Clock, FileText, MapPin, ArrowRight, Upload, X, HelpCircle, Image as ImageIcon, Video, Mic } from "lucide-react";
+import DescriptionTooltipModal from "../../modals/DescriptionTooltipModal";
+import AttachmentGuidelinesModal from "../../modals/AttachmentGuidelinesModal";
+import {  ArrowRight, Upload, X, HelpCircle, Image as ImageIcon, Video, Mic } from "lucide-react";
 import { getIndividualService } from "@/lib/data/services";
-import { BookingAddress, BookingServiceType } from "../../../types/serve-me.types";
-import { TIME_SLOTS, MEDIA_LIMITS, DEFAULT_LOCATION, GEOLOCATION_OPTIONS } from "../../../constants/serve-me.constants";
-import { validateVideoType, validateVideoSize, validateVideoDuration, formatTime } from "../../../lib/utils/validation";
+import { BookingAddress, BookingServiceType } from "../../../../types/serve-me.types";
+import { TIME_SLOTS, MEDIA_LIMITS, DEFAULT_LOCATION } from "../../../../constants/serve-me.constants";
+import { validateVideoType, validateVideoSize, validateVideoDuration, formatTime } from "../../../../lib/utils/validation";
+import { FormInput, FormSelect } from "@/shared/components/forms";
+import useBookingDetails from "@/features/serve-me/hooks/useBookingDetails";
+import useAddress from "@/features/serve-me/hooks/useAddress";
 
-export default function BookingDetailsPage({ service, serviceType }: { service: string; serviceType: string }) {
-	const params = useParams();
+export default function CarMaintenanceDetailsPage({ service, serviceType }: { service: string; serviceType: string }) {
 	const router = useRouter();
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
 	const { bookingData, updateBooking } = useBooking();
+	const {handleSaveAddress,handleAddAddress,handleAddressSelect,handleCloseAddressModal,selectedAddress,addresses,isAddressModalOpen,setAddresses,editingAddress}=useAddress();
+const {recordingTime,removeImage,removeVideo,removeVoice,isRecording,voice,video,images,startRecording,stopRecording,handleImageUpload,handleVideoUpload,audioURL}=useBookingDetails();
+	// Unified form state
+	const [formData, setFormData] = useState({
+		date: bookingData?.date || "",
+		time: bookingData?.time || "",
+		serviceType: (bookingData?.serviceType || "scheduled") as BookingServiceType,
+		description: bookingData?.description || "",
+		notes: bookingData?.notes || "",
+		carInfo: {
+			make: bookingData?.carInfo?.make || "",
+			model: bookingData?.carInfo?.model || "",
+			year: bookingData?.carInfo?.year || "",
+			plateNumber: bookingData?.carInfo?.plateNumber || "",
+			mileage: bookingData?.carInfo?.mileage || "",
+			transmission: bookingData?.carInfo?.transmission || "",
+			fuelType: bookingData?.carInfo?.fuelType || "",
+			vinNumber: bookingData?.carInfo?.vinNumber || "",
+		},
+	});
 
-
-	// Form state
-	const [selectedDate, setSelectedDate] = useState(bookingData?.date || "");
-	const [selectedTime, setSelectedTime] = useState(bookingData?.time || "");
-	const [bookingServiceType, setBookingServiceType] = useState<BookingServiceType>(bookingData?.serviceType || "scheduled");
-	const [description, setDescription] = useState(bookingData?.description || "");
-	const [images, setImages] = useState<string[]>(bookingData?.images || []);
-	const [video, setVideo] = useState<string | null>(bookingData?.video || null);
-	const [voice, setVoice] = useState<string | null>(bookingData?.voice || null);
-	const [notes, setNotes] = useState(bookingData?.notes || "");
-	const [addresses, setAddresses] = useState<BookingAddress[]>([]);
-	const [selectedAddress, setSelectedAddress] = useState<BookingAddress | null>(
-		bookingData?.address && typeof bookingData.address === 'object' && 'type' in bookingData.address
-			? (bookingData.address as BookingAddress)
-			: null
-	);
-	const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-	const [editingAddress, setEditingAddress] = useState<BookingAddress | null>(null);
 	const [showDescriptionTooltip, setShowDescriptionTooltip] = useState(false);
 	const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
-
-	// Voice recording state
-	const [isRecording, setIsRecording] = useState(false);
-	const [audioURL, setAudioURL] = useState<string | null>(null);
-	const [recordingTime, setRecordingTime] = useState(0);
-	const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-	const audioChunksRef = useRef<Blob[]>([]);
-	const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
-
 	// Refs
 	const imageInputRef = useRef<HTMLInputElement>(null);
 	const videoInputRef = useRef<HTMLInputElement>(null);
@@ -63,40 +58,7 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 		[isArabic, serviceData]
 	);
 
-	// Initialize audioURL from existing voice data
-	useEffect(() => {
-		if (voice && !audioURL) {
-			setAudioURL(voice);
-		}
-	}, [voice, audioURL]);
-
-	// Handle body overflow and ESC key for modals
-	useEffect(() => {
-		const handleEscKey = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') {
-				if (showGuidelinesModal) {
-					setShowGuidelinesModal(false);
-				}
-				if (showDescriptionTooltip) {
-					setShowDescriptionTooltip(false);
-				}
-			}
-		};
-
-		const hasOpenModal = showGuidelinesModal || showDescriptionTooltip;
-
-		if (hasOpenModal) {
-			document.body.style.overflow = 'hidden';
-			document.addEventListener('keydown', handleEscKey);
-		} else {
-			document.body.style.overflow = '';
-		}
-
-		return () => {
-			document.removeEventListener('keydown', handleEscKey);
-			document.body.style.overflow = '';
-		};
-	}, [showGuidelinesModal, showDescriptionTooltip]);
+	
 
 	// Initialize booking data
 	useEffect(() => {
@@ -126,186 +88,79 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 		]);
 	}, [isArabic]);
 
-	// Cleanup recording timer on unmount
-	useEffect(() => {
-		return () => {
-			if (recordingTimerRef.current) {
-				clearInterval(recordingTimerRef.current);
+
+	// Unified change handler for all form fields
+	const handleFormChange = useCallback((field: string, value: any) => {
+		setFormData((prev) => {
+			const newData = { ...prev };
+			
+			if (field.startsWith('carInfo.')) {
+				const carField = field.split('.')[1];
+				newData.carInfo = { ...newData.carInfo, [carField]: value };
+				// Reset model when make changes
+				if (carField === 'make') {
+					newData.carInfo.model = "";
+				}
+				// Update booking context with complete carInfo
+				updateBooking({
+					carInfo: {
+						...newData.carInfo,
+						plateNumber: newData.carInfo.plateNumber || undefined,
+						vinNumber: newData.carInfo.vinNumber || undefined,
+					},
+				});
+			} else {
+				(newData as any)[field] = value;
+				// Update booking context
+				updateBooking({ [field]: value });
 			}
-		};
-	}, []);
+			
+			return newData;
+		});
+	}, [updateBooking]);
 
 	// Handlers with useCallback for performance
 	const handleServiceTypeChange = useCallback((type: BookingServiceType) => {
-		setBookingServiceType(type);
-		updateBooking({ serviceType: type });
+		handleFormChange('serviceType', type);
 		if (type === "instant") {
-			setSelectedDate("");
-			setSelectedTime("");
+			handleFormChange('date', "");
+			handleFormChange('time', "");
 			updateBooking({ date: null, time: null });
 		}
-	}, [updateBooking]);
+	}, [handleFormChange, updateBooking]);
 
-	const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const files = e.target.files;
-		if (!files) return;
 
-		const newImages: string[] = [];
-		const maxFiles = Math.min(files.length, MEDIA_LIMITS.MAX_IMAGES - images.length);
-		
-		for (let i = 0; i < maxFiles; i++) {
-			const file = files[i];
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				if (reader.result) {
-					newImages.push(reader.result as string);
-					if (newImages.length === maxFiles) {
-						const updatedImages = [...images, ...newImages];
-						setImages(updatedImages);
-						updateBooking({ images: updatedImages });
-					}
-				}
-			};
-			reader.readAsDataURL(file);
-		}
-	}, [images, updateBooking]);
-
-	const handleVideoUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (!file) return;
-
-		// Validate file type
-		if (!validateVideoType(file)) {
-			alert(isArabic 
-				? "نوع الملف غير مدعوم. يرجى رفع ملف فيديو بصيغة MP4, MOV, أو WEBM."
-				: "File type not supported. Please upload a video file in MP4, MOV, or WEBM format."
-			);
-			e.target.value = '';
-			return;
-		}
-
-		// Validate file size
-		if (!validateVideoSize(file)) {
-			alert(isArabic 
-				? "حجم الملف كبير جداً. الحد الأقصى هو 50 ميجابايت."
-				: "File size too large. Maximum size is 50MB."
-			);
-			e.target.value = '';
-			return;
-		}
-
-		// Validate video duration
-		try {
-			const isValidDuration = await validateVideoDuration(file);
-			if (!isValidDuration) {
-				alert(isArabic 
-					? "مدة الفيديو طويلة جداً. الحد الأقصى هو 30 ثانية."
-					: "Video duration too long. Maximum duration is 30 seconds."
-				);
-				e.target.value = '';
-				return;
-			}
-
-			// If validation passes, read and set video
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				if (reader.result) {
-					setVideo(reader.result as string);
-					updateBooking({ video: reader.result as string });
-				}
-			};
-			reader.readAsDataURL(file);
-		} catch (error) {
-			console.error('Error validating video:', error);
-			alert(isArabic 
-				? "خطأ في التحقق من ملف الفيديو. يرجى المحاولة مرة أخرى."
-				: "Error validating video file. Please try again."
-			);
-			e.target.value = '';
-		}
-	}, [isArabic, updateBooking]);
-
-	const startRecording = useCallback(async () => {
-		try {
-			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-			const mediaRecorder = new MediaRecorder(stream);
-			mediaRecorderRef.current = mediaRecorder;
-			audioChunksRef.current = [];
-
-			mediaRecorder.ondataavailable = (event) => {
-				if (event.data.size > 0) {
-					audioChunksRef.current.push(event.data);
-				}
-			};
-
-			mediaRecorder.onstop = () => {
-				const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-				const url = URL.createObjectURL(audioBlob);
-				setAudioURL(url);
-
-				// Convert to Base64
-				const reader = new FileReader();
-				reader.onloadend = () => {
-					if (reader.result) {
-						setVoice(reader.result as string);
-						updateBooking({ voice: reader.result as string });
-					}
-				};
-				reader.readAsDataURL(audioBlob);
-
-				// Stop all tracks
-				stream.getTracks().forEach(track => track.stop());
-			};
-
-			mediaRecorder.start();
-			setIsRecording(true);
-			setRecordingTime(0);
-
-			// Start timer
-			recordingTimerRef.current = setInterval(() => {
-				setRecordingTime((prev) => prev + 1);
-			}, 1000);
-		} catch (error) {
-			console.error("Error starting recording:", error);
-			alert(isArabic ? "خطأ في بدء التسجيل. يرجى التحقق من الصلاحيات." : "Error starting recording. Please check permissions.");
-		}
-	}, [isArabic, updateBooking]);
-
-	const stopRecording = useCallback(() => {
-		if (mediaRecorderRef.current && isRecording) {
-			mediaRecorderRef.current.stop();
-			setIsRecording(false);
-			if (recordingTimerRef.current) {
-				clearInterval(recordingTimerRef.current);
-				recordingTimerRef.current = null;
-			}
-		}
-	}, [isRecording]);
-
-	const removeImage = useCallback((index: number) => {
-		const updatedImages = images.filter((_, i) => i !== index);
-		setImages(updatedImages);
-		updateBooking({ images: updatedImages });
-	}, [images, updateBooking]);
-
-	const removeVideo = useCallback(() => {
-		setVideo(null);
-		updateBooking({ video: null });
-	}, [updateBooking]);
-
-	const removeVoice = useCallback(() => {
-		setVoice(null);
-		setAudioURL(null);
-		setRecordingTime(0);
-		updateBooking({ voice: null });
-	}, [updateBooking]);
 
 	const handleNext = useCallback(() => {
-		if (!description.trim()) {
+		if (!formData.description.trim()) {
 			alert(isArabic ? "يرجى وصف المشكلة" : "Please describe the problem");
 			return;
 		}
-		if (bookingServiceType === "scheduled" && (!selectedDate || !selectedTime)) {
+		if (!formData.carInfo.make.trim()) {
+			alert(isArabic ? "يرجى اختيار ماركة السيارة" : "Please select car make");
+			return;
+		}
+		if (!formData.carInfo.model.trim()) {
+			alert(isArabic ? "يرجى إدخال موديل السيارة" : "Please enter car model");
+			return;
+		}
+		if (!formData.carInfo.year) {
+			alert(isArabic ? "يرجى اختيار سنة السيارة" : "Please select car year");
+			return;
+		}
+		if (!formData.carInfo.mileage.trim()) {
+			alert(isArabic ? "يرجى إدخال عدد الكيلومترات" : "Please enter car mileage");
+			return;
+		}
+		if (!formData.carInfo.transmission) {
+			alert(isArabic ? "يرجى اختيار نوع ناقل الحركة" : "Please select transmission type");
+			return;
+		}
+		if (!formData.carInfo.fuelType) {
+			alert(isArabic ? "يرجى اختيار نوع الوقود" : "Please select fuel type");
+			return;
+		}
+		if (formData.serviceType === "scheduled" && (!formData.date || !formData.time)) {
 			alert(isArabic ? "يرجى اختيار التاريخ والوقت" : "Please select date and time");
 			return;
 		}
@@ -315,81 +170,100 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 		}
 
 		updateBooking({
-			description,
-			images,
-			video,
-			voice,
-			date: selectedDate || null,
-			time: selectedTime || null,
-			serviceType: bookingServiceType,
-			notes,
+			description: formData.description,
+			date: formData.date || null,
+			time: formData.time || null,
+			serviceType: formData.serviceType,
+			notes: formData.notes,
 			address: selectedAddress,
+			carInfo: {
+				make: formData.carInfo.make,
+				model: formData.carInfo.model,
+				year: formData.carInfo.year,
+				plateNumber: formData.carInfo.plateNumber || undefined,
+				mileage: formData.carInfo.mileage,
+				transmission: formData.carInfo.transmission,
+				fuelType: formData.carInfo.fuelType,
+				vinNumber: formData.carInfo.vinNumber || undefined,
+			},
 		});
 
 		// Prefetch summary page for instant navigation
 		const summaryPath = `/serve-me/${service}/${serviceType}/book/summary`;
 		router.prefetch(summaryPath);
 		router.push(summaryPath);
-	}, [description, bookingServiceType, selectedDate, selectedTime, selectedAddress, images, video, voice, notes, updateBooking, service, serviceType, router, isArabic]);
+	}, [formData, selectedAddress, updateBooking, service, serviceType, router, isArabic]);
 
-	const handleAddressSelect = useCallback((address: BookingAddress) => {
-		setSelectedAddress(address);
-		updateBooking({ address });
-	}, [updateBooking]);
 
-	const handleAddAddress = useCallback(() => {
-		setEditingAddress(null);
-		setIsAddressModalOpen(true);
-	}, []);
 
-	const handleSaveAddress = useCallback((addressData: Omit<BookingAddress, "id">) => {
-		if (editingAddress) {
-			setAddresses(addresses.map((a) => (a.id === editingAddress.id ? { ...addressData, id: editingAddress.id } : a)));
-		} else {
-			const newAddress: BookingAddress = { ...addressData, id: Date.now().toString() };
-			setAddresses([...addresses, newAddress]);
-		}
-		setIsAddressModalOpen(false);
-		setEditingAddress(null);
-	}, [editingAddress, addresses]);
+	// Wrapper handlers for form inputs (text/textarea)
+	const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+		const { name, value } = e.target;
+		handleFormChange(name, value);
+	}, [handleFormChange]);
 
-	const handleCloseAddressModal = useCallback(() => {
-		setIsAddressModalOpen(false);
-		setEditingAddress(null);
-	}, []);
-
-	const handleDescriptionChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		const value = e.target.value;
-		setDescription(value);
-		updateBooking({ description: value });
-	}, [updateBooking]);
-
-	const handleNotesChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		const value = e.target.value;
-		setNotes(value);
-		updateBooking({ notes: value });
-	}, [updateBooking]);
-
-	const handleDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setSelectedDate(value);
-		updateBooking({ date: value });
-	}, [updateBooking]);
-
+	// Special handler for time selection (button click)
 	const handleTimeSelect = useCallback((time: string) => {
-		setSelectedTime(time);
-		updateBooking({ time });
-	}, [updateBooking]);
+		handleFormChange('time', time);
+	}, [handleFormChange]);
 
 	// Memoized formatted recording time
 	const formattedRecordingTime = useMemo(() => formatTime(recordingTime), [recordingTime]);
 
+	// Car makes and models data - memoized
+	const carMakes = useMemo(() => [
+		{ value: "toyota", label: isArabic ? "تويوتا" : "Toyota" },
+		{ value: "hyundai", label: isArabic ? "هيونداي" : "Hyundai" },
+		{ value: "ford", label: isArabic ? "فورد" : "Ford" },
+		{ value: "chevrolet", label: isArabic ? "شيفروليه" : "Chevrolet" },
+		{ value: "nissan", label: isArabic ? "نيسان" : "Nissan" },
+		{ value: "honda", label: isArabic ? "هوندا" : "Honda" },
+		{ value: "kia", label: isArabic ? "كيا" : "Kia" },
+		{ value: "mitsubishi", label: isArabic ? "ميتسوبيشي" : "Mitsubishi" },
+		{ value: "mercedes", label: isArabic ? "مرسيدس" : "Mercedes-Benz" },
+		{ value: "bmw", label: isArabic ? "بي إم دبليو" : "BMW" },
+		{ value: "audi", label: isArabic ? "أودي" : "Audi" },
+		{ value: "volkswagen", label: isArabic ? "فولكس واجن" : "Volkswagen" },
+		{ value: "mazda", label: isArabic ? "مازدا" : "Mazda" },
+		{ value: "lexus", label: isArabic ? "لكزس" : "Lexus" },
+		{ value: "infiniti", label: isArabic ? "إنفينيتي" : "Infiniti" },
+		{ value: "other", label: isArabic ? "أخرى" : "Other" },
+	], [isArabic]);
+
+	const transmissionOptions = useMemo(() => [
+		{ value: "automatic", label: isArabic ? "أوتوماتيك" : "Automatic" },
+		{ value: "manual", label: isArabic ? "يدوي" : "Manual" },
+	], [isArabic]);
+
+	const fuelTypeOptions = useMemo(() => [
+		{ value: "gasoline", label: isArabic ? "بنزين" : "Gasoline" },
+		{ value: "diesel", label: isArabic ? "ديزل" : "Diesel" },
+		{ value: "hybrid", label: isArabic ? "هجين" : "Hybrid" },
+		{ value: "electric", label: isArabic ? "كهربائي" : "Electric" },
+	], [isArabic]);
+
+	// Generate year options (current year - 50 years to current year + 1)
+	const yearOptions = useMemo(() => {
+		const currentYear = new Date().getFullYear();
+		return Array.from({ length: 51 }, (_, i) => {
+			const year = currentYear - i + 1;
+			return { value: year.toString(), label: year.toString() };
+		});
+	}, []);
+
+
 	// Memoized validation states
 	const canProceed = useMemo(() => {
-		return description.trim() !== '' && 
-			   (bookingServiceType === "instant" || (selectedDate && selectedTime)) &&
-			   selectedAddress !== null;
-	}, [description, bookingServiceType, selectedDate, selectedTime, selectedAddress]);
+		return formData.description.trim() !== '' && 
+			   (formData.serviceType === "instant" || (formData.date && formData.time)) &&
+			   selectedAddress !== null &&
+			   formData.carInfo.make.trim() !== '' &&
+			   formData.carInfo.model.trim() !== '' &&
+			   formData.carInfo.year !== '' &&
+			   formData.carInfo.mileage.trim() !== '' &&
+			   formData.carInfo.transmission !== '' &&
+			   formData.carInfo.fuelType !== '';
+	}, [formData, selectedAddress]);
 
 	if (!serviceData) {
 		return (
@@ -415,6 +289,93 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 				</div>
 
 				<div className="max-w-4xl mx-auto space-y-8 sm:space-y-10 lg:space-y-12">
+					{/* Car Information Section */}
+					<section className="pt-6 sm:pt-8 lg:pt-10 pb-6 sm:pb-8 border-b border-gray-200 dark:border-gray-700">
+						<h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
+							{isArabic ? "معلومات السيارة" : "Car Information"}
+						</h2>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+							<FormSelect
+								label={isArabic ? "الماركة" : "Car Make"}
+								name="carInfo.make"
+								options={carMakes}
+								value={formData.carInfo.make}
+								onChange={handleInputChange}
+								required
+								isArabic={isArabic}
+								placeholder={isArabic ? "اختر الماركة" : "Select Make"}
+							/>
+							<FormInput
+								label={isArabic ? "الموديل" : "Car Model"}
+								name="carInfo.model"
+								type="text"
+								value={formData.carInfo.model}
+								onChange={handleInputChange}
+								placeholder={isArabic ? "مثال: كامري، توسان" : "e.g., Camry, Tucson"}
+								required
+								isArabic={isArabic}
+							/>
+							<FormSelect
+								label={isArabic ? "السنة" : "Year"}
+								name="carInfo.year"
+								options={yearOptions}
+								value={formData.carInfo.year}
+								onChange={handleInputChange}
+								required
+								isArabic={isArabic}
+								placeholder={isArabic ? "اختر السنة" : "Select Year"}
+							/>
+							<FormInput
+								label={isArabic ? "رقم اللوحة" : "Plate Number"}
+								name="carInfo.plateNumber"
+								type="text"
+								value={formData.carInfo.plateNumber}
+								onChange={handleInputChange}
+								placeholder={isArabic ? "اختياري" : "Optional"}
+								isArabic={isArabic}
+							/>
+							<FormInput
+								label={isArabic ? "عدد الكيلومترات" : "Mileage (km)"}
+								name="carInfo.mileage"
+								type="number"
+								value={formData.carInfo.mileage}
+								onChange={handleInputChange}
+								placeholder={isArabic ? "مثال: 50000" : "e.g., 50000"}
+								required
+								isArabic={isArabic}
+							/>
+							<FormSelect
+								label={isArabic ? "نوع ناقل الحركة" : "Transmission Type"}
+								name="carInfo.transmission"
+								options={transmissionOptions}
+								value={formData.carInfo.transmission}
+								onChange={handleInputChange}
+								required
+								isArabic={isArabic}
+								placeholder={isArabic ? "اختر النوع" : "Select Type"}
+							/>
+							<FormSelect
+								label={isArabic ? "نوع الوقود" : "Fuel Type"}
+								name="carInfo.fuelType"
+								options={fuelTypeOptions}
+								value={formData.carInfo.fuelType}
+								onChange={handleInputChange}
+								required
+								isArabic={isArabic}
+								placeholder={isArabic ? "اختر النوع" : "Select Type"}
+							/>
+							<FormInput
+								label={isArabic ? "رقم الشاصي (VIN)" : "VIN Number"}
+								name="carInfo.vinNumber"
+								type="text"
+								value={formData.carInfo.vinNumber}
+								onChange={handleInputChange}
+								placeholder={isArabic ? "اختياري لكن مفيد" : "Optional but useful"}
+								isArabic={isArabic}
+							/>
+						</div>
+					</section>
+
 					{/* Problem Description Section */}
 					<section className="pt-6 sm:pt-8 lg:pt-10 pb-6 sm:pb-8 border-b border-gray-200 dark:border-gray-700">
 						<div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
@@ -433,8 +394,9 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 							</div>
 						</div>
 						<textarea
-							value={description}
-							onChange={handleDescriptionChange}
+							name="description"
+							value={formData.description}
+							onChange={handleInputChange}
 							placeholder={isArabic ? "يرجى وصف المشكلة أو ما تحتاج إلى إصلاحه..." : "Please describe your problem or what needs to be fixed..."}
 							rows={5}
 							required
@@ -649,7 +611,7 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 								type="button"
 								onClick={() => handleServiceTypeChange("instant")}
 								className={`p-4 rounded-lg border-2 transition-all touch-manipulation focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 ${
-									bookingServiceType === "instant"
+									formData.serviceType === "instant"
 										? "border-green-600 dark:border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold"
 										: "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 active:border-gray-300 text-gray-700 dark:text-gray-300"
 								}`}
@@ -660,7 +622,7 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 								type="button"
 								onClick={() => handleServiceTypeChange("scheduled")}
 								className={`p-4 rounded-lg border-2 transition-all touch-manipulation focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 ${
-									bookingServiceType === "scheduled"
+									formData.serviceType === "scheduled"
 										? "border-green-600 dark:border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold"
 										: "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 active:border-gray-300 text-gray-700 dark:text-gray-300"
 								}`}
@@ -671,7 +633,7 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 					</section>
 
 					{/* Date & Time (only for scheduled) */}
-					{bookingServiceType === "scheduled" && (
+					{formData.serviceType === "scheduled" && (
 						<>
 							<section className="border-t border-gray-200 dark:border-gray-700 pt-6 sm:pt-8 lg:pt-10 pb-6 sm:pb-8">
 								<h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
@@ -684,8 +646,9 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 										</label>
 										<input
 											type="date"
-											value={selectedDate}
-											onChange={handleDateChange}
+											name="date"
+											value={formData.date}
+											onChange={handleInputChange}
 											min={new Date().toISOString().split("T")[0]}
 											className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:border-green-600 dark:focus:border-green-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-500/20 focus:ring-offset-2 focus:outline-none transition-all text-base touch-manipulation"
 										/>
@@ -701,7 +664,7 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 													type="button"
 													onClick={() => handleTimeSelect(time)}
 													className={`py-3 px-4 rounded-lg border-2 transition-all text-sm touch-manipulation focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 ${
-														selectedTime === time
+														formData.time === time
 															? "border-green-600 dark:border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold"
 															: "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 active:border-gray-300 text-gray-700 dark:text-gray-300"
 													}`}
@@ -794,8 +757,9 @@ export default function BookingDetailsPage({ service, serviceType }: { service: 
 							{isArabic ? "ملاحظات إضافية" : "Additional Notes"}
 						</h2>
 						<textarea
-							value={notes}
-							onChange={handleNotesChange}
+							name="notes"
+							value={formData.notes}
+							onChange={handleInputChange}
 							placeholder={isArabic ? "أضف أي ملاحظات أو تعليمات إضافية..." : "Add any additional notes or instructions..."}
 							rows={4}
 							className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:border-green-600 dark:focus:border-green-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-500/20 focus:ring-offset-0 focus:outline-none resize-none text-sm sm:text-base transition-all touch-manipulation placeholder-gray-400 dark:placeholder-gray-500 ${

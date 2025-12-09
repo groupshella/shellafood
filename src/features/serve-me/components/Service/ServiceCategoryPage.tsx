@@ -19,7 +19,6 @@ const ServiceCategoryPage: React.FC<{ serviceSlug: string }> = ({ serviceSlug })
 		title,
 		description,
 		mainServices,
-		keyServices,
 		whyChooseUs,
 		availableWorkshops,
 		handleSearch,
@@ -51,10 +50,10 @@ const ServiceCategoryPage: React.FC<{ serviceSlug: string }> = ({ serviceSlug })
 							alt={title || ""}
 							fill
 							priority
+							className="object-cover object-center !h-full !w-full"
 							sizes="100vw"
-							className="object-cover"
 						/>
-						<div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
+						<div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 pointer-events-none" />
 						
 						{/* Hero Content */}
 						<div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-8">
@@ -100,11 +99,7 @@ const ServiceCategoryPage: React.FC<{ serviceSlug: string }> = ({ serviceSlug })
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
 						{mainServices?.map((service) => {
-							// Generate description from service title if not provided
-							const description = isArabic 
-								? `${service.title} - خدمة احترافية عالية الجودة مع فنيين مدربين ومعدات حديثة`
-								: `${service.title} - Professional high-quality service with trained technicians and modern equipment`;
-							
+						
 							return (
 								<ServiceCard
 									key={service.slug}
@@ -115,7 +110,7 @@ const ServiceCategoryPage: React.FC<{ serviceSlug: string }> = ({ serviceSlug })
 									isArabic={isArabic}
 									serviceSlug={service.slug}
 									icon={null}
-									description={description}
+									description={service.description}
 								/>
 							);
 						})}
@@ -131,26 +126,22 @@ const ServiceCategoryPage: React.FC<{ serviceSlug: string }> = ({ serviceSlug })
 					</h2>
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-						{keyServices?.map((service) => {
-							// Generate description from service title if not provided
-							const description = isArabic 
-								? `${service.title} - حلول متخصصة وفعالة بأسعار منافسة وضمان الجودة`
-								: `${service.title} - Specialized and effective solutions with competitive prices and quality guarantee`;
-							
-							return (
-								<ServiceCard
-									key={service.slug}
-									title={service.title}
-									image={service.image}
-									serviceSlugPath={service.path}
-									buttonText={t("serviceDetail.requestButton")}
-									isArabic={isArabic}
-									serviceSlug={service.slug}
-									icon={service.icon}
-									description={description}
-								/>
-							);
-						})}
+					{mainServices?.slice(0, 3).map((service) => {
+						
+						return (
+							<ServiceCard
+								key={service.slug}
+								title={service.title}
+								image={service.image}
+								serviceSlugPath={service.path}
+								buttonText={t("serviceDetail.requestButton")}
+								isArabic={isArabic}
+								serviceSlug={service.slug}
+								icon={null}
+								description={service.description}
+							/>
+						);
+					})}
 					</div>
 				</div>
 			</div>
@@ -216,19 +207,19 @@ const ServiceCategoryPage: React.FC<{ serviceSlug: string }> = ({ serviceSlug })
 									
 									<div className="space-y-2 mb-4">
 										{/* Rating */}
-										<div className={`flex items-center gap-2 ${isArabic ? "flex-row-reverse" : "flex-row"}`}>
+										<div className={`flex items-center gap-2 `}>
 											<span className="text-yellow-500">⭐</span>
 											<span className="text-gray-900 dark:text-gray-100 font-semibold">{workshop.rating}</span>
 										</div>
 
 										{/* Distance */}
-										<div className={`flex items-center gap-2 ${isArabic ? "flex-row-reverse" : "flex-row"}`}>
+										<div className={`flex items-center gap-2 `}>
 											<span className="text-green-600 dark:text-green-400">📍</span>
 											<span className="text-gray-600 dark:text-gray-400 text-sm">{workshop.distance}</span>
 										</div>
 
 										{/* Available Hours */}
-										<div className={`flex items-center gap-2 ${isArabic ? "flex-row-reverse" : "flex-row"}`}>
+										<div className={`flex items-center gap-2 `}>
 											<span className="text-gray-600 dark:text-gray-400">🕐</span>
 											<span className="text-gray-600 dark:text-gray-400 text-sm">{workshop.availableHours}</span>
 										</div>
@@ -262,7 +253,7 @@ const ServiceCategoryPage: React.FC<{ serviceSlug: string }> = ({ serviceSlug })
 					<div className="relative w-full">
 						<div className="relative w-full h-[280px] sm:h-[360px] lg:h-[480px] rounded-lg overflow-hidden shadow-lg">
 							<Image
-								src={serviceData?.videoThumbnail || "https://images.unsplash.com/photo-1621905251918-48116d8b6d82?w=1200&h=800&fit=crop"}
+								src={serviceData?.videoThumbnail || "/ac-condition.jpg"}
 								alt={t("serviceDetail.howItWorksTitle")}
 								fill
 								sizes="(max-width: 640px) 100vw, (max-width: 1536px) 90vw, 1400px"

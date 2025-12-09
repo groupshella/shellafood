@@ -6,7 +6,8 @@ import { HeroSection } from "./HeroSection";
 import { ServicesGrid } from "./ServicesGrid";
 import { FeaturesSection } from "./FeaturesSection";
 import { Car, Truck, Wrench, Plane, Baby, Scale, Scissors, Hammer, MapPin, Headphones, CheckCircle } from "lucide-react";
-import { SERVE_ME_SERVICES, SERVE_ME_FEATURES, type ServiceItem, type FeatureItem } from "../../constants/serve-me.constants";
+import { SERVE_ME_SERVICES, SERVE_ME_FEATURES } from "../../constants/serve-me.constants";
+import type { ServiceItem, FeatureItem } from "../../types/serve-me.types";
 import type { ServiceGridItem } from "../../types/serve-me.types";
 
 /**
@@ -44,10 +45,12 @@ export default function ServeMe() {
 	// Memoize services data
 	const services = useMemo((): ServiceGridItem[] => 
 		SERVE_ME_SERVICES.map((service: ServiceItem) => {
-			const IconComponent = SERVICE_ICONS[service.iconName];
+			const IconComponent = SERVICE_ICONS[service.iconName as keyof typeof SERVICE_ICONS];
 			return {
+				
 				slug: service.slug,
 				path: service.path,
+				description: isArabic ? service.descriptionAr : service.description,
 				title: t(service.translationKey),
 				icon: <IconComponent className="w-8 h-8" />,
 				image: service.image,
@@ -58,7 +61,7 @@ export default function ServeMe() {
 	// Memoize features data
 	const features = useMemo(() => 
 		SERVE_ME_FEATURES.map((feature: FeatureItem) => {
-			const IconComponent = FEATURE_ICONS[feature.iconName];
+			const IconComponent = FEATURE_ICONS[feature.iconName as keyof typeof FEATURE_ICONS];
 			return {
 				icon: <IconComponent className="w-10 h-10" />,
 				title: t(feature.titleKey),
