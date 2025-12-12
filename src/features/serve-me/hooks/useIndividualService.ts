@@ -7,15 +7,13 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { IndividualServiceData, getIndividualService as getDemoIndividualService } from "@/lib/data/services";
+import { IndividualServiceData, getIndividualService as getDemoIndividualService } from "@/lib/data/serve-me/services";
 import { getIndividualService } from "../api/serve-me.api";
 import { INDIVIDUAL_SERVICE_REVIEW, INDIVIDUAL_SERVICE_FAQS } from "../constants/serve-me.constants";
 
 export function useIndividualService(serviceSlug: string, serviceTypeSlug: string, isArabic: boolean) {
 	const router = useRouter();
 	
-	const [openFAQIndex, setOpenFAQIndex] = useState<number | null>(null);
-	const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 	const [serviceData, setServiceData] = useState<IndividualServiceData | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -77,16 +75,25 @@ export function useIndividualService(serviceSlug: string, serviceTypeSlug: strin
 		serviceData ? Math.floor(serviceData.rating) : 0, 
 		[serviceData]
 	);
-
+// Mock service gallery images
+const galleryImages = useMemo(() => {
+	const baseImages = [
+		"",
+		"",
+		"",
+		"",
+	];
+	return baseImages.slice(0, 4);
+}, []);
 	// Text constants
 	const priceText = isArabic ? "ريال" : "SAR";
 	const startsFromText = isArabic ? "يبدأ من" : "Starts from";
 	const priceIncludesText = isArabic 
 		? "السعر يشمل الجلسة والتقييم الكامل" 
 		: "Price includes full session and comprehensive assessment";
-	const reviewsText = isArabic ? "تقييم" : "reviews";
+	
 	const bookNowTitle = isArabic ? "احجز موعدك" : "Book Your Appointment";
-	const chooseTechnicianText = isArabic ? "احجز الآن" : "Book Now";
+	
 	const statusValue = isArabic ? "متاح الآن" : "Available Now";
 	const responseTimeValue = isArabic ? "خلال 24 ساعة" : "Within 24 hours";
 	const guaranteeValue = isArabic ? "100% رضا العملاء" : "100% Satisfaction";
@@ -103,17 +110,6 @@ export function useIndividualService(serviceSlug: string, serviceTypeSlug: strin
 		router.prefetch(bookingPath);
 	}, [router, bookingPath]);
 
-	// Mock service gallery images
-	const galleryImages = useMemo(() => {
-		if (!serviceData?.heroImage) return [];
-		const baseImages = [
-			serviceData.heroImage,
-			"https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1200",
-			"https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=1200",
-			"https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200",
-		];
-		return baseImages.slice(0, 4);
-	}, [serviceData]);
 
 	// Get reviews from constants
 	const reviews = useMemo(() => 
@@ -127,23 +123,13 @@ export function useIndividualService(serviceSlug: string, serviceTypeSlug: strin
 		[isArabic]
 	);
 
-	// Event handlers
-	const scrollToBooking = useCallback(() => {
-		const bookingElement = document.getElementById("booking-section");
-		if (bookingElement) {
-			bookingElement.scrollIntoView({ behavior: "smooth", block: "start" });
-		}
-	}, []);
 
-	const toggleFAQ = useCallback((index: number) => {
-		setOpenFAQIndex(prev => prev === index ? null : index);
-	}, []);
+
+	
 
 	return {
 		// State
-		openFAQIndex,
-		selectedImageIndex,
-		setSelectedImageIndex,
+	
 		serviceData,
 		isLoading,
 		
@@ -153,17 +139,15 @@ export function useIndividualService(serviceSlug: string, serviceTypeSlug: strin
 		features,
 		serviceDetails,
 		rating,
-		galleryImages,
 		reviews,
+		galleryImages,
 		faqs,
 		
 		// Text constants
 		priceText,
 		startsFromText,
 		priceIncludesText,
-		reviewsText,
 		bookNowTitle,
-		chooseTechnicianText,
 		statusValue,
 		responseTimeValue,
 		guaranteeValue,
@@ -172,8 +156,6 @@ export function useIndividualService(serviceSlug: string, serviceTypeSlug: strin
 		bookingPath,
 		
 		// Event handlers
-		scrollToBooking,
-		toggleFAQ,
 		handleBookingMouseEnter,
 	};
 }

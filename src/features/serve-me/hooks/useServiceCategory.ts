@@ -7,13 +7,12 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ServiceCategoryData, getServiceCategoryBySlug as getDemoServiceCategoryBySlug } from "@/lib/data/services";
+import { ServiceCategoryData, getServiceCategoryBySlug as getDemoServiceCategoryBySlug } from "@/lib/data/serve-me/services";
 import { getServiceCategoryBySlug } from "../api/serve-me.api";
 
 export function useServiceCategory(serviceSlug: string, isArabic: boolean) {
 	const router = useRouter();
 	
-	const [searchQuery, setSearchQuery] = useState("");
 	const [serviceData, setServiceData] = useState<ServiceCategoryData | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -86,32 +85,18 @@ export function useServiceCategory(serviceSlug: string, isArabic: boolean) {
 	
 	}, [router, mainServices]);
 
-	// Event handlers
-	const handleSearch = useCallback((e: React.FormEvent) => {
-		e.preventDefault();
-		if (searchQuery.trim()) {
-			console.log("Search query:", searchQuery.trim());
-			// TODO: Implement search functionality
-		}
-	}, [searchQuery]);
-
-	const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		setSearchQuery(e.target.value);
-	}, []);
+	
 
 	const handleBookAppointment = useCallback((workshopName: string) => {
 		console.log("Book appointment:", workshopName);
 		// TODO: Implement booking functionality
 	}, []);
 
-	const handlePlayVideo = useCallback(() => {
-		console.log("Play video");
-		// TODO: Implement video playback
-	}, []);
+
 
 	return {
 		// State
-		searchQuery,
+	
 		serviceData,
 		isLoading,
 		
@@ -122,11 +107,8 @@ export function useServiceCategory(serviceSlug: string, isArabic: boolean) {
 		whyChooseUs,
 		availableWorkshops,
 		
-		// Event handlers
-		handleSearch,
-		handleInputChange,
+	
 		handleBookAppointment,
-		handlePlayVideo,
 	};
 }
 

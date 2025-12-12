@@ -4,7 +4,7 @@
  */
 
 import type { Service, ServiceType, Worker, BookingData, ApiResponse } from '../types/serve-me.types';
-import type { ServiceCategoryData, IndividualServiceData } from '@/lib/data/services';
+import type { ServiceCategoryData, IndividualServiceData } from '@/lib/data/serve-me/services';
 import { SERVE_ME_CONSTANTS } from '../constants/serve-me.constants';
 
 const BASE_URL = SERVE_ME_CONSTANTS.BASE_URL;

@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getAllServiceCategorySlugs } from "@/lib/data/services";
+import { getAllServiceCategorySlugs } from "@/lib/data/serve-me/services";
 import { ServiceCategoryPage } from "@/features/serve-me";
 
 export async function generateStaticParams() {

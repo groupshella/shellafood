@@ -2,7 +2,7 @@
  * Serve Me Feature Constants
  */
 
-import type { BookingStep, ServiceItem, FeatureItem, ReviewItem } from '../types/serve-me.types';
+import type { BookingStep, ServiceItem, FeatureItem, ReviewItem, FAQItem } from '../types/serve-me.types';
 
 export const SERVE_ME_CONSTANTS = {
 	BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://shellafood.com',
@@ -69,83 +69,58 @@ export const SERVE_ME_SERVICES: ServiceItem[] = [
 		slug: "car-maintenance", 
 		path: "/serve-me/car-maintenance", 
 		translationKey: "serveMe.carMaintenance", 
-		description: "Professional car maintenance and repair services including oil changes, tire rotation, brake service, and diagnostics", 
-		descriptionAr: "خدمات صيانة وإصلاح السيارات الاحترافية بما في ذلك تغيير الزيت وتدوير الإطارات وخدمة الفرامل والتشخيص", 
+		description: "Professional car maintenance and repair services including periodic maintenance, mechanical repair, electrical repair, and tire services", 
+		descriptionAr: "خدمات صيانة وإصلاح السيارات الاحترافية بما في ذلك الصيانة الدورية والإصلاح الميكانيكي والكهربائي وخدمات الإطارات", 
 		iconName: "Car", 
-		image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&h=600&fit=crop", 
-	}, 
-	{ 
-		slug: "teachers-training", 
-		path: "/serve-me/teachers-training", 
-		translationKey: "serveMe.delivery", 
-		description: "Comprehensive teacher training programs and professional development courses for educators", 
-		descriptionAr: "برامج تدريب المعلمين الشاملة ودورات التطوير المهني للمعلمين", 
-		iconName: "Truck", 
-		image: "/helpsupport.jpg", 
-	}, 
+		image: "/car-maintenance.png", 
+	},
 	{ 
 		slug: "home-maintenance", 
 		path: "/serve-me/home-maintenance", 
-		translationKey: "serveMe.repair", 
-		description: "Complete home maintenance and repair services including plumbing, electrical, carpentry, and general handyman work", 
-		descriptionAr: "خدمات صيانة وإصلاح المنازل الكاملة بما في ذلك السباكة والكهرباء والنجارة وأعمال الصيانة العامة", 
+		translationKey: "serveMe.homeMaintenance", 
+		description: "Complete home maintenance and repair services including plumbing, electrical, carpentry, AC, painting, and pest control", 
+		descriptionAr: "خدمات صيانة وإصلاح المنازل الكاملة بما في ذلك السباكة والكهرباء والنجارة والتكييف والدهانات ومكافحة الآفات", 
 		iconName: "Wrench", 
 		image: "/home-maintenance.jpg" 
-	}, 
-	{ 
-		slug: "travel-yemen", 
-		path: "/serve-me/travel-yemen", 
-		translationKey: "serveMe.travel", 
-		description: "Travel arrangements and tour packages to Yemen including booking, accommodation, and guided tours", 
-		descriptionAr: "ترتيبات السفر والجولات السياحية إلى اليمن بما في ذلك الحجز والإقامة والجولات المصحوبة بمرشدين", 
-		iconName: "Plane", 
-		image: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=800&h=600&fit=crop", 
-	}, 
+	},
+
 	{ 
 		slug: "babysitting", 
 		path: "/serve-me/babysitting", 
 		translationKey: "serveMe.babysitting", 
-		description: "Trusted babysitting and childcare services with qualified and experienced caregivers", 
-		descriptionAr: "خدمات رعاية الأطفال الموثوقة مع مقدمي رعاية مؤهلين وذوي خبرة", 
+		description: "Trusted babysitting and childcare services with qualified and experienced caregivers for all age groups", 
+		descriptionAr: "خدمات رعاية الأطفال الموثوقة مع مقدمي رعاية مؤهلين وذوي خبرة لجميع الفئات العمرية", 
 		iconName: "Baby", 
 		image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&h=600&fit=crop", 
-	}, 
-	{ 
-		slug: "legal-services", 
-		path: "/serve-me/legal-services", 
-		translationKey: "serveMe.legal", 
-		description: "Professional legal consultation and services including contracts, documentation, and legal representation", 
-		descriptionAr: "الاستشارات والخدمات القانونية المهنية بما في ذلك العقود والوثائق والتمثيل القانوني", 
-		iconName: "Scale", 
-		image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=600&fit=crop", 
-	}, 
+	},
 	{ 
 		slug: "women-salons", 
 		path: "/serve-me/women-salons", 
 		translationKey: "serveMe.womenSalons", 
-		description: "Premium women's salon services including hair styling, makeup, skincare, and beauty treatments", 
-		descriptionAr: "خدمات صالونات نسائية فاخرة بما في ذلك تصفيف الشعر والمكياج والعناية بالبشرة وعلاجات التجميل", 
+		description: "Premium women's salon services including hair styling, coloring, makeup, skincare, nails, and beauty treatments", 
+		descriptionAr: "خدمات صالونات نسائية فاخرة بما في ذلك تصفيف الشعر والصبغات والمكياج والعناية بالبشرة والأظافر وعلاجات التجميل", 
 		iconName: "Scissors", 
-		image: "/serveme-hero.png", 
+		image: "/w-sallon.png", 
 	}, 
 	{ 
 		slug: "men-salons", 
 		path: "/serve-me/men-salons", 
 		translationKey: "serveMe.menSalons", 
-		description: "Modern men's grooming services including haircuts, beard trimming, shaving, and styling", 
-		descriptionAr: "خدمات العناية الرجالية الحديثة بما في ذلك قص الشعر وتشذيب اللحية والحلاقة والتصفيف", 
+		description: "Modern men's grooming services including haircuts, beard trimming, hot towel shaving, styling, and facials", 
+		descriptionAr: "خدمات العناية الرجالية الحديثة بما في ذلك قص الشعر وتشذيب اللحية والحلاقة الساخنة والتصفيف والعناية بالوجه", 
 		iconName: "Scissors", 
-		image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&h=600&fit=crop", 
-	}, 
-	{ 
-		slug: "construction-materials", 
-		path: "/serve-me/construction-materials", 
-		translationKey: "serveMe.construction", 
-		description: "Quality construction materials supply including cement, steel, wood, tiles, and building supplies", 
-		descriptionAr: "توريد مواد البناء عالية الجودة بما في ذلك الأسمنت والحديد والخشب والبلاط ومستلزمات البناء", 
-		iconName: "Hammer", 
-		image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop", 
-	}, 
+		image: "/m-sallon.jpg", 
+	},
+	{
+		slug: "pick-and-order",
+		path: "/pickandorder",
+		translationKey: "serveMe.pickAndOrder", 
+		description: "Convenient pick-up and delivery services for shopping, errands, document delivery, and package handling", 
+		descriptionAr: "خدمات التوصيل والاستلام المريحة للتسوق والمهمات وتوصيل المستندات ونقل الطرود", 
+		iconName: "Truck", 
+		image: "/pickorder.png", 
+	},
+
 ] as const;
 
 // Features data
@@ -223,17 +198,17 @@ export const INDIVIDUAL_SERVICE_REVIEW:Record<string, ReviewItem[]> = {
 } as const;
 
 // FAQ Data (Arabic and English)
-export const INDIVIDUAL_SERVICE_FAQS = {
+export const INDIVIDUAL_SERVICE_FAQS: Record<string, FAQItem[]> = {
 	ar: [
 	  {
-		question: "كم يستغرق وصول الفني؟",
+		question: "كم يستغرق وصول مقدم الخدمة؟",
 		answer:
-		  "يصل الفني خلال مدة تتراوح بين 60 إلى 120 دقيقة داخل نفس المدينة، أو خلال الموعد المحدد عند الحجز. يعتمد الوقت على توفر أقرب فني ومتطلبات الخدمة.",
+		  "يصل مقدم الخدمة خلال مدة تتراوح بين 60 إلى 120 دقيقة داخل نفس المدينة، أو خلال الموعد المحدد عند الحجز. يعتمد الوقت على توفر أقرب مقدم خدمة ومتطلبات الخدمة.",
 	  },
 	  {
 		question: "هل السعر شامل كل شيء؟",
 		answer:
-		  "السعر يشمل أجور الزيارة والكشف. قد تختلف تكلفة الإصلاح حسب القطع المطلوبة أو طبيعة المشكلة، ويتم إبلاغك بالسعر النهائي قبل البدء في العمل.",
+		  "السعر يشمل تكلفة الزيارة والخدمة الأساسية. قد تختلف التكلفة النهائية حسب المواد المطلوبة أو طبيعة الخدمة، ويتم إبلاغك بالسعر الكامل قبل البدء في العمل.",
 	  },
 	  {
 		question: "متى يتم الدفع؟",
@@ -243,40 +218,40 @@ export const INDIVIDUAL_SERVICE_FAQS = {
 	  {
 		question: "هل يوجد ضمان على الخدمة؟",
 		answer:
-		  "نعم، تقدم جميع خدمات الصيانة ضماناً يتراوح بين 14 إلى 30 يوماً حسب نوع الخدمة. يشمل الضمان إعادة الإصلاح مجاناً في حال ظهور نفس المشكلة.",
+		  "نعم، تقدم جميع الخدمات ضماناً يتراوح بين 14 إلى 30 يوماً حسب نوع الخدمة. يشمل الضمان إعادة تقديم الخدمة مجاناً في حال ظهور نفس المشكلة.",
 	  },
 	  {
 		question: "هل يمكن إلغاء الحجز؟",
 		answer:
-		  "يمكنك إلغاء الحجز بدون رسوم قبل وصول الفني أو قبل الموعد المحدد بوقت كافٍ. بعد بدء العمل، قد تُطبق رسوم زيارة حسب السياسة.",
+		  "يمكنك إلغاء الحجز بدون رسوم قبل وصول مقدم الخدمة أو قبل الموعد المحدد بوقت كافٍ. بعد بدء الخدمة، قد تُطبق رسوم زيارة حسب السياسة.",
 	  },
 	],
   
 	en: [
 	  {
-		question: "How long until the technician arrives?",
+		question: "How long until the service provider arrives?",
 		answer:
-		  "A technician typically arrives within 60–120 minutes in the same city, or at the scheduled appointment time. Arrival depends on technician availability and service requirements.",
+		  "The service provider typically arrives within 60–120 minutes in the same city, or at the scheduled appointment time. Arrival depends on provider availability and service requirements.",
 	  },
 	  {
 		question: "Is the price all-inclusive?",
 		answer:
-		  "The price includes the visit and inspection fee. Repair costs may vary depending on required parts or the issue's complexity, and the final price is shared with you before any work begins.",
+		  "The price includes the visit and basic service cost. The final cost may vary depending on required materials or the nature of the service, and the complete price is shared with you before any work begins.",
 	  },
 	  {
 		question: "When do I pay?",
 		answer:
-		  "Payment is made after the service is completed and you’re fully satisfied. You can pay via Mada, Apple Pay, STC Pay, or cash depending on availability.",
+		  "Payment is made after the service is completed and you're fully satisfied. You can pay via Mada, Apple Pay, STC Pay, or cash depending on availability.",
 	  },
 	  {
 		question: "Is the service guaranteed?",
 		answer:
-		  "Yes. All maintenance services include a guarantee ranging from 14 to 30 days depending on the service type. The guarantee covers free re-repair if the same issue reappears.",
+		  "Yes. All services include a guarantee ranging from 14 to 30 days depending on the service type. The guarantee covers free re-service if the same issue reappears.",
 	  },
 	  {
 		question: "Can I cancel the booking?",
 		answer:
-		  "Yes. You can cancel the booking free of charge before the technician arrives or before the scheduled time. After work begins, a visit fee may apply depending on policy.",
+		  "Yes. You can cancel the booking free of charge before the service provider arrives or before the scheduled time. After service begins, a visit fee may apply depending on policy.",
 	  },
 	],
   } as const;
@@ -310,7 +285,7 @@ export function getBookingSteps(service: string, serviceType: string): BookingSt
 			id: "choose-worker",
 			path: `/serve-me/${service}/${serviceType}/book/choose-worker`,
 			labelEn: "Choose Worker",
-			labelAr: "اختر العامل",
+			labelAr: "اختر  ",
 		},
 
 		{
@@ -398,3 +373,66 @@ export const RATING_MODAL_CONFIG = {
 	STAR_COUNT: 5,
 } as const;
 
+export const FUEL_TYPES_OPTIONS = {
+	en: [
+		{ value: "gasoline", label:  "Gasoline" },
+		{ value: "diesel", label:  "Diesel" },
+		{ value: "hybrid", label:  "Hybrid" },
+		{ value: "electric", label: "Electric" },
+	],
+	ar: [
+		{ value: "gasoline", label:  "بنزين"  },
+		{ value: "diesel", label:  "ديزل"},
+		{ value: "hybrid", label:  "هجين" },
+		{ value: "electric", label:  "كهربائي"  },
+	]
+}
+export const CAR_MAKES_OPTIONS = {
+	en: [
+		{ value: "toyota", label: "Toyota" },
+		{ value: "hyundai", label: "Hyundai" },
+		{ value: "ford", label: "Ford" },
+		{ value: "chevrolet", label: "Chevrolet" },
+		{ value: "nissan", label: "Nissan" },
+		{ value: "honda", label: "Honda" },
+		{ value: "kia", label: "Kia" },
+		{ value: "mitsubishi", label: "Mitsubishi" },
+		{ value: "mercedes", label: "Mercedes-Benz" },
+		{ value: "bmw", label: "BMW" },
+		{ value: "audi", label: "Audi" },
+		{ value: "volkswagen", label: "Volkswagen" },
+		{ value: "mazda", label: "Mazda" },
+		{ value: "lexus", label: "Lexus" },
+		{ value: "infiniti", label: "Infiniti" },
+		{ value: "other", label: "Other" },
+	],
+
+	ar: [
+		{ value: "toyota", label: "تويوتا" },
+		{ value: "hyundai", label: "هيونداي" },
+		{ value: "ford", label: "فورد" },
+		{ value: "chevrolet", label: "شيفروليه" },
+		{ value: "nissan", label: "نيسان" },
+		{ value: "honda", label: "هوندا" },
+		{ value: "kia", label: "كيا" },
+		{ value: "mitsubishi", label: "ميتسوبيشي" },
+		{ value: "mercedes", label: "مرسيدس" },
+		{ value: "bmw", label: "بي إم دبليو" },
+		{ value: "audi", label: "أودي" },
+		{ value: "volkswagen", label: "فولكس واجن" },
+		{ value: "mazda", label: "مازدا" },
+		{ value: "lexus", label: "لكزس" },
+		{ value: "infiniti", label: "إنفينيتي" },
+		{ value: "other", label: "أخرى" },
+	],
+};
+export const TRANSMISSION_OPTIONS = {
+	en: [
+		{ value: "automatic", label: "Automatic" },
+		{ value: "manual", label: "Manual" },
+	],
+	ar: [
+		{ value: "automatic", label: "أوتوماتيك" },
+		{ value: "manual", label: "يدوي" },
+	],
+};

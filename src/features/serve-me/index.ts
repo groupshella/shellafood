@@ -6,26 +6,25 @@
  */
 
 // Components
-export { default as ServeMe } from './components/Main/ServeMe';
-export { HeroSection } from './components/Main/HeroSection';
-export { ServicesGrid } from './components/Main/ServicesGrid';
-export { FeaturesSection } from './components/Main/FeaturesSection';
-export { default as ServiceCategoryPage } from './components/Service/ServiceCategoryPage';
-export { ServiceCard } from './components/Service/ServiceCard';
-export { default as IndividualServicePage } from './components/ServiceType/IndividualServicePage';
-export { default as ChooseWorker } from './components/Worker/ChooseWorker';
-export { default as ScheduleService } from './components/Worker/ScheduleService';
-export { default as BookingDetailsPage } from './components/Booking/steps/BookingDetailsPage/BookingDetailsPage'
-export { default as BookingSummaryPage } from './components/Booking/steps/BookingSummaryPage';
-export { default as ConfirmationPage } from './components/Booking/steps/ConfirmationPage';
-export { default as PaymentPage } from './components/Booking/steps/PaymentPage';
-export { default as StepperNavigation } from './components/Booking/StepperNavigation';
-export { default as AttachmentGuidelinesModal } from './components/Booking/modals/AttachmentGuidelinesModal';
-export { default as DescriptionTooltipModal } from './components/Booking/modals/DescriptionTooltipModal';
-export { default as RatingModal } from './components/Booking/modals/RatingModal';
-export { default as WorkerRecommendationModal } from './components/Booking/modals/WorkerRecommendationModal';
-export { default as WaitingWorkerPage } from './components/Booking/steps/WaitingWorkerPage';
-export { default as AcceptedWorkersPage } from './components/Booking/steps/AcceptedWorkersPage';
+export { default as ServeMe } from './components/MainPage/ServeMe';
+export { HeroSection } from './components/MainPage/HeroSection';
+export { ServicesGrid } from './components/MainPage/ServicesGrid';
+export { FeaturesSection } from './components/MainPage/FeaturesSection';
+export { default as ServiceCategoryPage } from './components/ServicePage/ServiceCategoryPage';
+export { ServiceCard } from './components/ServicePage/ServiceCard';
+export { default as IndividualServicePage } from './components/ServiceTypePage/IndividualServicePage';
+export { default as ChooseWorker } from './components/BookingSteps/ChooseWorkerPage';
+export { default as BookingDetailsPage } from './components/BookingSteps/BookingDetailsPage'
+export { default as BookingSummaryPage } from './components/BookingSteps/BookingSummaryPage';
+export { default as ConfirmationPage } from './components/BookingSteps/ConfirmationPage';
+export { default as PaymentPage } from './components/BookingSteps/PaymentPage';
+export { default as StepperNavigation } from './components/BookingSteps/StepperNavigation/StepperNavigation';
+export { default as AttachmentGuidelinesModal } from './components/Modals/AttachmentGuidelinesModal';
+export { default as DescriptionTooltipModal } from './components/Modals/DescriptionTooltipModal';
+export { default as RatingModal } from './components/Modals/RatingModal';
+export { default as WorkerRecommendationModal } from './components/Modals/WorkerRecommendationModal';
+export { default as WaitingWorkerPage } from './components/BookingSteps/WaitingWorkerPage';
+export { default as AcceptedWorkersPage } from './components/BookingSteps/AcceptedWorkersPage';
 
 // Types - Export non-conflicting types with wildcard, conflicting types explicitly
 export type {

@@ -413,14 +413,15 @@ const translations = {
 		
 		// Services
 		"serveMe.carMaintenance": "صيانة السيارات",
-		"serveMe.delivery": "المعلمون والتدريب",
-		"serveMe.repair": "الصيانة المنزلية",
-		"serveMe.travel": "السفر نحو الخارج",
-		"serveMe.babysitting": "خذ ابني مع ابنك",
-		"serveMe.legal": "المعاملات القانونية",
-		"serveMe.womenSalons": "صالونات نسائية",
-		"serveMe.menSalons": "صالونات رجالية",
-		"serveMe.construction": "مواد البناء",
+	"serveMe.homeMaintenance": "الصيانة المنزلية",
+	"serveMe.educationTutoring": "التعليم والتدريس",
+	"serveMe.babysitting": "رعاية الأطفال",
+	"serveMe.womenSalons": "صالونات نسائية",
+	"serveMe.menSalons": "صالونات رجالية",
+	"serveMe.legal": "الخدمات القانونية",
+	"serveMe.travelTourism": "السفر والسياحة",
+	"serveMe.pickAndOrder": "التوصيل والاستلام",
+	"serveMe.construction": "مواد البناء",
 		
 		// Features
 		"serveMe.features.coverage": "تغطية واسعة",
@@ -930,13 +931,14 @@ const translations = {
 		
 		// Services
 		"serveMe.carMaintenance": "Car Maintenance",
-		"serveMe.delivery": "Teachers and Training",
-		"serveMe.repair": "Home Maintenance",
-		"serveMe.travel": "Travel to the Outgoing",
-		"serveMe.babysitting": "Take My Child with You",
-		"serveMe.legal": "Legal Transactions",
+		"serveMe.homeMaintenance": "Home Maintenance",
+		"serveMe.educationTutoring": "Education & Tutoring",
+		"serveMe.babysitting": "Babysitting",
 		"serveMe.womenSalons": "Women's Salons",
 		"serveMe.menSalons": "Men's Salons",
+		"serveMe.legal": "Legal Services",
+		"serveMe.travelTourism": "Travel & Tourism",
+		"serveMe.pickAndOrder": "Pick & Order",
 		"serveMe.construction": "Construction Materials",
 		
 		// Features

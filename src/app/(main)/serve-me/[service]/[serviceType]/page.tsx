@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { IndividualServicePage } from "@/features/serve-me";
-import { getIndividualService, isValidIndividualService, getAllIndividualServicePaths } from "@/lib/data/services";
+import { getIndividualService, isValidIndividualService, getAllIndividualServicePaths } from "@/lib/data/serve-me/services";
 
 export async function generateStaticParams() {
 	const paths = getAllIndividualServicePaths();
