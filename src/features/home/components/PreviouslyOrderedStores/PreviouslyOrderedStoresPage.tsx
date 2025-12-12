@@ -163,9 +163,8 @@ export default function PreviouslyOrderedStoresPage({ stores }: PreviouslyOrdere
     if (filters.features.freeDelivery) {
       result = result.filter(
         (store) =>
-          store.fee === "0" ||
-          store.fee?.toLowerCase().includes("free") ||
-          store.feeAr?.toLowerCase().includes("مجاني")
+          store.fee === "0"
+         
       );
     }
 

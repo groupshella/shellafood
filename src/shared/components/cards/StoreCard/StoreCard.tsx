@@ -25,11 +25,8 @@ export interface Store {
 	logo?: string | null;
 	location?: string;
 	deliveryTime?: string;
-	deliveryTimeAr?: string;
 	minimumOrder?: string;
-	minimumOrderAr?: string;
 	fee?: string;
-	feeAr?: string;
 	hasProducts?: boolean;
 	hasCategories?: boolean;
 	isOpen?: boolean;
@@ -197,7 +194,7 @@ function StoreCard({
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
 						</svg>
 						<span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-							{isArabic && store.deliveryTimeAr ? store.deliveryTimeAr : store.deliveryTime}
+							{isArabic && store.deliveryTime ? store.deliveryTime+'دقيقة' : store.deliveryTime+'min'}
 						</span>
 					</div>
 				)}
@@ -209,7 +206,7 @@ function StoreCard({
 							<svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
 							</svg>
-							{isArabic && store.minimumOrderAr ? store.minimumOrderAr : store.minimumOrder}
+							{isArabic && store.minimumOrder ? store.minimumOrder+'ريال' : store.minimumOrder+'SAR'}
 						</span>
 					)}
 					{store.fee && (
@@ -217,7 +214,7 @@ function StoreCard({
 							<svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
 							</svg>
-							{isArabic && store.feeAr ? store.feeAr : store.fee}
+							{isArabic && store.fee ? store.fee+'ريال' : store.fee+'SAR'}
 						</span>
 					)}
 				</div>
