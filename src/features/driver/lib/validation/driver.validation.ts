@@ -40,9 +40,30 @@ export const driverFormSchema = z.object({
 	zone_id: z
 		.string()
 		.min(1, VALIDATION_MESSAGES.ZONE_ID.REQUIRED),
-	identity_image: z.string().optional(),
-	driving_license_image: z.string().optional(),
-	driver_license_image: z.string().optional(),
+		identity_image: z
+		.custom<File>((val) => val instanceof File, {
+			message: VALIDATION_MESSAGES.IDENTITY_IMAGE.REQUIRED
+		})
+		.refine((file) => file.size > 0, {
+			message: VALIDATION_MESSAGES.IDENTITY_IMAGE.REQUIRED
+		})
+		.refine((file) => file.size <= 4 * 1024 * 1024, {
+			message: VALIDATION_MESSAGES.IDENTITY_IMAGE.INVALID
+		}),
+	
+	driving_license_image: z
+		.custom<File | null>()
+		.optional()
+		.refine((file) => !file || file.size <= 4 * 1024 * 1024, {
+			message: VALIDATION_MESSAGES.IDENTITY_IMAGE.INVALID
+		}),
+	
+	driver_license_image: z
+		.custom<File | null>()
+		.optional()
+		.refine((file) => !file || file.size <= 4 * 1024 * 1024, {
+			message: VALIDATION_MESSAGES.IDENTITY_IMAGE.INVALID
+		}),
 	agreed: z
 		.boolean()
 		.refine((val) => val === true, {

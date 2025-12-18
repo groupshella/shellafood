@@ -57,8 +57,22 @@ export const partnerFormSchema = z.object({
 			const lng = parseFloat(val);
 			return !isNaN(lng) && lng >= -180 && lng <= 180;
 		}, { message: VALIDATION_MESSAGES.LOCATION.REQUIRED }),
-	logo: z.string().optional(),
-	cover_photo: z.string().optional(),
+		logo: z
+		.custom<File>((val) => val instanceof File, {
+			message: VALIDATION_MESSAGES.PHOTO.REQUIRED
+		})
+		.refine((file) => file.size > 0, {
+			message: VALIDATION_MESSAGES.PHOTO.REQUIRED
+		})
+		.refine((file) => file.size <= 4 * 1024 * 1024, {
+			message: VALIDATION_MESSAGES.PHOTO.INVALID
+		}),
+	cover_photo: z
+		.custom<File | null>()
+		.optional()
+		.refine((file) => !file || file.size <= 4 * 1024 * 1024, {
+			message: VALIDATION_MESSAGES.PHOTO.INVALID
+		}),
 	agreed: z
 		.boolean()
 		.refine((val) => val === true, { message: VALIDATION_MESSAGES.TERMS.REQUIRED }),

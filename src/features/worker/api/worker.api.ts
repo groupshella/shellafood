@@ -89,59 +89,72 @@ export async function getWorkerModulesByZone(
  * Register a new worker
  */
 export async function registerWorker(
-	formData: WorkerFormData | WorkerRegistrationData,
+	data: WorkerRegistrationData,
 	lang: string = DEFAULT_LANG
 ): Promise<ApiResponse<WorkerRegistrationResponse>> {
 	try {
-		const formDataToSend = new FormData();
+		const formData = new FormData();
 		
-		// Append text fields
-		Object.entries(formData).forEach(([key, value]) => {
-			if (value !== null && value !== undefined && value !== '') {
-				if (key === 'id_image') {
-					// Handle File object
-					if (value instanceof File) {
-						formDataToSend.append(key, value);
-					} else if (typeof value === 'string' && value.trim() !== '') {
-						// Skip URL strings - should be converted to File before calling
-					}
-				} else if (key === 'zone_id' || key === 'module_id') {
-					// Handle optional number fields
-					if (typeof value === 'number') {
-						formDataToSend.append(key, value.toString());
-					} else if (typeof value === 'string' && value.trim() !== '') {
-						formDataToSend.append(key, value);
-					}
-				} else {
-					formDataToSend.append(key, String(value));
-				}
-			}
-		});
+		// Append required text fields
+		formData.append('first_name', data.first_name);
+		formData.append('last_name', data.last_name);
+		formData.append('email', data.email);
+		formData.append('driver_type', data.driver_type);
+		formData.append('area', data.area);
+		formData.append('vehicle_type', data.vehicle_type);
+		formData.append('id_type', data.id_type);
+		formData.append('id_number', data.id_number);
 
-		const response = await fetch(`${BASE_URL}/api/v1/worker/register`, {
+		// Append optional fields if provided
+		if (data.zone_id) {
+			formData.append('zone_id', data.zone_id.toString());
+		}
+		if (data.module_id) {
+			formData.append('module_id', data.module_id.toString());
+		}
+
+		// Append file if provided
+		if (data.id_image) {
+			formData.append('id_image', data.id_image);
+		}
+
+		const response = await fetch(`${BASE_URL}/api/v1/workers`, {
 			method: 'POST',
 			headers: {
 				'Accept': 'application/json',
 				'X-LANG': lang,
 				// Note: Don't set Content-Type header - browser will set it with boundary for FormData
 			},
-			body: formDataToSend,
+			body: formData,
 		});
 
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: 'Failed to register worker' }));
+		console.log(response);
+		const responseData = await response.json();
+		console.log('Worker registration response:', responseData);
+
+		// Handle error responses
+		if (responseData.errors) {
+			console.log('Worker registration error:', responseData.errors[0].message);
 			return {
-				error: errorData.message || errorData.error || 'Failed to register worker',
+				error: responseData.errors[0].message,
+				status: response.status || 400,
+			};
+		}
+
+		// Handle non-OK HTTP status
+		if (!response.ok) {
+			return {
+				error: responseData.message || responseData.error || 'Failed to register worker',
 				status: response.status,
 			};
 		}
 
-		const data = await response.json();
 		return {
-			data: data.data || data,
+			data: responseData.data || responseData,
 			status: response.status,
 		};
 	} catch (error) {
+		console.error('Worker registration network error:', error);
 		return {
 			error: error instanceof Error ? error.message : 'Network error',
 			status: 500,

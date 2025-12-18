@@ -11,11 +11,18 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     // Cache images for 60 seconds (good balance for mobile data usage)
     minimumCacheTTL: 60,
+    // Image quality levels
+    qualities: [60, 75, 85],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
         pathname: '/**',
+      },
+      {
+        protocol: "https",
+        hostname: "shellafood.com",
+        pathname: "/**",
       },
       {
         protocol: 'https',
@@ -30,6 +37,41 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'cdn2.hubspot.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdnprod.mafretailproxy.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.mafrservices.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.todoorstep.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'framestrapimaster.blob.core.windows.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'mrmandoob.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'portal.jahez.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'hungerstation.dhmedia.io',
         pathname: '/**',
       },
     ],

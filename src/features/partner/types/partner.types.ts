@@ -34,8 +34,8 @@ export interface PartnerFormData {
 	longitude: string;
 	
 	// Optional Files
-	logo: string;
-	cover_photo: string;
+	logo: File;
+	cover_photo: File|null;
 	
 	// Terms
 	agreed: boolean;
@@ -65,8 +65,8 @@ export interface PartnerRegistrationData {
 	address: string;
 	latitude: string;
 	longitude: string;
-	logo?: File;
-	cover_photo?: File;
+	logo?: File|null;
+	cover_photo?: File|null;
 }
 
 export interface PartnerRegistrationResponse {

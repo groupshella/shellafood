@@ -88,6 +88,10 @@ export const VALIDATION_MESSAGES = {
 		REQUIRED: 'نوع الهوية مطلوب',
 		INVALID: 'نوع الهوية غير صالح',
 	},
+	ID_IMAGE: {
+		REQUIRED: 'صورة الهوية مطلوب',
+		INVALID:"صورة الهوية يجب ان تكون أقل من 4 ميفابايت" ,
+	},
 	ID_NUMBER: {
 		REQUIRED: 'رقم الهوية مطلوب',
 		INVALID: 'رقم الهوية يجب أن يتكون من 10 أرقام',

@@ -27,7 +27,6 @@ export { default as DailyNeeded } from './components/category-details/DailyNeede
 // Store Components
 export { default as StorePage } from './components/store/StorePage';
 export { default as StoreView } from './components/store/StoreView';
-export { default as MobileStoreView } from './components/store/MobileStoreView';
 export { default as StoreCard } from './components/store/StoreCard';
 export { default as StoreHero } from './components/store/StoreHero';
 export { default as DepartmentsPage } from './components/store/DepartmentsPage';

@@ -1,7 +1,6 @@
 "use client";
 
 import { useLanguage } from "@/providers";
-import React, { useEffect } from "react";	
 import { NotificationDialog, FormInput, FormSelect, SectionHeader, UploadFileInput, PhoneInput } from "@/shared/components";
 import { useWorkerRegistration } from "../../hooks/useWorkerRegistration";
 import type { WorkerFormData } from "../../types/worker.types";
@@ -17,7 +16,7 @@ const INITIAL_FORM_DATA: WorkerFormData = {
 	vehicle_type: "",
 	id_type: "",
 	id_number: "",
-	id_image: "",
+	id_image: null ,
 	zone_id: "",
 	module_id: "",
 };
@@ -37,8 +36,7 @@ export default function WorkerForm() {
 		notification,
 		setNotification,
 		handleChange,
-		handleUploadComplete,
-		handleUploadError,
+handleFileChange,
 		handleSubmit,
 		handleReset,
 	} = useWorkerRegistration(INITIAL_FORM_DATA, language);
@@ -170,19 +168,15 @@ export default function WorkerForm() {
 				/>
 			</div>
 
-			{/* File Upload Section */}
-			<div className="mb-8">
-				<UploadFileInput
-					label={isArabic ? "صورة الهوية" : "ID Image"}
-					endpoint="imageUploader"
-					onUploadComplete={handleUploadComplete(
-						"id_image",
-						isArabic ? "تم رفع صورة الهوية بنجاح" : "ID image uploaded successfully",
-					)}
-					onUploadError={handleUploadError}
+			<UploadFileInput
+					label={isArabic ? "رخصة القيادة" : "Driving License"}
+					name="id_image"
+					selectedFile={formData.id_image}
+					onChange={handleFileChange}
 					isArabic={isArabic}
+					accept="image/*"
+					maxSizeMB={2}
 				/>
-			</div>
 
 			{/* Optional Fields Section */}
 			<SectionHeader title={isArabic ? "حقول اختيارية" : "Optional Fields"} isArabic={isArabic} />

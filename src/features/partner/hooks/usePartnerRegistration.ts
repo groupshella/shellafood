@@ -8,7 +8,6 @@ import { useState, useCallback, useEffect } from "react";
 import { registerPartner, getPartnerZonesList, getPartnerModulesByZone } from "../api/partner.api";
 import type { PartnerFormData, Zone, Module, NotificationState } from "../types/partner.types";
 import { partnerFormSchema } from "../lib/validation/partner.validation";
-import { urlToFile } from "../lib/utils/file.utils";
 
 export function usePartnerRegistration(initialData: PartnerFormData, language: string) {
 	const [formData, setFormData] = useState<PartnerFormData>(initialData);
@@ -103,30 +102,13 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 			[name]: type === "checkbox" ? checked : value,
 		}));
 	}, []);
+	const handleFileChange = (name: string, file: File | null) => {
+		setFormData(prev => ({
+			...prev,
+			[name]: file
+		}));
+	};
 
-	const handleUploadComplete = useCallback((
-		field: "logo" | "cover_photo",
-		successMessage: string,
-	) => {
-		return (url: string) => {
-			setFormData((prev: PartnerFormData) => ({ ...prev, [field]: url }));
-			if (url) {
-				setNotification({
-					message: successMessage,
-					type: "success",
-					isVisible: true,
-				});
-			}
-		};
-	}, []);
-
-	const handleUploadError = useCallback((error: Error) => {
-		setNotification({
-			message: error.message,
-			type: "error",
-			isVisible: true,
-		});
-	}, []);
 
 	const handleSubmit = useCallback(async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -135,7 +117,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 		if (!result.success) {
 			const firstError = result.error.issues[0];
 			setNotification({
-				message: firstError.message,
+				message: firstError.message||(isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 				type: "error",
 				isVisible: true,
 			});
@@ -144,10 +126,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 
 		setIsSubmitting(true);
 		try {
-			// Convert image URLs to Files if they exist
-			const logoFile = formData.logo ? await urlToFile(formData.logo, "logo.jpg") : undefined;
-			const coverPhotoFile = formData.cover_photo ? await urlToFile(formData.cover_photo, "cover_photo.jpg") : undefined;
-
+	
 			// Prepare data for API
 			const registrationData = {
 				f_name: formData.f_name,
@@ -161,12 +140,13 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 				address: formData.address,
 				latitude: formData.latitude,
 				longitude: formData.longitude,
-				logo: logoFile,
-				cover_photo: coverPhotoFile,
+				logo: formData.logo,
+				cover_photo: formData.cover_photo,
 			};
+			console.log(registrationData);
 
 			const apiResult = await registerPartner(registrationData, language);
-			
+			console.log(apiResult);
 			if (apiResult.data) {
 				setNotification({
 					message: isArabic ? "تم التسجيل بنجاح!" : "Registration successful!",
@@ -176,7 +156,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 				handleReset();
 			} else {
 				setNotification({
-					message: apiResult.error || (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
+					message: apiResult.error|| (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 					type: "error",
 					isVisible: true,
 				});
@@ -184,7 +164,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 		} catch (error) {
 			console.error('Error registering partner:', error);
 			setNotification({
-				message: error instanceof Error ? error.message : (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
+				message:  (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 				type: "error",
 				isVisible: true,
 			});
@@ -209,8 +189,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 		notification,
 		setNotification,
 		handleChange,
-		handleUploadComplete,
-		handleUploadError,
+		handleFileChange,
 		handleSubmit,
 		handleReset,
 		loadZones,

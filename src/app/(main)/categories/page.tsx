@@ -1,6 +1,14 @@
 import { Metadata } from "next";
-import { CategoriesPage as CategoriesPageComponent } from "@/features/categories";
-import { TEST_CATEGORIES } from "@/features/categories/lib/helpers/testData";
+import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
+import { getCachedZoneData } from "@/features/categories/api/modules.api";
+import { ZoneDataModule } from "@/features/categories/types/module.types";
+import { CategoriesPage } from "@/features/categories/components/category-list";
+import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
+
+// ✅ Enable ISR (Incremental Static Regeneration)
+export const revalidate = 3600; // Re-generate page every hour
+
 
 export const metadata: Metadata = {
 	title: "الأقسام | شلة فود",
@@ -67,13 +75,39 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://shellafood.com"),
 };
 
-export default function CategoriesPageRoute() {
-	// Ensure we have categories data
-	const categories = TEST_CATEGORIES || [];
+
+
+export default async function CategoriesPageRoute() {
+	const cookieStore = await cookies();
+	const locationCookie = cookieStore.get('location')?.value;
+
+	let latitude = parseFloat('24.540766366665999');
+	let longitude = parseFloat('46.504590739370002');
+	const locale = DEFAULT_LANG;
+
+	if (locationCookie) {
 	
+			const parsed = JSON.parse(locationCookie);
+			if (!isNaN(parsed.lat) && !isNaN(parsed.lng)) {
+				latitude = parseFloat(parsed.lat);
+				longitude = parseFloat(parsed.lng);
+			}
+	}
+	const pageStartTime = Date.now();
+	const zoneData = await getCachedZoneData(latitude, longitude, locale);
+	const pageDuration = Date.now() - pageStartTime;
+	console.log('[Categories Page] Fetch duration:', `${pageDuration}ms`);
 
+	const zoneModules = zoneData?.zone_data?.[0]?.modules;
+	return (
+		<div className="container mx-auto px-4 py-8">
 
-	return <CategoriesPageComponent categories={categories} />;
+			{/* ✅ Component receives data immediately, no loading state needed */}
+			<CategoriesPage 
+				initialModules={zoneModules as ZoneDataModule[]} 
+			/>
+		</div>
+	);
 }
 
 

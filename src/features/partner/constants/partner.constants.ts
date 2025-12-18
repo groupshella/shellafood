@@ -96,6 +96,10 @@ export const VALIDATION_MESSAGES = {
 	LOCATION: {
 		REQUIRED: 'يجب تحديد موقع المتجر على الخريطة',
 	},
+	PHOTO: {
+		REQUIRED:'الشعار مطلوب',
+		INVALID:"صورة  يجب ان تكون أقل من 4 ميفابايت" ,
+	},
 	TERMS: {
 		REQUIRED: 'يجب الموافقة على الشروط والأحكام',
 	},

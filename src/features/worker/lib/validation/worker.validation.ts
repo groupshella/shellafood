@@ -51,7 +51,12 @@ export const workerFormSchema = z.object({
 		.string()
 		.min(1, VALIDATION_MESSAGES.ID_NUMBER.REQUIRED)
 		.regex(ID_NUMBER_RULES.REGEX, VALIDATION_MESSAGES.ID_NUMBER.INVALID),
-	id_image: z.string().optional(),
+		id_image: z
+		.custom<File | null>()
+		.optional()
+		.refine((file) => !file || file.size <= 2* 1024 * 1024, {
+			message: VALIDATION_MESSAGES.ID_IMAGE.REQUIRED
+		}),
 	zone_id: z.string().optional(),
 	module_id: z.string().optional(),
 });

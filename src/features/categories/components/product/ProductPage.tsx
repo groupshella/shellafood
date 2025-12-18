@@ -1,26 +1,21 @@
 "use client";
 
+import { useLanguage } from "@/providers/LanguageProvider";
+import { EmptyState, SkeletonPage } from "..";
+import { useProducts } from "../../hooks/useProudcts";
 import ProductViewComponent from "./ProductView";
+import { Product } from "../../types/product.types";
 
 interface ProductPageProps {
-	categorySlug: string;
-	storeSlug: string;
-	departmentSlug: string;
-	productSlug: string;
+productResponse: Product;
 }
 
 export default function ProductPage({
-	categorySlug,
-	storeSlug,
-	departmentSlug,
-	productSlug,
+	productResponse,
 }: ProductPageProps) {
-	return (
+return (
 		<ProductViewComponent
-			categorySlug={categorySlug}
-			storeSlug={storeSlug}
-			departmentSlug={departmentSlug}
-			productSlug={productSlug}
+			product={productResponse}
 		/>
 	);
 }

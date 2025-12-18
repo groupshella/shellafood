@@ -9,7 +9,6 @@ import { registerDriver, getDriverZonesList } from "../api/driver.api";
 import type { DriverFormData, Zone, NotificationState } from "../types/driver.types";
 import { driverFormSchema } from "../lib/validation/driver.validation";
 import { normalizePhoneNumber } from "../lib/utils/phone.utils";
-import { urlToFile } from "../lib/utils/file.utils";
 
 export function useDriverRegistration(initialData: DriverFormData, language: string) {
 	const [formData, setFormData] = useState<DriverFormData>(initialData);
@@ -20,7 +19,7 @@ export function useDriverRegistration(initialData: DriverFormData, language: str
 		message: "",
 		type: "success",
 		isVisible: false,
-	});
+	}); 
 
 	const isArabic = language === 'ar';
 
@@ -32,7 +31,7 @@ export function useDriverRegistration(initialData: DriverFormData, language: str
 				setZones(result.data);
 			} else {
 				setNotification({
-					message: result.error || (isArabic ? "فشل تحميل المناطق" : "Failed to load zones"),
+					message:  (isArabic ? "فشل تحميل المناطق" : "Failed to load zones"),
 					type: "error",
 					isVisible: true,
 				});
@@ -61,38 +60,22 @@ export function useDriverRegistration(initialData: DriverFormData, language: str
 		}));
 	}, []);
 
-	const handleUploadComplete = useCallback((
-		field: "identity_image" | "driving_license_image" | "driver_license_image",
-		successMessage: string,
-	) => {
-		return (url: string) => {
-			setFormData((prev: DriverFormData) => ({ ...prev, [field]: url }));
-			if (url) {
-				setNotification({
-					message: successMessage,
-					type: "success",
-					isVisible: true,
-				});
-			}
-		};
-	}, []);
-
-	const handleUploadError = useCallback((error: Error) => {
-		setNotification({
-			message: error.message,
-			type: "error",
-			isVisible: true,
-		});
-	}, []);
+	const handleFileChange = (name: string, file: File | null) => {
+		setFormData(prev => ({
+			...prev,
+			[name]: file
+		}));
+	};
 
 	const handleSubmit = useCallback(async (e: React.FormEvent) => {
 		e.preventDefault();
-		
+		handleReset();
 		const result = driverFormSchema.safeParse(formData);
+		console.log(result);
 		if (!result.success) {
 			const firstError = result.error.issues[0];
 			setNotification({
-				message: firstError.message,
+				message:firstError.message|| (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 				type: "error",
 				isVisible: true,
 			});
@@ -101,16 +84,7 @@ export function useDriverRegistration(initialData: DriverFormData, language: str
 
 		setIsSubmitting(true);
 		try {
-			// Convert image URLs to Files if they exist
-			const identityImageFile = formData.identity_image 
-				? await urlToFile(formData.identity_image, "identity_image.jpg") 
-				: undefined;
-			const drivingLicenseFile = formData.driving_license_image 
-				? await urlToFile(formData.driving_license_image, "driving_license.jpg") 
-				: undefined;
-			const driverLicenseFile = formData.driver_license_image 
-				? await urlToFile(formData.driver_license_image, "driver_license.jpg") 
-				: undefined;
+		
 
 			// Normalize phone number
 			const normalizedPhone = normalizePhoneNumber(formData.phone, isArabic);
@@ -134,9 +108,9 @@ export function useDriverRegistration(initialData: DriverFormData, language: str
 				identity_type: formData.identity_type,
 				zone_id: parseInt(formData.zone_id),
 				password: formData.password,
-				identity_image: identityImageFile,
-				driving_license_image: drivingLicenseFile,
-				driver_license_image: driverLicenseFile,
+				identity_image: formData.identity_image,
+				driving_license_image: formData.driving_license_image,
+				driver_license_image: formData.driver_license_image,
 			};
 
 			const result = await registerDriver(registrationData, language);
@@ -150,7 +124,7 @@ export function useDriverRegistration(initialData: DriverFormData, language: str
 				handleReset();
 			} else {
 				setNotification({
-					message: result.error || (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
+					message:result.error||  (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 					type: "error",
 					isVisible: true,
 				});
@@ -158,7 +132,7 @@ export function useDriverRegistration(initialData: DriverFormData, language: str
 		} catch (error) {
 			console.error('Error registering driver:', error);
 			setNotification({
-				message: error instanceof Error ? error.message : (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
+				message:  (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 				type: "error",
 				isVisible: true,
 			});
@@ -180,10 +154,9 @@ export function useDriverRegistration(initialData: DriverFormData, language: str
 		notification,
 		setNotification,
 		handleChange,
-		handleUploadComplete,
-		handleUploadError,
 		handleSubmit,
 		handleReset,
+		handleFileChange,
 		loadZones,
 	};
 }

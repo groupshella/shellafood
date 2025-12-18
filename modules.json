@@ -1,0 +1,451 @@
+{
+    "info": {
+        "name": "Customer App - Initialization APIs (React Website Team)",
+        "_postman_id": "customer-app-init-react-2025",
+        "description": "Complete collection of initialization APIs used by the Flutter Customer App. This collection includes all endpoints for modules, config, business settings, and bootstrap data. Import this in Postman to test the same APIs the Flutter app uses.\n\n**Key Endpoints:**\n- Bootstrap (consolidates all home screen data)\n- App Init (config + modules + zones + business settings)\n- Config (app configuration)\n- Business Settings (home screen setup)\n- Modules (available modules list)\n\n**Headers Required:**\n- `moduleId`: Module ID (3=Ecommerce, 6=Food, 7=Grocery, 8=Pharmacy)\n- `zoneId`: Zone ID array (e.g., [2,4,3,5])\n- `X-localization`: Language (ar or en)\n- `Authorization`: Bearer token (for authenticated endpoints)",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "https://shellafood.com",
+            "type": "string",
+            "description": "Base URL for the API"
+        },
+        {
+            "key": "moduleId",
+            "value": "6",
+            "type": "string",
+            "description": "Module ID: 3=Ecommerce, 6=Food, 7=Grocery, 8=Pharmacy"
+        },
+        {
+            "key": "zoneId",
+            "value": "[2]",
+            "type": "string",
+            "description": "Zone ID array (JSON array format)"
+        },
+        {
+            "key": "X-localization",
+            "value": "ar",
+            "type": "string",
+            "description": "Language: ar (Arabic) or en (English)"
+        },
+        {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE",
+            "type": "string",
+            "description": "Bearer token for authenticated endpoints (optional for most init endpoints)"
+        }
+    ],
+    "item": [
+        {
+            "name": "🚀 Bootstrap (All-in-One)",
+            "item": [
+                {
+                    "name": "Bootstrap - Complete Home Screen Data",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    console.log('✅ Bootstrap successful');",
+                                    "    console.log('📊 Response includes:', Object.keys(jsonData));",
+                                    "    ",
+                                    "    pm.test('Bootstrap response structure', function () {",
+                                    "        pm.expect(jsonData).to.have.property('business_settings');",
+                                    "        pm.expect(jsonData).to.have.property('banners');",
+                                    "        pm.expect(jsonData).to.have.property('categories');",
+                                    "        pm.expect(jsonData).to.have.property('stores');",
+                                    "    });",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-localization",
+                                "value": "{{X-localization}}"
+                            },
+                            {
+                                "key": "moduleId",
+                                "value": "{{moduleId}}",
+                                "description": "Module ID header (required)"
+                            },
+                            {
+                                "key": "zoneId",
+                                "value": "{{zoneId}}",
+                                "description": "Zone ID array (required)"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/bootstrap",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bootstrap"
+                            ]
+                        },
+                        "description": "**🚀 Bootstrap Endpoint - Complete Home Screen Data**\n\nThis is the MAIN endpoint that consolidates ALL home screen data into a single call. It replaces 16+ individual API calls with 1 optimized request.\n\n**What it includes:**\n- Business settings (home screen configuration)\n- Banners (main + promotional)\n- Categories\n- Stores (all, popular, recommended, latest, etc.)\n- Items (popular, recommended, discounted, etc.)\n- Offers & Campaigns\n- Flash Sales (for Grocery module)\n- Brands (for Ecommerce module)\n\n**Performance:**\n- 91% reduction in API calls (16+ calls → 1 call)\n- Cached for 5 minutes\n- ETag support (304 Not Modified)\n\n**Headers Required:**\n- `moduleId`: Module ID (3, 6, 7, or 8)\n- `zoneId`: Zone ID array (e.g., [2,4,3,5])\n- `X-localization`: Language (ar or en)\n\n**Response Time:** Target < 3 seconds (with caching)\n\n**Use this endpoint instead of calling individual APIs separately!**"
+                    }
+                }
+            ],
+            "description": "Bootstrap endpoint consolidates all home screen data into a single optimized call."
+        },
+        {
+            "name": "⚙️ App Initialization",
+            "item": [
+                {
+                    "name": "App Init - Config + Modules + Zones + Business Settings",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    ",
+                                    "    // Save zone ID if returned",
+                                    "    if (jsonData.user_zone_id) {",
+                                    "        pm.collectionVariables.set('zoneId', JSON.stringify(jsonData.user_zone_id));",
+                                    "        console.log('✅ Zone ID saved:', jsonData.user_zone_id);",
+                                    "    }",
+                                    "    ",
+                                    "    // Save module ID if returned",
+                                    "    if (jsonData.modules && jsonData.modules.length > 0) {",
+                                    "        var firstModule = jsonData.modules[0];",
+                                    "        if (firstModule.id) {",
+                                    "            pm.collectionVariables.set('moduleId', firstModule.id.toString());",
+                                    "            console.log('✅ Module ID saved:', firstModule.id);",
+                                    "        }",
+                                    "    }",
+                                    "    ",
+                                    "    pm.test('App init successful', function () {",
+                                    "        pm.expect(jsonData).to.have.property('config');",
+                                    "        pm.expect(jsonData).to.have.property('modules');",
+                                    "        pm.expect(jsonData).to.have.property('zones');",
+                                    "    });",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-localization",
+                                "value": "{{X-localization}}"
+                            },
+                            {
+                                "key": "moduleId",
+                                "value": "{{moduleId}}",
+                                "description": "Module ID header (optional for first call)"
+                            },
+                            {
+                                "key": "zoneId",
+                                "value": "{{zoneId}}",
+                                "description": "Zone ID header (optional - can be set from response)"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/app-init?latitude=24.7136&longitude=46.6753",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "app-init"
+                            ],
+                            "query": [
+                                {
+                                    "key": "latitude",
+                                    "value": "24.7136",
+                                    "description": "User latitude (optional - for zone detection)"
+                                },
+                                {
+                                    "key": "longitude",
+                                    "value": "46.6753",
+                                    "description": "User longitude (optional - for zone detection)"
+                                }
+                            ]
+                        },
+                        "description": "**⚙️ App Initialization Endpoint**\n\nCombines multiple initialization calls into one endpoint:\n- App configuration (maintenance mode, currency, version check, etc.)\n- Available modules list\n- Zones list\n- Business settings (if zoneId provided)\n- User zone detection (if lat/lng provided)\n\n**Query Parameters (Optional):**\n- `latitude`: User latitude for zone detection\n- `longitude`: User longitude for zone detection\n\n**Headers:**\n- `moduleId`: Module ID (optional for first call)\n- `zoneId`: Zone ID (optional - can be set from response)\n- `X-localization`: Language (ar or en)\n\n**Response includes:**\n- `config`: App configuration (maintenance, currency, etc.)\n- `modules`: Available modules list\n- `zones`: Available zones\n- `user_zone_id`: Detected zone ID (if lat/lng provided)\n- `business_settings`: Mobile app settings (if zoneId provided)\n\n**Use Case:**\n- First app launch (before user selects module/zone)\n- App initialization flow\n- Zone detection based on location"
+                    }
+                }
+            ],
+            "description": "App initialization endpoint that combines config, modules, zones, and business settings."
+        },
+        {
+            "name": "📱 Individual Endpoints",
+            "item": [
+                {
+                    "name": "Config - App Configuration",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-localization",
+                                "value": "{{X-localization}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/config",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "config"
+                            ]
+                        },
+                        "description": "**📱 App Configuration**\n\nReturns app configuration including:\n- Maintenance mode status\n- App version check\n- Currency settings\n- Payment methods\n- Base URLs for images\n- System settings\n\n**Headers:**\n- `X-localization`: Language (ar or en)\n\n**Response includes:**\n- Maintenance mode status\n- Minimum app version\n- Currency information\n- Payment methods\n- Image base URLs\n- System configuration"
+                    }
+                },
+                {
+                    "name": "Business Settings - Home Screen Setup",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-localization",
+                                "value": "{{X-localization}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/business-settings/mobile-app-home-screen-setup",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "business-settings",
+                                "mobile-app-home-screen-setup"
+                            ]
+                        },
+                        "description": "**⚙️ Business Settings - Home Screen Configuration**\n\nReturns home screen configuration including:\n- Section visibility flags (categories, banners, stores, etc.)\n- Home screen layout settings\n- Feature toggles\n\n**Headers:**\n- `X-localization`: Language (ar or en)\n\n**Response includes:**\n- `categories_section`: Show/hide categories\n- `banners_section`: Show/hide banners\n- `popular_stores_section`: Show/hide popular stores\n- `brand_section`: Show/hide brands (Ecommerce)\n- Other home screen settings"
+                    }
+                },
+                {
+                    "name": "Modules - Available Modules List",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-localization",
+                                "value": "{{X-localization}}"
+                            },
+                            {
+                                "key": "zoneId",
+                                "value": "{{zoneId}}",
+                                "description": "Zone ID header (optional)"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/module",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "module"
+                            ]
+                        },
+                        "description": "**📦 Available Modules List**\n\nReturns list of all available modules:\n- Module 3: Ecommerce\n- Module 6: Food/Restaurant\n- Module 7: Grocery\n- Module 8: Pharmacy\n\n**Headers:**\n- `zoneId`: Zone ID array (optional - filters modules by zone)\n- `X-localization`: Language (ar or en)\n\n**Response includes:**\n- Module ID\n- Module name\n- Module type\n- Module icon\n- Module status\n- Zone availability"
+                    }
+                },
+                {
+                    "name": "Zones - Get Zone ID from Location",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-localization",
+                                "value": "{{X-localization}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/config/get-zone-id?latitude=24.7136&longitude=46.6753",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "config",
+                                "get-zone-id"
+                            ],
+                            "query": [
+                                {
+                                    "key": "latitude",
+                                    "value": "24.7136",
+                                    "description": "User latitude (required)"
+                                },
+                                {
+                                    "key": "longitude",
+                                    "value": "46.6753",
+                                    "description": "User longitude (required)"
+                                }
+                            ]
+                        },
+                        "description": "**📍 Get Zone ID from Location**\n\nDetects user's zone based on latitude and longitude coordinates.\n\n**Query Parameters (Required):**\n- `latitude`: User latitude\n- `longitude`: User longitude\n\n**Headers:**\n- `X-localization`: Language (ar or en)\n\n**Response includes:**\n- `zone_id`: Detected zone ID(s)\n- Zone information"
+                    }
+                }
+            ],
+            "description": "Individual endpoints for specific data (use Bootstrap endpoint instead for better performance)."
+        },
+        {
+            "name": "🔧 Testing Examples",
+            "item": [
+                {
+                    "name": "Bootstrap - Food Module (Module 6)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-localization",
+                                "value": "ar"
+                            },
+                            {
+                                "key": "moduleId",
+                                "value": "6"
+                            },
+                            {
+                                "key": "zoneId",
+                                "value": "[2]"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/bootstrap",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bootstrap"
+                            ]
+                        },
+                        "description": "Example: Bootstrap endpoint for Food module (Module 6) in Arabic"
+                    }
+                },
+                {
+                    "name": "Bootstrap - Ecommerce Module (Module 3)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-localization",
+                                "value": "en"
+                            },
+                            {
+                                "key": "moduleId",
+                                "value": "3"
+                            },
+                            {
+                                "key": "zoneId",
+                                "value": "[2,4,3,5]"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/bootstrap",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bootstrap"
+                            ]
+                        },
+                        "description": "Example: Bootstrap endpoint for Ecommerce module (Module 3) in English with multiple zones"
+                    }
+                },
+                {
+                    "name": "App Init - First Launch (No Module/Zone)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-localization",
+                                "value": "ar"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/app-init?latitude=24.7136&longitude=46.6753",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "app-init"
+                            ],
+                            "query": [
+                                {
+                                    "key": "latitude",
+                                    "value": "24.7136"
+                                },
+                                {
+                                    "key": "longitude",
+                                    "value": "46.6753"
+                                }
+                            ]
+                        },
+                        "description": "Example: App initialization for first-time users (no module/zone selected yet)"
+                    }
+                }
+            ],
+            "description": "Example requests for different scenarios"
+        }
+    ]
+}

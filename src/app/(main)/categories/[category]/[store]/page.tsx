@@ -1,83 +1,128 @@
 import { StorePage } from '@/features/categories';
+import { getCachedStoreDetails } from '@/features/categories/api/stores.api';
 import { Metadata } from 'next';
+import { StoreDetails } from '@/features/categories/types/store.details.types';
+import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-export async function generateMetadata({ params }: { params: Promise<{ category: string; store: string }> }): Promise<Metadata> {
-	const { category, store } = await params;
-	const categoryName = decodeURIComponent(category);
-	const storeName = decodeURIComponent(store);
-	
-	return {
-		title: `${storeName} - ${categoryName} | شلة فود`,
-		description: `تصفح الأقسام والمنتجات في ${storeName} ضمن ${categoryName}. اكتشف أفضل المنتجات والعروض في شلة فود.`,
-		keywords: [
-			storeName,
-			categoryName,
-			"متجر",
-			"أقسام",
-			"منتجات",
-			"تسوق",
-			"شلة فود",
-		],
-		authors: [{ name: "شلة فود" }],
-		creator: "شلة فود",
-		publisher: "شلة فود",
-		openGraph: {
-			title: `${storeName} - ${categoryName} | شلة فود`,
-			description: `تصفح الأقسام والمنتجات في ${storeName} ضمن ${categoryName}. اكتشف أفضل المنتجات والعروض في شلة فود.`,
-			type: "website",
-			url: `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}`,
-			siteName: "شلة فود",
-			locale: "ar_SA",
-			alternateLocale: ["en_US"],
-			images: [
-				{
-					url: "/og-categories.jpg",
-					width: 1200,
-					height: 630,
-					alt: `${storeName} - ${categoryName}`,
-				},
-			],
-		},
-		twitter: {
-			card: "summary_large_image",
-			title: `${storeName} - ${categoryName} | شلة فود`,
-			description: `تصفح الأقسام والمنتجات في ${storeName} ضمن ${categoryName}. اكتشف أفضل المنتجات والعروض في شلة فود.`,
-			images: ["/og-categories.jpg"],
-			creator: "@shellafood",
-		},
-		robots: {
-			index: true,
-			follow: true,
-			googleBot: {
-				index: true,
-				follow: true,
-				"max-video-preview": -1,
-				"max-image-preview": "large",
-				"max-snippet": -1,
-			},
-		},
-		alternates: {
-			canonical: `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}`,
-			languages: {
-				"ar-SA": `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}`,
-				"en-US": `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}`,
-			},
-		},
-		metadataBase: new URL("https://shellafood.com"),
-	};
+interface PageProps {
+  params: Promise<{
+    category: string;
+    store: string;
+  }>;
+  searchParams: Promise<{
+    page?: string;
+  }>;
 }
 
-export default async function StorePageRoute({ params }: { params: Promise<{ category: string; store: string }> }) {
-	const { category, store: storeSlug } = await params;
+/* =========================
+   Metadata
+========================= */
+export async function generateMetadata(
+  { params }: PageProps
+): Promise<Metadata> {
+  const { category, store } = await params;
 
+  const categoryName = decodeURIComponent(category);
+  const storeName = decodeURIComponent(store);
 
+  return {
+    title: `${storeName} - ${categoryName} | شلة فود`,
+    description: `تصفح الأقسام والمنتجات في ${storeName} ضمن ${categoryName}. اكتشف أفضل المنتجات والعروض في شلة فود.`,
+    keywords: [
+      storeName,
+      categoryName,
+      'متجر',
+      'أقسام',
+      'منتجات',
+      'تسوق',
+      'شلة فود',
+    ],
+    openGraph: {
+      title: `${storeName} - ${categoryName} | شلة فود`,
+      description: `تصفح الأقسام والمنتجات في ${storeName}.`,
+      type: 'website',
+      url: `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}`,
+      siteName: 'شلة فود',
+      locale: 'ar_SA',
+      images: [
+        {
+          url: '/og-categories.jpg',
+          width: 1200,
+          height: 630,
+          alt: `${storeName} - ${categoryName}`,
+        },
+      ],
+    },
+    alternates: {
+      canonical: `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}`,
+    },
+  };
+}
 
-	return (
-		<StorePage 
-			categorySlug={category}
-			storeSlug={storeSlug}
-		/>
-	);
+/* =========================
+   Page Route
+========================= */
+export default async function StorePageRoute(
+  { params, searchParams }: PageProps
+) {
+  const { category, store } = await params;
+  const search = await searchParams;
+
+  const storeId = Number(store);
+  const moduleId = Number(category);
+
+  // ✅ Validate IDs
+  if (
+    isNaN(storeId) || storeId <= 0 ||
+    isNaN(moduleId) || moduleId <= 0
+  ) {
+    notFound();
+  }
+
+  const limit = 12;
+  const offset = Math.max(1, Number(search.page) || 1);
+
+  const zoneId = 2; // TODO: replace  with real zone resolver
+
+  const startTime = Date.now();
+
+  // ✅ Fetch store details (cached)
+  const storeDetailsResponse = await getCachedStoreDetails(
+    limit,
+    offset,
+    DEFAULT_LANG,
+    moduleId,
+    zoneId,
+    storeId
+  );
+
+  const duration = Date.now() - startTime;
+
+  console.log('[Store Page] Store details fetched:', {
+    duration: `${duration}ms`,
+    storeId,
+    moduleId,
+    limit,
+    offset,
+    hasData: !!storeDetailsResponse?.data,
+    categoriesCount:
+      storeDetailsResponse?.data?.category_details?.length || 0,
+    totalCategories:
+      storeDetailsResponse?.data?.categories_pagination?.total_categories || 0,
+  });
+
+  // ❌ Not found or API failure
+  if (!storeDetailsResponse?.data) {
+    notFound();
+  }
+
+  // ✅ Success
+  return (
+    <StorePage
+      store={storeDetailsResponse.data as StoreDetails}
+      initialLimit={limit}
+      initialPage={offset}
+    />
+  );
 }

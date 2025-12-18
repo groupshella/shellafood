@@ -6,46 +6,31 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Star, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
-import { Product, ProductCardVariant } from "../../types/category.types";
 import { FavoriteButton } from "@/shared/components/ui";
 import { useProductFavorites, useCart } from "@/shared/hooks";
 import { useToast } from "@/shared/components/ui";
-import { navigateToProduct, navigateToProductFromContext } from "../../lib/utils/navigation";
-import { TEST_STORES, TEST_CATEGORIES, TEST_DEPARTMENTS } from "@/lib/data/categories/testData";
-import { 
-	formatPrice, 
-	getProductName, 
-	getProductUnit, 
-	getProductBadge,
-	isProductAvailable,
-	hasDiscount
-} from "../../lib/utils/productHelpers";
 import { fadeInUp } from "../../lib/utils/animations";
 import { cn } from "@/shared/utils";
 import { getImageBlurDataURL, getImageSizes, getImageQuality } from "@/lib/utils/imageOptimization";
+import { Item } from "../../types/department.types";
 
-// Extended props interface for backward compatibility
 interface UnifiedProductCardProps {
-	product: Product;
-	variant?: ProductCardVariant;
+	product: Item;
+	variant?: 'default' | 'mobile' | 'compact';
 	onClick?: (productId: string) => void;
-	onQuickAdd?: (product: Product) => void;
-	onAddToCart?: (productId: string) => void; // Backward compatibility
-	showActions?: boolean;
+	onQuickAdd?: (product: Item) => void;
+	onAddToCart?: (product: Item) => void;
 	showRating?: boolean;
 	showStock?: boolean;
+	showActions?: boolean;
+	showAddButton?: boolean;
 	showDelivery?: boolean;
-	className?: string;
-	index?: number;
-	storeId?: string;
+	storeId?: number;
 	storeName?: string;
 	storeNameAr?: string;
-	// Legacy props
-	categorySlug?: string;
-	storeSlug?: string;
-	departmentSlug?: string;
-	showAddButton?: boolean; // Backward compatibility
-	onQuickView?: (product: Product) => void; // Legacy prop
+	categoryId?: number;
+	index?: number;
+	className?: string;
 }
 
 /**
@@ -54,23 +39,21 @@ interface UnifiedProductCardProps {
  */
 function UnifiedProductCard({
 	product,
-	variant = 'default',
+	variant,
 	onClick,
 	onQuickAdd,
-	onAddToCart, // Backward compatibility
-	showActions = true,
+	onAddToCart,
 	showRating = true,
 	showStock = true,
+	showActions = true,
+	showAddButton = true,
 	showDelivery = false,
-	className = "",
-	index = 0,
 	storeId,
 	storeName,
 	storeNameAr,
-	showAddButton = true, // Backward compatibility
-	categorySlug,
-	storeSlug,
-	departmentSlug,
+	categoryId,
+	index = 0,
+	className,
 }: UnifiedProductCardProps) {
 	const { language } = useLanguage();
 	const isArabic = language === 'ar';
@@ -79,124 +62,97 @@ function UnifiedProductCard({
 	const { addToCart } = useCart();
 	const { showToast } = useToast();
 
+	// Get display name from translations
+	const displayName = useMemo(() => {
+		if (isArabic) {
+			const arTranslation = product.translations?.find(
+				(t: any) => t.locale === 'ar' && t.key === 'name'
+			);
+			return arTranslation?.value || product.name;
+		}
+		return product.name;
+	}, [product, isArabic]);
+
+	// Get display unit from translations
+	const displayUnit = useMemo(() => {
+		if (isArabic) {
+			const arTranslation = product.unit?.translations?.find(
+				(t: any) => t.locale === 'ar' && t.key === 'unit'
+			);
+			return arTranslation?.value || product.unit?.unit || '';
+		}
+		return product.unit?.unit || '';
+	}, [product, isArabic]);
+
+	// Get badge (discount percentage)
+	const displayBadge = useMemo(() => {
+		if (product.discount > 0 && product.discount_type) {
+			const discountValue = product.discount_type === 'percentage' 
+				? `${product.discount}%` 
+				: `${product.discount} ${isArabic ? 'ريال' : 'SAR'}`;
+			return isArabic ? `${discountValue} خصم` : `${discountValue} OFF`;
+		}
+		return undefined;
+	}, [product, isArabic]);
+
+	// Check availability
+	const isAvailable = useMemo(() => {
+		return product.availability?.is_available ?? (product.stock > 0 && product.status === 1);
+	}, [product]);
+
+	// Check if has discount
+	const hasDiscountPrice = useMemo(() => {
+		return product.original_price > 0 && product.original_price > product.price;
+	}, [product]);
+
+	// Get product image
+	const productImage = useMemo(() => {
+		return product.image_full_url || product.image || '';
+	}, [product]);
+
 	// Product favorites hook
 	const { isFavorite, isLoading: favoriteLoading, toggleFavorite } = useProductFavorites(
-		product.id,
+		product.id.toString(),
 		{
 			name: product.name,
-			nameAr: product.nameAr,
-			image: product.image,
+			nameAr: product.translations?.find((t: any) => t.locale === 'ar' && t.key === 'name')?.value || product.name,
+			image: productImage,
 			price: product.price,
-			originalPrice: product.originalPrice,
-			unit: product.unit,
-			unitAr: product.unitAr,
-			storeId: product.storeId || storeId,
+			originalPrice: product.original_price > 0 ? product.original_price : undefined,
+			unit: product.unit?.unit || '',
+			unitAr: product.unit?.translations?.find((t: any) => t.locale === 'ar' && t.key === 'unit')?.value || product.unit?.unit || '',
+			storeId: (product.store_id || storeId)?.toString(),
 		}
 	);
 
-	// Display values
-	const displayName = useMemo(() => getProductName(product, language), [product, language]);
-	const displayUnit = useMemo(() => getProductUnit(product, language), [product, language]);
-	const displayBadge = useMemo(() => getProductBadge(product, language), [product, language]);
-	const isAvailable = useMemo(() => isProductAvailable(product), [product]);
-	const hasDiscountPrice = useMemo(() => hasDiscount(product), [product]);
-
 	// Handlers
 	const handleClick = useCallback(() => {
-		if (onClick) {
-			onClick(product.id);
-			return;
-		}
+		
+			router.push(`/categories/${product.module_id}/${product.store_id}/${product.category_id}/${product.id}`);
+		
+	}, [onClick, product, storeId, categoryId, router]);
 
-		// Navigate to product details page
-		if (!product.slug || !product.storeId) {
-			return;
-		}
+	
 
-		// Use provided slugs if available, otherwise find from product data
-		let finalCategorySlug = categorySlug;
-		let finalStoreSlug = storeSlug;
-		let finalDepartmentSlug = departmentSlug;
-
-		// If slugs not provided, find them from product data
-		if (!finalCategorySlug || !finalStoreSlug) {
-			const store = TEST_STORES.find(s => s.id === product.storeId);
-			if (!store || !store.categoryId || !store.slug) {
-				// Fallback to context-based navigation
-				navigateToProductFromContext(router, product, categorySlug, storeSlug, departmentSlug);
-				return;
-			}
-
-			// Find the category to get slug
-			const category = TEST_CATEGORIES.find(c => c.id === store.categoryId);
-			if (!category) {
-				// Fallback to context-based navigation
-				navigateToProductFromContext(router, product, categorySlug, storeSlug, departmentSlug);
-				return;
-			}
-
-			finalCategorySlug = finalCategorySlug || category.slug;
-			finalStoreSlug = finalStoreSlug || store.slug;
-		}
-
-		// Find the department to get slug
-		if (!finalDepartmentSlug) {
-			if (product.department) {
-				const department = TEST_DEPARTMENTS.find(
-					d => d.name === product.department || d.nameAr === product.department
-				);
-				if (department && department.slug) {
-					finalDepartmentSlug = department.slug;
-				} else {
-					// Fallback: convert department name to slug format
-					finalDepartmentSlug = product.department.toLowerCase().replace(/\s+/g, '-');
-				}
-			} else {
-				finalDepartmentSlug = 'food'; // default
-			}
-		}
-
-		// Navigate to product details
-		if (finalCategorySlug && finalStoreSlug && finalDepartmentSlug) {
-			navigateToProduct(router, finalCategorySlug, finalStoreSlug, finalDepartmentSlug, product);
-		} else {
-			// Fallback to context-based navigation
-			navigateToProductFromContext(router, product, categorySlug, storeSlug, departmentSlug);
-		}
-	}, [router, product, onClick, categorySlug, storeSlug, departmentSlug]);
+	
 
 	const handleQuickAdd = useCallback(
 		async (e: React.MouseEvent) => {
 			e.stopPropagation();
 			if (!isAvailable) return;
-
-			// Backward compatibility: use onAddToCart if provided
-			if (onAddToCart) {
-				onAddToCart(product.id);
-				return;
-			}
-
-			const finalStoreId = product.storeId || storeId;
-			if (!finalStoreId) {
-				showToast(
-					isArabic ? "خطأ: معلومات المتجر غير متوفرة" : "Error: Store information not available",
-					"error"
-				);
-				return;
-			}
-
 			try {
+				const finalStoreId = product.store_id || storeId;
 				const result = await addToCart({
-					productId: product.id,
-					storeId: finalStoreId,
+					productId: product.id.toString(),
+					storeId: finalStoreId?.toString() || '',
 					quantity: 1,
 					productName: product.name,
-					productNameAr: product.nameAr,
-					productImage: product.image,
+					productNameAr: product.translations?.find((t: any) => t.locale === 'ar' && t.key === 'name')?.value || product.name,
+					productImage: productImage,
 					priceAtAdd: product.price,
-					storeName: storeName || "",
-					storeNameAr: storeNameAr,
-					stock: product.stockQuantity,
+					storeName: storeName || product.store_name || "",
+					storeNameAr: storeNameAr || "",
+					stock: product.stock,
 				});
 
 				if (result.success) {
@@ -205,6 +161,7 @@ function UnifiedProductCard({
 						"success"
 					);
 					onQuickAdd?.(product);
+				onAddToCart?.(product);
 				} else if (result.requiresClearCart) {
 					showToast(
 						isArabic
@@ -220,7 +177,7 @@ function UnifiedProductCard({
 				);
 			}
 		},
-		[product, storeId, storeName, storeNameAr, addToCart, showToast, isArabic, onQuickAdd, onAddToCart, isAvailable]
+		[product, storeId, storeName, storeNameAr, addToCart, showToast, isArabic, onQuickAdd, onAddToCart, isAvailable, productImage]
 	);
 
 	// Auto-detect variant if not specified (backward compatibility)
@@ -300,7 +257,7 @@ function UnifiedProductCard({
 
 // Mobile Variant Component
 interface VariantProps {
-	product: Product;
+	product: Item;
 	displayName: string;
 	displayUnit: string;
 	displayBadge?: string;
@@ -355,9 +312,9 @@ function MobileVariant({
 		>
 			{/* Product Image */}
 			<div className="relative aspect-square bg-gray-100 dark:bg-gray-700">
-				{product.image ? (
+				{product.image_full_url || product.image ? (
 					<Image
-						src={product.image}
+						src={product.image_full_url || product.image}
 						alt={displayName}
 						fill
 						sizes={getImageSizes('card')}
@@ -431,16 +388,16 @@ function MobileVariant({
 					<span className="text-lg font-black text-green-600 dark:text-green-400">
 						{product.price}
 					</span>
-					<span className="text-xs text-gray-600 dark:text-gray-400">SAR</span>
-					{hasDiscountPrice && product.originalPrice && (
+					<span className="text-xs text-gray-600 dark:text-gray-400">{isArabic ? "ريال" : "SAR"}</span>
+					{hasDiscountPrice && product.original_price > 0 && (
 						<span className="text-xs text-gray-400 dark:text-gray-500 line-through ml-1">
-							{product.originalPrice}
+							{product.original_price}
 						</span>
 					)}
 				</div>
 
 				{/* Rating */}
-				{showRating && product.rating && (
+				{showRating && product.avg_rating > 0 && (
 					<div
 						className={cn(
 							"flex items-center gap-1 mb-3",
@@ -449,11 +406,11 @@ function MobileVariant({
 					>
 						<Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
 						<span className="text-xs font-semibold text-gray-900 dark:text-white">
-							{product.rating}
+							{product.avg_rating.toFixed(1)}
 						</span>
-						{product.reviewsCount && (
+						{product.rating_count > 0 && (
 							<span className="text-xs text-gray-500 dark:text-gray-400">
-								({product.reviewsCount > 999 ? "999+" : product.reviewsCount})
+								({product.rating_count > 999 ? "999+" : product.rating_count})
 							</span>
 						)}
 					</div>
@@ -502,7 +459,7 @@ function CompactVariant({
 	index,
 	className,
 }: VariantProps) {
-	const isLowStock = isAvailable && product.stockQuantity !== undefined && product.stockQuantity < 10;
+	const isLowStock = isAvailable && product.stock !== undefined && product.stock < 10;
 
 	return (
 		<motion.div
@@ -520,9 +477,9 @@ function CompactVariant({
 		>
 			{/* Image Container */}
 			<div className="relative aspect-square overflow-hidden rounded-md bg-gray-100 dark:bg-gray-700 mb-2">
-				{product.image ? (
+				{product.image_full_url || product.image ? (
 					<Image
-						src={product.image}
+						src={product.image_full_url || product.image}
 						alt={displayName}
 						fill
 						className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -617,7 +574,7 @@ function CompactVariant({
 				)}
 
 				{/* Rating */}
-				{showRating && product.rating && (
+				{showRating && product.avg_rating > 0 && (
 					<div
 						className={cn(
 							"flex items-center gap-1 mb-1",
@@ -626,7 +583,7 @@ function CompactVariant({
 					>
 						<Star className="h-2.5 w-2.5 text-yellow-400 flex-shrink-0 fill-yellow-400" />
 						<span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-							{product.rating}
+							{product.avg_rating.toFixed(1)}
 						</span>
 					</div>
 				)}
@@ -641,9 +598,9 @@ function CompactVariant({
 					<span className="text-sm font-bold text-green-600 dark:text-green-400">
 						{product.price} {isArabic ? "ريال" : "SAR"}
 					</span>
-					{hasDiscountPrice && product.originalPrice && (
+					{hasDiscountPrice && product.original_price > 0 && (
 						<span className="text-xs text-gray-400 dark:text-gray-500 line-through">
-							{product.originalPrice}
+							{product.original_price}
 						</span>
 					)}
 				</div>
@@ -675,7 +632,7 @@ function DefaultVariant({
 	index,
 	className,
 }: VariantProps & { showActions?: boolean; showDelivery?: boolean }) {
-	const isLowStock = isAvailable && product.stockQuantity !== undefined && product.stockQuantity < 10;
+	const isLowStock = isAvailable && product.stock !== undefined && product.stock < 10;
 
 	return (
 		<motion.div
@@ -693,9 +650,9 @@ function DefaultVariant({
 		>
 			{/* Image Container */}
 			<div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700 mb-3">
-				{product.image ? (
+				{product.image_full_url || product.image ? (
 					<Image
-						src={product.image}
+						src={product.image_full_url || product.image}
 						alt={displayName}
 						fill
 						className="object-cover transition-transform duration-300 group-hover:scale-[1.05]"
@@ -781,11 +738,6 @@ function DefaultVariant({
 
 			{/* Product Info */}
 			<div className={cn(isArabic ? "text-right" : "text-left")}>
-				{/* Brand */}
-				{product.brand && (
-					<p className="text-xs text-gray-400 dark:text-gray-500 mb-1">{product.brand}</p>
-				)}
-
 				{/* Product Name */}
 				<h3 className="line-clamp-2 text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1.5 min-h-[2.5rem] leading-tight">
 					{displayName}
@@ -797,7 +749,7 @@ function DefaultVariant({
 				)}
 
 				{/* Rating */}
-				{showRating && product.rating && (
+				{showRating && product.avg_rating > 0 && (
 					<div
 						className={cn(
 							"flex items-center gap-1 mb-2",
@@ -808,18 +760,18 @@ function DefaultVariant({
 							<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.951-.69l1.07-3.292z" />
 						</svg>
 						<span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-							{product.rating}
+							{product.avg_rating.toFixed(1)}
 						</span>
-						{product.reviewsCount && (
+						{product.rating_count > 0 && (
 							<span className="text-xs text-gray-500 dark:text-gray-400">
-								({product.reviewsCount > 999 ? "999+" : product.reviewsCount})
+								({product.rating_count > 999 ? "999+" : product.rating_count})
 							</span>
 						)}
 					</div>
 				)}
 
 				{/* Delivery Time */}
-				{showDelivery && product.deliveryTime && (
+				{showDelivery && product.delivery_time && (
 					<div
 						className={cn(
 							"flex items-center gap-1 mb-2",
@@ -830,7 +782,7 @@ function DefaultVariant({
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
 						</svg>
 						<span className="text-xs text-gray-500 dark:text-gray-400">
-							{isArabic && product.deliveryTimeAr ? product.deliveryTimeAr : product.deliveryTime}
+							{product.delivery_time}
 						</span>
 					</div>
 				)}
@@ -845,9 +797,9 @@ function DefaultVariant({
 					<span className="text-base font-bold text-green-600 dark:text-green-400">
 						{product.price} {isArabic ? "ريال" : "SAR"}
 					</span>
-					{hasDiscountPrice && product.originalPrice && (
+					{hasDiscountPrice && product.original_price > 0 && (
 						<span className="text-xs text-gray-400 dark:text-gray-500 line-through">
-							{product.originalPrice} {isArabic ? "ريال" : "SAR"}
+							{product.original_price} {isArabic ? "ريال" : "SAR"}
 						</span>
 					)}
 				</div>

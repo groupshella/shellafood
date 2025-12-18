@@ -1,5 +1,9 @@
 import { Metadata } from "next";
+import { cookies } from "next/headers";
 import { HomePage } from "@/features/home";
+import { ZoneDataModule } from "@/features/categories/types/module.types";
+import { getCachedZoneData } from "@/features/categories/api/modules.api";
+import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
 
 export const metadata: Metadata = {
 	title: "الصفحة الرئيسية | شلة فود - منصة التسوق والتوصيل الرائدة",
@@ -69,9 +73,31 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://shellafood.com"),
 };
 
-export default function HomePageRoute() {
+export default async function HomePageRoute() {
+	const cookieStore = await cookies();
+	const locationCookie = cookieStore.get('location')?.value;
+
+	let latitude = parseFloat('24.540766366665999');
+	let longitude = parseFloat('46.504590739370002');
+	const locale = DEFAULT_LANG;
+
+	if (locationCookie) {
+			const parsed = JSON.parse(locationCookie);
+			if (!isNaN(parsed.lat) && !isNaN(parsed.lng)) {
+				latitude = parseFloat(parsed.lat);
+				longitude = parseFloat(parsed.lng);
+	}
+}
+	const pageStartTime = Date.now();
+	const zoneData = await getCachedZoneData(latitude, longitude, locale);
+	const pageDuration = Date.now() - pageStartTime;
+	console.log('[Home Page] Fetch duration:', `${pageDuration}ms`);
+
+	const zoneModules = zoneData?.zone_data?.[0]?.modules;
+
+	
 	return (
-		<HomePage/>
+		<HomePage modules={zoneModules as ZoneDataModule[]}/>
 	);
 }
 

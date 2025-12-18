@@ -4,14 +4,13 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers";
 import { useFilters, useMobile } from "@/shared/hooks";
-import type { Store } from "../types/category.types";
+import type { Store } from "../types/store.types";
+import type { StoreList } from "../types/store.types";
 
 export type MobileViewMode = "single" | "double";
 
-export interface UseCategoryViewProps {
-	stores: Store[];
-	categoryName?: string;
-	categorySlug?: string;
+export interface UseCategoryViewProps {	
+	stores: StoreList;
 }
 
 export interface UseCategoryViewReturn {
@@ -63,8 +62,6 @@ export interface UseCategoryViewReturn {
  */
 export function useCategoryView({
 	stores,
-	categoryName,
-	categorySlug,
 }: UseCategoryViewProps): UseCategoryViewReturn {
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
@@ -72,6 +69,10 @@ export function useCategoryView({
 	const router = useRouter();
 	const isMobile = useMobile(768);
 	const { filters, updateFilter, clearFilters, hasActiveFilters } = useFilters();
+
+	// Safety check: ensure stores array exists and has items
+	const safeStores = stores?.stores || [];
+	const firstStore = safeStores[0];
 
 	// State
 	const [mobileViewMode, setMobileViewMode] = useState<MobileViewMode>("single");
@@ -94,42 +95,40 @@ export function useCategoryView({
 				label: isArabic ? "الأقسام" : "Categories",
 				href: "/categories",
 			},
-			{ label: categoryName || "" },
+			{ label: firstStore?.module?.module_name || (isArabic ? "القسم" : "Category") },
 		],
-		[categoryName, isArabic]
+		[firstStore?.module?.module_name, isArabic]
 	);
 
 	// Handle store click
 	const handleStoreClick = useCallback(
 		(store: Store) => {
-			if (categorySlug && store?.slug) {
-				router.push(`/categories/${categorySlug}/${store.slug}`);
-			}
+			
 		},
-		[router, categorySlug]
+		[]
 	);
 
 	// Filter and sort stores
 	const filteredAndSortedStores = useMemo(() => {
-		let result = [...stores];
+		let result = [...safeStores];
 
 		// Apply filters
 		if (filters.rating.length > 0) {
 			result = result.filter((store) => {
-				const rating = typeof store.rating === "number" ? store.rating : parseFloat(String(store.rating || "0"));
+				const rating = typeof store.ratings === "number" ? store.ratings : parseFloat(String(store.ratings || "0"));
 				return filters.rating.some((r) => rating >= r);
 			});
 		}
 
 		if (filters.features.openNow) {
-			result = result.filter((store) => store.isOpen === true);
+			result = result.filter((store) => store.status?.is_open === true);
 		}
 
 		if (filters.features.freeDelivery) {
 			result = result.filter((store) => {
 				// Check if store has free delivery (mock check since fee doesn't exist in Store type)
 				// In real app, this would check store.deliveryFee or similar property
-				const hash = store.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+				const hash = store.id.toString().split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
 				return hash % 2 === 0; // ~50% of stores have free delivery
 			});
 		}
@@ -138,7 +137,7 @@ export function useCategoryView({
 			// Mock: Check if store has offers (in real app, check store.hasOffers or store.offers)
 			// Using store ID hash to determine offers (consistent mock behavior)
 			result = result.filter((store) => {
-				const hash = store.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+				const hash = store.id.toString().split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
 				return hash % 3 === 0; // ~33% of stores have offers
 			});
 		}
@@ -148,7 +147,7 @@ export function useCategoryView({
 			// In real app, check user's order history
 			// For now, use a mock list based on store ID hash
 			result = result.filter((store) => {
-				const hash = store.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+				const hash = store.id.toString().split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
 				return hash % 4 === 0; // ~25% of stores are previously ordered
 			});
 		}
@@ -157,7 +156,7 @@ export function useCategoryView({
 			result = result.filter((store) => {
 				// Mock distance calculation based on store ID hash
 				// In real app, this would use actual location data
-				const hash = store.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+				const hash = store.id.toString().split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
 				const mockDistance = hash % 10;
 				return mockDistance >= filters.distanceRange[0] && mockDistance <= filters.distanceRange[1];
 			});
@@ -165,13 +164,13 @@ export function useCategoryView({
 
 		// Apply sorting - default to rating (highest first)
 		result.sort((a, b) => {
-			const ratingA = typeof a.rating === "number" ? a.rating : parseFloat(String(a.rating || "0"));
-			const ratingB = typeof b.rating === "number" ? b.rating : parseFloat(String(b.rating || "0"));
+			const ratingA = typeof a.ratings === "number" ? a.ratings : parseFloat(String(a.ratings || "0"));
+			const ratingB = typeof b.ratings === "number" ? b.ratings : parseFloat(String(b.ratings	 || "0"));
 			return ratingB - ratingA;
 		});
 
 		return result;
-	}, [stores, filters]);
+	}, [safeStores, filters]);
 
 	// Paginate stores
 	const paginatedStores = useMemo(() => {
@@ -251,7 +250,7 @@ export function useCategoryView({
 	// Translations
 	const translations = useMemo(
 		() => ({
-			title: categoryName || (isArabic ? "القسم" : "Category"),
+			title: firstStore?.module?.module_name || (isArabic ? "القسم" : "Category"),
 			subtitle: isArabic
 				? "اكتشف أفضل المتاجر والمطاعم في هذا القسم"
 				: "Discover the best stores and restaurants in this category",
@@ -263,7 +262,7 @@ export function useCategoryView({
 			noStoresDesc: isArabic ? "يرجى التحقق مرة أخرى لاحقاً" : "Please check back later",
 			results: isArabic ? "نتيجة" : "results",
 		}),
-		[categoryName, isArabic, filteredAndSortedStores.length]
+			[firstStore?.module?.module_name, isArabic, filteredAndSortedStores.length]
 	);
 
 	return {

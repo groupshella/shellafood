@@ -8,7 +8,6 @@ import { useState, useCallback, useEffect } from "react";
 import { registerWorker, getWorkerZonesList, getWorkerModulesByZone } from "../api/worker.api";
 import type { WorkerFormData, Zone, Module, NotificationState } from "../types/worker.types";
 import { workerFormSchema } from "../lib/validation/worker.validation";
-import { urlToFile } from "../lib/utils/file.utils";
 
 export function useWorkerRegistration(initialData: WorkerFormData, language: string) {
 	const [formData, setFormData] = useState<WorkerFormData>(initialData);
@@ -103,35 +102,20 @@ export function useWorkerRegistration(initialData: WorkerFormData, language: str
 			[name]: type === "checkbox" ? checked : value,
 		}));
 	}, []);
+	const handleFileChange = (name: string, file: File | null) => {
+		console.log(file);
+		setFormData(prev => ({
+			...prev,
+			[name]: file
+		}));
+	};
 
-	const handleUploadComplete = useCallback((
-		field: "id_image",
-		successMessage: string,
-	) => {
-		return (url: string) => {
-			setFormData((prev: WorkerFormData) => ({ ...prev, [field]: url }));
-			if (url) {
-				setNotification({
-					message: successMessage,
-					type: "success",
-					isVisible: true,
-				});
-			}
-		};
-	}, []);
-
-	const handleUploadError = useCallback((error: Error) => {
-		setNotification({
-			message: error.message,
-			type: "error",
-			isVisible: true,
-		});
-	}, []);
 
 	const handleSubmit = useCallback(async (e: React.FormEvent) => {
 		e.preventDefault();
 		
 		const result = workerFormSchema.safeParse(formData);
+		console.log(result);
 		if (!result.success) {
 			const firstError = result.error.issues[0];
 			setNotification({
@@ -144,12 +128,7 @@ export function useWorkerRegistration(initialData: WorkerFormData, language: str
 
 		setIsSubmitting(true);
 		try {
-			// Convert image URL to File if it exists
-			const idImageFile = formData.id_image 
-				? await urlToFile(formData.id_image, "id_image.jpg") 
-				: undefined;
-
-			// Prepare data for API
+//data for API
 			const registrationData = {
 				first_name: formData.first_name,
 				last_name: formData.last_name,
@@ -160,12 +139,13 @@ export function useWorkerRegistration(initialData: WorkerFormData, language: str
 				vehicle_type: formData.vehicle_type,
 				id_type: formData.id_type,
 				id_number: formData.id_number,
-				id_image: idImageFile,
+				id_image: formData.id_image,
 				zone_id: formData.zone_id ? parseInt(formData.zone_id) : undefined,
 				module_id: formData.module_id ? parseInt(formData.module_id) : undefined,
 			};
 
 			const apiResult = await registerWorker(registrationData, language);
+			console.log(apiResult);
 			
 			if (apiResult.data) {
 				setNotification({
@@ -176,7 +156,7 @@ export function useWorkerRegistration(initialData: WorkerFormData, language: str
 				handleReset();
 			} else {
 				setNotification({
-					message: apiResult.error || (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
+					message:(isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 					type: "error",
 					isVisible: true,
 				});
@@ -184,7 +164,7 @@ export function useWorkerRegistration(initialData: WorkerFormData, language: str
 		} catch (error) {
 			console.error('Error registering worker:', error);
 			setNotification({
-				message: error instanceof Error ? error.message : (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
+				message: (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 				type: "error",
 				isVisible: true,
 			});
@@ -209,8 +189,7 @@ export function useWorkerRegistration(initialData: WorkerFormData, language: str
 		notification,
 		setNotification,
 		handleChange,
-		handleUploadComplete,
-		handleUploadError,
+		handleFileChange,
 		handleSubmit,
 		handleReset,
 		loadZones,

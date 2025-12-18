@@ -3,21 +3,20 @@
 import { useLanguage } from "@/providers";
 import { motion } from "framer-motion";
 import { memo } from "react";
-import { Category } from "../../types/category.types";
+import { ZoneDataModule } from "../../types/module.types";
 import CategoryCard from "../category-details/CategoryCard";
 import { staggerContainer } from "../../lib/utils/animations";
 
 interface CategoriesGridProps {
-  categories: (Category & { slug?: string })[];
-  storeCounts?: Record<string, number>;
+  modules: ZoneDataModule[];
 }
 
-function CategoriesGrid({ categories, storeCounts = {} }: CategoriesGridProps) {
+function CategoriesGrid({ modules }: CategoriesGridProps) {
   const { language } = useLanguage();
   const isArabic = language === 'ar';
   const direction = isArabic ? 'rtl' : 'ltr';
 
-  if (!categories || categories.length === 0) {
+  if (!modules || modules.length === 0) {
     return null;
   }
 
@@ -29,12 +28,10 @@ function CategoriesGrid({ categories, storeCounts = {} }: CategoriesGridProps) {
       animate="animate"
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
     >
-      {categories.map((category, index) => (
+      {modules.map((module, index) => (
         <CategoryCard
-          key={category.id}
-          category={category}
-          index={index}
-          storeCount={storeCounts[category.id] || 0}
+          key={index}
+          module={module}
         />
       ))}
     </motion.div>

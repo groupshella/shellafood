@@ -1,91 +1,129 @@
-import { ProductView } from '@/features/categories';
 import { Metadata } from 'next';
-
+import ProductPage from '@/features/categories/components/product/ProductPage';
+import { getCachedProductDetails } from '@/features/categories/api/products.api';
+import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { Product } from '@/features/categories/types/product.types';
+import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: Promise<{ category: string; store: string; department: string; product: string }> }): Promise<Metadata> {
-	const { category, store, department, product } = await params;
-	const categoryName = decodeURIComponent(category);
-	const storeName = decodeURIComponent(store);
-	const departmentName = decodeURIComponent(department).replace(/-/g, ' ');
-	const productName = decodeURIComponent(product).replace(/-/g, ' ');
-
-	return {
-		title: `${productName} - ${storeName} | شلة فود`,
-		description: `عرض تفاصيل ${productName} من ${departmentName} في ${storeName} ضمن ${categoryName}. أضف إلى السلة واكمل الطلب في شلة فود.`,
-		keywords: [
-			productName,
-			departmentName,
-			storeName,
-			categoryName,
-			"تفاصيل المنتج",
-			"تسوق",
-			"شلة فود",
-		],
-		authors: [{ name: "شلة فود" }],
-		creator: "شلة فود",
-		publisher: "شلة فود",
-		openGraph: {
-			title: `${productName} - ${storeName} | شلة فود`,
-			description: `عرض تفاصيل ${productName} من ${departmentName} في ${storeName} ضمن ${categoryName}. أضف إلى السلة واكمل الطلب في شلة فود.`,
-			type: "website",
-			url: `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}/${encodeURIComponent(department)}/${encodeURIComponent(product)}`,
-			siteName: "شلة فود",
-			locale: "ar_SA",
-			alternateLocale: ["en_US"],
-			images: [
-				{
-					url: "/og-categories.jpg",
-					width: 1200,
-					height: 630,
-					alt: `${productName} - ${storeName}`,
-				},
-			],
-		},
-		twitter: {
-			card: "summary_large_image",
-			title: `${productName} - ${storeName} | شلة فود`,
-			description: `عرض تفاصيل ${productName} من ${departmentName} في ${storeName} ضمن ${categoryName}. أضف إلى السلة واكمل الطلب في شلة فود.`,
-			images: ["/og-categories.jpg"],
-			creator: "@shellafood",
-		},
-		robots: {
-			index: true,
-			follow: true,
-			googleBot: {
-				index: true,
-				follow: true,
-				"max-video-preview": -1,
-				"max-image-preview": "large",
-				"max-snippet": -1,
-			},
-		},
-		alternates: {
-			canonical: `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}/${encodeURIComponent(department)}/${encodeURIComponent(product)}`,
-			languages: {
-				"ar-SA": `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}/${encodeURIComponent(department)}/${encodeURIComponent(product)}`,
-				"en-US": `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}/${encodeURIComponent(department)}/${encodeURIComponent(product)}`,
-			},
-		},
-		metadataBase: new URL("https://shellafood.com"),
-	};
+interface PageProps {
+  params: Promise<{
+    category: string;
+    store: string;
+    department: string;
+    product: string;
+  }>;
 }
 
-export default async function ProductPageRoute({ params }: { params: Promise<{ category: string; store: string; department: string; product: string }> }) {
-	const { category, store: storeSlug, department: departmentSlug, product: productSlug } = await params;
+/* ================= METADATA ================= */
 
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { category, store, department, product } = await params;
+
+  const categoryName = decodeURIComponent(category);
+  const storeName = decodeURIComponent(store);
+  const departmentName = decodeURIComponent(department).replace(/-/g, ' ');
+  const productName = decodeURIComponent(product).replace(/-/g, ' ');
+
+  const url = `https://shellafood.com/categories/${encodeURIComponent(
+    category
+  )}/${encodeURIComponent(store)}/${encodeURIComponent(
+    department
+  )}/${encodeURIComponent(product)}`;
+
+  return {
+    title: `${productName} - ${storeName} | شلة فود`,
+    description: `عرض تفاصيل ${productName} من ${departmentName} في ${storeName} ضمن ${categoryName}. أضف إلى السلة واكمل الطلب في شلة فود.`,
+    keywords: [
+      productName,
+      departmentName,
+      storeName,
+      categoryName,
+      'تفاصيل المنتج',
+      'تسوق',
+      'شلة فود',
+    ],
+    openGraph: {
+      title: `${productName} - ${storeName} | شلة فود`,
+      description: `عرض تفاصيل ${productName} من ${departmentName} في ${storeName} ضمن ${categoryName}.`,
+      type: 'website',
+      url,
+      siteName: 'شلة فود',
+      locale: 'ar_SA',
+      images: [
+        {
+          url: '/og-categories.jpg',
+          width: 1200,
+          height: 630,
+          alt: `${productName} - ${storeName}`,
+        },
+      ],
+    },
+    alternates: {
+      canonical: url,
+    },
+    metadataBase: new URL('https://shellafood.com'),
+  };
+}
+
+/* ================= PAGE ================= */
+
+export default async function ProductPageRoute({ params }: PageProps) {
+  const { category, store, department, product } = await params;
+
+  const moduleId = Number(category);
+  const storeId = Number(store);
+  const departmentId = Number(department);
+  const productId = Number(product);
+
+  // ✅ Validation (same pattern)
+  if (
+    isNaN(moduleId) ||
+    isNaN(storeId) ||
+    isNaN(departmentId) ||
+    isNaN(productId) ||
+    moduleId <= 0 ||
+    storeId <= 0 ||
+    departmentId <= 0 ||
+    productId <= 0
+  ) {
+    notFound();
+  }
+
+  const startTime = Date.now();
+
+  const productResponse = await getCachedProductDetails(
+    moduleId,
+    productId,
+    2, // zone_id
+    DEFAULT_LANG
+  );
+
+  const duration = Date.now() - startTime;
+
+  console.log('[Product Page] Product fetched:', {
+    duration: `${duration}ms`,
+    moduleId,
+    storeId,
+    departmentId,
+    productId,
+    hasProduct: !!productResponse?.data,
+    productIdResponse: productResponse?.data?.id || 0,
+    productName: productResponse?.data?.name || '',
+  });
+
+  // ✅ Safe fallback
+  if (!productResponse?.data) {
+    notFound();
+  }
+
+  return (
+    <ProductPage
+      productResponse={productResponse.data as Product}
 	
-
-	// Find store by slug or by product's storeId
-
-
-	return (
-		<ProductView
-			categorySlug={category}
-			storeSlug={storeSlug}
-			departmentSlug={departmentSlug}
-			productSlug={productSlug}
-		/>
-	);
+    />
+  );
 }

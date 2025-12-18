@@ -27,8 +27,6 @@ export default function HeroSection() {
 
 				{/* Animated Blobs - Responsive sizes with overflow control */}
 				<div className="absolute top-20 -left-20 sm:-left-40 w-[150px] h-[150px] sm:w-[200px] sm:h-[200px] md:w-[300px] md:h-[300px] lg:w-[400px] lg:h-[400px] xl:w-[500px] xl:h-[500px] bg-green-400/20 rounded-full blur-3xl animate-blob" />
-				<div className="absolute top-40 -right-20 sm:-right-40 w-[150px] h-[150px] sm:w-[200px] sm:h-[200px] md:w-[300px] md:h-[300px] lg:w-[400px] lg:h-[400px] xl:w-[500px] xl:h-[500px] bg-emerald-400/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
-				<div className="absolute -bottom-10 sm:-bottom-20 left-1/2 -translate-x-1/2 w-[150px] h-[150px] sm:w-[200px] sm:h-[200px] md:w-[300px] md:h-[300px] lg:w-[400px] lg:h-[400px] xl:w-[500px] xl:h-[500px] bg-teal-400/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
 			</div>
 
 			<div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-4 xl:px-6 2xl:px-8 py-12 sm:py-16 md:py-20 lg:py-24 w-full overflow-x-hidden">
@@ -46,7 +44,7 @@ export default function HeroSection() {
 						</div>
 						<Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
 						<span className="text-xs sm:text-sm font-bold whitespace-nowrap">
-							{isArabic ? "🚀 أكثر من 2 مليون طلب" : "🚀 2M+ Orders Delivered"}
+							{isArabic ? " أكثر من 2 مليون طلب" : " 2M+ Orders Delivered"}
 						</span>
 					</motion.div>
 
@@ -55,7 +53,6 @@ export default function HeroSection() {
 						id="hero-heading"
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8, delay: 0.2 }}
 						className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-black mb-4 sm:mb-6 leading-[1.1] tracking-tight px-2"
 					>
 						<span className=" text-gray-900 dark:text-white mb-1 sm:mb-2">
@@ -75,7 +72,6 @@ export default function HeroSection() {
 					<motion.p
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8, delay: 0.4 }}
 						className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-gray-600 dark:text-gray-300 mb-8 sm:mb-10 md:mb-12 max-w-4xl mx-auto leading-relaxed font-medium px-4"
 					>
 						{t("landing.hero.subtitle")}
@@ -85,7 +81,6 @@ export default function HeroSection() {
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8, delay: 0.6 }}
 						className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 sm:mb-16 px-4"
 					>
 						{/* Primary CTA with shine effect */}
@@ -126,7 +121,6 @@ export default function HeroSection() {
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8, delay: 0.8 }}
 						className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 mb-12 sm:mb-16 md:mb-20 px-4"
 					>
 						<div className={`flex items-center gap-2 sm:gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
@@ -172,7 +166,6 @@ export default function HeroSection() {
 					<motion.div
 						initial={{ opacity: 0, y: 40 }}
 						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 1, delay: 1 }}
 						className="relative mt-12 sm:mt-16 md:mt-20 px-2 sm:px-4 lg:px-4 xl:px-6 2xl:px-8 w-full overflow-x-hidden"
 					>
 						<div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 blur-3xl opacity-20" />

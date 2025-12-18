@@ -2,199 +2,337 @@
 
 import { useLanguage } from "@/providers";
 import { useMemo, useState, useCallback } from "react";
-import { Product } from "../../types/category.types";
-import { Store } from "../../types/category.types";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/shared/hooks";
+import { useToast } from "@/shared/components/ui";
+import { motion } from "framer-motion";
+import { 
+  ShoppingCart, 
+  Zap, 
+  Star, 
+  Heart,
+  Share2,
+  ArrowLeft,
+  CheckCircle2,
+  XCircle,
+  Truck,
+  Package,
+  Shield,
+  Award
+} from "lucide-react";
 import ProductGallery from "./ProductGallery";
 import ProductInfo from "./ProductInfo";
 import RelatedProducts from "./RelatedProducts";
 import Breadcrumbs from "../shared/Breadcrumbs";
-import { navigateToProductFromContext } from "../../lib/utils/navigation";
-import { decodeParam } from "../../lib/utils/url";
-import { 
-	findProductBySlug, 
-	findStoreBySlug, 
-	findStoreById, 
-	getRelatedProducts 
-} from "../../lib/helpers/testData";
+import type { Product } from "../../types/product.types";
+import { useMobile } from "@/shared/hooks";
+import { getImageBlurDataURL, getImageSizes, getImageQuality } from "@/lib/utils/imageOptimization";
 
 interface ProductViewProps {
-  categorySlug: string;
-  storeSlug: string;
-  departmentSlug: string;
-  productSlug: string;
+  product: Product;
+  categoryId?: number;
+  storeId?: number;
+  departmentId?: number;
 }
 
 function ProductView({
-  categorySlug,
-  storeSlug,
-  departmentSlug,
-  productSlug,
+  product,
+  categoryId,
+  storeId,
+  departmentId,
 }: ProductViewProps) {
-  // Call all hooks first (hooks rules - must be called in same order)
   const { language } = useLanguage();
   const isArabic = language === "ar";
   const direction = isArabic ? "rtl" : "ltr";
   const router = useRouter();
   const { addToCart } = useCart();
+  const { showToast } = useToast();
+  const isMobile = useMobile(768);
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-  // Decode URL params
-  const decodedProductSlug = useMemo(() => decodeParam(productSlug), [productSlug]);
-  const decodedStoreSlug = useMemo(() => decodeParam(storeSlug), [storeSlug]);
-
-  // Find product by slug
-  const product = useMemo(() => findProductBySlug(decodedProductSlug), [decodedProductSlug]);
-
-  // Find store by slug or by product's storeId
-  const store = useMemo(() => {
-    const foundStore = findStoreBySlug(decodedStoreSlug);
-    if (!foundStore && product?.storeId) {
-      // If store not found by slug, try to find by product's storeId
-      return findStoreById(product.storeId);
+  // Get display name from translations
+  const displayName = useMemo(() => {
+    if (isArabic) {
+      const arTranslation = product.translations?.find(
+        (t: any) => t.locale === 'ar' && t.key === 'name'
+      );
+      return arTranslation?.value || product.name;
     }
-    return foundStore;
-  }, [decodedStoreSlug, product?.storeId]);
+    return product.name;
+  }, [product, isArabic]);
 
-  // Get related products from the same store
-  const relatedProducts = useMemo(() => {
-    if (!product || !product.storeId) return [];
-    return getRelatedProducts(product.id, product.storeId, 6);
+  // Get display description from translations
+  const displayDescription = useMemo(() => {
+    if (isArabic) {
+      const arTranslation = product.translations?.find(
+        (t: any) => t.locale === 'ar' && t.key === 'description'
+      );
+      return arTranslation?.value || product.description;
+    }
+    return product.description;
+  }, [product, isArabic]);
+
+  // Get unit display name
+  const displayUnit = useMemo(() => {
+    if (isArabic) {
+      const arTranslation = product.unit?.translations?.find(
+        (t: any) => t.locale === 'ar' && t.key === 'unit'
+      );
+      return arTranslation?.value || product.unit?.unit || '';
+    }
+    return product.unit?.unit || '';
+  }, [product.unit, isArabic]);
+
+  // Check availability
+  const isAvailable = useMemo(() => {
+    return product.availability?.is_available ?? (product.stock > 0 && product.status === 1);
   }, [product]);
+
+  // Check if has discount
+  const hasDiscount = useMemo(() => {
+    return product.original_price > 0 && product.original_price > product.price;
+  }, [product]);
+
+  // Calculate discount percentage
+  const discountPercentage = useMemo(() => {
+    if (!hasDiscount) return 0;
+    return Math.round(((product.original_price - product.price) / product.original_price) * 100);
+  }, [hasDiscount, product]);
+
   const breadcrumbItems = useMemo(
     () => [
       { label: isArabic ? "الرئيسية" : "Home", href: "/" },
       {
-        label: isArabic ? "الأقسام" : "Categories",
-        href: "/categories",
+        label: product.module?.module_name || (isArabic ? "الأقسام" : "Categories"),
+        href: product.module_id ? `/categories/${product.module_id}` : "/categories",
       },
       {
-        label: categorySlug || "",
-        href: categorySlug ? `/categories/${categorySlug}` : undefined,
+        label: product.store_name || (isArabic ? "المتجر" : "Store"),
+        href: product.store_id && product.module_id 
+          ? `/categories/${product.module_id}/${product.store_id}` 
+          : undefined,
       },
       {
-        label: storeSlug || "",
-        href:
-          categorySlug && storeSlug
-            ? `/categories/${categorySlug}/${storeSlug}`
-            : undefined,
-      },
-      {
-        label: departmentSlug || "",
-        href:
-          categorySlug && storeSlug && departmentSlug
-            ? `/categories/${categorySlug}/${storeSlug}/${departmentSlug}`
-            : undefined,
-      },
-      {
-        label:
-          product ? (isArabic && product.nameAr ? product.nameAr : product.name) : productSlug,
+        label: displayName,
       },
     ],
-    [categorySlug, storeSlug, departmentSlug, product, isArabic]
+    [product, displayName, isArabic]
   );
 
   const handleAddToCart = useCallback(async () => {
     if (!product) return;
-    if (!product.storeId && !store?.id) {
+    if (!product.store_id) {
+      showToast(
+        isArabic ? "خطأ: لا يوجد متجر محدد" : "Error: No store specified",
+        "error"
+      );
       return;
     }
 
-    const storeId = product.storeId || store?.id;
-    if (!storeId) return;
+    if (!isAvailable) {
+      showToast(
+        isArabic ? "المنتج غير متوفر حالياً" : "Product is currently unavailable",
+        "warning"
+      );
+      return;
+    }
 
     setIsAddingToCart(true);
     try {
-      await addToCart({
-        productId: product.id,
-        storeId: storeId,
+      const result = await addToCart({
+        productId: product.id.toString(),
+        storeId: product.store_id.toString(),
         quantity,
         productName: product.name,
-        productNameAr: product.nameAr,
-        productImage: product.image,
-        priceAtAdd: typeof product.price === "number" ? product.price : 0,
-        storeName: store?.name || "",
-        storeNameAr: store?.nameAr,
-        storeLogo: store?.logo || undefined,
-        stock: product.stockQuantity,
+        productNameAr: product.translations?.find((t: any) => t.locale === 'ar' && t.key === 'name')?.value || product.name,
+        productImage: product.image_full_url || product.image,
+        priceAtAdd: product.price,
+        storeName: product.store_name || "",
+        storeNameAr: "",
+        stock: product.stock,
       });
+
+      if (result.success) {
+        showToast(
+          isArabic ? "تم الإضافة للسلة بنجاح" : "Added to cart successfully",
+          "success"
+        );
+      } else if (result.requiresClearCart) {
+        showToast(
+          isArabic
+            ? "لديك منتجات من متجر آخر في السلة"
+            : "You have items from a different store in your cart",
+          "warning"
+        );
+      }
     } catch (error) {
       console.error("Error adding to cart:", error);
+      showToast(
+        isArabic ? "حدث خطأ أثناء الإضافة للسلة" : "Error adding to cart",
+        "error"
+      );
     } finally {
       setIsAddingToCart(false);
     }
-  }, [product, store, quantity, addToCart]);
+  }, [product, quantity, addToCart, isAvailable, isArabic, showToast]);
 
-  const handleBuyNow = useCallback(() => {
-    handleAddToCart().then(() => {
-      router.push("/cart");
-    });
-  }, [handleAddToCart, router]);
+  const handleBuyNow = useCallback(async () => {
+    if (!product) return;
+    if (!product.store_id) return;
+    if (!isAvailable) return;
+
+    setIsAddingToCart(true);
+    try {
+      const result = await addToCart({
+        productId: product.id.toString(),
+        storeId: product.store_id.toString(),
+        quantity,
+        productName: product.name,
+        productNameAr: product.translations?.find((t: any) => t.locale === 'ar' && t.key === 'name')?.value || product.name,
+        productImage: product.image_full_url || product.image,
+        priceAtAdd: product.price,
+        storeName: product.store_name || "",
+        storeNameAr: "",
+        stock: product.stock,
+      });
+
+      if (result.success) {
+        router.push("/cart");
+      } else if (result.requiresClearCart) {
+        showToast(
+          isArabic
+            ? "لديك منتجات من متجر آخر في السلة"
+            : "You have items from a different store in your cart",
+          "warning"
+        );
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      showToast(
+        isArabic ? "حدث خطأ" : "An error occurred",
+        "error"
+      );
+    } finally {
+      setIsAddingToCart(false);
+    }
+  }, [product, quantity, addToCart, isAvailable, router, isArabic, showToast]);
 
   const handleRelatedProductClick = useCallback(
     (productId: string) => {
-      const relatedProduct = relatedProducts.find((p) => p.id === productId);
-      if (relatedProduct) {
-        navigateToProductFromContext(
-          router,
-          relatedProduct,
-          categorySlug,
-          storeSlug,
-          departmentSlug
-        );
+      if (product.module_id && product.store_id && departmentId) {
+        router.push(`/categories/${product.module_id}/${product.store_id}/${departmentId}/${productId}`);
       }
     },
-    [relatedProducts, categorySlug, storeSlug, departmentSlug, router]
+    [product, departmentId, router]
   );
 
-  // Handle product not found (after all hooks are called)
+  // Handle product not found
   if (!product) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={direction}>
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800" dir={direction}>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl p-8 sm:p-12 border-2 border-gray-200 dark:border-gray-700 shadow-lg"
+          >
+            <Package className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
+            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-2">
               {isArabic ? "المنتج غير موجود" : "Product Not Found"}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-6">
               {isArabic ? "المنتج الذي تبحث عنه غير موجود" : "The product you're looking for doesn't exist."}
             </p>
-          </div>
+            <button
+              onClick={() => router.back()}
+              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-colors"
+            >
+              {isArabic ? "العودة" : "Go Back"}
+            </button>
+          </motion.div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={direction}>
-      <div className="container mx-auto px-4 py-8">
-        <Breadcrumbs items={breadcrumbItems} className="mb-8" />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800" dir={direction}>
+      {/* Mobile Header - Sticky */}
+      {isMobile && (
+        <div className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="flex items-center justify-between px-4 py-3">
+            <button
+              onClick={() => router.back()}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="flex-1 text-center text-sm font-bold text-gray-900 dark:text-white line-clamp-1 px-2">
+              {displayName}
+            </h1>
+            <div className="flex items-center gap-2">
+              <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <Share2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-        <div className="grid lg:grid-cols-2 gap-12 mb-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {/* Breadcrumbs - Hidden on mobile */}
+        {!isMobile && (
+          <Breadcrumbs items={breadcrumbItems} className="mb-6 lg:mb-8" />
+        )}
+
+        {/* Main Product Layout */}
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12">
           {/* Product Gallery */}
-          <ProductGallery product={product} storeId={store?.id} />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <ProductGallery 
+              product={product} 
+              storeId={product.store_id?.toString()} 
+            />
+          </motion.div>
 
           {/* Product Info */}
-          <ProductInfo
-            product={product}
-            quantity={quantity}
-            onQuantityChange={setQuantity}
-            onAddToCart={handleAddToCart}
-            onBuyNow={handleBuyNow}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            <ProductInfo
+              product={product}
+              quantity={quantity}
+              onQuantityChange={setQuantity}
+              onAddToCart={handleAddToCart}
+              onBuyNow={handleBuyNow}
+              isAddingToCart={isAddingToCart}
+            />
+          </motion.div>
         </div>
 
         {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <RelatedProducts
-            products={relatedProducts}
-            categorySlug={categorySlug}
-            storeSlug={storeSlug}
-            departmentSlug={departmentSlug}
-            onProductClick={handleRelatedProductClick}
-          />
+        {product.recommended_items && product.recommended_items.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="mt-8 sm:mt-12"
+          >
+            <RelatedProducts
+              products={product.recommended_items}
+              categoryId={product.module_id}
+              storeId={product.store_id}
+              departmentId={departmentId}
+              onProductClick={handleRelatedProductClick}
+            />
+          </motion.section>
         )}
       </div>
     </div>

@@ -18,9 +18,9 @@ export interface DriverRegistrationData {
 	identity_type: string; // 'national_id' or 'iqama'
 	zone_id: number;
 	password: string;
-	identity_image?: File;
-	driving_license_image?: File;
-	driver_license_image?: File;
+	identity_image?: File|null;
+	driving_license_image?: File|null;
+	driver_license_image?: File|null;
 }
 
 export interface Driver {
@@ -62,9 +62,9 @@ export interface DriverFormData {
 	zone_id: string;
 	
 	// Optional Files
-	identity_image: string;
-	driving_license_image: string;
-	driver_license_image: string;
+	identity_image: File | null;
+	driving_license_image: File | null;
+	driver_license_image: File | null;
 	
 	// Terms
 	agreed: boolean;

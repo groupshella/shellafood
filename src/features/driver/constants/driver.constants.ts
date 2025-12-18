@@ -116,4 +116,8 @@ export const VALIDATION_MESSAGES = {
 	AGREED: {
 		REQUIRED: 'يجب الموافقة على الشروط والأحكام',
 	},
+	IDENTITY_IMAGE: {
+		REQUIRED: 'صورة الهوية مطلوب',
+		INVALID:"صورة الهوية يجب ان تكون أقل من 4 ميفابايت" ,
+	},
 } as const;

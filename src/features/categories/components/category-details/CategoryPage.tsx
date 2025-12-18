@@ -4,31 +4,20 @@ import { useMemo } from "react";
 import CategoryView from "./CategoryView";
 import { getStoresByCategorySlug, getCategoryBySlug } from "../../lib/helpers/testData";
 import { decodeParam } from "../../lib/utils/url";
+import { useStores } from "../../hooks/useStores";
+import { EmptyState } from "../shared";
+import { useLanguage } from "@/providers/LanguageProvider";
+import CategoriesGridSkeleton from "../category-list/CategoriesSkeleton";
+import { StoreList } from "../../types/store.types";
 
 interface CategoryPageProps {
-	categorySlug: string;
-}
+	initialStoreList: StoreList;
+	moduleId: number;
+	initialPage: number;
+	initialLimit: number;
+  }
 
-export default function CategoryPage({ categorySlug }: CategoryPageProps) {
-	// Decode URL param
-	const decodedCategorySlug = useMemo(() => decodeParam(categorySlug), [categorySlug]);
+export default function CategoryPage({ initialStoreList, moduleId, initialPage, initialLimit }: CategoryPageProps) {
 	
-	// Get category data
-	const category = useMemo(() => {
-		return getCategoryBySlug(decodedCategorySlug);
-	}, [decodedCategorySlug]);
-	
-	// Get stores for this category
-	const stores = useMemo(() => {
-		return getStoresByCategorySlug(decodedCategorySlug);
-	}, [decodedCategorySlug]);
-	
-	return (
-		<CategoryView 
-			stores={stores} 
-			categorySlug={decodedCategorySlug}
-			categoryName={category?.name}
-		/>
-	);
+	return <CategoryView initialStoreList={initialStoreList} moduleId={moduleId} initialPage={initialPage} initialLimit={initialLimit} />;
 }
-

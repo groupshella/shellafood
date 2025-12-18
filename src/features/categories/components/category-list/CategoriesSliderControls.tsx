@@ -1,14 +1,12 @@
 "use client";
 
 import { memo, useCallback } from "react";
-import { RefreshCw } from "lucide-react";
 
 interface CategoriesSliderControlsProps {
-	onRefresh: () => void;
 	children: React.ReactNode;
 }
 
-function CategoriesSliderControls({ onRefresh, children }: CategoriesSliderControlsProps) {
+function CategoriesSliderControls({ children }: CategoriesSliderControlsProps) {
 	const handleScrollRight = useCallback(() => {
 		document
 			.getElementById("categories-scroll-container")
@@ -23,14 +21,7 @@ function CategoriesSliderControls({ onRefresh, children }: CategoriesSliderContr
 
 	return (
 		<div className="relative flex items-center">
-			{/* Refresh Button */}
-			<button
-				onClick={onRefresh}
-				className="absolute -left-12 z-10 hidden rounded-full bg-white dark:bg-gray-800 p-2 shadow-md dark:shadow-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 md:block"
-				title="إعادة تحميل الأقسام"
-			>
-				<RefreshCw className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-			</button>
+
 
 			{/* Left Arrow */}
 			<button

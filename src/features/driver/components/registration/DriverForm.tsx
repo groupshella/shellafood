@@ -16,11 +16,12 @@ const INITIAL_FORM_DATA: DriverFormData = {
 	identity_number: "",
 	identity_type: "",
 	zone_id: "",
-	identity_image: "",
-	driving_license_image: "",
-	driver_license_image: "",
+	identity_image:  null,
+	driving_license_image:  null,
+	driver_license_image:  null,
 	agreed: false,
-};
+  };
+  
 
 export default function DriverForm() {
 	const { t, language } = useLanguage();
@@ -34,8 +35,7 @@ export default function DriverForm() {
 		notification, 
 		setNotification,
 		handleChange,
-		handleUploadComplete,
-		handleUploadError,
+		handleFileChange,
 		handleSubmit,
 		handleReset,
 		loadZones
@@ -192,41 +192,39 @@ export default function DriverForm() {
 
 			{/* File Upload Section */}
 			<SectionHeader title={isArabic ? "المستندات المطلوبة" : "Required Documents"} isArabic={isArabic} />
-			<div className="flex flex-col gap-5 md:flex-row md:justify-start mb-8">
+			<div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-8">
 				<UploadFileInput
+				selectedFile={formData.identity_image}
 					label={isArabic ? "صورة الهوية" : "Identity Image"}
-					endpoint="imageUploader"
-					onUploadComplete={handleUploadComplete(
-						"identity_image",
-						isArabic ? "تم رفع صورة الهوية بنجاح" : "Identity image uploaded successfully",
-					)}
-					onUploadError={handleUploadError}
+					name="identity_image"
+					onChange={handleFileChange}
 					isArabic={isArabic}
 					required
+					accept="image/*"
+					maxSizeMB={4}
 				/>
 
 				<UploadFileInput
 					label={isArabic ? "رخصة القيادة" : "Driving License"}
-					endpoint="imageUploader"
-					onUploadComplete={handleUploadComplete(
-						"driving_license_image",
-						isArabic ? "تم رفع رخصة القيادة بنجاح" : "Driving license uploaded successfully",
-					)}
-					onUploadError={handleUploadError}
+					selectedFile={formData.driving_license_image}
+					name="driving_license_image"
+					onChange={handleFileChange}
 					isArabic={isArabic}
+					accept="image/*"
+					maxSizeMB={4}
 				/>
 
 				<UploadFileInput
 					label={isArabic ? "رخصة السائق" : "Driver License"}
-					endpoint="imageUploader"
-					onUploadComplete={handleUploadComplete(
-						"driver_license_image",
-						isArabic ? "تم رفع رخصة السائق بنجاح" : "Driver license uploaded successfully",
-					)}
-					onUploadError={handleUploadError}
+					name="driver_license_image"
+					selectedFile={formData.driver_license_image}
+					onChange={handleFileChange}
 					isArabic={isArabic}
+					accept="image/*"
+					maxSizeMB={4}
 				/>
 			</div>
+
 
 			{/* Terms Agreement */}
 			<div className="mt-8">

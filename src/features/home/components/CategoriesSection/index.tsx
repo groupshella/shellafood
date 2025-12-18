@@ -1,22 +1,50 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useEffect, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/providers";
-import { Sparkles } from "lucide-react";
-import { CategoriesSlider } from "@/features/categories";
+import { Loader2, Sparkles } from "lucide-react";
+import { CategoriesGridSkeleton, CategoriesSlider } from "@/features/categories";
 import { Category } from "@/shared/components";
 import { useRouter } from "next/navigation";
 import { FaStore } from "react-icons/fa";
+import { ZoneDataModule } from "@/features/categories/types/module.types";
+import { useModules } from "@/features/categories/hooks/useModules";
 
-interface CategoriesSectionProps {
-	categories: Category[];
-}
-
-export default function CategoriesSection({ categories }: CategoriesSectionProps) {
+export default function CategoriesSection({modules}: {modules: ZoneDataModule[]}) {
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
-	const router = useRouter();
+	const router = useRouter();  
+	const [isPending, startTransition] = useTransition();
+	
+	const handleClickViewAll = () => {
+		console.log('view all');
+		startTransition(() => {
+				router.push(
+					`/categories`,
+					{ scroll: false }
+				);
+		});}
+
+if (!modules || modules.length === 0 ) {
+	return (
+		<div className="flex items-center justify-center py-10">
+			<div className="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+				<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-300">
+					<Sparkles className="h-5 w-5" />
+				</div>
+				<p className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+					{isArabic ? "لا توجد أقسام متاحة الآن" : "No categories available"}
+				</p>
+				<p className="text-sm text-gray-500 dark:text-gray-400">
+					{isArabic
+						? "سنضيف أقساماً جديدة قريباً، الرجاء التحقق لاحقاً"
+						: "We’ll add new categories soon. Please check back later."}
+				</p>
+			</div>
+		</div>
+	);
+}
 	return (
 		<motion.section
 			initial={{ opacity: 0, y: 20 }}
@@ -36,7 +64,7 @@ export default function CategoriesSection({ categories }: CategoriesSectionProps
 						</h2>
 					</div>
 					<button
-						onClick={() => router.push("/categories")}
+						onClick={handleClickViewAll}
 						className="text-sm cursor-pointer font-medium text-green-600 transition-colors hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
 					>
 						{isArabic ? "عرض الكل" : "View All"} →
@@ -47,7 +75,7 @@ export default function CategoriesSection({ categories }: CategoriesSectionProps
 
 			{/* Categories Slider Container */}
 			<div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200/50 dark:bg-gray-800 dark:ring-gray-700/50 sm:p-6">
-				<CategoriesSlider categories={categories} />
+				<CategoriesSlider modules={modules} />
 			</div>
 		</motion.section>
 	);

@@ -11,7 +11,7 @@ export default function LandingPage() {
 			>
 				Skip to content
 			</a>
-			<SpeedInsights />
+			{/* <SpeedInsights /> */}
 			<MainLandingPage />
 		</div>
 	);

@@ -88,55 +88,64 @@ export async function getPartnerModulesByZone(
 /**
  * Register a new partner
  */
+// api/partner.api.ts
 export async function registerPartner(
-	formData: PartnerFormData | PartnerRegistrationData,
+	data: PartnerRegistrationData,
 	lang: string = DEFAULT_LANG
 ): Promise<ApiResponse<PartnerRegistrationResponse>> {
 	try {
-		const formDataToSend = new FormData();
+		const formData = new FormData();
 		
-		// Append text fields
-		Object.entries(formData).forEach(([key, value]) => {
-			if (value !== null && value !== undefined && value !== '') {
-				if (key === 'logo' || key === 'cover_photo') {
-					if (value instanceof File) {
-						formDataToSend.append(key, value);
-					}
-				} else if (key !== 'agreed') {
-					formDataToSend.append(key, String(value));
-				}
-			}
-		});
+		// Append required text fields
+		formData.append('f_name', data.f_name);
+		formData.append('l_name', data.l_name);
+		formData.append('phone', data.phone);
+		formData.append('email', data.email);
+		formData.append('password', data.password);
+		formData.append('zone_id', data.zone_id.toString());
+		formData.append('module_id', data.module_id.toString());
+		formData.append('store_name', data.store_name);
+		formData.append('address', data.address);
+		formData.append('latitude', data.latitude.toString());
+		formData.append('longitude', data.longitude.toString());
 
-		// Append agreed as string
-		if ('agreed' in formData) {
-			formDataToSend.append('agreed', String(formData.agreed));
+		// Append files if provided
+		if (data.logo) {
+			formData.append('logo', data.logo);
+		}
+		if (data.cover_photo) {
+			formData.append('cover_photo', data.cover_photo);
 		}
 
-		const response = await fetch(`${BASE_URL}/api/v1/partner/register`, {
+		const response = await fetch(`${BASE_URL}/api/v1/vendor/register`, {
 			method: 'POST',
 			headers: {
 				'Accept': 'application/json',
 				'X-LANG': lang,
 				// Note: Don't set Content-Type header - browser will set it with boundary for FormData
 			},
-			body: formDataToSend,
+			body: formData,
 		});
 
 		const responseData = await response.json();
+		console.log('Partner registration response:', responseData);
 
-		if (!response.ok) {
+		// Handle error responses
+		if (responseData.errors) {
+			console.log('Partner registration error:', responseData.errors[0].message);
 			return {
-				error: responseData.message || responseData.error || 'Registration failed',
-				status: response.status,
+				error: responseData.errors[0].message,
+				status: response.status || 400,
 			};
 		}
 
+
 		return {
-			data: responseData,
+			data: responseData.data || responseData,
 			status: response.status,
 		};
 	} catch (error) {
+		console.error('Partner registration network error:', error);
 		return {
 			error: error instanceof Error ? error.message : 'Network error',
 			status: 500,

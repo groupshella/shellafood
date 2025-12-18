@@ -5,7 +5,7 @@
 
 import type { Zone, DriverRegistrationData, Driver, Message, ApiResponse } from '../types/driver.types';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://shellafood.com';
+const BASE_URL = 'https://shellafood.com';
 const DEFAULT_LANG = 'ar';
 
 /**
@@ -21,6 +21,7 @@ export async function getDriverZonesList(lang: string = DEFAULT_LANG): Promise<A
 			},
 			cache: 'no-store',
 		});
+ 
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({ message: 'Failed to fetch zones' }));
@@ -37,7 +38,7 @@ export async function getDriverZonesList(lang: string = DEFAULT_LANG): Promise<A
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error:  'Network error',
 			status: 500,
 		};
 	}
@@ -85,11 +86,14 @@ export async function registerDriver(
 		});
 
 		const responseData = await response.json();
+		console.log(responseData);
 
-		if (!response.ok) {
+
+		if (responseData.errors) {
+			console.log(responseData.errors[0].message);
 			return {
-				error: responseData.message || responseData.error || 'Registration failed',
-				status: response.status,
+				error:responseData.errors[0].message,
+				status:404,
 			};
 		}
 
@@ -98,8 +102,9 @@ export async function registerDriver(
 			status: response.status,
 		};
 	} catch (error) {
+		console.log(error);
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error:  'Network error',
 			status: 500,
 		};
 	}

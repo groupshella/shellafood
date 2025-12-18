@@ -1,24 +1,22 @@
 "use client";
 
 import { useLanguage } from "@/providers";
-import { Department } from "../../types/category.types";
+import type { CategoryDetail } from "../../types/store.details.types";
 import { Clock, MapPin, Grid3x3, ArrowRight } from "lucide-react";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface DepartmentsSidebarProps {
-  departments: Department[];
+  departments: CategoryDetail[];
   activeDepartment?: string;
-  categorySlug?: string;
   storeSlug?: string;
-  onDepartmentClick?: (department: Department) => void;
+  onDepartmentClick?: (department: { id: number; slug: string }) => void;
 }
 
 function DepartmentsSidebar({
   departments,
   activeDepartment,
-  categorySlug,
   storeSlug,
   onDepartmentClick,
 }: DepartmentsSidebarProps) {
@@ -28,16 +26,16 @@ function DepartmentsSidebar({
   const router = useRouter();
 
   const handleClick = useCallback(
-    (department: Department) => {
+    (department: CategoryDetail) => {
       if (onDepartmentClick) {
-        onDepartmentClick(department);
-      } else if (categorySlug && storeSlug && department.slug) {
+        onDepartmentClick({ id: department.id, slug: department.slug });
+      } else if (storeSlug && department.slug) {
         router.push(
-          `/categories/${categorySlug}/${storeSlug}/${department.slug}`
+          `/categories/${storeSlug}/${department.slug}`
         );
       }
     },
-    [onDepartmentClick, categorySlug, storeSlug, router]
+    [onDepartmentClick, storeSlug, router]
   );
 
   const content = {
@@ -75,6 +73,7 @@ function DepartmentsSidebar({
         <nav className="space-y-2">
           {departments.map((dept) => {
             const isActive = activeDepartment === dept.slug;
+            const displayName = isArabic ? dept.name_ar : dept.name_en;
             return (
               <button
                 key={dept.slug}
@@ -87,22 +86,17 @@ function DepartmentsSidebar({
               >
                 <span className="flex items-center gap-3">
                   <span className="flex-1">
-                    {isArabic && dept.nameAr ? dept.nameAr : dept.name}
+                    {displayName}
                   </span>
-                  {dept.productCount !== undefined && (
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {dept.productCount}
-                    </span>
-                  )}
                 </span>
               </button>
             );
           })}
           
           {/* Show All Button */}
-          {categorySlug && storeSlug && (
+          {storeSlug && (
             <Link
-              href={`/categories/${categorySlug}/${storeSlug}/departments`}
+              href={`/categories/${storeSlug}/departments`}
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl transition-all duration-200 flex items-center justify-between gap-2 sm:gap-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base ${
                 isArabic ? "flex-row-reverse" : ""
               }`}

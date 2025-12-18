@@ -18,8 +18,8 @@ export interface WorkerFormData {
 	// ID Information
 	id_type: string;
 	id_number: string;
-	id_image: string;
-	
+	id_image: File|null;
+
 	// Optional Fields
 	zone_id: string;
 	module_id: string;
@@ -47,7 +47,7 @@ export interface WorkerRegistrationData {
 	vehicle_type: string;
 	id_type: string;
 	id_number: string;
-	id_image?: File;
+	id_image: File|null;
 	zone_id?: number;
 	module_id?: number;
 }

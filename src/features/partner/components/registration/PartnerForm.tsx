@@ -28,8 +28,8 @@ const INITIAL_FORM_DATA: PartnerFormData = {
 	address: "",
 	latitude: "",
 	longitude: "",
-	logo: "",
-	cover_photo: "",
+	logo: new File([],"",{}),
+	cover_photo: null,
 	agreed: false,
 };
 
@@ -48,8 +48,7 @@ export default function PartnerForm() {
 		notification,
 		setNotification,
 		handleChange,
-		handleUploadComplete,
-		handleUploadError,
+		handleFileChange,
 		handleSubmit,
 		handleReset,
 	} = usePartnerRegistration(INITIAL_FORM_DATA, language);
@@ -202,26 +201,27 @@ export default function PartnerForm() {
 			{/* File Upload Section */}
 			<SectionHeader title={isArabic ? "صور المتجر" : "Store Images"} isArabic={isArabic} />
 			<div className="mt-6 flex flex-col gap-5 md:flex-row md:justify-start">
-				<UploadFileInput
+	
+
+<UploadFileInput
 					label={isArabic ? "شعار المتجر" : "Store Logo"}
-					endpoint="imageUploader"
-					onUploadComplete={handleUploadComplete(
-						"logo",
-						isArabic ? "تم رفع الشعار بنجاح" : "Logo uploaded successfully",
-					)}
-					onUploadError={handleUploadError}
+					selectedFile={formData.logo}
+					name="logo"
+					onChange={handleFileChange}
 					isArabic={isArabic}
+					accept="image/*"
+					required
+					maxSizeMB={4}
 				/>
 
 				<UploadFileInput
 					label={isArabic ? "صورة الغلاف" : "Cover Photo"}
-					endpoint="imageUploader"
-					onUploadComplete={handleUploadComplete(
-						"cover_photo",
-						isArabic ? "تم رفع صورة الغلاف بنجاح" : "Cover photo uploaded successfully",
-					)}
-					onUploadError={handleUploadError}
+					name="cover_photo"
+					selectedFile={formData.cover_photo}
+					onChange={handleFileChange}
 					isArabic={isArabic}
+					accept="image/*"
+					maxSizeMB={4}
 				/>
 			</div>
 
