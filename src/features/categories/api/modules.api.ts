@@ -42,6 +42,7 @@ export async function getZoneDataFromLocation(
 		const url = `${BASE_URL}/api/v1/config/get-zone-id?latitude=${latitude}&longitude=${longitude}`;
 		
 		console.log(`[Next.js Fetch Cache] Requesting: ${url}`);
+		console.log(`[Next.js Fetch Cache] BASE_URL: ${BASE_URL}`);
 		console.log(`[Next.js Fetch Cache] Cache config:`, {
 			revalidate: 3600,
 			tags: [cacheTag],

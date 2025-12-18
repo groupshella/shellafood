@@ -30,6 +30,9 @@ export const TOKEN_CONFIG = {
 export const DEFAULT_LANG = 'ar';
 
 // Ensure BASE_URL is set correctly for production
+
+// BASE_URL should be the base domain WITHOUT /api (e.g., https://shellafood.com)
+// The /api/v1/... paths will be added in the API functions
 const getBaseUrl = () => {
   // In production, require the environment variable
   if (process.env.NODE_ENV === 'production') {
@@ -37,13 +40,15 @@ const getBaseUrl = () => {
 	
     if (!apiUrl) {
       console.error('[ERROR] NEXT_PUBLIC_API_URL is not set in production!');
-      // Fallback to production API (adjust if needed)
-      return 'https://shellafood.com/api';
+      // Fallback to production API (domain only, without /api)
+      return 'https://shellafood.com';
     }
-    return apiUrl;
+    // Remove trailing /api if present to avoid double /api in URLs
+    return apiUrl.replace(/\/api$/, '');
   }
-  // Development fallback
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  // Development fallback (domain only, without /api)
+  const devUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  return devUrl.replace(/\/api$/, '');
 };
 
 export const BASE_URL = getBaseUrl();

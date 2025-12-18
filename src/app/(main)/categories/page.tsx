@@ -98,10 +98,20 @@ export default async function CategoriesPageRoute() {
 	const pageDuration = Date.now() - pageStartTime;
 	console.log('[Categories Page] Fetch duration:', `${pageDuration}ms`);
 
-	const zoneModules = zoneData?.zone_data?.[0]?.modules;
+	const zoneModules = zoneData?.zone_data?.[0]?.modules || [];
+	
+	// Log for debugging in production
+	if (!zoneData || zoneModules.length === 0) {
+		console.error('[Categories Page] No zone data or modules found:', {
+			hasZoneData: !!zoneData,
+			zoneDataLength: zoneData?.zone_data?.length || 0,
+			modulesCount: zoneModules.length,
+			BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'not set',
+		});
+	}
+
 	return (
 		<div className="container mx-auto px-4 py-8">
-
 			{/* ✅ Component receives data immediately, no loading state needed */}
 			<CategoriesPage 
 				initialModules={zoneModules as ZoneDataModule[]} 
