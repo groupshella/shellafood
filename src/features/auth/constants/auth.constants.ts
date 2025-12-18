@@ -34,6 +34,7 @@ const getBaseUrl = () => {
   // In production, require the environment variable
   if (process.env.NODE_ENV === 'production') {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+	
     if (!apiUrl) {
       console.error('[ERROR] NEXT_PUBLIC_API_URL is not set in production!');
       // Fallback to production API (adjust if needed)
