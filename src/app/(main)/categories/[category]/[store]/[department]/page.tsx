@@ -92,10 +92,8 @@ export default async function DepartmentPageRoute({
     notFound();
   }
 
-  const limit = 12;
+  const limit = 20;
   const page = Math.max(1, Number(search.page) || 1);
-
-  const startTime = Date.now();
 
   const departmentsResponse = await getCachedDepartments(
     limit,
@@ -107,20 +105,6 @@ export default async function DepartmentPageRoute({
     departmentId
   );
 
-  const duration = Date.now() - startTime;
-
-  console.log('[Department Page] Products fetched:', {
-    duration: `${duration}ms`,
-    moduleId,
-    storeId,
-    departmentId,
-    page,
-    limit,
-    totalItems: departmentsResponse?.data?.total_size || 0,
-    fetchedItems: departmentsResponse?.data?.items?.length || 0,
-  });
-
-  // ✅ Safe fallback (same pattern)
   if (!departmentsResponse?.data) {
     return (
       <DepartmentPage

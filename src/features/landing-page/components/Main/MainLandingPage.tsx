@@ -59,7 +59,7 @@ export default function MainLandingPage() {
 					<MobileAppSection />
 
 					{/* Statistics Section */}
-					<StatisticsSection />
+					{/* <StatisticsSection /> */}
 
 					{/* Services Section (includes Qaydha and other services) */}
 					<TilesSection />

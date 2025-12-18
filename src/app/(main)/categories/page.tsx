@@ -84,35 +84,21 @@ export default async function CategoriesPageRoute() {
 	let latitude = parseFloat('24.540766366665999');
 	let longitude = parseFloat('46.504590739370002');
 	const locale = DEFAULT_LANG;
-
-	if (locationCookie) {
+	// if (locationCookie) {
 	
-			const parsed = JSON.parse(locationCookie);
-			if (!isNaN(parsed.lat) && !isNaN(parsed.lng)) {
-				latitude = parseFloat(parsed.lat);
-				longitude = parseFloat(parsed.lng);
-			}
-	}
-	const pageStartTime = Date.now();
+	// 		const parsed = JSON.parse(locationCookie);
+	// 		if (!isNaN(parsed.lat) && !isNaN(parsed.lng)) {
+	// 			latitude = parseFloat(parsed.lat);
+	// 			longitude = parseFloat(parsed.lng);
+	// 		}
+	// }
 	const zoneData = await getCachedZoneData(latitude, longitude, locale);
-	const pageDuration = Date.now() - pageStartTime;
-	console.log('[Categories Page] Fetch duration:', `${pageDuration}ms`);
 
 	const zoneModules = zoneData?.zone_data?.[0]?.modules || [];
 	
-	// Log for debugging in production
-	if (!zoneData || zoneModules.length === 0) {
-		console.error('[Categories Page] No zone data or modules found:', {
-			hasZoneData: !!zoneData,
-			zoneDataLength: zoneData?.zone_data?.length || 0,
-			modulesCount: zoneModules.length,
-			BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'not set',
-		});
-	}
 
 	return (
 		<div className="container mx-auto px-4 py-8">
-			{/* ✅ Component receives data immediately, no loading state needed */}
 			<CategoriesPage 
 				initialModules={zoneModules as ZoneDataModule[]} 
 			/>

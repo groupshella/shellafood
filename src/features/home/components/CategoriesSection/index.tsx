@@ -22,7 +22,7 @@ export default function CategoriesSection({modules}: {modules: ZoneDataModule[]}
 		startTransition(() => {
 				router.push(
 					`/categories`,
-					{ scroll: false }
+					{ scroll: true }
 				);
 		});}
 

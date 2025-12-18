@@ -80,12 +80,10 @@ export default async function StorePageRoute(
     notFound();
   }
 
-  const limit = 12;
+  const limit = 30;
   const offset = Math.max(1, Number(search.page) || 1);
 
   const zoneId = 2; // TODO: replace  with real zone resolver
-
-  const startTime = Date.now();
 
   // ✅ Fetch store details (cached)
   const storeDetailsResponse = await getCachedStoreDetails(
@@ -97,22 +95,6 @@ export default async function StorePageRoute(
     storeId
   );
 
-  const duration = Date.now() - startTime;
-
-  console.log('[Store Page] Store details fetched:', {
-    duration: `${duration}ms`,
-    storeId,
-    moduleId,
-    limit,
-    offset,
-    hasData: !!storeDetailsResponse?.data,
-    categoriesCount:
-      storeDetailsResponse?.data?.category_details?.length || 0,
-    totalCategories:
-      storeDetailsResponse?.data?.categories_pagination?.total_categories || 0,
-  });
-
-  // ❌ Not found or API failure
   if (!storeDetailsResponse?.data) {
     notFound();
   }

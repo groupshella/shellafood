@@ -240,44 +240,44 @@ function StoreView({ store, initialLimit, initialPage }: StoreViewProps) {
         tabs={TABS as unknown as { id: string; label: string; labelAr: string }[]}
       />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
-        {/* Breadcrumbs */}
-        <Breadcrumbs items={breadcrumbItems} className="mb-6" />
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-10">
+        {/* Breadcrumbs - Mobile Optimized */}
+        <Breadcrumbs items={breadcrumbItems} className="mb-4 sm:mb-6" />
 
         {/* Main Content */}
         <main>
-          {/* Search Bar - Departments Tab Only */}
+          {/* Search Bar - Departments Tab Only - Mobile Optimized */}
           {activeTab === "departments" && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 sm:mb-8"
+              className="mb-4 sm:mb-6 md:mb-8"
             >
               <div className="relative max-w-2xl mx-auto">
-                <Search className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? "right-4" : "left-4"} w-5 h-5 text-gray-400`} />
+                <Search className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? "right-3 sm:right-4" : "left-3 sm:left-4"} w-4 h-4 sm:w-5 sm:h-5 text-gray-400 dark:text-gray-500`} />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={handleSearchChange}
                   placeholder={t.searchPlaceholder}
                   disabled={isPending || isLoading}
-                  className={`w-full ${isArabic ? "pr-12 pl-4" : "pl-12 pr-4"} py-3 sm:py-4 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`w-full ${isArabic ? "pr-10 sm:pr-12 pl-3 sm:pl-4" : "pl-10 sm:pl-12 pr-3 sm:pr-4"} py-2.5 sm:py-3 md:py-4 bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 text-sm sm:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm sm:shadow-md`}
                 />
               </div>
             </motion.div>
           )}
 
-          {/* Loading Indicator */}
+          {/* Loading Indicator - Mobile Optimized */}
           <AnimatePresence>
             {(isPending || isLoading) && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex items-center justify-center py-4 mb-6"
+                className="flex items-center justify-center py-3 sm:py-4 mb-4 sm:mb-6"
               >
-                <div className="w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
-                <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-green-600 dark:border-green-500 border-t-transparent rounded-full animate-spin" />
+                <span className={`${isArabic ? "mr-2" : "ml-2"} text-xs sm:text-sm text-gray-600 dark:text-gray-400`}>
                   {t.loading}
                 </span>
               </motion.div>
@@ -412,13 +412,13 @@ const DepartmentsTab = memo(({
       exit={{ opacity: 0 }}
       id="departments-list"
     >
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-1">
+      {/* Header - Mobile Optimized */}
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-1 sm:mb-2">
             {t.departments}
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             {t.showing} {filteredDepartments.length} {t.of} {totalCategories} {t.items}
           </p>
         </div>
@@ -430,12 +430,12 @@ const DepartmentsTab = memo(({
         )}
       </div>
 
-      {/* Grid */}
+      {/* Grid - Mobile Optimized */}
       <motion.div
         key={`page-${currentPage}`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6"
+        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6"
       >
         {filteredDepartments.map((dept, idx) => (
           <DepartmentCard
@@ -475,15 +475,15 @@ const InfoTab = memo(({ store, t, isArabic }: any) => (
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 border-2 border-gray-200 dark:border-gray-700"
+    className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border-2 border-gray-200 dark:border-gray-700 shadow-sm sm:shadow-md"
   >
-    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6">
+    <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-4 sm:mb-6">
       {t.storeInfo}
     </h2>
     
-    <div className="space-y-8">
-      {/* Store Details Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
+      {/* Store Details Grid - Mobile Optimized */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <InfoItem icon={Phone} label={t.phone} value={store.phone} href={`tel:${store.phone}`} />
         <InfoItem icon={Mail} label={t.email} value={store.email || t.notAvailable} href={store.email ? `mailto:${store.email}` : undefined} />
         <InfoItem icon={MapPin} label={t.address} value={store.address} className="sm:col-span-2" />
@@ -501,23 +501,23 @@ const InfoTab = memo(({ store, t, isArabic }: any) => (
         />
       </div>
 
-      {/* Business Hours */}
+      {/* Business Hours - Mobile Optimized */}
       {store.schedule && (
-        <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 mb-4">
-            <Calendar className="w-6 h-6 text-green-600 dark:text-green-400" />
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+        <div className="pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2 mb-3 sm:mb-4">
+            <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
               {t.businessHours}
             </h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             {Object.entries(store.schedule).map(([day, hours]: [string, any], index) => (
               <motion.div
                 key={day}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className={`flex items-center justify-between p-4 rounded-xl ${
+                className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 p-3 sm:p-4 rounded-lg sm:rounded-xl ${
                   hours.is_open 
                     ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
                     : "bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600"
@@ -560,34 +560,34 @@ const ReviewsTab = memo(({ store, t, isArabic }: any) => (
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    className="bg-white dark:bg-gray-800 rounded-2xl p-8 border-2 border-gray-200 dark:border-gray-700"
+    className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border-2 border-gray-200 dark:border-gray-700 shadow-sm sm:shadow-md"
   >
-    <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
-      <div>
-        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-2">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex-1">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-1 sm:mb-2">
           {t.reviews}
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
           {store.rating_count} {t.reviewsCount}
         </p>
       </div>
-      <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 border-2 border-yellow-200 dark:border-yellow-800">
-        <Star className="w-8 h-8 fill-yellow-400 text-yellow-400" />
-        <span className="text-4xl font-black text-gray-900 dark:text-white">
+      <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg sm:rounded-xl p-3 sm:p-4 border-2 border-yellow-200 dark:border-yellow-800">
+        <Star className="w-6 h-6 sm:w-8 sm:h-8 fill-yellow-400 text-yellow-400" />
+        <span className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white">
           {store.avg_rating.toFixed(1)}
         </span>
       </div>
     </div>
     
     {store.rating_count === 0 ? (
-      <div className="text-center py-16">
-        <Star className="w-20 h-20 mx-auto mb-4 text-gray-300" />
-        <p className="text-lg text-gray-600 dark:text-gray-400">
+      <div className="text-center py-8 sm:py-12 md:py-16">
+        <Star className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 text-gray-300 dark:text-gray-600" />
+        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
           {t.noReviews}
         </p>
       </div>
     ) : (
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {store.ratings?.map((count: number, index: number) => {
           const rating = 5 - index;
           const percentage = (count / store.rating_count) * 100;
@@ -635,24 +635,24 @@ const OffersTab = memo(({ store, t, isArabic }: any) => (
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    className="bg-white dark:bg-gray-800 rounded-2xl p-8 border-2 border-gray-200 dark:border-gray-700"
+    className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border-2 border-gray-200 dark:border-gray-700 shadow-sm sm:shadow-md"
   >
-    <div className="flex items-center gap-3 mb-8">
-      <Gift className="w-7 h-7 text-green-600 dark:text-green-400" />
-      <h2 className="text-3xl font-black text-gray-900 dark:text-white">
+    <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 md:mb-8">
+      <Gift className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-green-600 dark:text-green-400" />
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white">
         {t.offers}
       </h2>
     </div>
     
     {store.active_coupons?.length > 0 ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         {store.active_coupons.map((coupon: any, index: number) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
-            className="relative p-6 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-dashed border-green-400 dark:border-green-600 hover:border-solid hover:shadow-lg transition-all"
+            className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-dashed border-green-400 dark:border-green-600 hover:border-solid hover:shadow-lg transition-all"
           >
             <Tag className="absolute top-3 right-3 w-6 h-6 text-green-600 dark:text-green-400" />
             <div className="mt-2">
@@ -672,9 +672,9 @@ const OffersTab = memo(({ store, t, isArabic }: any) => (
         ))}
       </div>
     ) : (
-      <div className="text-center py-16">
-        <Gift className="w-20 h-20 mx-auto mb-4 text-gray-300" />
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="text-center py-8 sm:py-12 md:py-16">
+        <Gift className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 text-gray-300 dark:text-gray-600" />
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
           {t.noOffers}
         </h3>
       </div>
@@ -704,28 +704,28 @@ const InfoItem = memo(({
   className?: string;
 }) => {
   const content = (
-    <div className={`p-5 rounded-xl border-2 transition-all duration-200 hover:shadow-md ${
+    <div className={`p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border-2 transition-all duration-200 hover:shadow-md ${
       highlight 
         ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
         : "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600"
     } ${className}`}>
-      <div className="flex items-start gap-4">
-        <div className={`p-2.5 rounded-lg ${
+      <div className="flex items-start gap-3 sm:gap-4">
+        <div className={`p-2 sm:p-2.5 rounded-lg flex-shrink-0 ${
           highlight 
             ? "bg-green-100 dark:bg-green-900/40"
             : "bg-white dark:bg-gray-800"
         }`}>
-          <Icon className={`w-5 h-5 ${
+          <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${
             highlight 
               ? "text-green-600 dark:text-green-400"
               : "text-gray-600 dark:text-gray-400"
           }`} />
         </div>
         <div className="flex-1 min-w-0">
-          <dt className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+          <dt className="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1 sm:mb-1.5 uppercase tracking-wide">
             {label}
           </dt>
-          <dd className={`text-base font-bold break-words ${
+          <dd className={`text-sm sm:text-base font-bold break-words ${
             highlight 
               ? "text-green-700 dark:text-green-400"
               : "text-gray-900 dark:text-white"

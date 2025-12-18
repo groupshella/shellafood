@@ -56,7 +56,7 @@ export default function CategoryView({
     `/api/stores?moduleId=${moduleId}&limit=${currentLimit}&offset=${currentOffset}`,
     fetcher,
     {
-      fallbackData: initialStoreList, // ✅ Use server data initially
+      fallbackData: initialStoreList, 
       revalidateOnMount: false, // ✅ Don't refetch on mount
       revalidateOnFocus: false,
       keepPreviousData: true, // ✅ Show old data while fetching new

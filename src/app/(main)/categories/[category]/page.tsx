@@ -40,17 +40,15 @@ export default async function CategoryPageRoute({ params, searchParams }: PagePr
   
   const moduleId = Number(category);
   
-  // Validate moduleId
-  if (isNaN(moduleId) || moduleId <= 0) {
-    notFound();
+  if(isNaN(moduleId) || moduleId <= 0) {
+    return notFound();
   }
+  
 
-  const limit = 12; // Between 12-48
+  const limit = 30; // Between 12-48
   const offset =Math.max(1, Number(search.page) || 1);
   
-  const startTime = Date.now();
   
-  // ✅ Fetch stores for initial page load
   const storeListResponse = await getCachedAllStores(
     limit,
     offset,
@@ -59,18 +57,6 @@ export default async function CategoryPageRoute({ params, searchParams }: PagePr
     2 // zone_id
   );
 
-  const duration = Date.now() - startTime;
-  
-  console.log('[Category Page] Store list fetched:', {
-    duration: `${duration}ms`,
-    moduleId,
-    offset,
-    limit,
-    totalStores: storeListResponse?.data?.total_size || 0,
-    fetchedStores: storeListResponse?.data?.stores?.length || 0,
-  });
-
-  // Handle error or empty response
   if (!storeListResponse?.data) {
     return (
       <CategoryView 

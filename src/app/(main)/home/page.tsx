@@ -74,28 +74,23 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePageRoute() {
-	const cookieStore = await cookies();
-	const locationCookie = cookieStore.get('location')?.value;
+	// const cookieStore = await cookies();
+	// const locationCookie = cookieStore.get('location')?.value;
 
 	let latitude = parseFloat('24.540766366665999');
 	let longitude = parseFloat('46.504590739370002');
 	const locale = DEFAULT_LANG;
 
-	if (locationCookie) {
-			const parsed = JSON.parse(locationCookie);
-			if (!isNaN(parsed.lat) && !isNaN(parsed.lng)) {
-				latitude = parseFloat(parsed.lat);
-				longitude = parseFloat(parsed.lng);
-	}
-}
-	const pageStartTime = Date.now();
+// 	if (locationCookie) {
+// 			const parsed = JSON.parse(locationCookie);
+// 			if (!isNaN(parsed.lat) && !isNaN(parsed.lng)) {
+// 				latitude = parseFloat(parsed.lat);
+// 				longitude = parseFloat(parsed.lng);
+// 	}
+// }
 	const zoneData = await getCachedZoneData(latitude, longitude, locale);
-	const pageDuration = Date.now() - pageStartTime;
-	console.log('[Home Page] Fetch duration:', `${pageDuration}ms`);
 
-	const zoneModules = zoneData?.zone_data?.[0]?.modules;
-
-	
+	const zoneModules = zoneData?.zone_data?.[0]?.modules
 	return (
 		<HomePage modules={zoneModules as ZoneDataModule[]}/>
 	);

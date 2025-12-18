@@ -104,7 +104,7 @@ export default function Pagination({
           {visiblePages.map((page, index) => (
             <button
               key={index}
-              onClick={() => {}}
+              onClick={() => typeof page === 'number' ? onPageChange(page) : undefined}
               disabled={page === '...' || page === currentPage || disabled}
               className={`min-w-[40px] h-10 px-3 rounded-lg font-medium transition-all ${
                 page === currentPage
