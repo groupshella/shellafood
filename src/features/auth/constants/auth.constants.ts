@@ -29,7 +29,23 @@ export const TOKEN_CONFIG = {
 
 export const DEFAULT_LANG = 'ar';
 
-export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+// Ensure BASE_URL is set correctly for production
+const getBaseUrl = () => {
+  // In production, require the environment variable
+  if (process.env.NODE_ENV === 'production') {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) {
+      console.error('[ERROR] NEXT_PUBLIC_API_URL is not set in production!');
+      // Fallback to production API (adjust if needed)
+      return 'https://shellafood.com/api';
+    }
+    return apiUrl;
+  }
+  // Development fallback
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+};
+
+export const BASE_URL = getBaseUrl();
 
 // ============================================================================
 // Frontend Routes
