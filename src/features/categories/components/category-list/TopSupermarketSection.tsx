@@ -29,7 +29,7 @@ function TopSupermarketSection() {
       { en: "Fast Delivery", ar: "توصيل سريع" },
       { en: "Best Prices", ar: "أفضل الأسعار" },
     ],
-    path: "/categories/supermarket/hyper-shella",
+    path: "/categories/3/1",
   };
 
   const displayName = isArabic ? hypermarketData.nameAr : hypermarketData.name;

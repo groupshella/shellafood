@@ -13,7 +13,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category } = await params;
-  const categoryName = decodeURIComponent(category);
+  const categoryName = "المتاجر"
 
   return {
     title: `${categoryName} | شلة فود`,
@@ -45,7 +45,7 @@ export default async function CategoryPageRoute({ params, searchParams }: PagePr
   }
   
 
-  const limit = 30; // Between 12-48
+  const limit = 20; // Between 12-48
   const offset =Math.max(1, Number(search.page) || 1);
   
   

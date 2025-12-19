@@ -68,7 +68,6 @@ export function useCategoryView({
 	const direction = isArabic ? "rtl" : "ltr";
 	const router = useRouter();
 	const isMobile = useMobile(768);
-	const { filters, updateFilter, clearFilters, hasActiveFilters } = useFilters();
 
 	// Safety check: ensure stores array exists and has items
 	const safeStores = stores?.stores || [];
@@ -78,6 +77,7 @@ export function useCategoryView({
 	const [mobileViewMode, setMobileViewMode] = useState<MobileViewMode>("single");
 	const [showFilters, setShowFilters] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
+	const { filters, updateFilter, clearFilters, hasActiveFilters } = useFilters();
 
 	// Responsive items per page
 	const itemsPerPage = useMemo(() => {

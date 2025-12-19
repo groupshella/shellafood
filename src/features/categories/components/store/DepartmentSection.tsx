@@ -36,9 +36,10 @@ function DepartmentCard({
   }, [department, isArabic]);
 
   const handleClick = useCallback(() => {
-      router.push(`/categories/${categoryId}/${storeId}/${department.id}`);
-    
-  }, [router]);
+    // Scroll to top immediately when clicking (before navigation)
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    router.push(`/categories/${categoryId}/${storeId}/${department.id}`, { scroll: false });
+  }, [router, categoryId, storeId, department.id]);
 
   return (
     <motion.div

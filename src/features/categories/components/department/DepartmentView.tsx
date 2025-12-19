@@ -12,9 +12,10 @@ import { DepartmentResponse, Item } from "../../types/department.types";
 import { EmptyState, ProductCard, SkeletonPage } from "../shared";
 import PageHeader from "../shared/PageHeader";
 import Pagination from "../category-details/Pagination";
-import { SlidersHorizontal, Grid3x3 } from "lucide-react";
+import { SlidersHorizontal, Grid3x3, X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import useSWR from "swr";
+import UnifiedProductCard from "../shared/UnifiedProductCard";
 
 interface DepartmentViewProps {
   departmentResponse: DepartmentResponse;
@@ -70,6 +71,7 @@ function DepartmentView({
 
   const [sortBy, setSortBy] = useState<SortType>('name');
   const [filterBy, setFilterBy] = useState<FilterType>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // ✅ Get current page and limit from URL
   const currentOffset = Number(searchParams.get('page')) || initialPage;
@@ -284,58 +286,61 @@ function DepartmentView({
         {/* Controls Bar */}
         <div className="mb-6 space-y-4 sm:space-y-0">
           
-          {/* Filters & Sort */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            
-            {/* Filter Buttons */}
-            <div className="flex flex-wrap gap-2">
-              {filterButtons.map((filter) => (
-                <button
-                  key={filter.key}
-                  onClick={() => handleFilterChange(filter.key)}
-                  disabled={isPending}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                    filterBy === filter.key
-                      ? 'bg-green-600 dark:bg-green-500 text-white shadow-md'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {filter.label}
-                  {filter.count > 0 && (
-                    <span className="ml-1.5 text-xs opacity-75">
-                      ({filter.count})
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
+          {/* Search Bar - Responsive */}
+				<div className="mb-4 sm:mb-6">
+					<div className="relative">
+						<Search className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-3 sm:right-4' : 'left-3 sm:left-4'} w-4 h-4 sm:w-5 sm:h-5 text-gray-400`} />
+						<input
+							type="text"
+							value={searchTerm}
+							onChange={(e) => setSearchTerm(e.target.value)}
+							placeholder={isArabic ? 'ابحث عن منتجات...' : 'Search products...'}
+							className={`w-full ${isArabic ? 'pr-10 sm:pr-11 pl-3 sm:pl-4' : 'pl-10 sm:pl-11 pr-3 sm:pr-4'} py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-gray-800 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all`}
+						/>
+						{searchTerm && (
+							<button
+								onClick={() => setSearchTerm('')}
+								className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-3 sm:left-4' : 'right-3 sm:right-4'} w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors`}
+							>
+								<X className="w-4 h-4 sm:w-5 sm:h-5" />
+							</button>
+						)}
+					</div>
+				</div>
 
-            {/* Sort & Items per page */}
-            <div className="flex items-center gap-3">
-              
-              {/* Sort Dropdown */}
-              <select
-                value={sortBy}
-                onChange={(e) => handleSortChange(e.target.value as SortType)}
-                disabled={isPending}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-700 border-none text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                dir={direction}
-              >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+				{/* Filters and Sort - Responsive */}
+				<div className={`mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 ${isArabic ? 'sm:justify-start' : 'sm:justify-end'}`}>
+					{/* Filter Buttons - Responsive */}
+					<div className="flex flex-wrap gap-2 sm:gap-2">
+						{filterButtons.map((filter) => (
+							<button
+								key={filter.key}
+								onClick={() => setFilterBy(filter.key)}
+								className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+									filterBy === filter.key
+										? 'bg-green-600 dark:bg-green-500 text-white shadow-md dark:shadow-green-900/50'
+										: 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+								}`}
+							>
+								{filter.label}
+							</button>
+						))}
+					</div>
 
-              
-
-              {/* Loading indicator */}
-              {(isPending || isLoading) && (
-                <div className="w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
-              )}
-            </div>
-          </div>
+					{/* Sort Dropdown - Responsive */}
+					<select
+						value={sortBy}
+						onChange={(e) => setSortBy(e.target.value as "name" | "price" | "rating")}
+						className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full sm:w-auto`}
+						dir={direction}
+					>
+						{sortOptions.map((option) => (
+							<option key={option.value} value={option.value}>
+								{option.label}
+							</option>
+						))}
+					</select>
+				</div>  
 
           {/* Results Info */}
           <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 px-2">
@@ -364,10 +369,20 @@ function DepartmentView({
             >
               <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {filteredAndSortedProducts.map((product, index) => (
-                  <ProductCard
+                  <UnifiedProductCard
                     key={product.id}
                     product={product}
                     index={index}
+                    onClick={() => router.push(`/products/${product.id}`)}
+                    onQuickAdd={() => {}}
+                    onAddToCart={() => {}}
+                    showRating={true}
+                    showStock={true}
+                    showActions={true}
+                    showAddButton={true}
+                    showDelivery={false}
+                    storeId={storeId}
+                    storeName={product.store_name}
                   />
                 ))}
               </div>

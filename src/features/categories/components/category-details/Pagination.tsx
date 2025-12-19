@@ -3,6 +3,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { motion } from "framer-motion";
 
 interface PaginationProps {
   currentPage: number;
@@ -12,8 +13,47 @@ interface PaginationProps {
   itemsPerPage: number;
   maxVisiblePages?: number;
   disabled?: boolean;
+  className?: string;
+  dir?: string;
 }
-
+const ButtonBase = ({
+  children,
+  onClick,
+  disabled,
+  ariaLabel,
+  className: btnClassName = "",
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  ariaLabel: string;
+  className?: string;
+}) => (
+  <motion.button
+    whileHover={disabled ? {} : { scale: 1.05 }}
+    whileTap={disabled ? {} : { scale: 0.95 }}
+    onClick={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!disabled) onClick();
+    }}
+    disabled={disabled}
+    className={`
+      flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg
+      transition-all duration-200 font-medium
+      ${disabled
+        ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600"
+        : "bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 active:scale-95"
+      }
+      border border-gray-200 dark:border-gray-700
+      ${btnClassName}
+    `}
+    aria-label={ariaLabel}
+    aria-disabled={disabled}
+  >
+    {children}
+  </motion.button>
+);
 export default function Pagination({
   currentPage,
   totalPages,
@@ -22,6 +62,8 @@ export default function Pagination({
   itemsPerPage,
   maxVisiblePages = 7,
   disabled = false,
+  className,
+  dir,
 }: PaginationProps) {
   const { language } = useLanguage();
   const isArabic = language === "ar";
@@ -79,56 +121,128 @@ export default function Pagination({
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   return (
-    <div className="mt-8 sm:mt-12">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Results info */}
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          {isArabic
-            ? `عرض ${startItem} إلى ${endItem} من ${totalItems} نتيجة`
-            : `Showing ${startItem} to ${endItem} of ${totalItems} results`}
-        </p>
+    <div
+      className={`flex flex-col items-center gap-4 py-6 sm:py-8 ${className}`}
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      {/* Desktop Pagination */}
+      <div className="hidden md:flex items-center gap-2">
+        {/* Previous Button */}
+        <ButtonBase
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          ariaLabel={isArabic ? "السابق" : "Previous"}
+        >
+          {isArabic ? (
+            <ChevronRight size={18} className="shrink-0" />
+          ) : (
+            <ChevronLeft size={18} className="shrink-0" />
+          )}
+          <span className="hidden lg:inline">{isArabic ? "السابق" : "Previous"}</span>
+        </ButtonBase>
 
-        {/* Pagination buttons */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {/* Previous button */}
-          <button
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1 || disabled}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label={isArabic ? "الصفحة السابقة" : "Previous page"}
-          >
-            {isArabic ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-          </button>
+        {/* Page Numbers */}
+        <div className="flex items-center gap-1.5">
+          {visiblePages.map((page: number | string, index: number) => {
+            if (page === "ellipsis") {
+              return (
+                <span
+                  key={`ellipsis-${index}`}
+                  className="px-2 text-gray-400 dark:text-gray-500 text-sm sm:text-base"
+                  aria-hidden="true"
+                >
+                  ...
+                </span>
+              );
+            }
 
-          {/* Page numbers */}
-          {visiblePages.map((page, index) => (
-            <button
-              key={index}
-              onClick={() => typeof page === 'number' ? onPageChange(page) : undefined}
-              disabled={page === '...' || page === currentPage || disabled}
-              className={`min-w-[40px] h-10 px-3 rounded-lg font-medium transition-all ${
-                page === currentPage
-                  ? 'bg-green-600 text-white shadow-lg'
-                  : page === '...'
-                  ? 'cursor-default'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-              } disabled:cursor-not-allowed`}
-            >
-              {page}
-            </button>
-          ))}
+            const pageNum = page as number;
+            const isActive = pageNum === currentPage;
 
-          {/* Next button */}
-          <button
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || disabled}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label={isArabic ? "الصفحة التالية" : "Next page"}
-          >
-             {isArabic ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-          </button>
+            return (
+              <motion.button
+                key={pageNum}
+                whileHover={!isActive ? { scale: 1.1, y: -1 } : {}}
+                whileTap={!isActive ? { scale: 0.9 } : {}}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!isActive) {
+                    onPageChange(pageNum);
+                  }
+                }}
+                className={`
+                  min-w-[40px] h-[40px] rounded-lg
+                  transition-all duration-200 font-medium cursor-pointer
+                  ${isActive
+                    ? "bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30 scale-105"
+                    : "bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  }
+                  border border-gray-200 dark:border-gray-700
+                `}
+                aria-label={`${isArabic ? "الصفحة" : "Page"} ${pageNum}`}
+                aria-current={isActive ? "page" : undefined}
+              >
+                {pageNum}
+              </motion.button>
+            );
+          })}
         </div>
+
+        {/* Next Button */}
+        <ButtonBase
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          ariaLabel={isArabic ? "التالي" : "Next"}
+        >
+          <span className="hidden lg:inline">{isArabic ? "التالي" : "Next"}</span>
+          {isArabic ? (
+            <ChevronLeft size={18} className="shrink-0" />
+          ) : (
+            <ChevronRight size={18} className="shrink-0" />
+          )}
+        </ButtonBase>
       </div>
+
+      {/* Mobile Pagination */}
+      <div className="flex md:hidden items-center justify-between w-full px-2">
+        <ButtonBase
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          ariaLabel={isArabic ? "السابق" : "Previous"}
+          className="flex-1 max-w-[120px] justify-center"
+        >
+          {isArabic ? (
+            <ChevronRight size={18} className="shrink-0" />
+          ) : (
+            <ChevronLeft size={18} className="shrink-0" />
+          )}
+          <span>{isArabic ? "السابق" : "Previous"}</span>
+        </ButtonBase>
+
+        <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 px-4">
+          {isArabic ? "الصفحة" : "Page"} {currentPage} {isArabic ? "من" : "of"} {totalPages}
+        </div>
+
+        <ButtonBase
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          ariaLabel={isArabic ? "التالي" : "Next"}
+          className="flex-1 max-w-[120px] justify-center"
+        >
+          <span>{isArabic ? "التالي" : "Next"}</span>
+          {isArabic ? (
+            <ChevronLeft size={18} className="shrink-0" />
+          ) : (
+            <ChevronRight size={18} className="shrink-0" />
+          )}
+        </ButtonBase>
+      </div>
+
+      {/* Results Info */}
+      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-center">
+        {isArabic ? "إظهار" : "Showing"} {startItem} - {endItem} {isArabic ? "من" : "of"} {totalItems}
+      </p>
     </div>
   );
 }

@@ -25,9 +25,9 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { category, store, department } = await params;
 
-  const categoryName = decodeURIComponent(category);
-  const storeName = decodeURIComponent(store);
-  const departmentName = decodeURIComponent(department).replace(/-/g, ' ');
+    const categoryName = "المتاجر";
+  const storeName = "المتجر ";
+  const departmentName = "القسم ";
 
   const url = `https://shellafood.com/categories/${encodeURIComponent(
     category

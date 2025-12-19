@@ -23,8 +23,8 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { category, store } = await params;
 
-  const categoryName = decodeURIComponent(category);
-  const storeName = decodeURIComponent(store);
+  const categoryName = "المتاجر";
+  const storeName = "المتجر ";
 
   return {
     title: `${storeName} - ${categoryName} | شلة فود`,
@@ -57,6 +57,7 @@ export async function generateMetadata(
     alternates: {
       canonical: `https://shellafood.com/categories/${encodeURIComponent(category)}/${encodeURIComponent(store)}`,
     },
+    metadataBase: new URL("https://shellafood.com"),
   };
 }
 
@@ -80,7 +81,7 @@ export default async function StorePageRoute(
     notFound();
   }
 
-  const limit = 30;
+  const limit = 20;
   const offset = Math.max(1, Number(search.page) || 1);
 
   const zoneId = 2; // TODO: replace  with real zone resolver

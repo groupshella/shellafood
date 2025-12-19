@@ -38,23 +38,23 @@ export default function HomePage({ modules }: { modules: ZoneDataModule[] }) {
 				{/* Categories Section */}
 				<CategoriesSection modules={modules} />
 				{/* Promotional Banner */}
-				{/* <PromotionalBanner /> */}
+				<PromotionalBanner />
                 {/* <ServiceRequestsSection /> */}
 				{/* Offers Strip */}
-				{/* <OffersStrip /> */}
+				<OffersStrip />
 				{/* Previously Ordered Stores */}
-				{/* <PreviouslyOrderedStores stores={TEST_STORES.slice(0, 5) as Store[]} /> */}
+				<PreviouslyOrderedStores stores={TEST_STORES.slice(0, 5) as Store[]} />
 				{/* Nearby Stores */}
-				{/* <NearbyStores stores={TEST_STORES.slice(0, 4) as Store[]} /> */}
+				<NearbyStores stores={TEST_STORES.slice(0, 4) as Store[]} />
 				{/* Discounts */}
-				{/* <Discounts
+				<Discounts
 					products={TEST_PRODUCTS.filter(
 						(p) => p.badge || (p.originalPrice && p.originalPrice > (p.price || 0))
 					).slice(0, 8) as Product[]}
-				/> */}
+				/>
 
 				{/* Popular Stores */}
-				{/* <PopularStores stores={TEST_STORES.slice(0, 4) as Store[]} /> */}	
+				<PopularStores stores={TEST_STORES.slice(0, 4) as Store[]} />	
 			</div>
 
 			{/* Scroll to Top Button - Square like cart button */}

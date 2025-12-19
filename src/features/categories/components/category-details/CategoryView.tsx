@@ -5,16 +5,17 @@ import { motion } from "framer-motion";
 import { SlidersHorizontal, Grid2x2, Grid3x3 } from "lucide-react";
 import StoreCard from "../store/StoreCard";
 import Breadcrumbs from "../shared/Breadcrumbs";
-import { EmptyState } from "../shared";
+import { EmptyState, FiltersSidebar } from "../shared";
 import Pagination from "./Pagination";
 import { staggerContainer } from "../../lib/utils/animations";
 import type { StoreList } from "../../types/store.types";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useMemo, useState, useTransition } from "react";
-import { useMobile } from "@/shared/hooks";
+import { useFilters, useMobile } from "@/shared/hooks";
 import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { CategoriesGridSkeleton } from "../category-list";
+import DailyNeeded from "./DailyNeeded";
 
 interface CategoryViewProps {
   initialStoreList: StoreList;
@@ -45,6 +46,14 @@ export default function CategoryView({
   
   const [isPending, startTransition] = useTransition();
   const [mobileViewMode, setMobileViewMode] = useState<"single" | "double">("single");
+  const [showFilters, setShowFilters] = useState(false);
+	const { filters, updateFilter, clearFilters, hasActiveFilters } = useFilters();
+	const handleFilterChange = (filterType: string, value: any) => {
+		updateFilter(filterType, value);
+	};
+	const handleClearFilters = () => {
+		clearFilters();
+	};
   
   // ✅ Get current page and limit from URL
   const currentOffset = Number(searchParams.get('page')) || initialPage;
@@ -100,7 +109,7 @@ export default function CategoryView({
     
     // ✅ Update URL without full page reload
     startTransition(() => {
-      router.push(`/categories/${moduleId}?${params.toString()}`, { scroll: false });
+      router.push(`/categories/${moduleId}?${params.toString()}`, { scroll: true });
     });
     
     // ✅ Smooth scroll to top of store list
@@ -119,7 +128,9 @@ if(isLoading || isPending) {
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbItems} className="mb-6" />
-
+        {moduleId === 3 && (
+          <DailyNeeded />
+        )}
         {/* Header Section */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
@@ -137,49 +148,64 @@ if(isLoading || isPending) {
               </div>
             </div>
           </div>
-        </div>
+            {/* Filter Bar - Simplified */}
+            <div className="flex items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Mobile Filter Button */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm sm:text-base font-semibold"
+              >
+                <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">{isArabic ? "الفلاتر" : "Filters"}</span>
+                {hasActiveFilters && (
+                  <span className="w-2 h-2 rounded-full bg-green-600" />
+                )}
+              </button>
 
-        {/* Controls Bar */}
-        <div className="flex items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm mb-6">
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Mobile View Toggle */}
-            <div className="sm:hidden flex items-center gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-              <button
-                onClick={() => setMobileViewMode("single")}
-                className={`p-1.5 rounded transition-colors ${
-                  mobileViewMode === "single"
-                    ? "bg-green-600 text-white"
-                    : "text-gray-600 dark:text-gray-400"
-                }`}
-                aria-label={isArabic ? "عرض واحد" : "Single view"}
-              >
-                <Grid3x3 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setMobileViewMode("double")}
-                className={`p-1.5 rounded transition-colors ${
-                  mobileViewMode === "double"
-                    ? "bg-green-600 text-white"
-                    : "text-gray-600 dark:text-gray-400"
-                }`}
-                aria-label={isArabic ? "عرض مزدوج" : "Double view"}
-              >
-                <Grid2x2 className="w-4 h-4" />
-              </button>
+              {/* Mobile View Toggle - Only visible on mobile */}
+              <div className="sm:hidden flex items-center gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                <button
+                  onClick={() => setMobileViewMode("single")}
+                  className={`p-1.5 rounded transition-colors ${
+                    mobileViewMode === "single"
+                      ? "bg-green-600 text-white"
+                      : "text-gray-600 dark:text-gray-400"
+                  }`}
+                  aria-label={isArabic ? "عرض واحد" : "Single view"}
+                >
+                  <Grid3x3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setMobileViewMode("double")}
+                  className={`p-1.5 rounded transition-colors ${
+                    mobileViewMode === "double"
+                      ? "bg-green-600 text-white"
+                      : "text-gray-600 dark:text-gray-400"
+                  }`}
+                  aria-label={isArabic ? "عرض مزدوج" : "Double view"}
+                >
+                  <Grid2x2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2">
-            {/* Loading indicator */}
-            {(isLoading || isPending) && (
-              <div className="w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
-            )}
-            
             <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
               {storeList?.total_size || 0} {isArabic ? "نتيجة" : "results"}
             </div>
           </div>
         </div>
+
+        <div className={`grid lg:grid-cols-[280px_1fr] mb-6 sm:mb-8 gap-6 lg:gap-8 ${showFilters ? "block" : "hidden"} lg:block`}>
+          {/* Filters Sidebar */}
+          {showFilters && (
+          <FiltersSidebar
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onClearAll={handleClearFilters}
+          />
+         )}
+         </div>
 
         {/* Stores Grid */}
         <div id="stores-list">

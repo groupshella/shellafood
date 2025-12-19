@@ -5,6 +5,7 @@ import { memo } from "react";
 import { ZoneDataModule } from "../../types/module.types";
 import CategoriesGrid from "./CategoriesGrid";
 import { EmptyState } from "../shared";
+import { CategoriesHero, TopSupermarketSection, ServicesSection } from "../..";
 
 interface CategoriesPageProps {
 	initialModules: ZoneDataModule[];
@@ -43,8 +44,16 @@ function CategoriesPage({
 
 	return (
 		<div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={direction}>
-			<div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-				
+      {/* <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8"> */}
+				 {/* Hero Section */}
+				 <div className="pt-8 pb-6">
+          <CategoriesHero />
+        </div>
+		 {/* Top Supermarket Section */}
+		 <TopSupermarketSection />
+
+{/* Services Section */}
+<ServicesSection />
 
 				{/* Categories Grid Section */}
 				<section className="py-12" dir={direction}>
@@ -63,7 +72,7 @@ function CategoriesPage({
 							<CategoriesGrid modules={initialModules} />
 							
 				</section>
-			</div>
+			{/* </div> */}
 		</div>
 	);
 }

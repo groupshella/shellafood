@@ -46,6 +46,7 @@ export default function FavoriteButton({
         ${sizeClasses[size]}
         ${className}
         ${className.includes('absolute') ? '' : 'relative'}
+        flex items-center justify-center
         rounded-full shadow-md dark:shadow-gray-900/50 transition-all duration-200
         ${isFavorite 
           ? 'bg-red-500 dark:bg-red-600 text-white' 

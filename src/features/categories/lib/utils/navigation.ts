@@ -15,7 +15,9 @@ export function navigateToStore(
 		return;
 	}
 	
-	router.push(`/categories/${categorySlug}/${store.slug}`);
+	// Scroll to top immediately when clicking (before navigation)
+	window.scrollTo({ top: 0, behavior: 'instant' });
+	router.push(`/categories/${categorySlug}/${store.slug}`, { scroll: false });
 }
 
 export function navigateToDepartment(
@@ -32,7 +34,9 @@ export function navigateToDepartment(
 		return;
 	}
 	
-	router.push(`/categories/${categorySlug}/${storeSlug}/${department.slug}`);
+	// Scroll to top immediately when clicking (before navigation)
+	window.scrollTo({ top: 0, behavior: 'instant' });
+	router.push(`/categories/${categorySlug}/${storeSlug}/${department.slug}`, { scroll: false });
 }
 
 export function navigateToProduct(
@@ -50,7 +54,9 @@ export function navigateToProduct(
 		return;
 	}
 	
-	router.push(`/categories/${categorySlug}/${storeSlug}/${departmentSlug}/${product.slug}`);
+	// Scroll to top immediately when clicking (before navigation)
+	window.scrollTo({ top: 0, behavior: 'instant' });
+	router.push(`/categories/${categorySlug}/${storeSlug}/${departmentSlug}/${product.slug}`, { scroll: false });
 }
 
 export function navigateToProductFromContext(

@@ -59,7 +59,9 @@ function StoreCard({ store, index = 0, isCompact = false }: StoreCardProps) {
   // ============================================================================
 
   const handleClick = () => {
-    router.push(`/categories/${store.module_id}/${store.id}`);
+    // Scroll to top immediately when clicking (before navigation)
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    router.push(`/categories/${store.module_id}/${store.id}`, { scroll: false });
   };
 
   const handleFavoriteClick = (e: React.MouseEvent) => {

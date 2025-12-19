@@ -3,9 +3,10 @@
 import { useLanguage } from "@/providers";
 import { Product } from "../../types/product.types";
 import { motion } from "framer-motion";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import UnifiedProductCard from "../shared/UnifiedProductCard";
 import { Item } from "../../types/department.types";
+import { Sparkles } from "lucide-react";
 
 interface RelatedProductsProps {
   products: Product[];
@@ -26,9 +27,12 @@ function RelatedProducts({
   const isArabic = language === "ar";
   const direction = isArabic ? "rtl" : "ltr";
 
-  if (products.length === 0) return null;
+  if (!products || products.length === 0) return null;
 
-  // Convert Product to Item format for UnifiedProductCard
+  // ============================================================================
+  // DATA CONVERSION
+  // ============================================================================
+
   const convertProductToItem = (product: Product): Item => {
     return {
       id: product.id,
@@ -131,30 +135,55 @@ function RelatedProducts({
     };
   };
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
-    <section dir={direction} className="mt-8 sm:mt-12">
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-900 dark:text-white">
-          {isArabic ? "منتجات ذات صلة" : "Related Products"}
-        </h2>
-        <span className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-          {products.length} {isArabic ? "منتج" : "products"}
-        </span>
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+    <section dir={direction} className="mt-12 sm:mt-16 lg:mt-20">
+      {/* Section Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex items-center justify-between mb-6 sm:mb-8"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-900 dark:text-white">
+              {isArabic ? "منتجات ذات صلة" : "Related Products"}
+            </h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
+              {isArabic ? `${products.length} منتج متاح` : `${products.length} products available`}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Products Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
         {products.map((product, index) => {
           const item = convertProductToItem(product);
           return (
-            <UnifiedProductCard
+            <motion.div
               key={product.id}
-              product={item}
-              variant={index < 2 ? "default" : "compact"}
-              onClick={onProductClick}
-              storeId={storeId || product.store_id}
-              storeName={product.store_name}
-              categoryId={categoryId || product.module_id}
-              index={index}
-            />
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+            >
+              <UnifiedProductCard
+                product={item}
+                variant="default"
+                onClick={onProductClick}
+                storeId={storeId || product.store_id}
+                storeName={product.store_name}
+                categoryId={categoryId || product.module_id}
+                index={index}
+              />
+            </motion.div>
           );
         })}
       </div>
@@ -163,4 +192,3 @@ function RelatedProducts({
 }
 
 export default memo(RelatedProducts);
-

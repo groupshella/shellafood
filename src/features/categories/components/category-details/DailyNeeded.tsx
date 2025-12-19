@@ -13,7 +13,7 @@ export default function DailyNeeded() {
 	const router = useRouter();
 
 	const handleItemClick = () => {
-		router.push("/categories/supermarket/hyper-shella");
+		router.push("/categories/3/1");
 	};
 
 	const title = isArabic ? "احتياجات يومية" : "Daily Needed";

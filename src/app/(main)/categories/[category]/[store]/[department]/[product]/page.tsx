@@ -23,16 +23,12 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { category, store, department, product } = await params;
 
-  const categoryName = decodeURIComponent(category);
-  const storeName = decodeURIComponent(store);
-  const departmentName = decodeURIComponent(department).replace(/-/g, ' ');
-  const productName = decodeURIComponent(product).replace(/-/g, ' ');
+    const categoryName = "المتاجر";
+  const storeName = "المتجر ";
+  const departmentName = "القسم ";
+  const productName = "المنتج ";
 
-  const url = `https://shellafood.com/categories/${encodeURIComponent(
-    category
-  )}/${encodeURIComponent(store)}/${encodeURIComponent(
-    department
-  )}/${encodeURIComponent(product)}`;
+  const url = `https://shellafood.com/categories/${category}/${store}/${department}/${product}`;
 
   return {
     title: `${productName} - ${storeName} | شلة فود`,
