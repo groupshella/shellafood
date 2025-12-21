@@ -19,7 +19,12 @@ import CartHeader from "./header/CartHeader";
 import PromoBanner from "./header/PromoBanner";
 import GroupedCartItems from "./cart-items/GroupedCartItems";
 
-export default function CartPage() {
+interface CartPageProps {
+	initialCartData?: any;
+}
+
+export default function CartPage(props: CartPageProps = {}) {
+	const { initialCartData } = props;
 	const {
 		language,
 		isArabic,
@@ -66,7 +71,7 @@ export default function CartPage() {
 	} = useCartPage();
 
 	// Empty state
-	if (!isLoading && items.length === 0) {
+	if (true)  {
 		return (
 			<>
 				<EmptyCartState language={language} />

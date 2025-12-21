@@ -1,0 +1,47 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { BASE_URL, DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+const API_URL =  'https://shellafood.com';
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const lang = body.lang || DEFAULT_LANG;
+
+    // Call external API
+    const externalApiUrl = `${API_URL}/api/v1/auth/sign-up`;
+    
+    const externalResponse = await fetch(externalApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-LANG': lang,
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        name: body.name,
+        phone: body.phone,
+        email: body.email,
+        password: body.password,
+        ref_code: body.ref_code || '',
+        guest_id: body.guest_id || '',
+      }),
+    });
+
+    const data = await externalResponse.json();
+    if (!externalResponse.ok) {
+      return NextResponse.json({ success: false,
+        message: 
+        data.errors[0].code=="email" ? "البريد الإلكتروني مستخدم بالفعل" : data.errors[0].code=="phone" ? "رقم الهاتف مستخدم بالفعل" : data.errors[0].message }, 
+        { status: externalResponse.status });
+    }
+    return NextResponse.json({ success: true, message: data.message || 'Registration successful', data: data }, { status: externalResponse.status });
+
+  } catch (error: any) {
+    console.log('[Register API] Error:', error);
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+

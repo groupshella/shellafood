@@ -7,10 +7,10 @@ import {
 	register as registerApi,
 	getCurrentUserProfile,
 } from '../api/auth.api';
-import { getCurrentUser, isAuthenticated, removeUser, removeAuthToken } from '../lib/utils/auth.utils';
+import { removeUser, removeAuthToken } from '../lib/utils/auth.utils';
 import { AUTH_ROUTES } from '../constants/auth.constants';
 import { loginSchema, registerSchema } from '../lib/validation/auth.validation';
-import type { LoginFormData, RegisterFormData, AuthUser } from '../types/auth.types';
+import type { LoginFormData, RegisterFormData } from '../types/auth.types';
 
 /**
  * Auth hook for managing authentication state
@@ -19,36 +19,8 @@ import type { LoginFormData, RegisterFormData, AuthUser } from '../types/auth.ty
  */
 export function useAuth() {
 	const router = useRouter();
-	const [user, setUser] = useState<AuthUser | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-
-	// Initialize: Check if user is authenticated
-	useEffect(() => {
-		const initAuth = async () => {
-			try {
-				if (isAuthenticated()) {
-					const currentUser = getCurrentUser();
-					setUser(currentUser);
-					
-					// Refresh user data from API
-					try {
-						const response = await getCurrentUserProfile();
-						setUser(response.data);
-					} catch (err) {
-						// If API fails, keep localStorage user
-						console.error('Failed to refresh user:', err);
-					}
-				}
-			} catch (err) {
-				console.error('Auth initialization error:', err);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		initAuth();
-	}, []);
 
 	/**
 	 * Login user with validation
@@ -60,6 +32,7 @@ export function useAuth() {
 
 			// Validate form data
 			const validationResult = loginSchema.safeParse(data);
+			console.log("validationResult", validationResult);
 			if (!validationResult.success) {
 				const firstError = validationResult.error.issues[0];
 				const errorMessage = firstError.message;
@@ -68,14 +41,13 @@ export function useAuth() {
 			}
 
 			const response = await loginApi(validationResult.data);
-			
+			console.log("response", response);
 			if (response.success) {
-				setUser(response.data.user);
 				router.push(AUTH_ROUTES.HOME);
 				router.refresh();
 			}
 		} catch (err: any) {
-			const errorMessage = err.message || 'فشل تسجيل الدخول. حاول مرة أخرى';
+			const errorMessage = 'فشل تسجيل الدخول. حاول مرة أخرى';
 			setError(errorMessage);
 			throw err;
 		} finally {
@@ -93,6 +65,7 @@ export function useAuth() {
 
 			// Validate form data
 			const validationResult = registerSchema.safeParse(data);
+			console.log("validationResult", validationResult);
 			if (!validationResult.success) {
 				const firstError = validationResult.error.issues[0];
 				const errorMessage = firstError.message;
@@ -101,13 +74,13 @@ export function useAuth() {
 			}
 
 			const response = await registerApi(validationResult.data);
-			
+			console.log("response", response);
 			if (response.success) {
-				setUser(response.data.user);
 				router.push(AUTH_ROUTES.HOME);
 				router.refresh();
 			}
 		} catch (err: any) {
+			console.log("error in register", err);
 			const errorMessage = err.message || 'فشل التسجيل. حاول مرة أخرى';
 			setError(errorMessage);
 			throw err;
@@ -125,14 +98,12 @@ export function useAuth() {
 			setError(null);
 			removeAuthToken();
 			removeUser();
-			setUser(null);
 			router.push(AUTH_ROUTES.LOGIN);
 			router.refresh();
 		} catch (err: any) {
 			// Clear user anyway
 			removeAuthToken();
 			removeUser();
-			setUser(null);
 		} finally {
 			setIsLoading(false);
 		}
@@ -146,8 +117,6 @@ export function useAuth() {
 	};
 
 	return {
-		user,
-		isAuthenticated: !!user,
 		isLoading,
 		error,
 		login,

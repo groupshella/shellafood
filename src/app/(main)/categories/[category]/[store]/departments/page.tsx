@@ -1,5 +1,8 @@
 import { Metadata } from 'next';
 import { DepartmentsPage } from '@/features/categories';
+import { getCachedDepartments } from '@/features/categories/api/departments.api';
+import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,17 +70,61 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 		metadataBase: new URL("https://shellafood.com"),
 	};
 }
-
-export default async function AllDepartmentsPageRoute({ params }: { params: Promise<{ category: string; store: string }> }) {
-	const { category, store: storeSlug } = await params;
-
-
-
+interface PageProps {
+	params: Promise<{
+	  category: string;
+	  store: string;
+	}>;
+	searchParams: Promise<{
+	  page?: string;
+	}>;
+  }
+export default async function AllDepartmentsPageRoute(
+		{ params, searchParams }: PageProps
+	  ) {
+		const { category, store } = await params;
+		const search = await searchParams;
+	  
+		const storeId = Number(store);
+		const moduleId = Number(category);
+	  const zoneId = 2; // TODO: replace  with real zone resolver
+		// ✅ Validate IDs
+		if (
+		  isNaN(storeId) || storeId <= 0 ||
+		  isNaN(moduleId) || moduleId <= 0
+		) {
+		   notFound();   
+		}
+	  
+		const limit = 20;
+		const offset = Math.max(2, Number(search.page) || 2);
+		const locale = DEFAULT_LANG;
+	  
+		// ✅ Fetch departments (cached)
+		const departmentsResponse = await getCachedDepartments(
+		  storeId,
+		  limit,
+		  offset,
+		  locale,
+		  moduleId,
+		  zoneId,
+	
+		);
+	  
+		if (!departmentsResponse?.data) {
+		  notFound();
+		}
+	  
+console.log(departmentsResponse.data);
 	return (
 		<DepartmentsPage 
-			categorySlug={category}
-			storeSlug={storeSlug}
-		/>
+			initialDepartments={departmentsResponse.data}
+			initialLimit={limit}
+			initialPage={offset}
+			storeId={storeId}
+			zoneId={zoneId}
+			moduleId={moduleId}
+    />
 	);
 }
 

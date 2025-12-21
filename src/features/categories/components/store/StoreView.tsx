@@ -72,36 +72,14 @@
     const [searchTerm, setSearchTerm] = useState("");
     const [isPending, startTransition] = useTransition();
 
-    // Get current page from URL (only for departments tab)
-    const currentPage = Number(searchParams.get('page')) || initialPage;
-    const currentLimit = initialLimit;
-    const currentOffset = currentPage;
+   
 
     // ============================================================================
     // SWR DATA FETCHING
     // ============================================================================
 
-    // Only fetch when user has paginated (page changed from initial)
-    const hasPaginated = currentPage !== initialPage;
-    const shouldFetch = activeTab === "departments" && hasPaginated;
     
-    const { data: storeDetails, isLoading, error } = useSWR<StoreDetails>(
-      shouldFetch 
-        ? `/api/store-details?storeId=${store.id}&moduleId=${store.module_id}&limit=${currentLimit}&offset=${currentOffset}&zoneId=${store.zone_id}`
-        : null,
-      fetcher,
-      {
-        fallbackData: store,
-        revalidateOnMount: false,
-        revalidateOnFocus: false,
-        keepPreviousData: true,
-        dedupingInterval: 10000,
-      }
-    );
 
-    // Prefetch next page
-    const totalCategories = storeDetails?.categories_pagination?.total_categories ?? 0;
-    const hasNextPage = currentPage < Math.ceil(totalCategories / currentLimit);
     const t = useMemo(() => ({
       searchPlaceholder: isArabic ? "ابحث عن أقسام..." : "Search departments...",
       departments: isArabic ? "الأقسام" : "Departments",
@@ -133,30 +111,13 @@
       couponCode: isArabic ? "رمز الكوبون" : "Coupon Code",
       sar: isArabic ? "ر.س" : "SAR",
     }), [isArabic]);
-if(isLoading)
-   {
-  return  <AnimatePresence>
-  {(isPending || isLoading) && (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className="flex items-center justify-center py-3 sm:py-4 mb-4 sm:mb-6"
-    >
-      <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-green-600 dark:border-green-500 border-t-transparent rounded-full animate-spin" />
-      <span className={`${isArabic ? "mr-2" : "ml-2"} text-xs sm:text-sm text-gray-600 dark:text-gray-400`}>
-        {t.loading}
-      </span>
-    </motion.div>
-  )}
-</AnimatePresence>
-}
+
 
     // ============================================================================
     // COMPUTED VALUES
     // ============================================================================
 
-    const currentStore = storeDetails || store;
+    const currentStore = store;
 
     const breadcrumbItems = useMemo(
       () => [
@@ -182,10 +143,7 @@ if(isLoading)
       });
     }, [currentStore.category_details, searchTerm, isArabic]);
 
-    // Pagination info
-    const totalDeptPages = totalCategories 
-      ? Math.ceil(totalCategories / currentLimit)
-      : 1;
+
 
     // ============================================================================
     // HANDLERS
@@ -201,16 +159,7 @@ if(isLoading)
       });
     }, []);
 
-    const handleDeptPageChange = useCallback((page: number) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('page', page.toString());
-      
-      startTransition(() => {
-        router.push(`?${params.toString()}`, { scroll: true });
-      })
-
-    
-    }, [router, searchParams]);
+ 
 
     const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchTerm(e.target.value);
@@ -297,7 +246,7 @@ if(isLoading)
                     value={searchTerm}
                     onChange={handleSearchChange}
                     placeholder={t.searchPlaceholder}
-                    disabled={isPending || isLoading}
+                    disabled={isPending }
                     className={`w-full ${isArabic ? "pr-10 sm:pr-12 pl-3 sm:pl-4" : "pl-10 sm:pl-12 pr-3 sm:pr-4"} py-2.5 sm:py-3 md:py-4 bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 text-sm sm:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm sm:shadow-md`}
                   />
                 </div>
@@ -306,7 +255,7 @@ if(isLoading)
 
             {/* Loading Indicator - Mobile Optimized */}
             <AnimatePresence>
-              {(isPending || isLoading) && (
+              {(isPending ) && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -327,15 +276,10 @@ if(isLoading)
                 <DepartmentsTab
                   key="departments"
                   filteredDepartments={filteredDepartments}
-                  totalCategories={totalCategories}
-                  currentPage={currentPage}
-                  totalPages={totalDeptPages}
-                  currentLimit={currentLimit}
-                  onPageChange={handleDeptPageChange}
-                  isLoading={isLoading}
+                 
+                  totalCategories={currentStore.categories_pagination?.total_categories || 0}
                   isPending={isPending}
                   isMobile={isMobile}
-                  error={error}
                   t={t}
                   storeId={currentStore.id}
                   moduleId={currentStore.module_id}
@@ -415,14 +359,8 @@ if(isLoading)
   interface DepartmentsTabProps {
     filteredDepartments: CategoryDetail[];
     totalCategories: number;
-    currentPage: number;
-    totalPages: number;
-    currentLimit: number;
-    onPageChange: (page: number) => void;
-    isLoading: boolean;
     isPending: boolean;
     isMobile: boolean;
-    error: any;
     t: any;
     storeId: number;
     moduleId: number;
@@ -430,34 +368,15 @@ if(isLoading)
 
   const DepartmentsTab = memo(({
     filteredDepartments,
-    totalCategories,
-    currentPage,
-    totalPages,
-    currentLimit,
-    onPageChange,
-    isLoading,
-    isPending,
     isMobile,
-    error,
+    totalCategories,
     t,
     storeId,
     moduleId,
   }: DepartmentsTabProps) => {
-    if (error) {
-      return (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <EmptyState
-            icon="❌"
-            title={t.errorLoading}
-            description={t.tryAgain}
-          />
-        </motion.div>
-      );
-    }
+    const router = useRouter();
+    const { language } = useLanguage();
+    const isArabic = language === "ar";
 
     if (filteredDepartments.length === 0) {
       return (
@@ -483,7 +402,7 @@ if(isLoading)
         id="departments-list"
       >
         {/* Header - Mobile Optimized */}
-        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="mb-4 sm:mb-6 flex flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <div className="flex-1 min-w-0">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-1 sm:mb-2">
               {t.departments}
@@ -492,17 +411,20 @@ if(isLoading)
               {t.showing} {filteredDepartments.length} {t.of} {totalCategories} {t.items}
             </p>
           </div>
-          {!isMobile && (
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <Grid3x3 className="w-4 h-4" />
-              <span>{totalCategories} {t.items}</span>
-            </div>
-          )}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => router.push(`/categories/${moduleId}/${storeId}/departments`)}
+            className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base shadow-lg hover:shadow-xl transition-all whitespace-nowrap"
+          >
+            <Grid3x3 className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span>{isArabic ? "عرض الكل" : "Show All"}</span>
+          </motion.button>
         </div>
 
         {/* Grid - Mobile Optimized */}
         <motion.div
-          key={`page-${currentPage}`}
+          key={`Page}`} 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6"
@@ -518,18 +440,7 @@ if(isLoading)
           ))}
         </motion.div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-            totalItems={totalCategories}
-            itemsPerPage={currentLimit}
-            maxVisiblePages={isMobile ? 5 : 7}
-            disabled={isPending || isLoading}
-          />
-        )}
+      
       </motion.div>
     );
   });

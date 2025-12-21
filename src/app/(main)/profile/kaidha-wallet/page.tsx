@@ -1,5 +1,8 @@
 import { Metadata } from "next";
 import { KaidhaWallet } from "@/features/profile";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { STORAGE_KEYS, AUTH_ROUTES, BASE_URL } from "@/features/auth/constants/auth.constants";
 
 export const metadata: Metadata = {
 	title: "محفظة قيدها | شلة فود",
@@ -62,6 +65,44 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://shellafood.com"),
 };
 
-export default function KaidhaWalletPageRoute() {
-	return <KaidhaWallet />;
+async function getWalletData(token: string) {
+	try {
+		const apiUrl = `${BASE_URL}/api/qidha-wallet/get-wallet`;
+		
+		const response = await fetch(apiUrl, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${token}`,
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
+			cache: 'no-store', // Don't cache this data
+		});
+
+		if (!response.ok) {
+			console.error('[Kaidha Wallet] API Error:', response.status);
+			return null;
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('[Kaidha Wallet] Fetch Error:', error);
+		return null;
+	}
+}
+
+export default async function KaidhaWalletPageRoute() {
+	// Check authentication
+	const cookieStore = await cookies();
+	const authToken = cookieStore.get(STORAGE_KEYS.TOKEN);
+
+	if (!authToken || !authToken.value || authToken.value.trim() === '') {
+		redirect(AUTH_ROUTES.LOGIN);
+	}
+
+	// Fetch wallet data
+	const walletData = await getWalletData(authToken.value);
+
+	return <KaidhaWallet walletData={walletData} />;
 }

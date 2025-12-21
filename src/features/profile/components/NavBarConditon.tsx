@@ -22,6 +22,8 @@ import Link from "next/link";
 import { useLanguage } from "@/providers";
 import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
 import HelpAndSupport from "./Support/HelpAndSupport";
+import { removeAuthToken } from "@/features/auth/lib/utils/auth.utils";
+
 
 // Single source of truth for navigation items
 type LucideIcon = React.ComponentType<React.SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
@@ -37,11 +39,12 @@ interface NavItem {
 	isAction?: boolean;
 }
 
+
 const NAVIGATION_ITEMS: NavItem[] = [
 	{ id: "home", label: "الرئيسية", icon: Home, href: "/home", showInDesktop: true, showInMobile: true },
 	{ id: "my-orders", label: "طلباتي", icon: ClipboardList, href: "/my-orders", showInDesktop: true, showInMobile: true },
 	{ id: "cart", label: "السلة", icon: ShoppingBag, href: "/cart", showInDesktop: true, showInMobile: true, hasBadge: true },
-	{ id: "profile", label: "الملف الشخصي", icon: User, href: "/profile", showInDesktop: true, showInMobile: true },
+	{ id: "profile", label: "الملف الشخصي", icon: User, href:"/profile", showInDesktop: true, showInMobile: true },
 	{ id: "categories", label: "الفئات", icon: List, href: "/categories", showInDesktop: false, showInMobile: true },
 	{ id: "contact", label: "اتصل بنا", icon: Mail, href: "#", showInDesktop: true, showInMobile: true, isAction: true },
 	{ id: "language", label: "عربية", icon: Globe, href: "/", showInDesktop: false, showInMobile: false }, // Handled separately
@@ -294,7 +297,7 @@ const MobileMenu = ({
 	);
 };
 
-export default function NavBarCondition() {
+export default  function NavBarCondition() {
 	const pathname = usePathname();
 	const router = useRouter();
 	const { language, setLanguage, t } = useLanguage();
@@ -333,6 +336,9 @@ export default function NavBarCondition() {
 
 	const handleNavClick = (item: NavItem) => {
 		setActiveTab(item.id);
+		if(item.id==='profile') {
+			router.push('/profile');
+		}
 		if (item.isAction && item.id === "contact") {
 			setShowAterms(true);
 		}

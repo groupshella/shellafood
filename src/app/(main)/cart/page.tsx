@@ -1,5 +1,8 @@
 import { Metadata } from 'next';
 import CartPage from '@/features/cart/components/CartPage';
+import { LoginForm, RegisterForm } from '@/features/auth';
+import { cookies } from 'next/headers';
+import { BASE_URL } from '@/features/auth/constants/auth.constants';
 
 export const metadata: Metadata = {
   title: 'سلة التسوق | شلة فود',
@@ -53,6 +56,61 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://shellafood.com'),
 };
 
-export default function CartPageRoute() {
-	return <CartPage />;
+async function getCartData(token: string | null, guestId: string | null) {
+	try {
+		const apiUrl = `https://shellafood.com/api/v1/customer/cart/list`;
+		
+		const headers: HeadersInit = {
+			'Content-Type': 'application/json',
+			'Accept': 'application/json',
+		};
+
+		// Add authorization header if token exists
+		if (token) {
+			headers['Authorization'] = `Bearer ${token}`;
+		}
+
+		// Add guest ID header if guest ID exists and no token
+		if (guestId && !token) {
+			headers['guest_id'] = guestId;
+		}
+
+		const response = await fetch(apiUrl, {
+			method: 'GET',
+			headers,
+			cache: 'no-store', // Don't cache this data
+		});
+
+		if (!response.ok) {
+			console.error('[Cart] API Error:', response.status);
+			return null;
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('[Cart] Fetch Error:', error);
+		return null;
+	}
+}
+
+export default async function CartPageRoute() {
+  // Check authentication on server side using the same cookie key as layout
+	const cookieStore = await cookies();
+	const authToken = cookieStore.get("auth_token");
+	const guestId = cookieStore.get("guest_id");
+	console.log("authToken", authToken?.value);
+	console.log("guestId", guestId?.value);
+	
+	if ( !authToken?.value?.trim() && !guestId?.value?.trim()) {
+		return <RegisterForm />;
+	}
+
+	// // Fetch cart data
+	// const cartData = await getCartData(
+	// 	authToken?.value || null,
+	// 	guestId?.value || null
+	// );
+
+	return <CartPage initialCartData={[]} />;
 }

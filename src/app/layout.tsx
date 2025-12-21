@@ -5,6 +5,7 @@ import { LanguageProvider } from "@/providers";
 import { ThemeProvider } from "@/providers";
 import { NavBarCondition } from "@/features/profile";
 import { ShellaFooter } from "@/shared/components";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
 	title: "شلة فود",
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://shellafood.com"),
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: {
 	children: React.ReactNode;
@@ -28,7 +29,7 @@ export default function RootLayout({
 				<ThemeProvider>
 					<LanguageProvider>
 						{/* Navigation - Unified for all routes */}
-						<NavBarCondition />
+				<NavBarCondition />
 						{/* Main Content */}
 						<main className="min-h-screen bg-white dark:bg-gray-900">
 							{children}

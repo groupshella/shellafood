@@ -24,7 +24,7 @@ export interface AuthUser {
 // ============================================================================
 
 export interface LoginFormData {
-	email: string;
+	phone: string;
 	password: string;
 	remember?: boolean;
 }
@@ -37,6 +37,17 @@ export interface RegisterFormData {
 	password: string;
 	password_confirmation: string;
 	accept_terms: boolean;
+	ref_code?: string;
+	guest_id?: string;
+}
+
+export interface VerifyPhoneData {
+	phone: string;
+	otp: string;
+}
+
+export interface SendOtpData {
+	phone: string;
 }
 
 // ============================================================================
@@ -56,12 +67,23 @@ export interface LoginResponse {
 
 export interface RegisterResponse {
 	success: boolean;
-	data: {
+	data?: {
 		user: AuthUser;
 		token: string;
 		token_type: string;
 		expires_at: string;
 	};
+	token?: string; // Direct token from sign-up endpoint
+	message?: string;
+}
+
+export interface VerifyPhoneResponse {
+	success: boolean;
+	message?: string;
+}
+
+export interface SendOtpResponse {
+	success: boolean;
 	message?: string;
 }
 

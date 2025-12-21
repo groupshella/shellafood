@@ -4,3 +4,4 @@
  */
 
 export { default as KaidhaWallet } from "./KaidhaWallet";
+export { default as Transactions } from "./Transactions";

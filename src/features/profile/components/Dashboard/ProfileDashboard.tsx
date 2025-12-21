@@ -62,6 +62,7 @@ export default function ProfileDashboard() {
 	const [isPending, startTransition] = useTransition();
 	
 	const direction = language === 'ar' ? 'rtl' : 'ltr';
+	
 
 	// Memoize active page calculation
 	const activePage = useMemo(() => getActivePageFromPath(pathname), [pathname]);

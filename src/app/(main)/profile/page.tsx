@@ -1,5 +1,9 @@
 import { Metadata } from "next";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { ProfileDashboard } from "@/features/profile";
+import { STORAGE_KEYS, AUTH_ROUTES } from "@/features/auth/constants/auth.constants";
+import { LoginForm } from "@/features/auth";
 
 export const metadata: Metadata = {
 	title: "الملف الشخصي | شلة فود",
@@ -64,6 +68,17 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://shellafood.com"),
 };
 
-export default function ProfilePageRoute() {
-	return <ProfileDashboard />;
+export default async function ProfilePageRoute() {
+	// Check authentication on server side using the same cookie key as layout
+	const cookieStore = await cookies();
+	const authToken = cookieStore.get("auth_token");
+	// Redirect to login if not authenticated
+	console.log("authToken", authToken?.value);
+	if ( !authToken?.value.trim()) {
+		return <LoginForm />;
+	}
+	else{
+		
+		return <ProfileDashboard />;
+	}
 }

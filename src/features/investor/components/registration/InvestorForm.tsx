@@ -523,11 +523,12 @@ export default function InvestorForm() {
 				{/* PDF Preview Modal */}
 				{(contractPdfUrl || signedContractUrl) && (
 					<ContractModal
-						isOpen={showPdfModal}
+						isOpen={true}
 						onClose={() => setShowPdfModal(false)}
 						fileUrl={signedContractUrl || contractPdfUrl || ''}
 					/>
 				)}
+				
 
 				{/* Notification */}
 				<NotificationDialog

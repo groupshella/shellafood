@@ -60,7 +60,7 @@ export const BASE_URL = getBaseUrl();
 export const AUTH_ROUTES = {
 	LOGIN: '/login',
 	REGISTER: '/register',
-	HOME: '/',
+	HOME: '/home',
 } as const;
 
 // ============================================================================
@@ -70,6 +70,9 @@ export const AUTH_ROUTES = {
 export const AUTH_ENDPOINTS = {
 	LOGIN: '/auth/login',
 	REGISTER: '/auth/register',
+	SIGN_UP: '/auth/sign-up',
+	VERIFY_PHONE: '/auth/verify-phone',
+	SEND_OTP_AGAIN: '/auth/send-otp-again',
 	ME: '/auth/me',
 } as const;
 
