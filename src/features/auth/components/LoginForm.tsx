@@ -36,7 +36,9 @@ export default function LoginForm() {
   // ============================================================================
 
   const handlePhoneChange = useCallback((phone: string) => {
+    if(phone!=="+963")
     setFormData((prev) => ({ ...prev, phone }));
+
   }, []);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +53,7 @@ export default function LoginForm() {
     e.preventDefault();
 
     // Validation
-    if (!formData.phone || !formData.password) {
+    if (!formData.phone || formData.phone==="+963"|| !formData.password) {
       setNotification({
         message: isArabic
           ? "يرجى ملء جميع الحقول المطلوبة"
@@ -61,6 +63,7 @@ export default function LoginForm() {
       });
       return;
     }
+    console.log("formData", formData);
 
     setIsLoading(true);
 
@@ -147,6 +150,7 @@ export default function LoginForm() {
             isArabic={isArabic}
             required
             name="phone"
+            compact={true}
             disabled={isLoading}
           />
 

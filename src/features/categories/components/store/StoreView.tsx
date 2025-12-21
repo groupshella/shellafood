@@ -411,6 +411,8 @@
               {t.showing} {filteredDepartments.length} {t.of} {totalCategories} {t.items}
             </p>
           </div>
+          
+          {totalCategories > filteredDepartments.length && (
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -420,6 +422,8 @@
             <Grid3x3 className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>{isArabic ? "عرض الكل" : "Show All"}</span>
           </motion.button>
+          )}
+
         </div>
 
         {/* Grid - Mobile Optimized */}

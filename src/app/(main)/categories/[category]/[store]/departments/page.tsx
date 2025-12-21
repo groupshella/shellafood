@@ -111,14 +111,20 @@ export default async function AllDepartmentsPageRoute(
 	
 		);
 	  
-		if (!departmentsResponse?.data) {
-		  notFound();
-		}
+		
 	  
 console.log(departmentsResponse.data);
 	return (
 		<DepartmentsPage 
-			initialDepartments={departmentsResponse.data}
+			initialDepartments={departmentsResponse.data || {
+				store_id: storeId,
+				store_name: "",
+				categories: [],
+				total_categories: 0,
+				limit: limit,
+				offset: offset,
+				has_more: false,
+			}}
 			initialLimit={limit}
 			initialPage={offset}
 			storeId={storeId}
