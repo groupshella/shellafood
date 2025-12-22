@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import CartPage from '@/features/cart/components/CartPage';
-import { LoginForm, RegisterForm } from '@/features/auth';
+import { RegisterForm } from '@/features/auth';
 import { cookies } from 'next/headers';
 import { BASE_URL } from '@/features/auth/constants/auth.constants';
 
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
 
 async function getCartData(token: string | null, guestId: string | null) {
 	try {
-		const apiUrl = `https://shellafood.com/api/v1/customer/cart/list`;
+		const apiUrl = `${BASE_URL}/api/v1/customer/cart/list`;
 		
 		const headers: HeadersInit = {
 			'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ async function getCartData(token: string | null, guestId: string | null) {
 
 		// Add guest ID header if guest ID exists and no token
 		if (guestId && !token) {
-			headers['guest_id'] = guestId;
+			headers['X-Guest-ID'] = guestId;
 		}
 
 		const response = await fetch(apiUrl, {
@@ -101,16 +101,12 @@ export default async function CartPageRoute() {
 	const guestId = cookieStore.get("guest_id");
 	console.log("authToken", authToken?.value);
 	console.log("guestId", guestId?.value);
-	
-	if ( !authToken?.value?.trim() && !guestId?.value?.trim()) {
-		return <RegisterForm />;
-	}
 
-	// // Fetch cart data
-	// const cartData = await getCartData(
-	// 	authToken?.value || null,
-	// 	guestId?.value || null
-	// );
+	// Fetch cart data
+	const cartData = await getCartData(
+		authToken?.value || null,
+		guestId?.value || null
+	);
 
-	return <CartPage initialCartData={[]} />;
+	return <CartPage initialCartData={cartData?.data || []} />;
 }

@@ -5,27 +5,24 @@ import { useLanguage } from "@/providers";
 import Header from "./Header";
 import { InfoCard, InfoField, SecurityAction } from "../UI";
 import { FaUser, FaShieldAlt, FaLock, FaIdCard, FaTrash } from "react-icons/fa";
-
-export default function AccountInfoPage() {
+interface PersonalInfo {
+		fullName: string;
+		email: string;
+		phone: string;
+		dateOfBirth: string;
+		nationalId: string;
+		address: string;
+	}
+export default function AccountInfoPage({personalInfo}: {personalInfo: PersonalInfo}) {
 	const { language, t } = useLanguage();
 	const isArabic = language === 'ar';
 	const direction = isArabic ? 'rtl' : 'ltr';
 	const [isEditing, setIsEditing] = useState(false);
 	
-	// Initial user data - replace with actual data from your API
-	const initialUserData = {
-		personalInfo: {
-			fullName: isArabic ? "أحمد محمد العلي" : "Ahmed Mohammed Al-Ali",
-			email: "ahmed.mohammed@example.com",
-			phone: "+966501234567",
-			dateOfBirth: isArabic ? "15/03/1990" : "03/15/1990",
-			nationalId: "1234567890",
-			address: isArabic ? "الرياض، المملكة العربية السعودية" : "Riyadh, Saudi Arabia"
-		}
-	};
+	
 
 	// State for form data
-	const [formData, setFormData] = useState(initialUserData.personalInfo);
+	const [formData, setFormData] = useState(personalInfo);
 
 	const handleEdit = () => {
 		setIsEditing(!isEditing);
@@ -39,7 +36,7 @@ export default function AccountInfoPage() {
 
 	const handleCancel = () => {
 		// Reset form data to original values
-		setFormData(initialUserData.personalInfo);
+		setFormData(personalInfo);
 		setIsEditing(false);
 	};
 
@@ -75,38 +72,44 @@ export default function AccountInfoPage() {
 								editable={isEditing}
 								onChange={(value) => handleFieldChange('fullName', value)}
 							/>
-							<InfoField
+					{formData.email && (
+						<InfoField
 								label={isArabic ? "البريد الإلكتروني" : "Email Address"}
 								value={formData.email}
 								type="email"
 								editable={isEditing}
 								onChange={(value) => handleFieldChange('email', value)}
 							/>
+					)}
+					{formData.phone && (
+						
 							<InfoField
 								label={isArabic ? "رقم الهاتف" : "Phone Number"}
-								value={formData.phone}
+								value={ `${formData.phone}`}
 								type="tel"
 								editable={isEditing}
+
 								onChange={(value) => handleFieldChange('phone', value)}
 							/>
-							<InfoField
+					)}
+							{/* <InfoField
 								label={isArabic ? "تاريخ الميلاد" : "Date of Birth"}
 								value={formData.dateOfBirth}
 								type="date"
 								editable={isEditing}
 								onChange={(value) => handleFieldChange('dateOfBirth', value)}
-							/>
-							<InfoField
+							/> */}
+							{/* <InfoField
 								label={isArabic ? "رقم الهوية" : "National ID"}
 								value={formData.nationalId}
 								editable={false}
-							/>
-							<InfoField
+							/> */}
+							{/* <InfoField
 								label={isArabic ? "العنوان" : "Address"}
 								value={formData.address}
 								editable={isEditing}
 								onChange={(value) => handleFieldChange('address', value)}
-							/>
+							/> */}
 						</div>
 					</InfoCard>
 				</div>

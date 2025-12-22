@@ -4,3 +4,4 @@
  */
 
 export { default as MyWallet } from "./MyWallet";
+export { default as WalletTransactions } from "./Transactions";

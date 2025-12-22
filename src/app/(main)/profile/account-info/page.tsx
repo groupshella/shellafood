@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { AccountInfoPage } from "@/features/profile";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
 	title: "معلومات الحساب | شلة فود",
@@ -63,7 +64,56 @@ export const metadata: Metadata = {
 	},
 	metadataBase: new URL("https://shellafood.com"),
 };
+async function getAccountInfoData(token: string, guestId: string) {
+	try {
+		const apiUrl = `https://shellafood.com/api/v1/customer/info`;
+		const cacheTag = `account-info-${guestId}`;
+		const response = await fetch(apiUrl, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${token}`,
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+				'x-localization': 'ar',
+			},
+			next: {
+				revalidate: 3600, // cache this data for 1 hour
+				tags: [cacheTag],
+			},
+		});
 
-export default function AccountInfoPageRoute() {
-	return <AccountInfoPage />;
+		if (!response.ok) {
+			console.error('[Account Info] API Error:', response.status);
+			return null;
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('[Account Info] Fetch Error:', error);
+		return null;
+	}
+}
+
+
+export default async function AccountInfoPageRoute() {
+	  // Check authentication on server side using the same cookie key as layout
+	  const cookieStore = await cookies();
+	  const authToken = cookieStore.get("auth_token");
+	  const guestId = cookieStore.get("guest_id");
+	  console.log("authToken", authToken?.value);
+	  console.log("guestId", guestId?.value);
+	  const accountInfoData = await getAccountInfoData(authToken?.value || '', guestId?.value || '');
+	  console.log("accountInfoData", accountInfoData);
+	// Map the API response to the component's expected format
+	const accountData = accountInfoData?.data || accountInfoData;
+	
+	return <AccountInfoPage personalInfo={{
+		fullName: accountData?.full_name || `${accountData?.f_name || ''} ${accountData?.l_name || ''}`.trim() || '',
+		email: accountData?.email || '',
+		phone: accountData?.phone || '',
+		dateOfBirth: accountData?.birth_date || accountData?.date_of_birth || '',
+		nationalId: accountData?.personal_id || accountData?.national_id || '',
+		address: accountData?.address || '',
+	}} />
 }

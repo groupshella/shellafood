@@ -18,10 +18,12 @@ import {
 	Shield,
 	Activity,
 	Filter,
+	ChevronLeft,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AddBalanceModal from "../AddBalanceModal";
 import Toast from "../Toast";
+import { useRouter } from "next/navigation";
 
 interface Transaction {
 	id: string;
@@ -35,6 +37,7 @@ interface Transaction {
 type FilterType = "all" | "deposit" | "withdraw" | "payment";
 
 export default function MyWallet() {
+	const router = useRouter();
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [activeFilter, setActiveFilter] = useState<FilterType>("all");
@@ -419,107 +422,32 @@ export default function MyWallet() {
 					</div>
 				</motion.div>
 
-				{/* Transactions Section */}
-				<motion.div
+			{/* View Transactions Button */}
+			<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, delay: 0.3 }}
-					className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 md:p-8"
+					transition={{ duration: 0.5, delay: 0.5 }}
+					className="pt-4 sm:pt-6"
 				>
-					{/* Section Header */}
-					<div className="flex items-center justify-between mb-6">
-						<h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-							<History className="w-6 h-6 text-green-600 dark:text-green-400" />
-							سجل المعاملات
-						</h3>
-						<button className="flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-500 transition-colors">
-							<History className="w-4 h-4" />
-							<span>عرض الكل</span>
-						</button>
-					</div>
-
-					{/* Filter Pills */}
-					<div className="flex flex-wrap gap-2 mb-6">
-						{filters.map((filter) => (
-							<button
-								key={filter.key}
-								onClick={() => setActiveFilter(filter.key)}
-								className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-									activeFilter === filter.key
-										? "bg-green-600 dark:bg-green-500 text-white shadow-md"
-										: "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-								}`}
-							>
-								{filter.icon}
-								<span>{filter.label}</span>
-							</button>
-						))}
-					</div>
-
-					{/* Transactions List */}
-					{filteredTransactions.length > 0 ? (
-						<div className="space-y-3">
-							{filteredTransactions.map((transaction, index) => (
-								<motion.div
-									key={transaction.id}
-									initial={{ opacity: 0, x: -20 }}
-									animate={{ opacity: 1, x: 0 }}
-									transition={{ duration: 0.3, delay: index * 0.05 }}
-									className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border border-gray-100 dark:border-gray-700"
-								>
-									<div className="flex items-center gap-4 flex-1">
-										{/* Transaction Icon */}
-										<div className={`p-3 rounded-xl ${getTransactionColor(transaction.type)}`}>
-											{getTransactionIcon(transaction.type)}
-										</div>
-
-										{/* Transaction Details */}
-										<div className="flex-1">
-											<div className="flex items-center gap-2 mb-1">
-												<p className="font-semibold text-gray-900 dark:text-gray-100">{transaction.description}</p>
-												{getStatusIcon(transaction.status)}
-											</div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">{formatDate(transaction.date)}</p>
-										</div>
-									</div>
-
-									{/* Amount */}
-									<div className="text-left">
-										<p
-											className={`text-lg font-bold ${
-												transaction.amount > 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-											}`}
-										>
-											{transaction.amount > 0 ? "+" : ""}
-											{transaction.amount.toFixed(2)} ر.س
-										</p>
-									</div>
-								</motion.div>
-							))}
-						</div>
-					) : (
-						/* Empty State */
-						<motion.div
-							initial={{ opacity: 0, scale: 0.95 }}
-							animate={{ opacity: 1, scale: 1 }}
-							transition={{ duration: 0.3 }}
-							className="flex flex-col items-center justify-center py-16 px-4"
-						>
-							<div className="relative mb-6">
-								<div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full blur-2xl opacity-50"></div>
-								<div className="relative p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl">
-									<CreditCard className="w-16 h-16 text-green-600" />
+					<button
+						onClick={() => router.push('/profile/wallet/transactions')}
+						className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all active:scale-[0.98] touch-manipulation"
+					>
+						<div className="flex items-center justify-between">
+							<div className="flex items-center gap-3 sm:gap-4">
+								<div className="p-2.5 sm:p-3 bg-white/20 rounded-xl">
+									<Receipt className="w-5 h-5 sm:w-6 sm:h-6" />
+								</div>
+								<div className="text-right">
+									<h3 className="text-base sm:text-lg font-bold mb-1">عرض سجل المعاملات</h3>
+									<p className="text-xs sm:text-sm text-white/90">تتبع جميع عمليات الخصم والإضافة</p>
 								</div>
 							</div>
-							<p className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">لا توجد معاملات</p>
-							<p className="text-sm text-gray-500 dark:text-gray-400 text-center max-w-md">
-								{activeFilter === "all"
-									? "لم يتم إجراء أي معاملات حتى الآن. ابدأ بإضافة رصيد إلى محفظتك."
-									: `لا توجد معاملات من نوع "${filters.find((f) => f.key === activeFilter)?.label}"`}
-							</p>
-						</motion.div>
-					)}
+							<ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+						</div>
+					</button>
 				</motion.div>
+				
 
 				{/* Modals */}
 				<AddBalanceModal
@@ -546,3 +474,97 @@ export default function MyWallet() {
 		</div>
 	);
 }
+//  <motion.div
+// 					initial={{ opacity: 0, y: 20 }}
+// 					animate={{ opacity: 1, y: 0 }}
+// 					transition={{ duration: 0.5, delay: 0.3 }}
+// 					className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 md:p-8"
+// 				>
+// 					<div className="flex items-center justify-between mb-6">
+// 						<h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+// 							<History className="w-6 h-6 text-green-600 dark:text-green-400" />
+// 							سجل المعاملات
+// 						</h3>
+// 						<button className="flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-500 transition-colors">
+// 							<History className="w-4 h-4" />
+// 							<span>عرض الكل</span>
+// 						</button>
+// 					</div>
+
+// 					<div className="flex flex-wrap gap-2 mb-6">
+// 						{filters.map((filter) => (
+// 							<button
+// 								key={filter.key}
+// 								onClick={() => setActiveFilter(filter.key)}
+// 								className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+// 									activeFilter === filter.key
+// 										? "bg-green-600 dark:bg-green-500 text-white shadow-md"
+// 										: "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+// 								}`}
+// 							>
+// 								{filter.icon}
+// 								<span>{filter.label}</span>
+// 							</button>
+// 						))}
+// 					</div>
+
+// 					{filteredTransactions.length > 0 ? (
+// 						<div className="space-y-3">
+// 							{filteredTransactions.map((transaction, index) => (
+// 								<motion.div
+// 									key={transaction.id}
+// 									initial={{ opacity: 0, x: -20 }}
+// 									animate={{ opacity: 1, x: 0 }}
+// 									transition={{ duration: 0.3, delay: index * 0.05 }}
+// 									className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border border-gray-100 dark:border-gray-700"
+// 								>
+// 									<div className="flex items-center gap-4 flex-1">
+// 										<div className={`p-3 rounded-xl ${getTransactionColor(transaction.type)}`}>
+// 											{getTransactionIcon(transaction.type)}
+// 										</div>
+
+// 										<div className="flex-1">
+// 											<div className="flex items-center gap-2 mb-1">
+// 												<p className="font-semibold text-gray-900 dark:text-gray-100">{transaction.description}</p>
+// 												{getStatusIcon(transaction.status)}
+// 											</div>
+// 											<p className="text-sm text-gray-500 dark:text-gray-400">{formatDate(transaction.date)}</p>
+// 										</div>
+// 									</div>
+
+// 									<div className="text-left">
+// 										<p
+// 											className={`text-lg font-bold ${
+// 												transaction.amount > 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+// 											}`}
+// 										>
+// 											{transaction.amount > 0 ? "+" : ""}
+// 											{transaction.amount.toFixed(2)} ر.س
+// 										</p>
+// 									</div>
+// 								</motion.div>
+// 							))}
+// 						</div>
+// 					) : (
+// 						<motion.div
+// 							initial={{ opacity: 0, scale: 0.95 }}
+// 							animate={{ opacity: 1, scale: 1 }}
+// 							transition={{ duration: 0.3 }}
+// 							className="flex flex-col items-center justify-center py-16 px-4"
+// 						>
+// 							<div className="relative mb-6">
+// 								<div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full blur-2xl opacity-50"></div>
+// 								<div className="relative p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl">
+// 									<CreditCard className="w-16 h-16 text-green-600" />
+// 								</div>
+// 							</div>
+// 							<p className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">لا توجد معاملات</p>
+// 							<p className="text-sm text-gray-500 dark:text-gray-400 text-center max-w-md">
+// 								{activeFilter === "all"
+// 									? "لم يتم إجراء أي معاملات حتى الآن. ابدأ بإضافة رصيد إلى محفظتك."
+// 									: `لا توجد معاملات من نوع "${filters.find((f) => f.key === activeFilter)?.label}"`}
+// 							</p>
+// 						</motion.div>
+// 					)}
+// 				</motion.div>
+ 

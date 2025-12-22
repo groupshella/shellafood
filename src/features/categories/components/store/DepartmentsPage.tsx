@@ -121,13 +121,13 @@ console.log(currentDepartments);
 	const handlePageChange = useCallback((page: number) => {
 		const params = new URLSearchParams(searchParams.toString());
 		params.set('page', page.toString());
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 		
 		startTransition(() => {
 			router.push(`/categories/${moduleId}/${storeId}/departments?${params.toString()}`, { scroll: true });
 		});
 
 		// Scroll to top
-		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [router, searchParams, moduleId, storeId]);
 
 	// Calculate total pages

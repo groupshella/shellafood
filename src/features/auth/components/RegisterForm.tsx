@@ -278,55 +278,7 @@ export default function RegisterForm() {
 		}
 	};
 
-	/**
-	 * Handle guest registration
-	 */
-	const handleGuestRegister = async () => {
-		setIsLoading(true);
 
-		try {
-			const response = await fetch('/api/auth/guest/request', {
-				method: 'POST',
-				headers: {
-					'X-LANG': language || DEFAULT_LANG,
-					'Content-Type': 'application/json',
-				},
-			});
-
-			const data = await response.json();
-
-			if (!response.ok || !data.success) {
-				throw new Error( (isArabic ? 'فشل التسجيل كضيف' : 'Guest registration failed'));
-			}
-
-
-			setNotification({
-				message:  (isArabic
-					? "تم التسجيل كضيف بنجاح! جاري التحويل..."
-					: "Guest registration successful! Redirecting..."),
-				type: "success",
-				isVisible: true,
-			});
-
-			setTimeout(() => {
-				router.push(AUTH_ROUTES.HOME);
-				router.refresh();
-			}, 1000);
-
-		} catch (error: any) {
-			console.error('[Guest Registration] Error:', error);
-			
-			setNotification({
-				message:  (isArabic
-					? "فشل التسجيل كضيف. يرجى المحاولة مرة أخرى."
-					: "Guest registration failed. Please try again."),
-				type: "error",
-				isVisible: true,
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	};
 
 	// ============================================================================
 	// RENDER
@@ -426,23 +378,7 @@ export default function RegisterForm() {
 										</p>
 										<div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
 									</div>
-									<button
-										type="button"
-										onClick={handleGuestRegister}
-										disabled={isLoading}
-										className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 sm:px-6 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300 transition-all hover:border-green-500 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white disabled:hover:text-gray-700 active:scale-95"
-									>
-										{isLoading ? (
-											<span className="flex items-center justify-center gap-2">
-												<div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"></div>
-												<span className="text-sm sm:text-base">
-													{isArabic ? "جاري التحميل..." : "Loading..."}
-												</span>
-											</span>
-										) : (
-											<span>{isArabic ? "المتابعة كضيف" : "Continue as Guest"}</span>
-										)}
-									</button>
+									
 								</div>
 							</div>
 						</motion.form>

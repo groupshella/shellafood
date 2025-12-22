@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import { FavoritesPage } from "@/features/profile";
+import { cookies } from "next/headers";
+import { BASE_URL } from "@/features/auth/constants/auth.constants";
 
 export const metadata: Metadata = {
 	title: "المفضلة | شلة فود",
@@ -63,6 +65,75 @@ export const metadata: Metadata = {
 	},
 	metadataBase: new URL("https://shellafood.com"),
 };
-export default function FavoritesPageRoute() {
-	return <FavoritesPage />;
+
+async function getWishListData(token: string) {
+	try {
+		const apiUrl = `${BASE_URL}/api/v1/customer/wish-list`;
+		const response = await fetch(apiUrl, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${token}`,
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+				'x-localization': 'ar',
+				'zoneId': '[2]',
+			},
+			next: {
+				revalidate: 300, // cache this data for 5 minutes
+			},
+		});
+
+	
+
+		const data = await response.json();
+		console.log(data);
+		return data;
+	} catch (error) {
+		console.error('[Wish List] Fetch Error:', error);
+		return null;
+	}
+}
+
+export default async function FavoritesPageRoute() {
+	const cookieStore = await cookies();
+	const authToken = cookieStore.get("auth_token");
+	
+	if (!authToken?.value) {
+		return <FavoritesPage initialProducts={[]} initialStores={[]} />;
+	}
+
+	const wishListData = await getWishListData(authToken.value);
+	
+	// Map API response to FavoriteProduct and FavoriteStore format
+	const items = wishListData?.item || wishListData?.data?.item || [];
+	const stores = wishListData?.store || wishListData?.data?.store || [];
+
+	const mappedProducts = items.map((item: any) => ({
+		id: item.id?.toString() || '',
+		name: item.name || '',
+		nameAr: item.name || '',
+		image: item.image_full_url || item.image || '',
+		price: item.discounted_price || item.price || 0,
+		originalPrice: item.original_price || item.price || 0,
+		unit: item.unit?.unit || item.unit_type || '',
+		unitAr: item.unit?.unit || item.unit_type || '',
+		storeId: item.store_id?.toString() || '',
+		storeName: item.store_name || '',
+		storeNameAr: item.store_name || '',
+		addedAt: item.created_at || new Date().toISOString(),
+	}));
+
+	const mappedStores = stores.map((store: any) => ({
+		id: store.id?.toString() || '',
+		name: store.name || '',
+		nameAr: store.name || '',
+		image: store.image_full_url || store.image || '',
+		logo: store.logo_full_url || store.logo || '',
+		type: store.module_type || '',
+		typeAr: store.module?.module_name || '',
+		rating: store.avg_rating?.toString() || '0',
+		addedAt: store.created_at || new Date().toISOString(),
+	}));
+
+	return <FavoritesPage initialProducts={mappedProducts} initialStores={mappedStores} />;
 }

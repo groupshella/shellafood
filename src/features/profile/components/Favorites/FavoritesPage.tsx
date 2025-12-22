@@ -12,7 +12,13 @@ import { getFavoriteProducts, getFavoriteStores, removeProductFromFavorites, rem
 import { useCart } from "@/shared/hooks";
 import { ToastContainer, useToast } from "@/shared/components/ui";
 
-export default function FavoritesPage() {
+interface FavoritesPageProps {
+	initialProducts?: FavoriteProduct[];
+	initialStores?: FavoriteStore[];
+}
+
+export default function FavoritesPage(props: FavoritesPageProps = {}) {
+	const { initialProducts = [], initialStores = [] } = props;
 	const { language } = useLanguage();
 	const isArabic = language === 'ar';
 	const direction = isArabic ? 'rtl' : 'ltr';
@@ -20,34 +26,37 @@ export default function FavoritesPage() {
 	const { addToCart } = useCart();
 	const { toasts, showToast, removeToast } = useToast();
 	
-	const [products, setProducts] = useState<FavoriteProduct[]>([]);
-	const [stores, setStores] = useState<FavoriteStore[]>([]);
+	const [products, setProducts] = useState<FavoriteProduct[]>(initialProducts);
+	const [stores, setStores] = useState<FavoriteStore[]>(initialStores);
 	const [activeTab, setActiveTab] = useState<"products" | "stores">("products");
 	const [addingToCart, setAddingToCart] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState("");
 
-	// Load favorites from localStorage
-	const loadFavorites = useCallback(() => {
-		const favoriteProducts = getFavoriteProducts();
-		const favoriteStores = getFavoriteStores();
-		setProducts(favoriteProducts);
-		setStores(favoriteStores);
-	}, []);
+	// Load favorites from localStorage (fallback if no initial data)
+	// const loadFavorites = useCallback(() => {
+	// 	// Only use localStorage if no initial data was provided
+	// 	if (initialProducts.length === 0 && initialStores.length === 0) {
+	// 		const favoriteProducts = getFavoriteProducts();
+	// 		const favoriteStores = getFavoriteStores();
+	// 		setProducts(favoriteProducts);
+	// 		setStores(favoriteStores);
+	// 	}
+	// }, [initialProducts, initialStores]);
 
 	// Initial load
-	useEffect(() => {
-		loadFavorites();
+	// useEffect(() => {
+	// 	loadFavorites();
 		
-		// Listen for favorites updates
-		const handleFavoritesUpdate = () => {
-			loadFavorites();
-		};
+	// 	// Listen for favorites updates
+	// 	const handleFavoritesUpdate = () => {
+	// 		loadFavorites();
+	// 	};
 		
-		window.addEventListener('favoritesUpdated', handleFavoritesUpdate);
-		return () => {
-			window.removeEventListener('favoritesUpdated', handleFavoritesUpdate);
-		};
-	}, [loadFavorites]);
+	// 	window.addEventListener('favoritesUpdated', handleFavoritesUpdate);
+	// 	return () => {
+	// 		window.removeEventListener('favoritesUpdated', handleFavoritesUpdate);
+	// 	};
+	// }, [loadFavorites]);
 
 	// Filter favorites based on search query
 	const filteredFavorites = useMemo(() => {
@@ -76,7 +85,7 @@ export default function FavoritesPage() {
 	const handleRemoveProduct = (productId: string) => {
 		const removed = removeProductFromFavorites(productId);
 		if (removed) {
-			loadFavorites();
+			// loadFavorites();
 			showToast(
 				isArabic ? "تم إزالة المنتج من المفضلة" : "Product removed from favorites",
 				"success",
@@ -88,7 +97,7 @@ export default function FavoritesPage() {
 	const handleRemoveStore = (storeId: string) => {
 		const removed = removeStoreFromFavorites(storeId);
 		if (removed) {
-			loadFavorites();
+			// loadFavorites();
 			showToast(
 				isArabic ? "تم إزالة المتجر من المفضلة" : "Store removed from favorites",
 				"success",
@@ -157,7 +166,7 @@ export default function FavoritesPage() {
 		if (window.confirm(isArabic ? "هل أنت متأكد من مسح جميع المفضلة؟" : "Are you sure you want to clear all favorites?")) {
 			products.forEach(p => removeProductFromFavorites(p.id));
 			stores.forEach(s => removeStoreFromFavorites(s.id));
-			loadFavorites();
+			// loadFavorites();
 			showToast(
 				isArabic ? "تم مسح جميع المفضلة" : "All favorites cleared",
 				"success",

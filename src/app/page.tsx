@@ -1,6 +1,7 @@
 
 import { LandingPage } from "@/features/landing-page";
 import { Metadata } from "next";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
 	title: "شلة - منصة التوصيل والخدمات الشاملة | Shella Delivery Platform",
@@ -65,7 +66,10 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function Home() {
+export default async function Home() {
+	const cookieStore = await cookies();
+	const guestId = cookieStore.get("guest_id");
+	
 	return (
 		<>
 			{/* Structured Data for SEO */}
@@ -94,7 +98,7 @@ export default function Home() {
 					}),
 				}}
 			/>
-			<LandingPage />
+			<LandingPage guestId={guestId?.value} />
 		</>
 	);
 }

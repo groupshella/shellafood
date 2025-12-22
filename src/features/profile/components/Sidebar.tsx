@@ -45,20 +45,7 @@ export default function Sidebar({ activePage, setActivePage, onLogout }: Sidebar
 
 	return (
 		<div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 lg:p-6" dir={direction}>
-			{/* Profile Header */}
-			<div className={`flex items-center mb-6 lg:mb-8 pb-4 lg:pb-6 border-b border-gray-200 dark:border-gray-700 ${isArabic ? 'space-x-reverse space-x-2 lg:space-x-3' : 'space-x-2 lg:space-x-3'}`}>
-				<div className="h-10 w-10 lg:h-12 lg:w-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-					<span className="text-white font-bold text-sm lg:text-lg">ش</span>
-				</div>
-				<div className="flex-1 min-w-0">
-					<h3 className="font-semibold text-gray-900 dark:text-gray-100 text-xs lg:text-sm truncate">
-						{isArabic ? "أحمد محمد" : "Ahmed Mohammed"}
-					</h3>
-					<p className="text-gray-500 dark:text-gray-400 text-xs truncate">
-						{isArabic ? "عضو مميز" : "Premium Member"}
-					</p>
-				</div>
-			</div>
+		
 
 			{/* Navigation Items */}
 			<nav>
