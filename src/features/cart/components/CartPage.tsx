@@ -20,7 +20,7 @@ import PromoBanner from "./header/PromoBanner";
 import GroupedCartItems from "./cart-items/GroupedCartItems";
 
 interface CartPageProps {
-	initialCartData?: any;
+	initialCartData?: any[];
 }
 
 export default function CartPage(props: CartPageProps = {}) {
@@ -68,10 +68,10 @@ export default function CartPage(props: CartPageProps = {}) {
 		handleCheckoutConfirm,
 		handleClearAll,
 		handleContinueShopping,
-	} = useCartPage();
+	} = useCartPage(initialCartData);
 
 	// Empty state
-	if (true)  {
+	if (!isLoading && items.length === 0)  {
 		return (
 			<>
 				<EmptyCartState language={language} />
@@ -80,8 +80,7 @@ export default function CartPage(props: CartPageProps = {}) {
 		);
 	}
 
-	return (
-		<div
+	return (	<div
 			className={`min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 ${isArabic ? "rtl" : "ltr"}`}
 			dir={isArabic ? "rtl" : "ltr"}
 		>

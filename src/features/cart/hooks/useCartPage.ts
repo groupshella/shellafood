@@ -85,7 +85,7 @@ export interface UseCartPageReturn {
 	handleContinueShopping: () => void;
 }
 
-export function useCartPage(): UseCartPageReturn {
+export function useCartPage(initialCartData?: any[]): UseCartPageReturn {
 	const router = useRouter();
 	const { language } = useLanguage();
 	const isArabic = language === 'ar';
@@ -96,7 +96,7 @@ export function useCartPage(): UseCartPageReturn {
 	const [showClearAllModal, setShowClearAllModal] = useState(false);
 
 	// Cart items management
-	const { items, isLoading, isUpdating, updateQuantity, removeItem, clearAll } = useCartItems();
+	const { items, isLoading, isUpdating, updateQuantity, removeItem, clearAll } = useCartItems(initialCartData);
 
 	// Coupon management
 	const { appliedCoupon, isApplying: isApplyingCoupon, error: couponError, applyCoupon, removeCoupon } = useCoupon();

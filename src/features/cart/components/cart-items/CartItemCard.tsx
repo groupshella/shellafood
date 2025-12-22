@@ -84,9 +84,19 @@ function CartItemCard({
 							<h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1 line-clamp-2">
 								{isArabic ? item.productNameAr || item.productName : item.productName}
 							</h3>
-							<p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-								{isArabic ? item.storeNameAr || item.storeName : item.storeName}
-							</p>
+							<div className="flex items-center gap-2 mb-2">
+								<p className="text-sm text-gray-600 dark:text-gray-400">
+									{isArabic ? item.storeNameAr || item.storeName : item.storeName}
+								</p>
+								{item.unit && (
+									<>
+										<span className="text-gray-400 dark:text-gray-500">•</span>
+										<p className="text-xs text-gray-500 dark:text-gray-400">
+											{isArabic ? item.unitAr || item.unit : item.unit}
+										</p>
+									</>
+								)}
+							</div>
 
 							{/* Low Stock Warning */}
 							{lowStock && (
@@ -146,9 +156,9 @@ function CartItemCard({
 
 						{/* Price */}
 						<div className={`text-right flex-shrink-0 ${isArabic ? "text-left" : "text-right"}`}>
-							{item.hasSpecialOffer && (
+							{item.hasSpecialOffer && item.originalPrice && (
 								<p className="text-xs text-gray-500 dark:text-gray-400 line-through mb-1">
-									{(unitPrice * 1.2).toFixed(2)} {isArabic ? "ريال" : "SAR"}
+									{(item.originalPrice * item.quantity).toFixed(2)} {isArabic ? "ريال" : "SAR"}
 								</p>
 							)}
 							<p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">

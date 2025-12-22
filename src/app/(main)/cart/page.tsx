@@ -56,37 +56,24 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://shellafood.com'),
 };
 
-async function getCartData(token: string | null, guestId: string | null) {
+async function getCartData(guestId: string | null) {
 	try {
-		const apiUrl = `${BASE_URL}/api/v1/customer/cart/list`;
+		const apiUrl = `https://shellafood.com/api/v1/customer/cart/list?guest_id=${guestId}`;
 		
 		const headers: HeadersInit = {
 			'Content-Type': 'application/json',
 			'Accept': 'application/json',
 		};
 
-		// Add authorization header if token exists
-		if (token) {
-			headers['Authorization'] = `Bearer ${token}`;
-		}
-
-		// Add guest ID header if guest ID exists and no token
-		if (guestId && !token) {
-			headers['X-Guest-ID'] = guestId;
-		}
-
+	
 		const response = await fetch(apiUrl, {
 			method: 'GET',
 			headers,
 			cache: 'no-store', // Don't cache this data
 		});
 
-		if (!response.ok) {
-			console.error('[Cart] API Error:', response.status);
-			return null;
-		}
-
 		const data = await response.json();
+    console.log("data", data);
 		return data;
 	} catch (error) {
 		console.error('[Cart] Fetch Error:', error);
@@ -97,14 +84,11 @@ async function getCartData(token: string | null, guestId: string | null) {
 export default async function CartPageRoute() {
   // Check authentication on server side using the same cookie key as layout
 	const cookieStore = await cookies();
-	const authToken = cookieStore.get("auth_token");
 	const guestId = cookieStore.get("guest_id");
-	console.log("authToken", authToken?.value);
 	console.log("guestId", guestId?.value);
 
 	// Fetch cart data
 	const cartData = await getCartData(
-		authToken?.value || null,
 		guestId?.value || null
 	);
 

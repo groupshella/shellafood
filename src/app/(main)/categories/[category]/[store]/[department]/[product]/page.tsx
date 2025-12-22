@@ -115,11 +115,10 @@ export default async function ProductPageRoute({ params }: PageProps) {
   if (!productResponse?.data) {
     notFound();
   }
-
+console.log('productResponse', productResponse);
   return (
     <ProductPage
       productResponse={productResponse.data as Product}
-	
     />
   );
 }

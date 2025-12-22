@@ -15,12 +15,16 @@ export interface CartItem {
 	productImage?: string;
 	quantity: number;
 	priceAtAdd: number;
+	originalPrice?: number;
 	storeId: string;
 	storeName: string;
 	storeNameAr?: string;
 	storeLogo?: string;
 	stock?: number;
+	unit?: string;
+	unitAr?: string;
 	hasSpecialOffer?: boolean;
+	discountAmount?: number;
 }
 
 // ============================================================================
