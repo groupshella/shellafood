@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { MapPin, Clock, Star, Heart, TrendingUp, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-import { memo, useState } from "react";
+import { memo, useState, useCallback, useMemo } from "react";
 import { Store } from "../../types/store.types";
 
 interface StoreCardProps {
@@ -24,6 +24,7 @@ function StoreCard({ store, index = 0, isCompact = false }: StoreCardProps) {
   const isArabic = language === "ar";
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // ============================================================================
   // COMPUTED VALUES - Clean data processing
@@ -46,23 +47,63 @@ function StoreCard({ store, index = 0, isCompact = false }: StoreCardProps) {
   // Extract top 2 badges
   const topBadges = store.badges?.slice(0, 2) || [];
   
-  // Fallback images
-  const logoUrl = !imageError && store.logo_full_url 
-    ? store.logo_full_url 
-    : null;
-  const coverUrl = !imageError && store.cover_photo_full_url 
-    ? store.cover_photo_full_url 
-    : null;
+  // Fallback images - handle both full URLs and filenames
+  const logoUrl = useMemo(() => {
+    if (imageError) return null;
+    
+    // Use full URL if available
+    if (store.logo_full_url) {
+      return store.logo_full_url;
+    }
+    
+    // If logo is already a full URL, use it directly
+    if (store.logo) {
+      if (store.logo.startsWith('http://') || store.logo.startsWith('https://')) {
+        return store.logo;
+      }
+      // Otherwise construct from filename
+      return `https://shellafood.com/storage/app/public/store/${store.logo}`;
+    }
+    
+    return null;
+  }, [store.logo_full_url, store.logo, imageError]);
+
+  const coverUrl = useMemo(() => {
+    if (imageError) return null;
+    
+    // Use full URL if available
+    if (store.cover_photo_full_url) {
+      return store.cover_photo_full_url;
+    }
+    
+    // If cover_photo is already a full URL, use it directly
+    if (store.cover_photo) {
+      if (store.cover_photo.startsWith('http://') || store.cover_photo.startsWith('https://')) {
+        return store.cover_photo;
+      }
+      // Otherwise construct from filename
+      return `https://shellafood.com/storage/app/public/store/${store.cover_photo}`;
+    }
+    
+    return null;
+  }, [store.cover_photo_full_url, store.cover_photo, imageError]);
 
   // ============================================================================
   // HANDLERS
   // ============================================================================
 
-  const handleClick = () => {
-    // Scroll to top immediately when clicking (before navigation)
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    router.push(`/categories/${store.module_id}/${store.id}`, { scroll: false });
-  };
+  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    // Prevent double clicks and multiple navigations
+    if (isNavigating) return;
+    
+    e.preventDefault();
+    setIsNavigating(true);
+    
+    // Small delay for visual feedback, then navigate
+    setTimeout(() => {
+      router.push(`/categories/${store.module_id}/${store.id}`, { scroll: true });
+    }, 150);
+  }, [router, store.module_id, store.id, isNavigating]);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -80,9 +121,15 @@ function StoreCard({ store, index = 0, isCompact = false }: StoreCardProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.03 }}
         onClick={handleClick}
-        className="group cursor-pointer h-full"
+        className={`group cursor-pointer h-full ${isNavigating ? 'pointer-events-none opacity-75' : ''}`}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
       >
-        <div className="relative h-full bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:shadow-lg transition-all duration-300">
+        <div className={`relative h-full bg-white dark:bg-gray-800 rounded-xl overflow-hidden border transition-all duration-300 ${
+          isNavigating 
+            ? 'border-green-500 dark:border-green-400 shadow-lg' 
+            : 'border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:shadow-lg'
+        }`}>
           
           {/* Cover Image */}
           <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
@@ -196,6 +243,13 @@ function StoreCard({ store, index = 0, isCompact = false }: StoreCardProps) {
               </div>
             )}
           </div>
+
+          {/* Loading overlay when navigating */}
+          {isNavigating && (
+            <div className="absolute inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl">
+              <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
         </div>
       </motion.div>
     );
@@ -211,9 +265,15 @@ function StoreCard({ store, index = 0, isCompact = false }: StoreCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={handleClick}
-      className="group cursor-pointer"
+      className={`group cursor-pointer ${isNavigating ? 'pointer-events-none opacity-75' : ''}`}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
     >
-      <div className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:shadow-xl transition-all duration-300">
+      <div className={`relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border transition-all duration-300 ${
+        isNavigating 
+          ? 'border-green-500 dark:border-green-400 shadow-xl' 
+          : 'border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:shadow-xl'
+      }`}>
         
         {/* Cover Image */}
         <div className="relative h-48 sm:h-52 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
@@ -407,6 +467,13 @@ function StoreCard({ store, index = 0, isCompact = false }: StoreCardProps) {
               {isArabic ? "اطلب الآن" : "Order Now"}
             </button>
           </div>
+
+          {/* Loading overlay when navigating */}
+          {isNavigating && (
+            <div className="absolute inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
+              <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

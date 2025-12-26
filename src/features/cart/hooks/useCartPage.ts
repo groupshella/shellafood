@@ -9,11 +9,11 @@ import { useCartCalculations } from './useCartCalculations';
 import { useCartValidation } from './useCartValidation';
 import { useCheckout } from './useCheckout';
 import { useCoupon } from './useCoupon';
-import { useAddress } from './useAddress';
 import { usePayment } from './usePayment';
 import { groupItemsByStore } from '../lib/utils/cart.utils';
 import { CART_CONFIG } from '../constants/cart.constants';
-import type { CartItem, CartTotals, GroupedItems } from '../types/cart.types';
+import type { CardDetails, CartItem, CartTotals, GroupedItems, PaymentMethod } from '../types/cart.types';
+import type { Address } from '@/shared/hooks/useAddresses';
 
 export interface UseCartPageReturn {
 	// Language
@@ -36,9 +36,9 @@ export interface UseCartPageReturn {
 	isLoading: boolean;
 	isUpdating: boolean;
 	productsByStore: GroupedItems;
-	updateQuantity: (itemId: string, quantity: number) => Promise<void>;
-	removeItem: (itemId: string) => Promise<void>;
-	clearAll: () => Promise<void>;
+	updateQuantity: (cartId: string, priceAtAdd: number, quantity: number) => Promise<boolean>;
+	removeItem: (cartId: string) => Promise<boolean>;
+		clearAll: () => Promise<boolean>;
 
 	// Coupon
 	appliedCoupon: any;
@@ -47,13 +47,10 @@ export interface UseCartPageReturn {
 	applyCoupon: (code: string) => Promise<boolean>;
 	removeCoupon: () => void;
 
-	// Address
-	addresses: any[];
-	selectedAddressId: string | null;
-	isAddressLoading: boolean;
-	selectAddress: (addressId: string) => void;
-	saveNewAddress: (addressData: any) => Promise<boolean>;
-	deleteAddressById: (addressId: string) => Promise<boolean>;
+
+	selectedAddress: Address | null;
+	setSelectedAddress: (address: Address | null) => void;
+	
 
 	// Payment
 	selectedPaymentMethod: any;
@@ -76,7 +73,7 @@ export interface UseCartPageReturn {
 
 	// Checkout
 	isProcessing: boolean;
-	processCheckout: (items: CartItem[], addressId: string, paymentMethod: any, cardDetails: any, couponCode?: string) => Promise<any>;
+		processCheckout: (items: CartItem[], address: Address, paymentMethod: PaymentMethod	, orderSummary?: CartTotals, cardDetails?: CardDetails, couponCode?: string) => Promise<any>;
 
 	// Handlers
 	handleCheckoutClick: () => void;
@@ -85,25 +82,24 @@ export interface UseCartPageReturn {
 	handleContinueShopping: () => void;
 }
 
-export function useCartPage(initialCartData?: any[]): UseCartPageReturn {
+export function useCartPage(initialCartData?: any[], token?: string	): UseCartPageReturn {
 	const router = useRouter();
 	const { language } = useLanguage();
 	const isArabic = language === 'ar';
 	const { toasts, showToast, removeToast } = useToast();
-
+	const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 	// Modal states
 	const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 	const [showClearAllModal, setShowClearAllModal] = useState(false);
 
 	// Cart items management
 	const { items, isLoading, isUpdating, updateQuantity, removeItem, clearAll } = useCartItems(initialCartData);
-
+console.log("items", items);
 	// Coupon management
 	const { appliedCoupon, isApplying: isApplyingCoupon, error: couponError, applyCoupon, removeCoupon } = useCoupon();
 
 	// Address management
-	const { addresses, selectedAddressId, isLoading: isAddressLoading, selectAddress, saveNewAddress, deleteAddressById } = useAddress(language);
-
+	
 	// Payment management
 	const { 
 		selectedPaymentMethod, 
@@ -121,13 +117,13 @@ export function useCartPage(initialCartData?: any[]): UseCartPageReturn {
 	// Validation
 	const { canCheckout, validationErrors } = useCartValidation(
 		items,
-		selectedAddressId,
+		selectedAddress?.id as number,
 		selectedPaymentMethod,
 		cardDetails
 	);
 
 	// Checkout
-	const { processCheckout, isProcessing } = useCheckout();
+	const { processCheckout, isProcessing } = useCheckout(token);
 
 	// Computed values
 	const productsByStore = useMemo(() => groupItemsByStore(items), [items]);
@@ -147,6 +143,10 @@ export function useCartPage(initialCartData?: any[]): UseCartPageReturn {
 
 	// Handlers
 	const handleCheckoutClick = useCallback(() => {
+		if(!token) {
+			router.push('/login');
+			return;
+		}
 		if (!canCheckout) {
 			validationErrors.forEach((error) => {
 				showToast(isArabic ? error : error, 'warning', isArabic ? error : undefined);
@@ -154,16 +154,17 @@ export function useCartPage(initialCartData?: any[]): UseCartPageReturn {
 			return;
 		}
 		setShowCheckoutModal(true);
-	}, [canCheckout, validationErrors, isArabic, showToast]);
+	}, [canCheckout, validationErrors, isArabic, showToast, router, token]);
 
 	const handleCheckoutConfirm = useCallback(async () => {
 		try {
 			const result = await processCheckout(
 				items,
-				selectedAddressId!,
+				selectedAddress as Address,
 				selectedPaymentMethod!,
+				orderSummary,
 				cardDetails,
-				appliedCoupon?.code
+				appliedCoupon?.code,
 			);
 			if (!result.success) {
 				setShowCheckoutModal(false);
@@ -171,7 +172,7 @@ export function useCartPage(initialCartData?: any[]): UseCartPageReturn {
 		} catch (error) {
 			setShowCheckoutModal(false);
 		}
-	}, [items, selectedAddressId, selectedPaymentMethod, cardDetails, appliedCoupon, processCheckout]);
+	}, [items, selectedAddress, selectedPaymentMethod, cardDetails, appliedCoupon, processCheckout, orderSummary]);
 
 	const handleClearAll = useCallback(async () => {
 		try {
@@ -228,14 +229,8 @@ export function useCartPage(initialCartData?: any[]): UseCartPageReturn {
 		applyCoupon,
 		removeCoupon,
 
-		// Address
-		addresses,
-		selectedAddressId,
-		isAddressLoading,
-		selectAddress,
-		saveNewAddress,
-		deleteAddressById,
-
+		selectedAddress,
+			setSelectedAddress,
 		// Payment
 		selectedPaymentMethod,
 		cardDetails,

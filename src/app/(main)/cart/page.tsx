@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import CartPage from '@/features/cart/components/CartPage';
 import { RegisterForm } from '@/features/auth';
 import { cookies } from 'next/headers';
-import { BASE_URL } from '@/features/auth/constants/auth.constants';
+import { BASE_URL, STORAGE_KEYS } from '@/features/auth/constants/auth.constants';
 
 export const metadata: Metadata = {
   title: 'سلة التسوق | شلة فود',
@@ -63,6 +63,7 @@ async function getCartData(guestId: string | null) {
 		const headers: HeadersInit = {
 			'Content-Type': 'application/json',
 			'Accept': 'application/json',
+      'x-localization': 'ar',
 		};
 
 	
@@ -85,6 +86,7 @@ export default async function CartPageRoute() {
   // Check authentication on server side using the same cookie key as layout
 	const cookieStore = await cookies();
 	const guestId = cookieStore.get("guest_id");
+	const authToken = cookieStore.get(STORAGE_KEYS.TOKEN)?.value || '';
 	console.log("guestId", guestId?.value);
 
 	// Fetch cart data
@@ -92,5 +94,5 @@ export default async function CartPageRoute() {
 		guestId?.value || null
 	);
 
-	return <CartPage initialCartData={cartData?.data || []} />;
+	return <CartPage initialCartData={cartData} token={authToken} />;
 }

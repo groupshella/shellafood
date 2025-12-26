@@ -1,132 +1,251 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useLanguage } from "@/providers";
+import { useState, useEffect, useCallback } from "react";
+import { cache } from "react";
+import { BASE_URL } from "@/features/auth/constants/auth.constants";
+import { getCookie } from "@/features/auth/lib/utils/cookie.utils";
 
 export interface Address {
-	id: string;
-	type: string;
-	title: string;
+	id: number;
+	address_type: string;
+	contact_person_number: string;
 	address: string;
-	details: string;
-	phone: string;
-	isDefault: boolean;
-	coordinates: { lat: number; lng: number };
+	latitude: string;
+	longitude: string;
+	user_id: number;
+	contact_person_name: string;
+	created_at: string;
+	updated_at: string;
+	zone_id: number;
+	floor: string | null;
+	road: string | null;
+	house: string | null;
+	zone_ids: number[];
 }
 
-const STORAGE_KEY = "shella_addresses";
+interface AddressesData {
+	total_size: number;
+	limit: string;
+	offset: string;
+	addresses: Address[];
+}
 
-export function useAddresses() {
-	const { language } = useLanguage();
-	const isArabic = language === "ar";
+interface AddAddressPayload {
+	address_type: string;
+	contact_person_name: string;
+	contact_person_number: string;
+	address: string;
+	latitude: string;
+	longitude: string;
+	road?: string;
+	house?: string;
+	floor?: string;
+}
 
-	// Load addresses from localStorage on mount
-	const [addresses, setAddresses] = useState<Address[]>(() => {
-		if (typeof window === "undefined") return [];
-		
-		try {
-			const saved = localStorage.getItem(STORAGE_KEY);
-			if (saved) {
-				const parsed = JSON.parse(saved);
-				return Array.isArray(parsed) ? parsed : [];
-			}
-		} catch (error) {
-			console.error("Error loading addresses from localStorage:", error);
-		}
-		
-		// Return default addresses if none exist
-		return [
-			{
-				id: "1",
-				type: "home",
-				title: isArabic ? "المنزل" : "Home",
-				address: isArabic ? "شارع الملك فهد، حي النخيل، الرياض 12345" : "King Fahd Street, Al-Nakheel District, Riyadh 12345",
-				details: isArabic ? "مبنى رقم 123، الطابق الثاني، شقة 45" : "Building 123, 2nd Floor, Apartment 45",
-				phone: "+966501234567",
-				isDefault: true,
-				coordinates: { lat: 24.7136, lng: 46.6753 }
+interface UpdateAddressPayload {
+	address_type: string;
+	contact_person_name: string;
+	contact_person_number: string;
+	address: string;
+	latitude: string;
+	longitude: string;
+	zone_id?: number;
+	road?: string;
+	house?: string;
+	floor?: string;
+}
+
+// Cached fetch function using React's cache
+const getCachedAddresses = cache(
+	async (apiUrl: string, token: string) => {
+		const response = await fetch(apiUrl, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${token}`,
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
 			},
-		];
-	});
+			// Next.js fetch caching with increased time (15 minutes = 900 seconds)
+			next: {
+				revalidate: 900, // Re-fetch every 15 minutes
+				tags: [`addresses-${token?.substring(0, 10) || 'no-token'}`], // For on-demand revalidation
+			},
+		});
 
-	// Save addresses to localStorage whenever they change
-	useEffect(() => {
-		if (typeof window !== "undefined") {
-			try {
-				localStorage.setItem(STORAGE_KEY, JSON.stringify(addresses));
-			} catch (error) {
-				console.error("Error saving addresses to localStorage:", error);
-			}
+		if (!response.ok) {
+			console.error('[Addresses] API Error:', response.status);
+			return null;
 		}
-	}, [addresses]);
 
-	// Get default address
-	const defaultAddress = useMemo(() => {
-		return addresses.find(addr => addr.isDefault) || addresses[0] || null;
-	}, [addresses]);
+		const data = await response.json() as AddressesData;
+		return data;
+	}
+);
+
+export function useAddresses(initialPage: number = 1, initialLimit: number = 10, token: string) {
+	const [addresses, setAddresses] = useState<Address[]>([]);
+	const [totalSize, setTotalSize] = useState(0);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [currentPage, setCurrentPage] = useState(initialPage);
+	const [limit] = useState(initialLimit);
+	
+	// Fetch addresses
+	const fetchAddresses = useCallback(async (currentPage: number) => {
+		setIsLoading(true);
+		setError(null);
+		try {
+			const apiUrl = `https://shellafood.com/api/v1/customer/address/list?limit=${limit}&offset=${currentPage}`;
+			
+			// Use cached fetch function
+			const data = await getCachedAddresses(apiUrl, token);
+			
+			if (!data) {
+				setError('Failed to fetch addresses');
+				return;
+			}
+			
+			console.log("data", data);
+			setAddresses(data.addresses);
+			setTotalSize(data.total_size);
+			setCurrentPage(currentPage);
+		} catch (error) {
+			console.error('[Addresses] Fetch Error:', error);
+			setError(error instanceof Error ? error.message : 'An error occurred');
+		} finally {
+			setIsLoading(false);
+		}
+
+	}, [limit, token]);
+
 
 	// Add new address
-	const addAddress = useCallback((addressData: Omit<Address, "id">) => {
-		const newAddress: Address = {
-			...addressData,
-			id: Date.now().toString(),
-		};
+	const addAddress = useCallback(async (addressData: AddAddressPayload) => {
+		setIsLoading(true);
+		setError(null);
 
-		setAddresses(prev => {
-			// If this is set as default, unset all other defaults
-			if (newAddress.isDefault) {
-				return prev.map(addr => ({ ...addr, isDefault: false })).concat([newAddress]);
-			}
-			return [...prev, newAddress];
-		});
+		try {
+			if (!token) throw new Error('No authentication token');
 
-		return newAddress;
-	}, []);
+			const response = await fetch(`https://shellafood.com/api/v1/customer/address/add`, {
+				method: 'POST',
+				headers: {
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+					'x-localization': 'ar',
+				},
+				body: JSON.stringify(addressData),
+			});
+			console.log("response in addAddress", response)
+
+			const result = await response.json();
+			console.log("result in addAddress", result)
+			
+			return result;
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'An error occurred');
+			console.log('Error adding address:', err);
+			throw err;
+		} finally {
+			setIsLoading(false);
+		}
+	}, [currentPage, fetchAddresses]);
 
 	// Update existing address
-	const updateAddress = useCallback((addressId: string, addressData: Partial<Address>) => {
-		setAddresses(prev => {
-			// If setting as default, unset all other defaults
-			if (addressData.isDefault) {
-				return prev.map(addr => 
-					addr.id === addressId 
-						? { ...addr, ...addressData }
-						: { ...addr, isDefault: false }
-				);
-			}
-			return prev.map(addr => 
-				addr.id === addressId ? { ...addr, ...addressData } : addr
-			);
-		});
-	}, []);
+	const updateAddress = useCallback(async (addressId: number, addressData: UpdateAddressPayload) => {
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			if (!token) throw new Error('No authentication token');
+
+			const response = await fetch(`${BASE_URL}/api/v1/customer/address/update/${addressId}`, {
+				method: 'PUT',
+				headers: {
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+					'x-localization': 'ar',
+				},
+				body: JSON.stringify(addressData),
+			});
+
+			
+			const result = await response.json();
+			
+		console.log("result", result)
+			
+			return result;
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'An error occurred');
+			console.error('Error updating address:', err);
+			throw err;
+		} finally {
+			setIsLoading(false);
+		}
+	}, [currentPage, fetchAddresses]);
 
 	// Delete address
-	const deleteAddress = useCallback((addressId: string) => {
-		setAddresses(prev => prev.filter(addr => addr.id !== addressId));
-	}, []);
+	const deleteAddress = useCallback(async (addressId: number) => {
+		setIsLoading(true);
+		setError(null);
 
-	// Set default address
-	const setDefaultAddress = useCallback((addressId: string) => {
-		setAddresses(prev => prev.map(addr => ({
-			...addr,
-			isDefault: addr.id === addressId
-		})));
-	}, []);
+		try {
+			if (!token) throw new Error('No authentication token');
+
+			const response = await fetch(
+				`${BASE_URL}/api/v1/customer/address/delete?address_id=${addressId}`,
+				{
+					method: 'DELETE',
+					headers: {
+						'Authorization': `Bearer ${token}`,
+						'Content-Type': 'application/json',
+						'Accept': 'application/json',
+					},
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error('Failed to delete address');
+			}
+
+			// Refresh the list
+			await fetchAddresses(currentPage);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'An error occurred');
+			console.error('Error deleting address:', err);
+			throw err;
+		} finally {
+			setIsLoading(false);
+		}
+	}, [currentPage, fetchAddresses]);
 
 	// Get address by ID
-	const getAddressById = useCallback((addressId: string) => {
+	const getAddressById = useCallback((addressId: number) => {
 		return addresses.find(addr => addr.id === addressId) || null;
 	}, [addresses]);
 
+	// Pagination helper
+	const goToPage = useCallback((page: number) => {
+		fetchAddresses(page);
+	}, [fetchAddresses]);
+
+	const totalPages = Math.ceil(totalSize / limit);
+
 	return {
 		addresses,
-		defaultAddress,
+		totalSize,
+		currentPage,
+		totalPages,
+		limit,
+		isLoading,
+		error,
 		addAddress,
 		updateAddress,
 		deleteAddress,
-		setDefaultAddress,
 		getAddressById,
-		setAddresses, // For bulk updates if needed
+		fetchAddresses,
+		goToPage,
 	};
 }
-

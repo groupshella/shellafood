@@ -5,7 +5,6 @@ const API_URL =  'https://shellafood.com';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const lang = body.lang || DEFAULT_LANG;
 
     // Call external API
     const externalApiUrl = `${API_URL}/api/v1/auth/sign-up`;
@@ -14,16 +13,16 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-LANG': lang,
         'Accept': 'application/json',
       },
       body: JSON.stringify({
+        f_name: body.f_name,
+        l_name: body.l_name,
         name: body.name,
         phone: body.phone,
-        email: body.email,
+        ...(body.email && typeof body.email === 'string' && body.email.trim() !== '' && { email: body.email.trim() }),
         password: body.password,
-        ref_code: body.ref_code || '',
-        guest_id: body.guest_id || '',
+        referral_code: body.referral_code || '',
       }),
     });
 

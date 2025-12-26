@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useLanguage } from "@/providers";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -61,6 +61,9 @@ function UnifiedProductCard({
 	const router = useRouter();
 	const { addToCart } = useCart();
 	const { showToast } = useToast();
+	const [isNavigating, setIsNavigating] = useState(false);
+	const [isAddingToCart, setIsAddingToCart] = useState(false);
+	const [imageError, setImageError] = useState(false);
 
 	// Get display name from translations
 	const displayName = useMemo(() => {
@@ -126,11 +129,21 @@ function UnifiedProductCard({
 	);
 
 	// Handlers
-	const handleClick = useCallback(() => {
-		// Scroll to top immediately when clicking (before navigation)
-		window.scrollTo({ top: 0, behavior: 'instant' });
-		router.push(`/categories/${product.module_id}/${product.store_id}/${product.category_id}/${product.id}`, { scroll: false });
-	}, [onClick, product, storeId, categoryId, router]);
+	const handleClick = useCallback((e?: React.MouseEvent<HTMLDivElement>) => {
+		// Prevent double clicks and multiple navigations
+		if (isNavigating) return;
+		
+		if (e) {
+			e.preventDefault();
+		}
+		
+		setIsNavigating(true);
+		
+		// Small delay for visual feedback, then navigate
+		setTimeout(() => {
+			router.push(`/categories/${product.module_id}/${product.store_id}/${product.category_id}/${product.id}`, { scroll: true });
+		}, 150);
+	}, [router, product.module_id, product.store_id, product.category_id, product.id, isNavigating]);
 
 	
 
@@ -139,7 +152,10 @@ function UnifiedProductCard({
 	const handleQuickAdd = useCallback(
 		async (e: React.MouseEvent) => {
 			e.stopPropagation();
-			if (!isAvailable) return;
+			if (!isAvailable || isAddingToCart) return;
+			
+			setIsAddingToCart(true);
+			
 			try {
 				const finalStoreId = product.store_id || storeId;
 				const result = await addToCart({
@@ -161,7 +177,7 @@ function UnifiedProductCard({
 						"success"
 					);
 					onQuickAdd?.(product);
-				onAddToCart?.(product);
+					onAddToCart?.(product);
 				} else if (result.requiresClearCart) {
 					showToast(
 						isArabic
@@ -175,9 +191,11 @@ function UnifiedProductCard({
 					isArabic ? "حدث خطأ" : "An error occurred",
 					"error"
 				);
+			} finally {
+				setIsAddingToCart(false);
 			}
 		},
-		[product, storeId, storeName, storeNameAr, addToCart, showToast, isArabic, onQuickAdd, onAddToCart, isAvailable, productImage]
+		[product, storeId, storeName, storeNameAr, addToCart, showToast, isArabic, onQuickAdd, onAddToCart, isAvailable, productImage, isAddingToCart]
 	);
 
 	// Auto-detect variant if not specified (backward compatibility)
@@ -203,6 +221,10 @@ function UnifiedProductCard({
 			isArabic={isArabic}
 			index={index}
 			className={className}
+			isNavigating={isNavigating}
+			isAddingToCart={isAddingToCart}
+			imageError={imageError}
+			setImageError={setImageError}
 		/>;
 	}
 
@@ -227,10 +249,14 @@ function UnifiedProductCard({
 			direction={direction}
 			index={index}
 			className={className}
+			isNavigating={isNavigating}
+			isAddingToCart={isAddingToCart}
+			imageError={imageError}
+			setImageError={setImageError}
 		/>;
 	}
 
-	// Default variant
+		// Default variant
 	return <DefaultVariant 
 		product={product}
 		displayName={displayName}
@@ -252,6 +278,10 @@ function UnifiedProductCard({
 		direction={direction}
 		index={index}
 		className={className}
+		isNavigating={isNavigating}
+		isAddingToCart={isAddingToCart}
+		imageError={imageError}
+		setImageError={setImageError}
 	/>;
 }
 
@@ -276,6 +306,10 @@ interface VariantProps {
 	direction?: string;
 	index: number;
 	className?: string;
+	isNavigating?: boolean;
+	isAddingToCart?: boolean;
+	imageError?: boolean;
+	setImageError?: (error: boolean) => void;
 }
 
 function MobileVariant({
@@ -297,36 +331,59 @@ function MobileVariant({
 	isArabic,
 	index,
 	className,
+	isNavigating = false,
+	isAddingToCart = false,
+	imageError = false,
+	setImageError,
 }: VariantProps) {
 	return (
 		<motion.div
-			initial={{ opacity: 0, scale: 0.95 }}
-			animate={{ opacity: 1, scale: 1 }}
-			transition={{ delay: index * 0.05, duration: 0.2 }}
+			initial={{ opacity: 0, y: 10 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ delay: index * 0.03, duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
 			onClick={onClick}
 			className={cn(
-				"relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700",
-				"active:scale-98 transition-transform cursor-pointer",
+				"relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer",
+				"shadow-sm hover:shadow-lg dark:shadow-gray-900/50 dark:hover:shadow-gray-900/80",
+				isNavigating 
+					? "border-green-500 dark:border-green-400 opacity-75 pointer-events-none" 
+					: "border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600",
 				className
 			)}
+			whileHover={{ scale: 1.02, y: -2 }}
+			whileTap={{ scale: 0.98 }}
+			role="button"
+			tabIndex={0}
+			aria-label={isArabic ? `عرض ${displayName}` : `View ${displayName}`}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					onClick();
+				}
+			}}
 		>
 			{/* Product Image */}
-			<div className="relative aspect-square bg-gray-100 dark:bg-gray-700">
-				{product.image_full_url || product.image ? (
-					<Image
-						src={product.image_full_url || product.image}
-						alt={displayName}
-						fill
-						sizes={getImageSizes('card')}
-						className="object-cover"
-						loading="lazy"
-						quality={getImageQuality('card')}
-						placeholder="blur"
-						blurDataURL={getImageBlurDataURL()}
-					/>
+			<div className="relative aspect-square bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 overflow-hidden group/image">
+				{!imageError && (product.image_full_url || product.image) ? (
+					<>
+						<Image
+							src={product.image_full_url || product.image}
+							alt={displayName}
+							fill
+							sizes={getImageSizes('card')}
+							className="object-cover transition-transform duration-500 group-hover/image:scale-110"
+							loading="lazy"
+							quality={getImageQuality('card')}
+							placeholder="blur"
+							blurDataURL={getImageBlurDataURL()}
+							onError={() => setImageError?.(true)}
+						/>
+						{/* Subtle gradient overlay for better text readability */}
+						<div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-300" />
+					</>
 				) : (
-					<div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center">
-						<ShoppingCart className="w-12 h-12 text-gray-400" />
+					<div className="w-full h-full bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 flex items-center justify-center">
+						<ShoppingCart className="w-12 h-12 text-gray-400 dark:text-gray-500 transition-transform group-hover/image:scale-110 duration-300" />
 					</div>
 				)}
 
@@ -418,19 +475,55 @@ function MobileVariant({
 
 				{/* Add to cart button */}
 				{isAvailable ? (
-					<button
+					<motion.button
 						onClick={onQuickAdd}
-						className="w-full py-2.5 bg-green-600 dark:bg-green-500 text-white text-sm font-bold rounded-lg active:scale-95 transition-transform hover:bg-green-700 dark:hover:bg-green-600"
+						disabled={isAddingToCart}
+						whileHover={{ scale: 1.02 }}
+						whileTap={{ scale: 0.98 }}
+						className={cn(
+							"w-full py-2.5 text-white text-sm font-bold rounded-lg transition-all duration-200",
+							"flex items-center justify-center gap-2 min-h-[44px]",
+							isAddingToCart
+								? "bg-green-500 dark:bg-green-600 cursor-wait"
+								: "bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 active:bg-green-800 dark:active:bg-green-700 shadow-md hover:shadow-lg"
+						)}
+						aria-label={isArabic ? "إضافة للسلة" : "Add to cart"}
 					>
-						{isArabic ? "أضف" : "Add"}
-					</button>
+						{isAddingToCart ? (
+							<>
+								<Loader2 className="w-4 h-4 animate-spin" />
+								<span>{isArabic ? "جاري الإضافة..." : "Adding..."}</span>
+							</>
+						) : (
+							<>
+								<ShoppingCart className="w-4 h-4" />
+								<span>{isArabic ? "أضف" : "Add"}</span>
+							</>
+						)}
+					</motion.button>
 				) : (
 					<button
 						disabled
-						className="w-full py-2.5 bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm font-bold rounded-lg cursor-not-allowed"
+						className="w-full py-2.5 bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm font-bold rounded-lg cursor-not-allowed min-h-[44px]"
+						aria-label={isArabic ? "غير متوفر" : "Out of Stock"}
 					>
 						{isArabic ? "غير متوفر" : "Out of Stock"}
 					</button>
+				)}
+
+				{/* Loading overlay when navigating */}
+				{isNavigating && (
+					<motion.div
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						className="absolute inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-md flex items-center justify-center z-30 rounded-xl"
+					>
+						<div className="flex flex-col items-center gap-2">
+							<div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
+							<span className="text-white text-xs font-medium">{isArabic ? "جاري التحميل..." : "Loading..."}</span>
+						</div>
+					</motion.div>
 				)}
 			</div>
 		</motion.div>
@@ -458,6 +551,10 @@ function CompactVariant({
 	direction,
 	index,
 	className,
+	isNavigating = false,
+	isAddingToCart = false,
+	imageError = false,
+	setImageError,
 }: VariantProps) {
 	const isLowStock = isAvailable && product.stock !== undefined && product.stock < 10;
 
@@ -469,29 +566,38 @@ function CompactVariant({
 			animate="animate"
 			onClick={onClick}
 			className={cn(
-				"group relative rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2",
-				"shadow-sm dark:shadow-gray-900/50 transition-all duration-200 hover:shadow-md",
-				"hover:border-green-300 dark:hover:border-green-600 cursor-pointer",
+				"group relative rounded-lg border bg-white dark:bg-gray-800 p-2",
+				"shadow-sm dark:shadow-gray-900/50 transition-all duration-200",
+				isNavigating 
+					? "border-green-500 dark:border-green-400 opacity-75 pointer-events-none" 
+					: "border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600",
+				"cursor-pointer",
 				className
 			)}
+			whileHover={{ scale: 1.02 }}
+			whileTap={{ scale: 0.98 }}
 		>
 			{/* Image Container */}
-			<div className="relative aspect-square overflow-hidden rounded-md bg-gray-100 dark:bg-gray-700 mb-2">
-				{product.image_full_url || product.image ? (
-					<Image
-						src={product.image_full_url || product.image}
-						alt={displayName}
-						fill
-						className="object-cover transition-transform duration-300 group-hover:scale-105"
-						loading="lazy"
-						sizes={getImageSizes('card')}
-						quality={getImageQuality('card')}
-						placeholder="blur"
-						blurDataURL={getImageBlurDataURL()}
-					/>
+			<div className="relative aspect-square overflow-hidden rounded-md bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 mb-2 group/image">
+				{!imageError && (product.image_full_url || product.image) ? (
+					<>
+						<Image
+							src={product.image_full_url || product.image}
+							alt={displayName}
+							fill
+							className="object-cover transition-transform duration-500 group-hover/image:scale-110"
+							loading="lazy"
+							sizes={getImageSizes('card')}
+							quality={getImageQuality('card')}
+							placeholder="blur"
+							blurDataURL={getImageBlurDataURL()}
+							onError={() => setImageError?.(true)}
+						/>
+						<div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-300" />
+					</>
 				) : (
 					<div className="h-full w-full bg-gradient-to-br from-gray-200 dark:from-gray-600 to-gray-300 dark:to-gray-700 flex items-center justify-center">
-						<ShoppingCart className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+						<ShoppingCart className="h-8 w-8 text-gray-400 dark:text-gray-500 transition-transform group-hover/image:scale-110 duration-300" />
 					</div>
 				)}
 
@@ -544,20 +650,30 @@ function CompactVariant({
 
 				{/* Add to Cart Button */}
 				{showActions && showAddButton && isAvailable && (
-					<button
+					<motion.button
 						onClick={onQuickAdd}
+						disabled={isAddingToCart}
+						whileHover={{ scale: 1.1 }}
+						whileTap={{ scale: 0.95 }}
 						className={cn(
-							"absolute rounded-full bg-green-600 p-1.5 text-white shadow-lg transition-all duration-200",
-							"hover:bg-green-700 hover:scale-110 active:scale-95 z-10",
+							"absolute rounded-full text-white shadow-lg transition-all duration-200 z-10",
+							"min-w-[36px] min-h-[36px] flex items-center justify-center",
+							isAddingToCart
+								? "bg-green-500 dark:bg-green-600 cursor-wait"
+								: "bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 active:bg-green-800",
 							isArabic ? "left-1 bottom-1" : "right-1 bottom-1"
 						)}
 						title={isArabic ? "إضافة للسلة" : "Add to cart"}
 						aria-label={isArabic ? "إضافة للسلة" : "Add to cart"}
 					>
-						<svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-						</svg>
-					</button>
+						{isAddingToCart ? (
+							<Loader2 className="h-3 w-3 animate-spin" />
+						) : (
+							<svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+							</svg>
+						)}
+					</motion.button>
 				)}
 			</div>
 
@@ -604,6 +720,21 @@ function CompactVariant({
 						</span>
 					)}
 				</div>
+
+				{/* Loading overlay when navigating */}
+				{isNavigating && (
+					<motion.div
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						className="absolute inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-md flex items-center justify-center z-30 rounded-lg"
+					>
+						<div className="flex flex-col items-center gap-2">
+							<div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
+							<span className="text-white text-xs font-medium">{isArabic ? "جاري التحميل..." : "Loading..."}</span>
+						</div>
+					</motion.div>
+				)}
 			</div>
 		</motion.div>
 	);
@@ -631,34 +762,59 @@ function DefaultVariant({
 	direction,
 	index,
 	className,
+	isNavigating = false,
+	isAddingToCart = false,
+	imageError = false,
+	setImageError,
 }: VariantProps & { showActions?: boolean; showDelivery?: boolean }) {
 	const isLowStock = isAvailable && product.stock !== undefined && product.stock < 10;
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, scale: 0.95 }}
-			animate={{ opacity: 1, scale: 1 }}
-			transition={{ delay: index * 0.05, duration: 0.2 }}
+			initial={{ opacity: 0, y: 10 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ delay: index * 0.03, duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
 			onClick={onClick}
-			className="relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 active:scale-98 transition-transform cursor-pointer"
+			className={cn(
+				"relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer",
+				"shadow-sm hover:shadow-lg dark:shadow-gray-900/50 dark:hover:shadow-gray-900/80",
+				isNavigating 
+					? "border-green-500 dark:border-green-400 opacity-75 pointer-events-none" 
+					: "border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600"
+			)}
+			whileHover={{ scale: 1.01, y: -2 }}
+			whileTap={{ scale: 0.99 }}
+			role="button"
+			tabIndex={0}
+			aria-label={isArabic ? `عرض ${displayName}` : `View ${displayName}`}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					onClick();
+				}
+			}}
 		>
 			{/* Product Image */}
-			<div className="relative aspect-square bg-gray-100 dark:bg-gray-700">
-				{product.image ? (
-					<Image
-						src={product.image}
-						alt={displayName}
-						fill
-						sizes={getImageSizes('card')}
-						className="object-cover"
-						loading="lazy"
-						quality={getImageQuality('card')}
-						placeholder="blur"
-						blurDataURL={getImageBlurDataURL()}
-					/>
+			<div className="relative aspect-square bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 overflow-hidden group/image">
+				{!imageError && product.image ? (
+					<>
+						<Image
+							src={product.image}
+							alt={displayName}
+							fill
+							sizes={getImageSizes('card')}
+							className="object-cover transition-transform duration-500 group-hover/image:scale-110"
+							loading="lazy"
+							quality={getImageQuality('card')}
+							placeholder="blur"
+							blurDataURL={getImageBlurDataURL()}
+							onError={() => setImageError?.(true)}
+						/>
+						<div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-300" />
+					</>
 				) : (
-					<div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center">
-						<ShoppingCart className="w-12 h-12 text-gray-400" />
+					<div className="w-full h-full bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 flex items-center justify-center">
+						<ShoppingCart className="w-12 h-12 text-gray-400 dark:text-gray-500 transition-transform group-hover/image:scale-110 duration-300" />
 					</div>
 				)}
 
@@ -743,17 +899,28 @@ function DefaultVariant({
 				)}
 
 				{/* Add to cart - Full width, easy to tap */}
-					{isAvailable ? (
-					<button
+				{isAvailable ? (
+					<motion.button
 						onClick={onQuickAdd}
-						disabled={favoriteLoading}
-						className={`w-full py-2.5 text-white text-sm font-bold rounded-lg active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+						disabled={favoriteLoading || isAddingToCart}
+						whileHover={{ scale: 1.02 }}
+						whileTap={{ scale: 0.98 }}
+						className={cn(
+							"w-full py-2.5 text-white text-sm font-bold rounded-lg transition-all duration-200",
+							"disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[44px]",
+							"shadow-md hover:shadow-lg",
 							isFavorite 
 								? "bg-green-500 dark:bg-green-500" 
-								: "bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600"
-						}`}
+								: "bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 active:bg-green-800 dark:active:bg-green-700"
+						)}
+						aria-label={isArabic ? "إضافة للسلة" : "Add to cart"}
 					>
-							{favoriteLoading ? (
+						{isAddingToCart ? (
+							<>
+								<Loader2 className="w-4 h-4 animate-spin" />
+								<span>{isArabic ? "جاري الإضافة..." : "Adding..."}</span>
+							</>
+						) : favoriteLoading ? (
 							<>
 								<Loader2 className="w-4 h-4 animate-spin" />
 								<span>{isArabic ? "جاري الإضافة للمفضلة..." : "Adding to favorites..."}</span>
@@ -764,18 +931,37 @@ function DefaultVariant({
 								<span>{isArabic ? "تمت الإضافة للمفضلة" : "Added to favorites"}</span>
 							</>
 						) : (
-							<span>{isArabic ? "أضف للمفضلة" : "Add to favorites"}</span>
+							<>
+								<ShoppingCart className="w-4 h-4" />
+								<span>{isArabic ? "أضف للسلة" : "Add to cart"}</span>
+							</>
 						)}
-					</button>
+					</motion.button>
 				) : (
 					<button
 						disabled
-						className="w-full py-2.5 bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm font-bold rounded-lg cursor-not-allowed"
+						className="w-full py-2.5 bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm font-bold rounded-lg cursor-not-allowed min-h-[44px]"
+						aria-label={isArabic ? "غير متوفر" : "Out of Stock"}
 					>
 						{isArabic ? "غير متوفر" : "Out of Stock"}
 					</button>
 				)}
 			</div>
+
+			{/* Loading overlay when navigating */}
+			{isNavigating && (
+				<motion.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					exit={{ opacity: 0 }}
+					className="absolute inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-md flex items-center justify-center z-30 rounded-xl"
+				>
+					<div className="flex flex-col items-center gap-2">
+						<div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
+						<span className="text-white text-xs font-medium">{isArabic ? "جاري التحميل..." : "Loading..."}</span>
+					</div>
+				</motion.div>
+			)}
 
 			{/* Toast Container */}
 			<ToastContainer toasts={[]} onRemoveToast={() => {}} isArabic={isArabic} />

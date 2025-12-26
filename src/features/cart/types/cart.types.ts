@@ -33,7 +33,7 @@ export interface CartItem {
 
 export interface CartState {
 	items: CartItem[];
-	selectedAddressId: string | null;
+	selectedAddressId: number | null;
 	selectedPaymentMethod: PaymentMethod | null;
 	appliedCoupon: Coupon | null;
 	isLoading: boolean;
@@ -67,7 +67,7 @@ export interface GroupedItems {
 // ============================================================================
 
 export interface Address {
-	id: string;
+		id: number;
 	address: string;
 	formattedAddress?: string;
 	createdAt: string;
@@ -79,7 +79,7 @@ export interface Address {
 // Payment Types
 // ============================================================================
 
-export type PaymentMethod = 'apple_pay' | 'stc_pay' | 'card' | 'cash' | 'kaidha';
+export type PaymentMethod = 'cash' | 'wallet' | 'kaidha' | 'myfatoorah' | 'offline';
 
 export interface CardDetails {
 	number: string;
@@ -145,7 +145,7 @@ export interface CouponResponse {
 // ============================================================================
 
 export interface CheckoutData {
-	addressId: string;
+	addressId: number;
 	paymentMethod: PaymentMethod;
 	totals: CartTotals;
 	couponCode?: string;

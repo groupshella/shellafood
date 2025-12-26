@@ -133,43 +133,50 @@ export interface CategoryDetail {
         offset: number;
         has_more: boolean;
     }
-// Main Store Type (with category_details added)
+// Simplified CategoryDetail for API response
+export interface CategoryDetailSimple {
+    id: number;
+    name: string;
+}
+
+// Main Store Type (updated to match actual API response)
 export interface StoreDetails {
     id: number;
-    external_store_id: number | null;
+    external_store_id: string | null;
     name: string;
     phone: string;
-    email: string;
+    email: string | null;
     logo: string;
     latitude: string;
     longitude: string;
-    address: string;
+    address: string | null;
     footer_text: string | null;
-    minimum_order: number;
+    minimum_order: string;
     comission: number | null;
-    schedule_order: boolean;
-    status: Status;
+    schedule_order: number;
+    status: number;
     vendor_id: number;
     store_group_id: number | null;
     admin_aprove: number;
     created_at: string;
     updated_at: string;
-    free_delivery: boolean;
+    free_delivery: number;
     rating_count: number;
     avg_rating: number;
     cover_photo: string;
-    delivery: DeliveryInfo;
-    take_away: boolean;
-    item_section: boolean;
-    tax: number;
+    delivery: number;
+    take_away: number;
+    item_section: number;
+    tax: string;
     deliveryfee_tax: number;
     tax_cal: string;
     zone_id: number;
-    reviews_section: boolean;
-    active: boolean;
+    reviews_section: number;
+    active: number;
+    gst: number | null;
     self_delivery_system: number;
-    pos_system: boolean;
-    minimum_shipping_charge: number;
+    pos_system: number;
+    minimum_shipping_charge: string;
     delivery_time: string;
     veg: number;
     non_veg: number;
@@ -181,10 +188,10 @@ export interface StoreDetails {
     per_km_shipping_charge: number;
     first_km_fee: number;
     first_km_distance: number;
-    prescription_order: boolean;
+    prescription_order: number;
     slug: string;
     maximum_shipping_charge: number | null;
-    cutlery: boolean;
+    cutlery: number;
     meta_title: string | null;
     meta_description: string | null;
     meta_image: string | null;
@@ -194,11 +201,19 @@ export interface StoreDetails {
     package_id: number | null;
     pickup_zone_id: string;
     comment: string | null;
-    p_margin: number;
+    p_margin: string;
+    version_hash: string;
     off_day: string;
+    location: string;
     open: number;
     distance: number;
+    min_delivery_time: string;
     reviews_comments_count: number;
+    category_ids: number[];
+    category_details: CategoryDetailSimple[];
+    price_range: PriceRange;
+    categories_pagination: CategoriesPagination;
+    combos: any[];
     is_recommended: boolean;
     minimum_stock_for_warning: number;
     halal_tag_status: boolean;
@@ -207,30 +222,22 @@ export interface StoreDetails {
     ratings: number[];
     positive_rating: number;
     total_items: number;
-    total_campaigns: number;
+    total_campaigns: number | null;
     current_opening_time: string;
     schedule: Schedule;
     is_open_now: boolean;
     next_opening_time: string;
     next_closing_time: string;
     timezone: string;
-    badges: any[];
-    tags: any[];
-    category_ids: number[];
-    category_details: CategoryDetail[]; // <--- NEW FIELD
-    categories_pagination: CategoriesPagination;
-    price_range: PriceRange;
-    combos: any[];
-    gst_status: boolean;
-    gst_code: string;
-    logo_full_url: string;
-    cover_photo_full_url: string;
-    meta_image_full_url: string;
     discount: any | null;
     schedules: StoreSchedule[];
-    active_coupons: any[];
-    store_sub: any | null;
-    translations: Translation[];
     storage: StorageItem[];
+    translations: Translation[];
     module: Module;
+    // Computed/derived fields (may need to be added by API or computed client-side)
+    logo_full_url?: string;
+    cover_photo_full_url?: string;
+    meta_image_full_url?: string;
+    active_coupons?: any[];
+    store_sub?: any | null;
 }

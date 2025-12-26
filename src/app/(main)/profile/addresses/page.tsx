@@ -1,5 +1,8 @@
 import { Metadata } from "next";
 import { AddressesPage } from "@/features/profile";
+import { cookies } from "next/headers";
+import { STORAGE_KEYS } from "@/features/auth/constants/auth.constants";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
 	title: "العناوين المحفوظة | شلة فود",
@@ -61,7 +64,44 @@ export const metadata: Metadata = {
 	},
 	metadataBase: new URL("https://shellafood.com"),
 };
+async function getAddressesData(token: string, limit: number, offset: number) {
+	try {
+		const apiUrl = `https://shellafood.com/api/v1/customer/address/list?limit=${limit}&offset=${offset}`;
+		
+		const response = await fetch(apiUrl, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${token}`,
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
+			cache: 'no-store', // Don't cache this data
+		});
 
-export default function AddressesPageRoute() {
-	return <AddressesPage />;
+		if (!response.ok) {
+			console.error('[Addresses] API Error:', response.status);
+			return null;
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('[Addresses] Fetch Error:', error);
+		return null;
+	}
+}
+
+
+export default async function AddressesPageRoute() {
+		// Check authentication
+		const cookieStore = await cookies();
+		const authToken = cookieStore.get(STORAGE_KEYS.TOKEN);
+	
+		if (!authToken || !authToken.value || authToken.value.trim() === '') {
+			redirect('/login');
+		}
+	
+		// Fetch wallet data
+		const addressesData = await getAddressesData(authToken.value, 10, 1);
+		return <AddressesPage initialAddressesData={addressesData} initialPage={1} initialLimit={10} token={authToken.value} /> 
 }

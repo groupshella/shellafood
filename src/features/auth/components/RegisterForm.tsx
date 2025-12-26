@@ -72,7 +72,7 @@ export default function RegisterForm() {
 		e.preventDefault();
 
 		// Validation
-		if (!formData.first_name || !formData.last_name || !formData.phone || !formData.email || !formData.password) {
+		if (!formData.first_name || !formData.last_name || !formData.phone||!formData.email  || !formData.password) {
 			setNotification({
 				message: isArabic
 					? "يرجى ملء جميع الحقول المطلوبة"
@@ -114,13 +114,13 @@ export default function RegisterForm() {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
+					f_name: formData.first_name,
+					l_name: formData.last_name,
 					name: `${formData.first_name} ${formData.last_name}`,
 					phone: formData.phone,
-					email: formData.email,
+					...(formData.email && formData.email.trim() !== '' && { email: formData.email }),
 					password: formData.password,
-					ref_code: '',
-					guest_id: '',
-					lang: language || DEFAULT_LANG,
+					referral_code: '',
 				}),
 			});
 
@@ -369,17 +369,6 @@ export default function RegisterForm() {
 									</a>
 								</p>
 
-								{/* Guest Registration Link */}
-								<div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-									<div className="flex items-center gap-3 mb-4">
-										<div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
-										<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-											{isArabic ? "أو" : "Or"}
-										</p>
-										<div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
-									</div>
-									
-								</div>
 							</div>
 						</motion.form>
 					) : (

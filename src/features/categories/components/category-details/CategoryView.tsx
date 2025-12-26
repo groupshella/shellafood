@@ -1,7 +1,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { SlidersHorizontal, Grid2x2, Grid3x3 } from "lucide-react";
 import StoreCard from "../store/StoreCard";
 import Breadcrumbs from "../shared/Breadcrumbs";
@@ -12,7 +12,7 @@ import type { StoreList } from "../../types/store.types";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useMemo, useState, useTransition } from "react";
 import { useFilters, useMobile } from "@/shared/hooks";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import useSWR from "swr";
 import { CategoriesGridSkeleton } from "../category-list";
 import DailyNeeded from "./DailyNeeded";
@@ -41,6 +41,7 @@ export default function CategoryView({
   const isArabic = language === "ar";
   const direction = isArabic ? "rtl" : "ltr";
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const isMobile = useMobile(768);
   
@@ -107,21 +108,14 @@ export default function CategoryView({
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', page.toString());
     
+    // Scroll to top first
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     // ✅ Update URL without full page reload
     startTransition(() => {
-      router.push(`/categories/${moduleId}?${params.toString()}`, { scroll: true });
+      router.push(`${pathname}?${params.toString()}`, { scroll: true });
     });
-    
-    // ✅ Smooth scroll to top of store list
-    const storesList = document.getElementById('stores-list');
-    if (storesList) {
-      storesList.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   };
-
-if(isLoading || isPending) {
-  return <CategoriesGridSkeleton />;
-}
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={direction}>
@@ -206,6 +200,23 @@ if(isLoading || isPending) {
           />
          )}
          </div>
+
+        {/* Loading Indicator */}
+        <AnimatePresence>
+          {(isPending || isLoading) && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex items-center justify-center py-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl mb-6"
+            >
+              <div className="w-5 h-5 border-2 border-green-600 dark:border-green-500 border-t-transparent rounded-full animate-spin" />
+              <span className={`${isArabic ? "mr-2" : "ml-2"} text-sm text-green-700 dark:text-green-400 font-medium`}>
+                {isArabic ? "جاري التحميل..." : "Loading..."}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Stores Grid */}
         <div id="stores-list">

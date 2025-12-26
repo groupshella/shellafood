@@ -135,9 +135,9 @@ function StoreHero({ store }: StoreHeroProps) {
 
   const displayDeliveryTime = useMemo(() => {
     return store?.delivery_time || 
-           store?.delivery?.delivery_time_range || 
+           store?.min_delivery_time ? `${store.min_delivery_time} min` :
            null;
-  }, [store?.delivery_time, store?.delivery?.delivery_time_range]);
+  }, [store?.delivery_time, store?.min_delivery_time]);
 
   const displayDistance = useMemo(() => {
     return formatDistance(store?.distance, isArabic);
@@ -158,16 +158,44 @@ function StoreHero({ store }: StoreHeroProps) {
   }, [store?.latitude, store?.longitude]);
 
   const coverImageUrl = useMemo(() => {
-    return store?.cover_photo_full_url && !imageError 
-      ? store.cover_photo_full_url 
-      : null;
-  }, [store?.cover_photo_full_url, imageError]);
+    if (imageError) return null;
+    
+    // Use full URL if available
+    if (store?.cover_photo_full_url) {
+      return store.cover_photo_full_url;
+    }
+    
+    // If cover_photo is already a full URL, use it directly
+    if (store?.cover_photo) {
+      if (store.cover_photo.startsWith('http://') || store.cover_photo.startsWith('https://')) {
+        return store.cover_photo;
+      }
+      // Otherwise construct from filename
+      return `https://shellafood.com/storage/app/public/store/${store.cover_photo}`;
+    }
+    
+    return null;
+  }, [store?.cover_photo_full_url, store?.cover_photo, imageError]);
 
   const logoUrl = useMemo(() => {
-    return store?.logo_full_url && !logoError 
-      ? store.logo_full_url 
-      : null;
-  }, [store?.logo_full_url, logoError]);
+    if (logoError) return null;
+    
+    // Use full URL if available
+    if (store?.logo_full_url) {
+      return store.logo_full_url;
+    }
+    
+    // If logo is already a full URL, use it directly
+    if (store?.logo) {
+      if (store.logo.startsWith('http://') || store.logo.startsWith('https://')) {
+        return store.logo;
+      }
+      // Otherwise construct from filename
+      return `https://shellafood.com/storage/app/public/store/${store.logo}`;
+    }
+    
+    return null;
+  }, [store?.logo_full_url, store?.logo, logoError]);
 
   // ============================================================================
   // HOOKS
@@ -273,7 +301,7 @@ function StoreHero({ store }: StoreHeroProps) {
           storeName={displayName}
           latitude={parseFloat(String(store.latitude))}
           longitude={parseFloat(String(store.longitude))}
-          address={store.address}
+          address={store.address || undefined}
         />
       )}
     </>

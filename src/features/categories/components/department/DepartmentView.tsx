@@ -120,12 +120,15 @@ function DepartmentView({
   const currentDepartment = departmentData || departmentResponse;
   const totalItems = currentDepartment?.total_size ?? 0;
   const totalPages = currentDepartment ? Math.ceil(totalItems / currentLimit) : 1;
+  
+  // Safe access to items array
+  const departmentItems = currentDepartment?.items || [];
 
   // Client-side filtering and sorting on current page
   const filteredAndSortedProducts = useMemo(() => {
-    if (!currentDepartment?.items) return [];
+    if (!departmentItems || departmentItems.length === 0) return [];
 
-    let filtered = currentDepartment.items;
+    let filtered = departmentItems;
 
     // Apply filters
     switch (filterBy) {
@@ -176,7 +179,7 @@ function DepartmentView({
     });
 
     return sorted;
-  }, [currentDepartment.items, filterBy, sortBy, isArabic]);
+  }, [departmentItems, filterBy, sortBy, isArabic]);
 
   // ============================================================================
   // TRANSLATIONS

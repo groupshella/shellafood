@@ -8,21 +8,22 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     
     console.log('[Login API] Request received:', {
-      phone: body.phone,
-      lang: body.lang,
+      email_or_phone: body.email_or_phone,
+      field_type: body.field_type,
     });
 
     const backendRes = await fetch(`${API_URL}/api/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-LANG': body.lang || 'ar',
         'Accept': 'application/json',
       },
       body: JSON.stringify({
-        phone: body.phone,
-        password: body.password,
         login_type: body.login_type || 'manual',
+        email_or_phone: body.email_or_phone,
+        field_type: body.field_type || 'phone',
+        password: body.password,
+        guest_id: body.guest_id || '',
       }),
     });
 

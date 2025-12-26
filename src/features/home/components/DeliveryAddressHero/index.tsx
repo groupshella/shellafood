@@ -9,9 +9,10 @@ import TrustBadges from "./TrustBadges";
 
 interface DeliveryAddressHeroProps {
 	onAddressChange?: (address: any) => void;
+	token: string;
 }
 
-export default function DeliveryAddressHero({ onAddressChange }: DeliveryAddressHeroProps) {
+export default function DeliveryAddressHero({ onAddressChange, token }: DeliveryAddressHeroProps) {
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
 
@@ -53,7 +54,7 @@ export default function DeliveryAddressHero({ onAddressChange }: DeliveryAddress
 						transition={{ duration: 0.6, delay: 0.2 }}
 						className="backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl border border-white/20 dark:border-gray-700/50 mb-6 sm:mb-8"
 					>
-						<AddressSelector onAddressChange={onAddressChange} />
+						<AddressSelector onAddressChange={onAddressChange} token={token} />
 					</motion.div>
 
 					{/* Trust Badges */}

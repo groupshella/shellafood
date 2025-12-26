@@ -15,6 +15,8 @@ import { BookingAddress, BookingServiceType } from "../../types/serve-me.types";
 import { TIME_SLOTS, MEDIA_LIMITS, DEFAULT_LOCATION, GEOLOCATION_OPTIONS } from "../../constants/serve-me.constants";
 import { validateVideoType, validateVideoSize, validateVideoDuration, formatTime } from "../../lib/utils/validation";
 
+import { Address } from "@/shared/hooks";
+
 export default function HomeMaintenanceDetailsForm({ service, serviceType }: { service: string; serviceType: string }) {
 	const params = useParams();
 	const router = useRouter();
@@ -826,7 +828,8 @@ export default function HomeMaintenanceDetailsForm({ service, serviceType }: { s
 				isOpen={isAddressModalOpen}
 				onClose={handleCloseAddressModal}
 				onSave={handleSaveAddress}
-				editingAddress={editingAddress}
+				editingAddress={editingAddress as Address | null}
+				isLoading={false}
 			/>
 
 			{/* Modals */}

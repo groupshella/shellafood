@@ -6,12 +6,16 @@ import Header from "./Header";
 import { InfoCard, InfoField, SecurityAction } from "../UI";
 import { FaUser, FaShieldAlt, FaLock, FaIdCard, FaTrash } from "react-icons/fa";
 interface PersonalInfo {
+		id: number;
+		f_name: string;
+		l_name: string;
 		fullName: string;
 		email: string;
 		phone: string;
-		dateOfBirth: string;
-		nationalId: string;
-		address: string;
+		image: string;
+		wallet_balance: number;
+		loyalty_point: number;
+		order_count: number;
 	}
 export default function AccountInfoPage({personalInfo}: {personalInfo: PersonalInfo}) {
 	const { language, t } = useLanguage();
@@ -43,7 +47,13 @@ export default function AccountInfoPage({personalInfo}: {personalInfo: PersonalI
 	const handleFieldChange = (field: string, value: string) => {
 		setFormData(prev => ({
 			...prev,
-			[field]: value
+			[field]: value,
+			// Update fullName when f_name or l_name changes
+			...(field === 'f_name' || field === 'l_name' ? {
+				fullName: field === 'f_name' 
+					? `${value} ${prev.l_name || ''}`.trim()
+					: `${prev.f_name || ''} ${value}`.trim()
+			} : {})
 		}));
 	};
 
@@ -66,32 +76,40 @@ export default function AccountInfoPage({personalInfo}: {personalInfo: PersonalI
 						icon={FaUser}
 					>
 						<div className="space-y-4">
+							{/* First Name */}
 							<InfoField
-								label={isArabic ? "الاسم الكامل" : "Full Name"}
-								value={formData.fullName}
+								label={isArabic ? "الاسم الأول" : "First Name"}
+								value={formData.f_name}
 								editable={isEditing}
-								onChange={(value) => handleFieldChange('fullName', value)}
+								onChange={(value) => handleFieldChange('f_name', value)}
 							/>
-					{formData.email && (
-						<InfoField
-								label={isArabic ? "البريد الإلكتروني" : "Email Address"}
-								value={formData.email}
-								type="email"
-								editable={isEditing}
-								onChange={(value) => handleFieldChange('email', value)}
-							/>
-					)}
-					{formData.phone && (
-						
+							{/* Last Name */}
 							<InfoField
-								label={isArabic ? "رقم الهاتف" : "Phone Number"}
-								value={ `${formData.phone}`}
-								type="tel"
+								label={isArabic ? "اسم العائلة" : "Last Name"}
+								value={formData.l_name}
 								editable={isEditing}
-
-								onChange={(value) => handleFieldChange('phone', value)}
+								onChange={(value) => handleFieldChange('l_name', value)}
 							/>
-					)}
+							{/* Email */}
+							{formData.email && (
+								<InfoField
+									label={isArabic ? "البريد الإلكتروني" : "Email Address"}
+									value={formData.email}
+									type="email"
+									editable={isEditing}
+									onChange={(value) => handleFieldChange('email', value)}
+								/>
+							)}
+							{/* Phone */}
+							{formData.phone && (
+								<InfoField
+									label={isArabic ? "رقم الهاتف" : "Phone Number"}
+									value={formData.phone}
+									type="tel"
+									editable={isEditing}
+									onChange={(value) => handleFieldChange('phone', value)}
+								/>
+							)}
 							{/* <InfoField
 								label={isArabic ? "تاريخ الميلاد" : "Date of Birth"}
 								value={formData.dateOfBirth}
@@ -110,6 +128,44 @@ export default function AccountInfoPage({personalInfo}: {personalInfo: PersonalI
 								editable={isEditing}
 								onChange={(value) => handleFieldChange('address', value)}
 							/> */}
+						</div>
+					</InfoCard>
+				</div>
+
+				{/* Account Statistics */}
+				<div className="mb-8">
+					<InfoCard 
+						title={isArabic ? "إحصائيات الحساب" : "Account Statistics"}
+						icon={FaUser}
+					>
+						<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+							{/* Wallet Balance */}
+							<div className="p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800">
+								<div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">
+									{isArabic ? "رصيد المحفظة" : "Wallet Balance"}
+								</div>
+								<div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
+									{formData.wallet_balance.toFixed(2)} {isArabic ? "ريال" : "SAR"}
+								</div>
+							</div>
+							{/* Loyalty Points */}
+							<div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200 dark:border-blue-800">
+								<div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">
+									{isArabic ? "نقاط الولاء" : "Loyalty Points"}
+								</div>
+								<div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
+									{formData.loyalty_point.toLocaleString()}
+								</div>
+							</div>
+							{/* Order Count */}
+							<div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800">
+								<div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">
+									{isArabic ? "عدد الطلبات" : "Total Orders"}
+								</div>
+								<div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">
+									{formData.order_count}
+								</div>
+							</div>
 						</div>
 					</InfoCard>
 				</div>

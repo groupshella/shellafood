@@ -19,7 +19,7 @@ import { startTransition, useTransition, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ZoneDataModule } from "@/features/categories/types/module.types";
 
-export default function HomePage({ modules }: { modules: ZoneDataModule[] }) {
+export default function HomePage({ modules, token }: { modules: ZoneDataModule[], token: string }) {
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
 	const {  showScrollToTop, handleDeliveryAddressChange, scrollToTop } = useHomePage();
@@ -31,7 +31,7 @@ export default function HomePage({ modules }: { modules: ZoneDataModule[] }) {
 			dir={isArabic ? "rtl" : "ltr"}
 		>
 			{/* Hero Section with Address Selector */}
-			<DeliveryAddressHero onAddressChange={handleDeliveryAddressChange} />
+			<DeliveryAddressHero onAddressChange={handleDeliveryAddressChange} token={token as string} />
 
 			{/* Main Content */}
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-24">

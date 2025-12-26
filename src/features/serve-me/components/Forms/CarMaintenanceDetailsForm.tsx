@@ -24,6 +24,8 @@ import ScheduleSection from "@/shared/components/forms/ScheduleSection/ScheduleS
 import NotesSection from "./Shared/NotesSection";
 import { GenerateYearOptions } from "../../lib/utils/service";
 
+import { Address } from "@/shared/hooks";
+
 export default function CarMaintenanceDetailsForm({ service, serviceType }: { service: string; serviceType: string }) {
 	const router = useRouter();
 	const { language } = useLanguage();
@@ -452,7 +454,8 @@ const {recordingTime,removeImage,removeVideo,removeVoice,isRecording,voice,video
 				isOpen={isAddressModalOpen}
 				onClose={handleCloseAddressModal}
 				onSave={handleSaveAddress}
-				editingAddress={editingAddress}
+				editingAddress={editingAddress as Address | null}
+				isLoading={false}
 			/>
 			
 		</div>

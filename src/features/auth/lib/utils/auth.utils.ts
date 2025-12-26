@@ -45,7 +45,10 @@ export function removeUser(): void {
 
 export function getAuthToken(): string | null {
 	if (typeof window === 'undefined') return null;
-	return getCookie(STORAGE_KEYS.TOKEN);
+	const token = getCookie(STORAGE_KEYS.TOKEN);
+	if (!token) return null;
+	if (token === 'undefined') return null;
+	return token;
 }
 
 export function saveAuthToken(token: string, remember?: boolean): void {

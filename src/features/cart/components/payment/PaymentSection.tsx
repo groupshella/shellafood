@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CreditCard, Smartphone, Wallet, Banknote, Check, Lock } from "lucide-react";
+import { CreditCard, Smartphone, Wallet, Banknote, Check, Lock, Receipt } from "lucide-react";
 import type { PaymentMethod } from "../../types/cart.types";
 
 interface PaymentSectionProps {
@@ -38,25 +38,6 @@ const paymentMethods: Array<{
 	requiresDetails?: boolean;
 }> = [
 	{
-		id: "apple_pay",
-		labelEn: "Apple Pay",
-		labelAr: "Apple Pay",
-		icon: Smartphone,
-	},
-	{
-		id: "stc_pay",
-		labelEn: "STC Pay",
-		labelAr: "STC Pay",
-		icon: Smartphone,
-	},
-	{
-		id: "card",
-		labelEn: "Credit/Debit Card",
-		labelAr: "بطاقة ائتمانية/مدفوعة مسبقاً",
-		icon: CreditCard,
-		requiresDetails: true,
-	},
-	{
 		id: "cash",
 		labelEn: "Cash on Delivery",
 		labelAr: "الدفع عند الاستلام",
@@ -65,10 +46,36 @@ const paymentMethods: Array<{
 		descriptionAr: "ادفع عند الاستلام",
 	},
 	{
-		id: "kaidha",
-		labelEn: "Kaidha Wallet",
-		labelAr: "قيدها",
+		id: "wallet",
+		labelEn: "Wallet",
+		labelAr: "المحفظة",
 		icon: Wallet,
+		descriptionEn: "Regular Wallet",
+		descriptionAr: "المحفظة العادية",
+	},
+	{
+		id: "kaidha",
+		labelEn: "Wallet Qidha",
+		labelAr: "محفظة قيدها",
+		icon: Wallet,
+		descriptionEn: "Qidha Wallet",
+		descriptionAr: "محفظة قيدها",
+	},
+	{
+		id: "myfatoorah",
+		labelEn: "MyFatoorah",
+		labelAr: "ماي فاتورة",
+		icon: CreditCard,
+		descriptionEn: "Digital Payment",
+		descriptionAr: "دفع رقمي",
+	},
+	{
+		id: "offline",
+		labelEn: "Offline Payment",
+		labelAr: "الدفع غير المتصل",
+		icon: Receipt,
+		descriptionEn: "Pay offline",
+		descriptionAr: "ادفع بدون اتصال",
 	},
 ];
 
@@ -85,7 +92,6 @@ export default function PaymentSection({
 	const isArabic = language === "ar";
 
 	const selectedPayment = paymentMethods.find(m => m.id === selectedMethod);
-	const showCardForm = selectedMethod === "card" && selectedPayment?.requiresDetails;
 
 	const handleCardNumberChange = (value: string) => {
 		const formatted = formatCardNumber ? formatCardNumber(value) : value.replace(/\D/g, '').slice(0, 16);
@@ -193,20 +199,6 @@ export default function PaymentSection({
 					);
 				})}
 			</div>
-
-			{/* Card Details Form */}
-			<AnimatePresence>
-				{showCardForm && (
-					<CardDetailsForm
-						cardDetails={cardDetails}
-						isArabic={isArabic}
-						onCardNumberChange={handleCardNumberChange}
-						onExpiryChange={handleExpiryChange}
-						onCVVChange={handleCVVChange}
-						onNameChange={handleNameChange}
-					/>
-				)}
-			</AnimatePresence>
 
 			{selectedMethod === "cash" && (
 				<motion.div

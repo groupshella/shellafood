@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCachedStoreDetails } from '@/features/categories/api/stores.api';
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -11,7 +12,11 @@ export async function GET(request: NextRequest) {
   const offset = Number(searchParams.get('offset')) || 1;
   const locale = DEFAULT_LANG;
   const zoneId = Number(searchParams.get('zoneId')) || 2;
+  const cookieStore = await cookies();
+  const userLocation = cookieStore.get('user_location');
 
+  const longitude = userLocation?.value.split(',')[0] || '46.5995713';
+  const latitude = userLocation?.value.split(',')[1] || '24.6100271';
   // Validate params
   if (!storeId || isNaN(storeId) || !moduleId || isNaN(moduleId)) {
     return NextResponse.json(
@@ -27,7 +32,9 @@ export async function GET(request: NextRequest) {
       locale,
       moduleId,
       zoneId,
-      storeId
+      storeId,
+      longitude,
+      latitude
     );
 
     if (!storeDetailsResponse?.data) {

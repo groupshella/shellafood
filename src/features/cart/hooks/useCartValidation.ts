@@ -5,7 +5,7 @@ import type { CartItem, PaymentMethod, CardDetails } from '../types/cart.types';
 
 export function useCartValidation(
 	items: CartItem[],
-	selectedAddressId: string | null,
+	selectedAddressId: number | null,
 	selectedPaymentMethod: PaymentMethod | null,
 	cardDetails?: CardDetails
 ) {
@@ -23,13 +23,7 @@ export function useCartValidation(
 		if (!selectedPaymentMethod) {
 			errors.push('يجب اختيار طريقة الدفع');
 		}
-
-		if (selectedPaymentMethod === 'card' && cardDetails) {
-			if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv || !cardDetails.name) {
-				errors.push('يجب إكمال بيانات البطاقة');
-			}
-		}
-
+console.log("errors", errors);
 		return {
 			canCheckout: errors.length === 0,
 			validationErrors: errors,

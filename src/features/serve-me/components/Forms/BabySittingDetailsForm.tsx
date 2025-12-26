@@ -23,7 +23,7 @@ import MediaUploadSection from "./Shared/MediaUploadSection";
 import ScheduleSection from "@/shared/components/forms/ScheduleSection/ScheduleSection";
 import NotesSection from "./Shared/NotesSection";
 import { GenerateYearOptions } from "../../lib/utils/service"; // Not used, but kept for structural reference
-
+import { Address } from "@/shared/hooks";
 // Mock data for Salon-specific dropdowns
 const HAIR_CONDITION_OPTIONS = {
     en: [
@@ -373,7 +373,8 @@ export default function BabySittingDetailsForm({ service, serviceType }: { servi
                 isOpen={isAddressModalOpen}
                 onClose={handleCloseAddressModal}
                 onSave={handleSaveAddress}
-                editingAddress={editingAddress}
+                editingAddress={editingAddress as Address | null}
+                isLoading={false}
             />
 
             {/* Tooltip and Guidelines Modals (If needed) */}

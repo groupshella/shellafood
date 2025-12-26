@@ -17,7 +17,11 @@ import { OrdersFilters } from "./OrdersFilters";
 import { Pagination } from "../shared/Pagination";
 import { usePullToRefresh } from "@/shared/hooks";
 import { useRouter } from "next/navigation";
-import type { ProductOrder, ServiceRequest, DeliveryOrder, OrderTab } from "../../types";
+import type { ProductOrder, ServiceRequest, DeliveryOrder, OrderTab, OrdersResponse } from "../../types";
+
+interface MyOrdersPageProps {
+	initialOrdersData?: OrdersResponse | null;
+}
 
 // Mock data - Replace with API calls
 const mockProductOrders: ProductOrder[] = [
@@ -215,7 +219,7 @@ const mockDeliveryOrders: DeliveryOrder[] = [
 	},
 ];
 
-export default function MyOrdersPage() {
+export default function MyOrdersPage({ initialOrdersData }: MyOrdersPageProps) {
 	const { language } = useLanguage();
 	const router = useRouter();
 	const isArabic = language === "ar";
@@ -239,11 +243,16 @@ export default function MyOrdersPage() {
 		}
 	}, []);
 
-	// Mock API calls - Replace with real API calls
-	const [productOrders, setProductOrders] = useState<ProductOrder[]>([]);
-	const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
+	// Initialize with server data or empty arrays
+	// Use API data for products, mock data for services and delivery
+	const [productOrders, setProductOrders] = useState<ProductOrder[]>(
+		initialOrdersData?.products && initialOrdersData.products.length > 0 
+			? initialOrdersData.products 
+			: []
+	);
+	const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>(mockServiceRequests);
 	const [deliveryOrders, setDeliveryOrders] = useState<DeliveryOrder[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
 
 	// Convert Pick and Order data to DeliveryOrder format
 	const convertPickAndOrderToDeliveryOrder = useCallback((orderId: string, storedOrderData: any): DeliveryOrder | null => {
@@ -365,7 +374,7 @@ export default function MyOrdersPage() {
 		// Simulate API call - Replace with actual API
 		await new Promise((resolve) => setTimeout(resolve, 800));
 		
-		// Load Pick and Order data from sessionStorage
+		// Load Pick and Order data from sessionStorage for delivery tab
 		const pickAndOrderDeliveryOrders: DeliveryOrder[] = [];
 		if (typeof window !== "undefined") {
 			// Get all keys from sessionStorage that start with "pickAndOrder_"
@@ -391,7 +400,7 @@ export default function MyOrdersPage() {
 			}
 		}
 
-		// Merge Pick and Order data with mock data
+		// Merge Pick and Order data with mock data for delivery
 		const allDeliveryOrders = [...pickAndOrderDeliveryOrders, ...mockDeliveryOrders];
 		
 		// Sort by creation date (newest first)
@@ -399,8 +408,8 @@ export default function MyOrdersPage() {
 			new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 		);
 
-		setProductOrders(mockProductOrders);
-		setServiceRequests(mockServiceRequests);
+		// Use API data for products if available, otherwise keep current
+		// Keep mock data for services and delivery
 		setDeliveryOrders(allDeliveryOrders);
 		setIsLoading(false);
 	}, [convertPickAndOrderToDeliveryOrder]);

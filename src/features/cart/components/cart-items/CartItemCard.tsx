@@ -10,7 +10,7 @@ import ConfirmRemoveItemModal from "../modals/ConfirmRemoveItemModal";
 interface CartItemCardProps {
 	item: CartItem;
 	language: "en" | "ar";
-	onUpdateQuantity: (itemId: string, quantity: number) => Promise<void>;
+	onUpdateQuantity: (itemId: string, priceAtAdd: number, quantity: number) => Promise<void>;
 	onRemove: (itemId: string) => Promise<void>;
 	isUpdating?: boolean;
 	isRemoving?: boolean;
@@ -26,6 +26,7 @@ function CartItemCard({
 }: CartItemCardProps) {
 	const isArabic = language === "ar";
 	const [showConfirmRemove, setShowConfirmRemove] = useState(false);
+	const [isUpdatingQuantity, setIsUpdatingQuantity] = useState(false);
 
 	// Calculations
 	const unitPrice = item.priceAtAdd;
@@ -34,11 +35,13 @@ function CartItemCard({
 
 	// Handlers
 	const handleQuantityChange = async (newQuantity: number) => {
+		setIsUpdatingQuantity(true);
 		if (newQuantity < 1) {
 			setShowConfirmRemove(true);
 			return;
 		}
-		await onUpdateQuantity(item.id, newQuantity);
+		await onUpdateQuantity(item.id, unitPrice, newQuantity);
+		setIsUpdatingQuantity(false);
 	};
 
 	const handleDecrease = () => {
@@ -113,7 +116,10 @@ function CartItemCard({
 							)}
 
 							{/* Quantity Controls */}
-							<div className="flex items-center gap-3 mt-3">
+						{isUpdatingQuantity ? <div className="flex items-center gap-3 mt-3">
+							<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+						</div> 
+						: <div className="flex items-center gap-3 mt-3">
 								<div className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700 rounded-lg">
 									<motion.button
 										whileHover={{ scale: 1.1 }}
@@ -151,7 +157,9 @@ function CartItemCard({
 								>
 									<Trash2 className="w-4 h-4" />
 								</motion.button>
-							</div>
+							</div>}
+
+
 						</div>
 
 						{/* Price */}

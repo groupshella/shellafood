@@ -9,7 +9,7 @@ import type { GroupedItems, CartItem } from "../../types/cart.types";
 interface GroupedCartItemsProps {
 	productsByStore: GroupedItems;
 	language: "en" | "ar";
-	onUpdateQuantity: (itemId: string, quantity: number) => Promise<void>;
+	onUpdateQuantity: (itemId: string, priceAtAdd: number, quantity: number) => Promise<void>;
 	onRemove: (itemId: string) => Promise<void>;
 }
 

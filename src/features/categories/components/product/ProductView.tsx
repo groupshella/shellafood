@@ -3,8 +3,7 @@
 import { useLanguage } from "@/providers";
 import { useMemo, useState, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
-import { useCart } from "@/shared/hooks";
-import { useToast } from "@/shared/components/ui";
+import { useCart, useCartCount } from "@/shared/hooks"; 
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Share2, Package, ShoppingCart } from "lucide-react";
 import ProductGallery from "./ProductGallery";
@@ -13,7 +12,8 @@ import RelatedProducts from "./RelatedProducts";
 import Breadcrumbs from "../shared/Breadcrumbs";
 import type { Product } from "../../types/product.types";
 import { useMobile } from "@/shared/hooks";
-import { getCartItemsCount } from "@/lib/utils/cartStorage";
+import { NotificationDialog } from "@/shared/components";
+import { NotificationState } from "@/features/profile/types/profile.types";
 
 interface ProductViewProps {
   product: Product;
@@ -33,23 +33,21 @@ function ProductView({
   const direction = isArabic ? "rtl" : "ltr";
   const router = useRouter();
   const { addToCart } = useCart();
-  const { showToast } = useToast();
   const isMobile = useMobile(768);
+  const { count: cartCount } = useCartCount();
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-
+  const [notification, setNotification] = useState<NotificationState>({
+    show: false,
+    message: "",
+    type: "success",
+  });
   // ============================================================================
   // DATA EXTRACTION
   // ============================================================================
 
   const displayName = useMemo(() => {
-    if (isArabic) {
-      const arTranslation = product.translations?.find(
-        (t: any) => t.locale === 'ar' && t.key === 'name'
-      );
-      return arTranslation?.value || product.name;
-    }
-    return product.name;
+   return product.name;
   }, [product, isArabic]);
 
   const isAvailable = useMemo(() => {
@@ -79,99 +77,91 @@ function ProductView({
   // ============================================================================
 
   const handleAddToCart = useCallback(async () => {
-    if (!product?.store_id) {
-      showToast(
-        isArabic ? "خطأ: لا يوجد متجر محدد" : "Error: No store specified",
-        "error"
-      );
+    if (!product?.id) {
+      setNotification({
+        show: true,
+        message: isArabic ? "خطأ: منتج غير صالح" : "Error: Invalid product",
+        type: "error",
+      });
       return;
     }
 
     if (!isAvailable) {
-      showToast(
-        isArabic ? "المنتج غير متوفر حالياً" : "Product is currently unavailable",
-        "warning"
-      );
+      setNotification({
+        show: true,
+        message: isArabic ? "المنتج غير متوفر حالياً" : "Product is currently unavailable",
+        type: "error",
+      });
       return;
     }
-console.log("product", product);
+
     setIsAddingToCart(true);
     try {
       const result = await addToCart({
         productId: product.id.toString(),
-        storeId: product.store_id.toString(),
+        storeId: product.store_id?.toString() || '',
         quantity,
-        productName: product.name,
-        productNameAr: product.translations?.find((t: any) => t.locale === 'ar' && t.key === 'name')?.value || product.name,
-        productImage: product.image_full_url || product.image,
         priceAtAdd: product.price,
-        storeName: product.store_name || "",
-        storeNameAr: "",
-        stock: product.stock,
       });
 
       if (result.success) {
-        showToast(
-          isArabic ? "تم الإضافة للسلة بنجاح" : "Added to cart successfully",
-          "success"
-        );
-      } else if (result.requiresClearCart) {
-        showToast(
-          isArabic
-            ? "لديك منتجات من متجر آخر في السلة"
-            : "You have items from a different store in your cart",
-          "warning"
-        );
+        setNotification({
+          show: true,
+          message: isArabic ? "✓ تم الإضافة للسلة بنجاح" : "✓ Added to cart successfully",
+          type: "success",
+        });
+      } else {
+        setNotification({
+          show: true,
+          message: result.error || (isArabic ? "فشل في إضافة المنتج" : "Failed to add product"),
+          type: "error",
+        });
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
-      showToast(
-        isArabic ? "حدث خطأ أثناء الإضافة للسلة" : "Error adding to cart",
-        "error"
-      );
+      setNotification({
+        show: true,
+        message: isArabic ? "حدث خطأ أثناء الإضافة للسلة" : "Error adding to cart",
+        type: "error",
+      });
     } finally {
       setIsAddingToCart(false);
     }
-  }, [product, quantity, addToCart, isAvailable, isArabic, showToast]);
+  }, [product, quantity, addToCart, isAvailable, isArabic, setNotification]);
 
   const handleBuyNow = useCallback(async () => {
-    if (!product?.store_id || !isAvailable) return;
+    if (!product?.id || !isAvailable) return;
 
     setIsAddingToCart(true);
     try {
       const result = await addToCart({
         productId: product.id.toString(),
-        storeId: product.store_id.toString(),
+        storeId: product.store_id?.toString() || '',
         quantity,
-        productName: product.name,
-        productNameAr: product.translations?.find((t: any) => t.locale === 'ar' && t.key === 'name')?.value || product.name,
-        productImage: product.image_full_url || product.image,
         priceAtAdd: product.price,
-        storeName: product.store_name || "",
-        storeNameAr: "",
-        stock: product.stock,
       });
 
       if (result.success) {
+        // Navigate to cart with a smooth transition
         router.push("/cart");
-      } else if (result.requiresClearCart) {
-        showToast(
-          isArabic
-            ? "لديك منتجات من متجر آخر في السلة"
-            : "You have items from a different store in your cart",
-          "warning"
-        );
+      } else {
+          setNotification({
+          show: true,
+          message: result.error || (isArabic ? "فشل في إضافة المنتج" : "Failed to add product"),
+          type: "error",
+        });
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
-      showToast(
-        isArabic ? "حدث خطأ" : "An error occurred",
-        "error"
-      );
+      setNotification({
+        show: true,
+        message: isArabic ? "حدث خطأ" : "An error occurred",
+        type: "error",
+      });
     } finally {
       setIsAddingToCart(false);
     }
-  }, [product, quantity, addToCart, isAvailable, router, isArabic, showToast]);
+  }, [product, quantity, addToCart, isAvailable, router, isArabic, setNotification]);
 
   const handleRelatedProductClick = useCallback(
     (productId: string) => {
@@ -195,15 +185,20 @@ console.log("product", product);
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        showToast(
-          isArabic ? "تم نسخ الرابط" : "Link copied to clipboard",
-          "success"
-        );
+        setNotification({
+          show: true,
+          message: isArabic ? "تم نسخ الرابط" : "Link copied to clipboard",
+          type: "success",
+        });
       }
     } catch (error) {
-      // User cancelled or error occurred
+      setNotification({
+        show: true,
+        message: isArabic ? "حدث خطأ" : "An error occurred",
+        type: "error",
+      });
     }
-  }, [displayName, product.store_name, isArabic, showToast]);
+  }, [displayName, product.store_name, isArabic, setNotification]);
 
   // ============================================================================
   // RENDER
@@ -336,21 +331,33 @@ console.log("product", product);
         )}
       </div>
       <AnimatePresence>
-          {getCartItemsCount() > 0 && ( 
+          {cartCount > 0 && ( 
             <motion.button
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               onClick={() => router.push("/cart")}
-              className={`fixed ${isArabic ? "left-4" : "right-4"} bottom-6 z-50 w-14 h-14 bg-gradient-to-br from-green-600 to-emerald-600 rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-all duration-300`}
+              className={`fixed ${isArabic ? "left-4" : "right-4"} bottom-6 z-50 w-14 h-14 bg-gradient-to-br from-green-600 to-emerald-600 rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-all duration-300 hover:shadow-green-500/50 hover:scale-110`}
             >
               <ShoppingCart className="w-6 h-6 text-white" />
-              <span className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full text-white text-xs font-bold flex items-center justify-center">
-                {getCartItemsCount() > 99 ? "99+" : getCartItemsCount()}
-              </span>
+              <motion.span
+                key={cartCount}
+                initial={{ scale: 1.5 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full text-white text-xs font-bold flex items-center justify-center shadow-lg"
+              >
+                {cartCount > 99 ? "99+" : cartCount}
+              </motion.span>
             </motion.button>
           )}
         </AnimatePresence>
+        <NotificationDialog
+          message={notification.message}
+          type={notification.type}
+          isVisible={notification.show}
+          onClose={() => setNotification({ show: false, message: "", type: "success" })}
+          isArabic={isArabic}
+        />
     </div>
   );
 }

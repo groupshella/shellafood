@@ -35,7 +35,7 @@ export default function AddressSelector({
 	const [showMapModal, setShowMapModal] = useState(false);
 	const [selectedAddressForMap, setSelectedAddressForMap] = useState<Address | null>(null);
 
-	const selectedAddress = addresses.find((a) => a.id === selectedAddressId) || addresses[0];
+	const selectedAddress = addresses.find((a) => a.id.toString() === selectedAddressId?.toString()) || addresses[0];
 
 	const handleAddressSelect = (addressId: string) => {
 		onAddressSelect(addressId);
@@ -43,6 +43,8 @@ export default function AddressSelector({
 	};
 
 	const handleAddressSave = async (addressData: any) => {
+		console.log("addressData", addressData);
+		console.log("selectedAddressForMap", selectedAddressForMap);
 		const success = await onSaveAddress({
 			address: addressData.address || addressData.formattedAddress || '',
 			formattedAddress: addressData.formattedAddress,
@@ -147,24 +149,30 @@ export default function AddressSelector({
 				onClose={() => setShowAddModal(false)}
 				onSave={handleAddressSave}
 				editingAddress={null}
+				isLoading={false}
 			/>
 
 			{/* Map Modal */}
-			{selectedAddressForMap && (
+			{selectedAddressForMap && selectedAddressForMap.lat && selectedAddressForMap.lng && (
 				<MapModal
 					isOpen={showMapModal}
 					onClose={closeMapModal}
 					address={{
 						id: selectedAddressForMap.id,
-						type: "home",
-						title: isArabic ? "العنوان" : "Address",
-						address: selectedAddressForMap.formattedAddress || selectedAddressForMap.address,
-						details: "",
-						phone: "",
-						isDefault: false,
-						coordinates: selectedAddressForMap.lat && selectedAddressForMap.lng
-							? { lat: selectedAddressForMap.lat, lng: selectedAddressForMap.lng }
-							: { lat: 24.7136, lng: 46.6753 },
+						address_type: 'delivery',
+						contact_person_number: '',
+						address: selectedAddressForMap.address || selectedAddressForMap.formattedAddress || '',
+						latitude: selectedAddressForMap.lat.toString(),
+						longitude: selectedAddressForMap.lng.toString(),
+						user_id: 0,
+						contact_person_name: 'Delivery Address',
+						created_at: selectedAddressForMap.createdAt || new Date().toISOString(),
+						updated_at: selectedAddressForMap.createdAt || new Date().toISOString(),
+						zone_id: 0,
+						floor: null,
+						road: null,
+						house: null,
+						zone_ids: [],
 					}}
 				/>
 			)}
@@ -323,7 +331,7 @@ function AddressListModal({
 							{/* Address List */}
 							<div className="p-4 sm:p-6 overflow-y-auto max-h-[60vh] space-y-3">
 								{addresses.map((address, index) => {
-									const isSelected = currentSelectedId === address.id;
+									const isSelected = currentSelectedId?.toString() === address.id.toString();
 									return (
 										<AddressListItem
 											key={address.id}
@@ -332,9 +340,9 @@ function AddressListModal({
 											isArabic={isArabic}
 											index={index}
 											canDelete={addresses.length > 1}
-											onClick={() => onAddressSelect(address.id)}
+											onClick={() => onAddressSelect(address.id.toString())}
 											onViewOnMap={() => onViewOnMap(address)}
-											onDelete={() => onDelete(address.id)}
+											onDelete={() => onDelete(address.id.toString())}
 										/>
 									);
 								})}

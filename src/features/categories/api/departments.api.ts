@@ -60,7 +60,7 @@ export async function getDepartments(
 ): Promise<ApiResponse<DepartmentsResponse>> {
 	try {
 		const cacheTag = `departments-store-${storeId}-${limit}-${offset}-${moduleId}-${zoneId}-${storeId}`;
-		const url = `http://shellafood.com/api/v1/stores/${storeId}/categories?limit=${limit}&offset=${offset}`;
+		const url = `https://shellafood.com/api/v1/stores/${storeId}/categories?limit=${limit}&offset=${offset}`;
 		
 		console.log(`[Departments API] Requesting: ${url}`);
 		console.log(`[Departments API] Cache config:`, {

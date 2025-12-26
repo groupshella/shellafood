@@ -30,16 +30,28 @@ function DepartmentCard({
   const direction = isArabic ? "rtl" : "ltr";
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const displayName = useMemo(() => {
-    return isArabic ? department.name_ar : department.name_en;
+    return (isArabic ? department.name_ar : department.name_en) || department.name;
   }, [department, isArabic]);
 
-  const handleClick = useCallback(() => {
-    // Scroll to top immediately when clicking (before navigation)
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    router.push(`/categories/${categoryId}/${storeId}/${department.id}`, { scroll: false });
-  }, [router, categoryId, storeId, department.id]);
+  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    // Prevent double clicks and multiple navigations
+    if (isNavigating) return;
+    
+    e.preventDefault();
+    setIsNavigating(true);
+    
+    // Scroll to top smoothly
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Small delay for visual feedback, then navigate
+    setTimeout(() => {
+      router.push(`/categories/${categoryId}/${storeId}/${department.id}`, { scroll: true });
+    }, 150);
+  }, [router, categoryId, storeId, department.id, isNavigating]);
 
   return (
     <motion.div
@@ -51,12 +63,18 @@ function DepartmentCard({
       onMouseLeave={() => setIsHovered(false)}
       dir={direction}
       onClick={handleClick}
-      className={`group cursor-pointer ${className}`}
+      className={`group cursor-pointer ${className} ${isNavigating ? 'pointer-events-none opacity-75' : ''}`}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
     >
-      <div className="relative h-full bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-500 shadow-lg hover:shadow-2xl transition-all duration-300">
+      <div className={`relative h-full bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+        isNavigating 
+          ? 'border-green-500 dark:border-green-500 shadow-2xl' 
+          : 'border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-500 shadow-lg hover:shadow-2xl'
+      }`}>
         {/* Department Image */}
         <div className="relative overflow-hidden h-48 sm:h-52 md:h-56 lg:h-60">
-          {department.image_full_url ? (
+          {department.image_full_url && !imageError ? (
             <Image
               src={department.image_full_url}
               alt={displayName}
@@ -67,6 +85,7 @@ function DepartmentCard({
               quality={getImageQuality('card')}
               placeholder="blur"
               blurDataURL={getImageBlurDataURL()}
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
@@ -88,9 +107,16 @@ function DepartmentCard({
           {/* View arrow indicator */}
           <div className={`absolute bottom-3 ${isArabic ? 'left-3' : 'right-3'} w-10 h-10 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg`}>
             <ArrowRight
-              className={`w-5 h-5 text-gray-900 dark:text-white ${isArabic ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 text-gray-900 dark:text-white transition-transform group-hover:translate-x-1 ${isArabic ? 'rotate-180 group-hover:-translate-x-1' : ''}`}
             />
           </div>
+
+          {/* Loading overlay when navigating */}
+          {isNavigating && (
+            <div className="absolute inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl sm:rounded-2xl">
+              <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
         </div>
 
         {/* Department Info */}

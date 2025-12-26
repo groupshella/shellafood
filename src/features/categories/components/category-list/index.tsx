@@ -56,21 +56,21 @@ function CategoriesPage({
 <ServicesSection />
 
 				{/* Categories Grid Section */}
-				<section className="py-12" dir={direction}>
-					<div className="mb-8 text-right rtl:text-right ltr:text-left">
-						<h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+				<section className="py-6 sm:py-8 md:py-12" dir={direction}>
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+						<div className="mb-6 sm:mb-8 text-right rtl:text-right ltr:text-left">
+							<h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">
 							{isArabic ? "جميع الأقسام" : "All Categories"}
 						</h2>
-						<p className="text-lg text-gray-600 dark:text-gray-400">
+							<p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400">
 							{isArabic 
 								? "تصفح جميع الأقسام المتاحة واختر ما يناسبك" 
 								: "Browse all available categories and choose what suits you"}
 						</p>
 					</div>
-
           
 							<CategoriesGrid modules={initialModules} />
-							
+					</div>
 				</section>
 			{/* </div> */}
 		</div>

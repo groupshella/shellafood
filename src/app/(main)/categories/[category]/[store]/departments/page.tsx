@@ -97,7 +97,7 @@ export default async function AllDepartmentsPageRoute(
 		}
 	  
 		const limit = 20;
-		const offset = Math.max(2, Number(search.page) || 2);
+		const offset = Math.max(1, Number(search.page) || 1);
 		const locale = DEFAULT_LANG;
 	  
 		// ✅ Fetch departments (cached)

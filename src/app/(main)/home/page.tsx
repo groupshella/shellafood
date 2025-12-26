@@ -74,7 +74,8 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePageRoute() {
-	// const cookieStore = await cookies();
+	 const cookieStore = await cookies();	
+	 const token = cookieStore.get('auth_token')?.value;
 	// const locationCookie = cookieStore.get('location')?.value;
 
 	let latitude = parseFloat('24.540766366665999');
@@ -92,7 +93,7 @@ export default async function HomePageRoute() {
 
 	const zoneModules = zoneData?.zone_data?.[0]?.modules
 	return (
-		<HomePage modules={zoneModules as ZoneDataModule[]}/>
+		<HomePage modules={zoneModules as ZoneDataModule[]} token={token as string}/>
 	);
 }
 

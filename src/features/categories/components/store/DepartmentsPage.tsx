@@ -10,7 +10,6 @@ import DepartmentCard from "./DepartmentSection";
 import Pagination from "../category-details/Pagination";
 import useSWR from "swr";
 import type { DepartmentsResponse } from "../../api/departments.api";
-import type { CategoryDetail } from "../../types/store.details.types";
 
 interface DepartmentsPageProps {
 	initialDepartments: DepartmentsResponse;

@@ -127,8 +127,10 @@ export const getCachedStoreDetails = cache(
 		moduleId: number,
 		zoneId: number,
 		storeId: number,
+		longitude: string,
+		latitude: string,
 	) => {
-		const result = await getStoreDetails(limit, offset, moduleId, zoneId, storeId, lang);
+		const result = await getStoreDetails(limit, offset, moduleId, zoneId, storeId, lang, longitude, latitude);
 		return result;
 	}
 );
@@ -140,10 +142,12 @@ export async function getStoreDetails(
 	zoneId: number, 
 	storeId: number,
 	lang: string = DEFAULT_LANG,
+	longitude: string,
+	latitude: string,
   ): Promise<ApiResponse<StoreDetails>> {
   
 	const cacheTag = `store-details-${moduleId}-${zoneId}-${storeId}-${lang}-${limit}-${offset}`;
-	const url = `${BASE_URL}/api/v1/stores/details/${storeId}?limit=${limit}&offset=${offset}`;
+	const url = `https://shellafood.com/api/v1/stores/details/${storeId}?limit=${limit}&offset=${offset}&include_categories=1`;
   
 	try {
 	  console.log(`[Next.js Fetch Cache] Requesting: ${url}`);
@@ -159,6 +163,9 @@ export async function getStoreDetails(
 	  });
   
 	  const fetchStartTime = Date.now();
+  console.log("longitude", longitude);
+  console.log("latitude", latitude);
+  console.log("moduleId", moduleId);
   
 	  const response = await fetch(url, {
 		method: 'GET',
@@ -166,7 +173,10 @@ export async function getStoreDetails(
 		  'Accept': 'application/json',
 		  'X-Localization': lang,
 		  'moduleId': moduleId.toString(),
-		  'zoneId': zoneId.toString(),
+		  'zoneId': "[2]",
+		  'longitude': "46.5995713",
+		  'latitude': "24.6100271",
+		 
 		},
 		// ✅ Next.js built-in cache
 		next: {
@@ -207,6 +217,7 @@ export async function getStoreDetails(
 	  const data = await response.json() as StoreDetails;
   
 	  console.log('[Next.js Fetch Cache] Data parsed:', {
+		data:data,
 		hasStore: !!data?.id,
 		storeId: data?.id,
 	  });
@@ -254,7 +265,7 @@ export async function getStoreDetails(
   ): Promise<ApiResponse<DepartmentResponse>> {
   
 	const cacheTag = `departments-${moduleId}-${storeId}-${departmentId}-${zoneId}-${lang}-${limit}-${offset}`;
-	const url = `${BASE_URL}/api/v1/stores/${storeId}/categories/${departmentId}/items?limit=${limit}&offset=${offset}&type=all`;
+	const url = `https://shellafood.com/api/v1/stores/${storeId}/categories/${departmentId}/items?limit=${limit}&offset=${offset}&type=all`;
   
 	try {
 	  console.log(`[Next.js Fetch Cache] Requesting: ${url}`);

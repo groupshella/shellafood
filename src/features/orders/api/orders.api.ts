@@ -5,9 +5,20 @@
 
 import type { OrdersResponse, ApiResponse, ProductOrder, ServiceRequest, DeliveryOrder } from '../types';
 import { ORDERS_CONSTANTS } from '../constants/orders.constants';
+import { cache } from 'react';
 
 const BASE_URL = ORDERS_CONSTANTS.BASE_URL;
 const DEFAULT_LANG = ORDERS_CONSTANTS.DEFAULT_LANG;
+
+/**
+ * Cached version of getOrders for server components
+ */
+export const getCachedOrderData = cache(
+	async (lang: string = DEFAULT_LANG, page: number = 1, pageSize: number = ORDERS_CONSTANTS.DEFAULT_PAGE_SIZE) => {
+		const result = await getOrders(lang, page, pageSize);
+		return result;
+	}
+);
 
 /**
  * Get all orders (products, services, delivery)

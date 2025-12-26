@@ -8,7 +8,6 @@ import { useCartPage } from "../hooks/useCartPage";
 
 // Import components
 import CouponSection from "./coupon/CouponSection";
-import AddressSelector from "./address/AddressSelector";
 import PaymentSection from "./payment/PaymentSection";
 import OrderSummary from "./checkout/OrderSummary";
 import EmptyCartState from "./cart-items/EmptyCartState";
@@ -18,13 +17,17 @@ import ClearAllModal from "./modals/ClearAllModal";
 import CartHeader from "./header/CartHeader";
 import PromoBanner from "./header/PromoBanner";
 import GroupedCartItems from "./cart-items/GroupedCartItems";
+import DeliveryAddressHero from "@/features/home/components/DeliveryAddressHero";
+import AddressSelector from "@/features/home/components/DeliveryAddressHero/AddressSelector";
+import type { Address } from "@/shared/hooks/useAddresses";
 
 interface CartPageProps {
 	initialCartData?: any[];
+	token?: string;
 }
 
 export default function CartPage(props: CartPageProps = {}) {
-	const { initialCartData } = props;
+	const { initialCartData, token = '' } = props;
 	const {
 		language,
 		isArabic,
@@ -45,12 +48,7 @@ export default function CartPage(props: CartPageProps = {}) {
 		couponError,
 		applyCoupon,
 		removeCoupon,
-		addresses,
-		selectedAddressId,
-		isAddressLoading,
-		selectAddress,
-		saveNewAddress,
-		deleteAddressById,
+		setSelectedAddress,
 		selectedPaymentMethod,
 		cardDetails,
 		selectPaymentMethod,
@@ -68,7 +66,7 @@ export default function CartPage(props: CartPageProps = {}) {
 		handleCheckoutConfirm,
 		handleClearAll,
 		handleContinueShopping,
-	} = useCartPage(initialCartData);
+	} = useCartPage(initialCartData, token);
 
 	// Empty state
 	if (!isLoading && items.length === 0)  {
@@ -130,8 +128,12 @@ export default function CartPage(props: CartPageProps = {}) {
 								<GroupedCartItems
 									productsByStore={productsByStore}
 									language={language}
-									onUpdateQuantity={updateQuantity}
-									onRemove={removeItem}
+									onUpdateQuantity={async (cartId, priceAtAdd, quantity) => {
+										await updateQuantity(cartId, priceAtAdd, quantity);
+									}}
+									onRemove={async (cartId) => {
+										await removeItem(cartId);
+									}}
 								/>
 							)}
 						</div>
@@ -150,16 +152,7 @@ export default function CartPage(props: CartPageProps = {}) {
 								onRemove={removeCoupon}
 							/>
 
-							{/* Address Selector */}
-							<AddressSelector
-								language={language}
-								addresses={addresses}
-								selectedAddressId={selectedAddressId}
-								isLoading={isAddressLoading}
-								onAddressSelect={selectAddress}
-								onSaveAddress={saveNewAddress}
-								onDeleteAddress={deleteAddressById}
-							/>
+							<AddressSelector onAddressChange={(address: Address | null) => setSelectedAddress(address)} token={token} />
 
 							{/* Payment Options */}
 							<PaymentSection

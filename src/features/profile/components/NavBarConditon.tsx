@@ -21,8 +21,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "@/providers";
 import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
+import { useToast } from "@/shared/components/ui";
 import HelpAndSupport from "./Support/HelpAndSupport";
-import { removeAuthToken } from "@/features/auth/lib/utils/auth.utils";
+import { getAuthToken, removeAuthToken, removeUser } from "@/features/auth/lib/utils/auth.utils";
 
 
 // Single source of truth for navigation items
@@ -48,10 +49,10 @@ const NAVIGATION_ITEMS: NavItem[] = [
 	{ id: "categories", label: "الفئات", icon: List, href: "/categories", showInDesktop: false, showInMobile: true },
 	{ id: "contact", label: "اتصل بنا", icon: Mail, href: "#", showInDesktop: true, showInMobile: true, isAction: true },
 	{ id: "language", label: "عربية", icon: Globe, href: "/", showInDesktop: false, showInMobile: false }, // Handled separately
-	{ id: "logout", label: "تسجيل الخروج", icon: LogOut, href: "/logout", showInDesktop: false, showInMobile: true },
+	{ id: "logout", label: "تسجيل الخروج", icon: LogOut, href: "#", showInDesktop: true, showInMobile: true, isAction: true },
 ];
 
-const MobileMenu = ({
+	const MobileMenu = ({
 	onClose,
 	activeTab,
 	setActiveTab,
@@ -63,6 +64,8 @@ const MobileMenu = ({
 	isDropdownOpen,
 	setIsDropdownOpen,
 	dropdownRef,
+	islogin,
+	handleLogout,
 }: {
 	onClose: () => void;
 	activeTab: string;
@@ -75,10 +78,11 @@ const MobileMenu = ({
 	isDropdownOpen: boolean;
 	setIsDropdownOpen: (open: boolean) => void;
 	dropdownRef: React.RefObject<HTMLDivElement>;
-}) => {
+	islogin: boolean;
+	handleLogout: () => void;
+}): JSX.Element => {
 	const router = useRouter();
 	const [searchTerm, setSearchTerm] = useState("");
-
 	const handleSearch = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (searchTerm.trim()) {
@@ -91,13 +95,17 @@ const MobileMenu = ({
 		setActiveTab(item.id);
 		if (item.isAction && item.id === "contact") {
 			openAterms();
+		} else if (item.isAction && item.id === "logout") {
+			// Logout is handled separately with confirmation
+			return;
 		} else if (item.href !== "#") {
 			router.push(item.href);
 		}
 		onClose();
 	};
 
-	const mobileItems = NAVIGATION_ITEMS.filter(item => item.showInMobile);
+	const mobileItems = NAVIGATION_ITEMS.filter(item => item.showInMobile)
+	console.log(islogin);
 
 	return (
 		<>
@@ -227,7 +235,6 @@ const MobileMenu = ({
 						/>
 					</form>
 				</div>
-
 				{/* Menu Items */}
 				<div className="overflow-y-auto h-[calc(100vh-140px)] px-4 py-4">
 					<div className="space-y-1.5">
@@ -235,7 +242,8 @@ const MobileMenu = ({
 							const Icon = item.icon;
 							const isActive = activeTab === item.id;
 							const badge = item.hasBadge ? cartCount : undefined;
-
+							
+							if (islogin === false && item.id === "logout") return null;
 							return (
 								<motion.div
 									key={item.id}
@@ -246,10 +254,18 @@ const MobileMenu = ({
 									<motion.button
 										whileHover={{ x: -4 }}
 										whileTap={{ scale: 0.98 }}
-										onClick={() => handleItemClick(item)}
+										onClick={() => {
+											if (item.id === "logout") {
+												handleLogout();
+											} else {
+												handleItemClick(item);
+											}
+										}}
 										className={`group relative flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-right transition-all ${
 											isActive
 												? "bg-gradient-to-l from-green-50 to-transparent dark:from-green-900/20 text-green-600 dark:text-green-400 shadow-sm"
+												: item.id === "logout"
+												? "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
 												: "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
 										}`}
 									>
@@ -297,10 +313,11 @@ const MobileMenu = ({
 	);
 };
 
-export default  function NavBarCondition() {
+export default  function NavBarCondition({ islogin }: { islogin: boolean }) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const { language, setLanguage, t } = useLanguage();
+	const { showToast } = useToast();
 	const [activeTab, setActiveTab] = useState("");
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [showAterms, setShowAterms] = useState(false);
@@ -308,6 +325,7 @@ export default  function NavBarCondition() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -334,6 +352,47 @@ export default  function NavBarCondition() {
 		}
 	};
 
+	const handleLogout = () => {
+		setShowLogoutConfirm(true);
+	};
+
+	const confirmLogout = async () => {
+		try {
+			// Call logout API to remove httpOnly cookie
+			await fetch('/api/auth/logout', {
+				method: 'POST',
+			});
+		} catch (error) {
+			console.error('Logout API error:', error);
+		}
+		
+		// Remove auth data from client
+		removeAuthToken();
+		removeUser();
+		
+		// Clear cart and session storage
+		if (typeof window !== 'undefined') {
+			localStorage.removeItem('cart');
+			sessionStorage.clear();
+		}
+		
+		// Show success notification
+		showToast(
+			language === 'ar' ? "تم تسجيل الخروج بنجاح" : "Logged out successfully",
+			"success"
+		);
+		
+		// Close modals
+		setShowLogoutConfirm(false);
+		setIsMenuOpen(false);
+		
+		// Redirect to home
+		setTimeout(() => {
+			router.push('/home');
+			router.refresh();
+		}, 500);
+	};
+
 	const handleNavClick = (item: NavItem) => {
 		setActiveTab(item.id);
 		if(item.id==='profile') {
@@ -341,6 +400,9 @@ export default  function NavBarCondition() {
 		}
 		if (item.isAction && item.id === "contact") {
 			setShowAterms(true);
+		}
+		if (item.isAction && item.id === "logout") {
+			handleLogout();
 		}
 	};
 
@@ -487,6 +549,9 @@ export default  function NavBarCondition() {
 									const isActive = activeTab === item.id;
 									const badge = item.hasBadge ? cartCount : undefined;
 
+									// Hide logout if not logged in
+									if (islogin === false && item.id === "logout") return null;
+
 									return (
 										<motion.div key={item.id} className="relative">
 											{item.isAction ? (
@@ -494,7 +559,11 @@ export default  function NavBarCondition() {
 													whileHover={{ y: -2 }}
 													whileTap={{ scale: 0.95 }}
 													onClick={() => handleNavClick(item)}
-													className="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-green-600 dark:hover:text-green-400"
+													className={`group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+														item.id === "logout"
+															? "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300"
+															: "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-green-600 dark:hover:text-green-400"
+													}`}
 													aria-label={item.label}
 												>
 													<Icon size={20} strokeWidth={2.5} />
@@ -575,6 +644,8 @@ export default  function NavBarCondition() {
 						isDropdownOpen={isDropdownOpen}
 						setIsDropdownOpen={setIsDropdownOpen}
 						dropdownRef={dropdownRef}
+						islogin={islogin}
+						handleLogout={handleLogout}
 					/>
 				)}
 			</AnimatePresence>
@@ -608,6 +679,78 @@ export default  function NavBarCondition() {
 									<X size={20} />
 								</motion.button>
 								<HelpAndSupport />
+							</motion.div>
+						</motion.div>
+					</>
+				)}
+			</AnimatePresence>
+
+			{/* Logout Confirmation Dialog */}
+			<AnimatePresence>
+				{showLogoutConfirm && (
+					<>
+						<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							transition={{ duration: 0.2 }}
+							className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+							onClick={() => setShowLogoutConfirm(false)}
+						>
+							<motion.div
+								initial={{ opacity: 0, scale: 0.95, y: 20 }}
+								animate={{ opacity: 1, scale: 1, y: 0 }}
+								exit={{ opacity: 0, scale: 0.95, y: 20 }}
+								transition={{ type: "spring", damping: 25, stiffness: 300 }}
+								onClick={(e) => e.stopPropagation()}
+								className="relative w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-2xl md:p-8"
+								dir={language === 'ar' ? 'rtl' : 'ltr'}
+							>
+								<motion.button
+									whileHover={{ scale: 1.1 }}
+									whileTap={{ scale: 0.9 }}
+									onClick={() => setShowLogoutConfirm(false)}
+									className={`absolute top-4 ${language === 'ar' ? 'left-4' : 'right-4'} rounded-full p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-500 dark:hover:text-red-400 transition-colors`}
+									aria-label={language === 'ar' ? "إغلاق" : "Close"}
+								>
+									<X size={20} />
+								</motion.button>
+
+								<div className={`${language === 'ar' ? 'text-right' : 'text-left'} mt-2`}>
+									<div className="flex items-center gap-3 mb-4">
+										<div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+											<LogOut className="w-6 h-6 text-red-600 dark:text-red-400" />
+										</div>
+										<h3 className="text-xl font-bold text-gray-900 dark:text-white">
+											{language === 'ar' ? "تسجيل الخروج" : "Logout"}
+										</h3>
+									</div>
+									
+									<p className="text-gray-600 dark:text-gray-400 mb-6">
+										{language === 'ar' 
+											? "هل أنت متأكد من رغبتك في تسجيل الخروج؟" 
+											: "Are you sure you want to logout?"}
+									</p>
+
+									<div className={`flex gap-3 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+										<motion.button
+											whileHover={{ scale: 1.02 }}
+											whileTap={{ scale: 0.98 }}
+											onClick={confirmLogout}
+											className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg"
+										>
+											{language === 'ar' ? "تسجيل الخروج" : "Logout"}
+										</motion.button>
+										<motion.button
+											whileHover={{ scale: 1.02 }}
+											whileTap={{ scale: 0.98 }}
+											onClick={() => setShowLogoutConfirm(false)}
+											className="flex-1 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-semibold rounded-lg transition-colors"
+										>
+											{language === 'ar' ? "إلغاء" : "Cancel"}
+										</motion.button>
+									</div>
+								</div>
 							</motion.div>
 						</motion.div>
 					</>

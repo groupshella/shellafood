@@ -36,7 +36,7 @@ export default function LoginForm() {
   // ============================================================================
 
   const handlePhoneChange = useCallback((phone: string) => {
-    if(phone!=="+963")
+    if(phone!=="+966")
     setFormData((prev) => ({ ...prev, phone }));
 
   }, []);
@@ -49,11 +49,84 @@ export default function LoginForm() {
     }));
   }, []);
 
+  const handleForgotPassword = useCallback(async () => {
+    // Validate phone number
+    if (!formData.phone || formData.phone === "+966") {
+      setNotification({
+        message: isArabic
+          ? "يرجى إدخال رقم الهاتف أولاً"
+          : "Please enter your phone number first",
+        type: "error",
+        isVisible: true,
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: formData.phone,
+          lang: language || DEFAULT_LANG,
+        }),
+      });
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error(
+          isArabic 
+            ? "فشل إرسال رابط إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى." 
+            : "Failed to send password reset link. Please try again."
+        );
+      }
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || 
+          (isArabic 
+            ? "فشل إرسال رابط إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى." 
+            : "Failed to send password reset link. Please try again.")
+        );
+      }
+
+      // Success
+      setNotification({
+        message: isArabic
+          ? "تم إرسال رابط إعادة تعيين كلمة المرور إلى رقم هاتفك"
+          : "Password reset link has been sent to your phone number",
+        type: "success",
+        isVisible: true,
+      });
+
+    } catch (error: any) {
+      console.error('[Forgot Password] Error:', error);
+      
+      setNotification({
+        message: error.message || 
+          (isArabic
+            ? "فشل إرسال رابط إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى."
+            : "Failed to send password reset link. Please try again."),
+        type: "error",
+        isVisible: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [formData.phone, isArabic, language]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validation
-    if (!formData.phone || formData.phone==="+963"|| !formData.password) {
+    if (!formData.phone || formData.phone==="+966"|| !formData.password) {
       setNotification({
         message: isArabic
           ? "يرجى ملء جميع الحقول المطلوبة"
@@ -74,11 +147,12 @@ export default function LoginForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          phone: formData.phone,
-          password: formData.password,
           login_type: 'manual',
-          remember: formData.remember,
-          lang: language || DEFAULT_LANG,
+          email_or_phone: formData.phone,
+          field_type: 'phone',
+          password: formData.password,
+          guest_id: '',
+          remember: formData.remember, // For cookie duration only, not sent to backend
         }),
       });
 
@@ -155,16 +229,29 @@ export default function LoginForm() {
           />
 
           {/* Password */}
-          <PasswordInput
-            label={t("login.password") || (isArabic ? "كلمة المرور" : "Password")}
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder={isArabic ? "أدخل كلمة المرور" : "Enter password"}
-            required
-            isArabic={isArabic}
-            disabled={isLoading}
-          />
+          <div>
+            <PasswordInput
+              label={t("login.password") || (isArabic ? "كلمة المرور" : "Password")}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder={isArabic ? "أدخل كلمة المرور" : "Enter password"}
+              required
+              isArabic={isArabic}
+              disabled={isLoading}
+            />
+            {/* Forgot Password Link */}
+            <div className={`mt-2 ${isArabic ? 'text-left' : 'text-right'}`}>
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={isLoading}
+                className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isArabic ? "نسيت كلمة المرور؟" : "Forgot password?"}
+              </button>
+            </div>
+          </div>
 
           {/* Remember Me */}
           <div className="flex items-center gap-2">

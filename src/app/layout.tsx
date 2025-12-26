@@ -21,6 +21,8 @@ export default async function RootLayout({
 }: {
 	children: React.ReactNode;
 }) {
+	const CookieStore = await cookies();
+	const islogin = CookieStore.get("auth_token")?.value;
 	return (
 		<html lang="ar" dir="rtl" suppressHydrationWarning>
 			<body
@@ -29,7 +31,7 @@ export default async function RootLayout({
 				<ThemeProvider>
 					<LanguageProvider>
 						{/* Navigation - Unified for all routes */}
-				<NavBarCondition />
+				<NavBarCondition islogin={islogin ? true : false} />
 						{/* Main Content */}
 						<main className="min-h-screen bg-white dark:bg-gray-900">
 							{children}

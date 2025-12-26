@@ -32,7 +32,7 @@ export function useAddress(language: 'en' | 'ar' = 'ar'): UseAddressReturn {
 			
 			// Auto-select first address if available and none selected
 			if (fetchedAddresses.length > 0 && !selectedAddressId) {
-				setSelectedAddressId(fetchedAddresses[0].id);
+				setSelectedAddressId(fetchedAddresses[0].id.toString());
 			}
 		} catch (err) {
 			setError('Failed to load addresses');
@@ -47,7 +47,7 @@ export function useAddress(language: 'en' | 'ar' = 'ar'): UseAddressReturn {
 	}, [loadAddresses]);
 
 	const selectAddress = useCallback((addressId: string) => {
-		const addressExists = addresses.some(a => a.id === addressId);
+		const addressExists = addresses.some(a => a.id.toString() === addressId);
 		if (addressExists) {
 			setSelectedAddressId(addressId);
 		}
@@ -81,13 +81,13 @@ export function useAddress(language: 'en' | 'ar' = 'ar'): UseAddressReturn {
 			
 			if (result.success) {
 				// Remove from local state
-				setAddresses(prev => prev.filter(a => a.id !== addressId));
+				setAddresses(prev => prev.filter(a => a.id.toString() !== addressId));
 				
 				// If deleted address was selected, select another one
 				if (selectedAddressId === addressId) {
-					const remaining = addresses.filter(a => a.id !== addressId);
+					const remaining = addresses.filter(a => a.id.toString() !== addressId);
 					if (remaining.length > 0) {
-						setSelectedAddressId(remaining[0].id);
+						setSelectedAddressId(remaining[0].id.toString());
 					} else {
 						setSelectedAddressId(null);
 					}

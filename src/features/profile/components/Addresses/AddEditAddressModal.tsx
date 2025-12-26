@@ -3,42 +3,52 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useLanguage } from "@/providers";
-import { FaTimes, FaMapMarkerAlt, FaHome, FaBuilding, FaStore, FaSave, FaMap } from "react-icons/fa";
+import { FaTimes, FaMapMarkerAlt, FaHome, FaBuilding, FaStore, FaSave, FaMap, FaSpinner } from "react-icons/fa";
 import MapSelectionModal from "./MapSelectionModal";
 
 interface Address {
-	id: string;
-	type: string;
-	title: string;
+	id: number;
+	address_type: string;
+	contact_person_number: string;
 	address: string;
-	details: string;
-	phone: string;
-	isDefault: boolean;
-	coordinates: { lat: number; lng: number };
+	latitude: string;
+	longitude: string;
+	user_id: number;
+	contact_person_name: string;
+	created_at: string;
+	updated_at: string;
+	zone_id: number;
+	floor: string | null;
+	road: string | null;
+	house: string | null;
+	zone_ids: number[];
 }
 
 interface AddEditAddressModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSave: (address: Omit<Address, 'id'>) => void;
+	onSave: (address: any) => void;
 	editingAddress?: Address | null;
+	isLoading: boolean;
 }
 
-export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAddress }: AddEditAddressModalProps) {
+export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAddress, isLoading }: AddEditAddressModalProps) {
 	const { language } = useLanguage();
 	const isArabic = language === 'ar';
 	const direction = isArabic ? 'rtl' : 'ltr';
 
 	const [formData, setFormData] = useState({
-		type: "home",
-		title: "",
+		address_type: "home",
+		contact_person_name: "",
+		contact_person_number: "",
 		address: "",
-		details: "",
-		phone: "",
-		isDefault: false
+		latitude: "",
+		longitude: "",
+		road: "",
+		house: "",
+		floor: ""
 	});
 	const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-	const [selectedCoordinates, setSelectedCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
@@ -49,28 +59,32 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 	useEffect(() => {
 		if (editingAddress) {
 			setFormData({
-				type: editingAddress.type,
-				title: editingAddress.title,
+				address_type: editingAddress.address_type,
+				contact_person_name: editingAddress.contact_person_name,
+				contact_person_number: editingAddress.contact_person_number,
 				address: editingAddress.address,
-				details: editingAddress.details,
-				phone: editingAddress.phone,
-				isDefault: editingAddress.isDefault
+				latitude: editingAddress.latitude,
+				longitude: editingAddress.longitude,
+				road: editingAddress.road || "",
+				house: editingAddress.house || "",
+				floor: editingAddress.floor || ""
 			});
-			setSelectedCoordinates(editingAddress.coordinates);
 		} else {
 			setFormData({
-				type: "home",
-				title: "",
+				address_type: "home",
+				contact_person_name: "",
+				contact_person_number: "",
 				address: "",
-				details: "",
-				phone: "",
-				isDefault: false
+				latitude: "",
+				longitude: "",
+				road: "",
+				house: "",
+				floor: ""
 			});
-			setSelectedCoordinates(null);
 		}
 	}, [editingAddress, isOpen]);
 
-	const handleInputChange = (field: string, value: string | boolean) => {
+	const handleInputChange = (field: string, value: string | number) => {
 		setFormData(prev => ({
 			...prev,
 			[field]: value
@@ -81,19 +95,29 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 		setFormData(prev => ({
 			...prev,
 			address: addressData.address,
-			details: addressData.details || prev.details // Keep existing details if map selection doesn't provide one
+			latitude: addressData.coordinates.lat.toString(),
+			longitude: addressData.coordinates.lng.toString()
 		}));
-		setSelectedCoordinates(addressData.coordinates);
 		setIsMapModalOpen(false);
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
+		
+		// Clean phone number (remove any non-numeric characters except +)
+		const cleanedPhone = formData.contact_person_number.replace(/[^\d+]/g, '');
+		
 		onSave({
 			...formData,
-			coordinates: selectedCoordinates || { lat: 24.7136, lng: 46.6753 } // Use selected coordinates or default
+			contact_person_number: cleanedPhone,
+			// Ensure coordinates are strings
+			latitude: formData.latitude || "24.7136",
+			longitude: formData.longitude || "46.6753",
+			// Convert empty strings to null for optional fields
+			road: formData.road || undefined,
+			house: formData.house || undefined,
+			floor: formData.floor || undefined
 		});
-		onClose();
 	};
 
 	const addressTypes = [
@@ -106,12 +130,12 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 	if (!isOpen || !mounted) return null;
 
 	const modalContent = (
-		<div 
-			className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-[9999] animate-in fade-in duration-200" 
+		<div
+			className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-[9999] animate-in fade-in duration-200"
 			dir={direction}
 			onClick={onClose}
 		>
-			<div 
+			<div
 				className="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-2xl shadow-2xl max-w-2xl w-full h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-y-auto flex flex-col animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300"
 				onClick={(e) => e.stopPropagation()}
 			>
@@ -123,7 +147,7 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 				{/* Modal Header - Sticky */}
 				<div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10 flex-shrink-0 shadow-sm">
 					<h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
-						{editingAddress 
+						{editingAddress
 							? (isArabic ? "تعديل العنوان" : "Edit Address")
 							: (isArabic ? "إضافة عنوان جديد" : "Add New Address")
 						}
@@ -138,7 +162,7 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 				</div>
 
 				{/* Modal Body - Scrollable */}
-				<form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 sm:space-y-6 flex-1 overflow-y-auto">
+				<form onSubmit={handleSubmit}  className="p-4 sm:p-6 space-y-5 sm:space-y-6 flex-1 overflow-y-auto">
 					{/* Address Type */}
 					<div>
 						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -151,9 +175,9 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 									<button
 										key={type.value}
 										type="button"
-										onClick={() => handleInputChange('type', type.value)}
+										onClick={() => handleInputChange('address_type', type.value)}
 										className={`flex flex-col items-center p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 touch-manipulation ${
-											formData.type === type.value
+											formData.address_type === type.value
 												? 'border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 shadow-sm'
 												: 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
 										}`}
@@ -166,20 +190,39 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 						</div>
 					</div>
 
-					{/* Address Title */}
+					{/* Contact Person Name */}
 					<div>
 						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							{isArabic ? "عنوان العنوان" : "Address Title"}
+							{isArabic ? "اسم جهة الاتصال" : "Contact Person Name"}
 						</label>
 						<input
 							type="text"
-							value={formData.title}
-							onChange={(e) => handleInputChange('title', e.target.value)}
-							placeholder={isArabic ? "مثال: المنزل، العمل، إلخ" : "e.g., Home, Work, etc."}
+							value={formData.contact_person_name}
+							onChange={(e) => handleInputChange('contact_person_name', e.target.value)}
+							placeholder={isArabic ? "مثال: محمد أحمد" : "e.g., Mohammed Ahmed"}
 							className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
 							required
 							dir={direction}
 						/>
+					</div>
+
+					{/* Phone Number */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							{isArabic ? "رقم الهاتف" : "Phone Number"}
+						</label>
+						<input
+							type="tel"
+							value={formData.contact_person_number}
+							onChange={(e) => handleInputChange('contact_person_number', e.target.value)}
+							placeholder={isArabic ? "966501234567" : "966501234567"}
+							className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+							required
+							dir="ltr"
+						/>
+						<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+							{isArabic ? "أدخل الرقم بدون + أو مسافات" : "Enter number without + or spaces"}
+						</p>
 					</div>
 
 					{/* Main Address - Mobile Optimized */}
@@ -206,7 +249,7 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 							dir={direction}
 						/>
 						{/* Selected Location Indicator */}
-						{selectedCoordinates && (
+						{formData.latitude && formData.longitude && (
 							<div className="mt-2 flex items-center gap-2 text-xs text-green-600 font-medium">
 								<FaMapMarkerAlt className="text-xs" />
 								<span>{isArabic ? "تم تحديد الموقع على الخريطة" : "Location selected on map"}</span>
@@ -214,50 +257,50 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 						)}
 					</div>
 
-					{/* Address Details */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							{isArabic ? "تفاصيل إضافية" : "Additional Details"}
-						</label>
-						<textarea
-							value={formData.details}
-							onChange={(e) => handleInputChange('details', e.target.value)}
-							placeholder={isArabic ? "رقم المبنى، الطابق، رقم الشقة، إلخ" : "Building number, floor, apartment number, etc."}
-							rows={2}
-							className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm resize-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-							dir={direction}
-						/>
+					{/* Additional Details - Optional */}
+					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+						<div>
+							<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+								{isArabic ? "الشارع" : "Road"} <span className="text-gray-400">({isArabic ? "اختياري" : "Optional"})</span>
+							</label>
+							<input
+								type="text"
+								value={formData.road}
+								onChange={(e) => handleInputChange('road', e.target.value)}
+								placeholder={isArabic ? "مثال: شارع الملك فهد" : "e.g., King Fahd Road"}
+								className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+								dir={direction}
+							/>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+								{isArabic ? "المبنى" : "House"} <span className="text-gray-400">({isArabic ? "اختياري" : "Optional"})</span>
+							</label>
+							<input
+								type="text"
+								value={formData.house}
+								onChange={(e) => handleInputChange('house', e.target.value)}
+								placeholder={isArabic ? "مثال: 123" : "e.g., 123"}
+								className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+								dir={direction}
+							/>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+								{isArabic ? "الطابق" : "Floor"} <span className="text-gray-400">({isArabic ? "اختياري" : "Optional"})</span>
+							</label>
+							<input
+								type="text"
+								value={formData.floor}
+								onChange={(e) => handleInputChange('floor', e.target.value)}
+								placeholder={isArabic ? "مثال: 2" : "e.g., 2"}
+								className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+								dir={direction}
+							/>
+						</div>
 					</div>
 
-					{/* Phone Number */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-							{isArabic ? "رقم الهاتف" : "Phone Number"}
-						</label>
-						<input
-							type="tel"
-							value={formData.phone}
-							onChange={(e) => handleInputChange('phone', e.target.value)}
-							placeholder={isArabic ? "+966501234567" : "+966501234567"}
-							className="w-full px-3 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-							required
-							dir={direction}
-						/>
-					</div>
 
-					{/* Set as Default */}
-					<div className="flex items-center gap-3">
-						<input
-							type="checkbox"
-							id="isDefault"
-							checked={formData.isDefault}
-							onChange={(e) => handleInputChange('isDefault', e.target.checked)}
-							className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
-						/>
-						<label htmlFor="isDefault" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-							{isArabic ? "تعيين كعنوان افتراضي" : "Set as default address"}
-						</label>
-					</div>
 
 					{/* Modal Footer - Sticky on Mobile */}
 					<div className={`flex flex-col sm:flex-row gap-3 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky bottom-0 z-10 ${isArabic ? 'sm:flex-row-reverse' : 'sm:flex-row'}`}>
@@ -268,13 +311,21 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 						>
 							{isArabic ? "إلغاء" : "Cancel"}
 						</button>
+						{isLoading ? (
+							<div className="flex-1 flex items-center justify-center gap-2.5 px-4 py-3.5 sm:py-2.5 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl hover:from-green-700 hover:to-emerald-700 active:scale-[0.98] transition-all touch-manipulation shadow-lg hover:shadow-xl">
+								<FaSpinner className="animate-spin text-base sm:text-sm" />
+								<span>{isArabic ? "جاري الحفظ..." : "Saving..."}</span>
+							</div>
+						) : (
 						<button
 							type="submit"
-							className="flex-1 flex items-center justify-center gap-2.5 px-4 py-3.5 sm:py-2.5 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl hover:from-green-700 hover:to-emerald-700 active:scale-[0.98] transition-all touch-manipulation shadow-lg hover:shadow-xl"
+							disabled={isLoading}
+							className="flex-1 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-3.5 sm:py-2.5 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl hover:from-green-700 hover:to-emerald-700 active:scale-[0.98] transition-all touch-manipulation shadow-lg hover:shadow-xl"
 						>
 							<FaSave className="text-base sm:text-sm" />
 							<span>{isArabic ? "حفظ" : "Save"}</span>
 						</button>
+						)}
 					</div>
 				</form>
 			</div>

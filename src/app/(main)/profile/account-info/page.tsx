@@ -103,17 +103,33 @@ export default async function AccountInfoPageRoute() {
 	  const guestId = cookieStore.get("guest_id");
 	  console.log("authToken", authToken?.value);
 	  console.log("guestId", guestId?.value);
-	  const accountInfoData = await getAccountInfoData(authToken?.value || '', guestId?.value || '');
-	  console.log("accountInfoData", accountInfoData);
+	const accountInfoData = await getAccountInfoData(authToken?.value || '', guestId?.value || '');
+	console.log("accountInfoData", accountInfoData);
+
 	// Map the API response to the component's expected format
-	const accountData = accountInfoData?.data || accountInfoData;
-	
-	return <AccountInfoPage personalInfo={{
-		fullName: accountData?.full_name || `${accountData?.f_name || ''} ${accountData?.l_name || ''}`.trim() || '',
-		email: accountData?.email || '',
-		phone: accountData?.phone || '',
-		dateOfBirth: accountData?.birth_date || accountData?.date_of_birth || '',
-		nationalId: accountData?.personal_id || accountData?.national_id || '',
-		address: accountData?.address || '',
-	}} />
+	const personalInfo = accountInfoData ? {
+		id: accountInfoData.id || 0,
+		f_name: accountInfoData.f_name || '',
+		l_name: accountInfoData.l_name || '',
+		fullName: `${accountInfoData.f_name || ''} ${accountInfoData.l_name || ''}`.trim() || '',
+		email: accountInfoData.email || '',
+		phone: accountInfoData.phone || '',
+		image: accountInfoData.image || '',
+		wallet_balance: accountInfoData.wallet_balance || 0,
+		loyalty_point: accountInfoData.loyalty_point || 0,
+		order_count: accountInfoData.order_count || 0,
+	} : {
+		id: 0,
+		f_name: '',
+		l_name: '',
+		fullName: '',
+		email: '',
+		phone: '',
+		image: '',
+		wallet_balance: 0,
+		loyalty_point: 0,
+		order_count: 0,
+	};
+
+	return <AccountInfoPage personalInfo={personalInfo} />
 }

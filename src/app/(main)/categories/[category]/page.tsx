@@ -56,7 +56,7 @@ export default async function CategoryPageRoute({ params, searchParams }: PagePr
     moduleId,
     2 // zone_id
   );
-
+console.log("storeListResponse", storeListResponse);
   if (!storeListResponse?.data) {
     return (
       <CategoryView 

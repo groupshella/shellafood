@@ -11,6 +11,7 @@ export { useLanguageDirection } from './useLanguageDirection';
 export { useClientCache, clientCache, cacheKeys } from './useClientCache';
 export { useFilters } from './useFilters';
 export { useCart } from './useCart';
+export { useCartCount } from './useCartCount';
 export { useProductFavorites, useStoreFavorites } from './useFavorites';
 export { useAddresses } from './useAddresses';
 export { useProductActions } from './useProductActions';

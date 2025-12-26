@@ -73,12 +73,34 @@ export function getCookie(name: string): string | null {
  * @param name - Cookie name
  * @param path - Cookie path (default: '/')
  */
-export function removeCookie(name: string, path: string = '/'): void {
-	if (typeof document === 'undefined') return;
-
-	// Set expiration date to the past
-	document.cookie = `${encodeURIComponent(name)}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=${path};SameSite=Lax`;
-}
+export function removeCookie(
+	name: string,
+	options?: {
+	  path?: string;
+	  domain?: string;
+	  secure?: boolean;
+	}
+  ): void {
+	if (typeof document === "undefined") return;
+  
+	const {
+	  path = "/",
+	  domain,
+	  secure = window.location.protocol === "https:",
+	} = options || {};
+  
+	document.cookie = [
+	  `${encodeURIComponent(name)}=`,
+	  `expires=Thu, 01 Jan 1970 00:00:00 UTC`,
+	  `path=${path}`,
+	  domain ? `domain=${domain}` : "",
+	  secure ? "Secure" : "",
+	  "SameSite=Lax",
+	]
+	  .filter(Boolean)
+	  .join("; ");
+  }
+  
 
 /**
  * Check if a cookie exists

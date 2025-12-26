@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CreditCard, Star, MapPin, Store, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/providers";
-import { RatingModal } from "@/features/serve-me";
+import RatingModal from "@/features/serve-me/components/Modals/RatingModal";
 import { OrderStatusBadge } from "../../shared/OrderStatusBadge";
 import { PaymentStatusBadge } from "../../shared/PaymentStatusBadge";
 import { cn } from "@/shared/utils";

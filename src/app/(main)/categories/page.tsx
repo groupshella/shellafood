@@ -1,13 +1,11 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { notFound } from "next/navigation";
 import { getCachedZoneData } from "@/features/categories/api/modules.api";
 import { ZoneDataModule } from "@/features/categories/types/module.types";
 import { CategoriesPage } from "@/features/categories/components/category-list";
 import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
 
-// ✅ Enable ISR (Incremental Static Regeneration)
-export const revalidate = 3600; // Re-generate page every hour
+export const dynamic = "force-dynamic";
 
 
 export const metadata: Metadata = {
@@ -81,8 +79,8 @@ export default async function CategoriesPageRoute() {
 	const cookieStore = await cookies();
 	const locationCookie = cookieStore.get('location')?.value;
 
-	let latitude = parseFloat('24.540766366665999');
-	let longitude = parseFloat('46.504590739370002');
+	let latitude = parseFloat('24.6100');
+	let longitude = parseFloat('46.5995');
 	const locale = DEFAULT_LANG;
 	// if (locationCookie) {
 	
@@ -95,14 +93,11 @@ export default async function CategoriesPageRoute() {
 	const zoneData = await getCachedZoneData(latitude, longitude, locale);
 
 	const zoneModules = zoneData?.zone_data?.[0]?.modules || [];
-	
 
 	return (
-		<div className="container mx-auto px-4 py-8">
 			<CategoriesPage 
 				initialModules={zoneModules as ZoneDataModule[]} 
 			/>
-		</div>
 	);
 }
 

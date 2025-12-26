@@ -6,21 +6,12 @@ import { FaTimes, FaMapMarkerAlt, FaDirections, FaCopy } from "react-icons/fa";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { MAP_CONFIG } from "@/lib/maps/utils";
 
-interface Address {
-	id: string;
-	type: string;
-	title: string;
-	address: string;
-	details: string;
-	phone: string;
-	isDefault: boolean;
-	coordinates: { lat: number; lng: number };
-}
+import { type Address } from "@/shared/hooks";
 
 interface MapModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	address: Address | null;
+	address: Address;
 }
 
 // Use shared configuration (cost optimization)
@@ -46,28 +37,28 @@ function MapModal({ isOpen, onClose, address }: MapModalProps) {
 	// Memoize center to prevent unnecessary map re-renders
 	const center = useMemo(() => {
 		return address ? {
-			lat: address.coordinates.lat,
-			lng: address.coordinates.lng
+			lat: parseFloat(address.latitude),
+			lng: parseFloat(address.longitude)
 		} : MAP_CONFIG.defaultCenter;
-	}, [address?.coordinates?.lat, address?.coordinates?.lng]);
+	}, [address?.latitude, address?.longitude]);
 
 	const handleGetDirections = () => {
 		if (address) {
-			const url = `https://www.google.com/maps/dir/?api=1&destination=${address.coordinates.lat},${address.coordinates.lng}`;
+			const url = `https://www.google.com/maps/dir/?api=1&destination=${address.latitude},${address.longitude}`;
 			window.open(url, '_blank');
 		}
 	};
 
 	const handleCopyAddress = () => {
 		if (address) {
-			const fullAddress = `${address.address}, ${address.details}`;
+			const fullAddress = `${address.address}, ${address.address_type || ''}`;
 			navigator.clipboard.writeText(fullAddress);
 			// You could add a toast notification here
 			alert(isArabic ? "تم نسخ العنوان" : "Address copied to clipboard");
 		}
 	};
 
-	if (!isOpen || !address) return null;
+	if (!isOpen) return null;
 
 	return (
 		<div 
@@ -94,7 +85,7 @@ function MapModal({ isOpen, onClose, address }: MapModalProps) {
 							<h2 className="text-base sm:text-xl font-bold text-gray-900 truncate">
 								{isArabic ? "عرض على الخريطة" : "View on Map"}
 							</h2>
-							<p className="text-gray-600 text-xs sm:text-sm truncate">{address.title}</p>
+							<p className="text-gray-600 text-xs sm:text-sm truncate">{address.address}</p>
 						</div>
 					</div>
 					<button
@@ -141,10 +132,10 @@ function MapModal({ isOpen, onClose, address }: MapModalProps) {
 							>
 								<Marker
 									position={{
-										lat: address.coordinates.lat,
-										lng: address.coordinates.lng
+										lat: parseFloat(address.latitude),
+										lng: parseFloat(address.longitude)
 									}}
-									title={address.title}
+									title={address.address}
 									animation={window.google?.maps?.Animation ? window.google.maps.Animation.DROP : undefined}
 								/>
 							</MemoizedGoogleMap>
@@ -166,19 +157,19 @@ function MapModal({ isOpen, onClose, address }: MapModalProps) {
 										</p>
 										<p className="text-sm sm:text-base text-gray-900 leading-relaxed">{address.address}</p>
 									</div>
-									{address.details && (
+									{address.address_type && (
 										<div className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-100">
 											<p className="text-xs sm:text-sm font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">
 												{isArabic ? "التفاصيل الإضافية" : "ADDITIONAL DETAILS"}
 											</p>
-											<p className="text-sm sm:text-base text-gray-900 leading-relaxed">{address.details}</p>
+											<p className="text-sm sm:text-base text-gray-900 leading-relaxed">{address.address_type}</p>
 										</div>
 									)}
 									<div className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-100">
 										<p className="text-xs sm:text-sm font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">
 											{isArabic ? "رقم الهاتف" : "PHONE NUMBER"}
 										</p>
-										<p className="text-sm sm:text-base text-gray-900 font-medium">{address.phone}</p>
+										<p className="text-sm sm:text-base text-gray-900 font-medium">{address.contact_person_number}</p>
 									</div>
 								</div>
 							</div>

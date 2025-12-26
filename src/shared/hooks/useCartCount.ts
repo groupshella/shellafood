@@ -1,0 +1,72 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+
+// Helper function to get cookie value
+function getCookie(name: string): string | null {
+	if (typeof window === 'undefined') return null;
+	const value = `; ${document.cookie}`;
+	const parts = value.split(`; ${name}=`);
+	if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+	return null;
+}
+
+export function useCartCount() {
+	const [count, setCount] = useState(0);
+	const [isLoading, setIsLoading] = useState(true);
+
+	const fetchCartCount = useCallback(async () => {
+		try {
+			const guestId = getCookie('guest_id');
+			
+			if (!guestId) {
+				setCount(0);
+				setIsLoading(false);
+				return;
+			}
+
+			const response = await fetch(`https://shellafood.com/api/v1/customer/cart/list?guest_id=${guestId}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+				},
+				cache: 'no-store',
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				// Calculate total quantity from cart items
+				const totalCount = Array.isArray(data) 
+					? data.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0)
+					: 0;
+				setCount(totalCount);
+			} else {
+				setCount(0);
+			}
+		} catch (error) {
+			console.error('Error fetching cart count:', error);
+			setCount(0);
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		fetchCartCount();
+
+		// Listen for cart updates
+		const handleCartUpdate = () => {
+			fetchCartCount();
+		};
+
+		window.addEventListener('cartUpdated', handleCartUpdate);
+		
+		return () => {
+			window.removeEventListener('cartUpdated', handleCartUpdate);
+		};
+	}, [fetchCartCount]);
+
+	return { count, isLoading, refetch: fetchCartCount };
+}
+

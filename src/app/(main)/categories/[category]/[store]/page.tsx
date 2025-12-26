@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 import { StoreDetails } from '@/features/categories/types/store.details.types';
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 
 interface PageProps {
   params: Promise<{
@@ -67,6 +68,7 @@ export async function generateMetadata(
 export default async function StorePageRoute(
   { params, searchParams }: PageProps
 ) {
+  const cookie = await cookies();
   const { category, store } = await params;
   const search = await searchParams;
 
@@ -83,9 +85,14 @@ export default async function StorePageRoute(
 
   const limit = 20;
   const offset = Math.max(1, Number(search.page) || 1);
-
-  const zoneId = 2; // TODO: replace  with real zone resolver
-
+  const zoneId = 2; // TODO: replace with real zone resolver
+  
+  // Get user location from cookie
+  const userLocationCookie = cookie.get('user_location')?.value;
+  const userLocation = userLocationCookie ? userLocationCookie.split(',') : null;
+  const longitude = userLocation?.[0] || '';
+  const latitude = userLocation?.[1] || '';
+  
   // ✅ Fetch store details (cached)
   const storeDetailsResponse = await getCachedStoreDetails(
     limit,
@@ -93,7 +100,9 @@ export default async function StorePageRoute(
     DEFAULT_LANG,
     moduleId,
     zoneId,
-    storeId
+    storeId,
+    longitude,
+    latitude
   );
 
   if (!storeDetailsResponse?.data) {

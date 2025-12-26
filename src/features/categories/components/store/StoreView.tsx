@@ -9,7 +9,7 @@
   import { useMemo, useState, useTransition, memo, useCallback, useEffect } from "react";
   import type { StoreDetails, CategoryDetail } from "../../types/store.details.types";
   import { 
-    Search, Phone, Mail, MapPin, Clock, DollarSign, Star, Tag,
+    Phone, Mail, MapPin, Clock, DollarSign, Star, Tag,
     Calendar, CheckCircle2, XCircle, Gift, Grid3x3,
     ShoppingCart
   } from "lucide-react";
@@ -69,7 +69,6 @@
     // ============================================================================
 
     const [activeTab, setActiveTab] = useState<TabId>("departments");
-    const [searchTerm, setSearchTerm] = useState("");
     const [isPending, startTransition] = useTransition();
 
    
@@ -131,17 +130,32 @@
       [currentStore, isArabic]
     );
 
-    // Filter departments based on search (client-side on current page)
+    // Get all departments (no filtering - search is handled in DepartmentsPage)
+    // Map simple category_details to full CategoryDetail structure for DepartmentCard
     const filteredDepartments = useMemo(() => {
-      const departments = currentStore.category_details || [];
-      if (!searchTerm.trim()) return departments;
+      if (!currentStore.category_details) return [];
       
-      const searchLower = searchTerm.toLowerCase().trim();
-      return departments.filter(dept => {
-        const name = isArabic ? dept.name_ar : dept.name_en;
-        return name?.toLowerCase().includes(searchLower);
-      });
-    }, [currentStore.category_details, searchTerm, isArabic]);
+      return currentStore.category_details.map((cat) => ({
+        id: cat.id,
+        name: cat.name,
+        name_ar: cat.name, // API only provides name, use it for both
+        name_en: cat.name,
+        image: '',
+        image_full_url: '', // Will show fallback if not available
+        parent_id: 0,
+        position: 0,
+        status: 1,
+        created_at: '',
+        updated_at: '',
+        priority: 0,
+        module_id: currentStore.module_id,
+        cat_site_id: '',
+        slug: '',
+        featured: 0,
+        storage: [],
+        translations: [],
+      } as CategoryDetail));
+    }, [currentStore.category_details, currentStore.module_id]);
 
 
 
@@ -152,17 +166,7 @@
     const handleTabChange = useCallback((tab: string) => {
       startTransition(() => {
         setActiveTab(tab as TabId);
-        // Clear search when changing tabs
-        if (tab !== "departments") {
-          setSearchTerm("");
-        }
       });
-    }, []);
-
- 
-
-    const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchTerm(e.target.value);
     }, []);
 
     // ============================================================================
@@ -232,27 +236,6 @@
 
           {/* Main Content */}
           <main>
-            {/* Search Bar - Departments Tab Only - Mobile Optimized */}
-            {activeTab === "departments" && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4 sm:mb-6 md:mb-8"
-              >
-                <div className="relative max-w-2xl mx-auto">
-                  <Search className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? "right-3 sm:right-4" : "left-3 sm:left-4"} w-4 h-4 sm:w-5 sm:h-5 text-gray-400 dark:text-gray-500`} />
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    placeholder={t.searchPlaceholder}
-                    disabled={isPending }
-                    className={`w-full ${isArabic ? "pr-10 sm:pr-12 pl-3 sm:pl-4" : "pl-10 sm:pl-12 pr-3 sm:pr-4"} py-2.5 sm:py-3 md:py-4 bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 text-sm sm:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm sm:shadow-md`}
-                  />
-                </div>
-              </motion.div>
-            )}
-
             {/* Loading Indicator - Mobile Optimized */}
             <AnimatePresence>
               {(isPending ) && (
@@ -471,18 +454,18 @@
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <InfoItem icon={Phone} label={t.phone} value={store.phone} href={`tel:${store.phone}`} isPhone={true} />
           <InfoItem icon={Mail} label={t.email} value={store.email || t.notAvailable} href={store.email ? `mailto:${store.email}` : undefined} />
-          <InfoItem icon={MapPin} label={t.address} value={store.address} className="sm:col-span-2" />
+          <InfoItem icon={MapPin} label={t.address} value={store.address || t.notSpecified} className="sm:col-span-2" />
           <InfoItem icon={DollarSign} label={t.minOrder} value={`${store.minimum_order} ${t.sar}`} />
           <InfoItem 
             icon={Tag} 
             label={t.deliveryFee} 
-            value={store.free_delivery ? t.free : `${store.delivery?.delivery_fee || 0} ${t.sar}`}
-            highlight={store.free_delivery}
+            value={store.free_delivery === 1 ? t.free : `${store.minimum_shipping_charge || '0.00'} ${t.sar}`}
+            highlight={store.free_delivery === 1}
           />
           <InfoItem 
             icon={Clock} 
             label={t.deliveryTime} 
-            value={store.delivery_time || store.delivery?.delivery_time_range || t.notSpecified}
+            value={store.delivery_time || store.min_delivery_time ? `${store.min_delivery_time} min` : t.notSpecified}
           />
         </div>
 
