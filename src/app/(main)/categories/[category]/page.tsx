@@ -1,6 +1,6 @@
 import CategoryView from '@/features/categories/components/category-details/CategoryView';
 import { Metadata } from 'next';
-import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import {  getBaseUrl } from '@/features/auth/constants/auth.constants';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 
@@ -58,7 +58,8 @@ export default async function CategoryPageRoute({ params, searchParams }: PagePr
       ? 'https' 
       : (host.includes('localhost') ? 'http' : 'https');
     
-    const url = `${protocol}://${host}/api/stores?moduleId=${moduleId}&limit=${limit}&offset=${offset}&zoneId=${zoneId}`;
+    const baseUrl = getBaseUrl();
+    const url = `${baseUrl}/api/stores?moduleId=${moduleId}&limit=${limit}&offset=${offset}&zoneId=${zoneId}`;
     
     const response = await fetch(url, {
       method: 'GET',
