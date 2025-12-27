@@ -55,7 +55,7 @@ export async function getAllStores(
         'Accept': 'application/json',
 		'x-localization': lang,
         'moduleId': moduleId.toString(),
-        'zoneId': zoneId.toString(),
+        'zoneId': `[${zoneId}]`, // API expects array format "[2]"
       },
       // ✅ Next.js built-in cache
       next: {

@@ -52,7 +52,7 @@ export async function getProductDetails(
 		  'Accept': 'application/json',
 		  'X-localization': lang, 
 		  'moduleId': moduleId.toString(),
-		  'zoneId': zoneId.toString(),
+		  'zoneId': `[${zoneId}]`, // API expects array format "[2]"
 		},
 		// ✅ Next.js built-in cache
 		next: {

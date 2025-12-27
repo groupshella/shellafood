@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCachedAllStores } from '@/features/categories/api/stores.api';
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 
-export const runtime = 'edge'; // ✅ Deploy to edge for low latency
+// Removed edge runtime to avoid compatibility issues with external API calls
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -33,8 +33,11 @@ export async function GET(request: NextRequest) {
 
     if (!storeListResponse?.data) {
       return NextResponse.json(
-        { error: 'Failed to fetch stores' },
-        { status: 500 }
+        { 
+          error: storeListResponse?.error || 'Failed to fetch stores',
+          details: storeListResponse?.error 
+        },
+        { status: storeListResponse?.status || 500 }
       );
     }
 
