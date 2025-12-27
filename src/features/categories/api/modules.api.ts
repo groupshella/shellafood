@@ -39,7 +39,7 @@ export async function getZoneDataFromLocation(
 ): Promise<ZoneData | null> {
 	try {
 		const cacheTag = `zone-${latitude.toFixed(4)}-${longitude.toFixed(4)}`;
-		const url = `${BASE_URL}/api/v1/config/get-zone-id?latitude=${latitude}&longitude=${longitude}`;
+		const url = `$https://shellafood.com/api/v1/config/get-zone-id?latitude=${latitude}&longitude=${longitude}`;
 		
 		console.log(`[Next.js Fetch Cache] Requesting: ${url}`);
 		console.log(`[Next.js Fetch Cache] BASE_URL: ${BASE_URL}`);
@@ -100,4 +100,4 @@ export async function getZoneDataFromLocation(
 		return null;
 	}
 }
-  
+		
