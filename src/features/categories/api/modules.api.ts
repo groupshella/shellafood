@@ -1,5 +1,6 @@
-import { BASE_URL, DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
+import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
 import { cache } from 'react';
+import { headers } from 'next/headers';
 
 import {  ZoneData } from "../types/module.types";
 
@@ -38,24 +39,25 @@ export async function getZoneDataFromLocation(
 	lang: string = DEFAULT_LANG
 ): Promise<ZoneData | null> {
 	try {
+		// ✅ Use your own API route as proxy instead of direct external call
+		// Construct absolute URL for server-side fetch
+		const headersList = await headers();
+		const host = headersList.get('host') || 'localhost:3000';
+		const protocol = process.env.NODE_ENV === 'production' 
+			? 'https' 
+			: (host.includes('localhost') ? 'http' : 'https');
+		
+		const url = `${protocol}://${host}/api/modules?latitude=${latitude}&longitude=${longitude}&lang=${lang}`;
 		const cacheTag = `zone-${latitude.toFixed(4)}-${longitude.toFixed(4)}`;
-		const url = `https://shellafood.com/api/v1/config/get-zone-id?latitude=${latitude}&longitude=${longitude}`;
 		
-		console.log(`[Next.js Fetch Cache] Requesting: ${url}`);
-		console.log(`[Next.js Fetch Cache] BASE_URL: ${BASE_URL}`);
-		console.log(`[Next.js Fetch Cache] Cache config:`, {
-			revalidate: 3600,
-			tags: [cacheTag],
-			lang,
-		});
-		
-		const fetchStartTime = Date.now();
+		if (process.env.NODE_ENV === 'development') {
+			console.log('[Zone API] Requesting via proxy:', url);
+		}
 		
 		const response = await fetch(url, {
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json',
-				'X-localization': lang,
 			},
 			// ✅ Next.js built-in cache (shared across all requests)
 			next: {
@@ -64,39 +66,33 @@ export async function getZoneDataFromLocation(
 			},
 		});
 		
-		const fetchDuration = Date.now() - fetchStartTime;
-		
-		// Check cache headers if available
-		const cacheStatus = response.headers.get('x-vercel-cache') || 
-		                   response.headers.get('cache-control') || 
-		                   'unknown';
-		
-		console.log(`[Next.js Fetch Cache] Response received in ${fetchDuration}ms:`, {
-			status: response.status,
-			statusText: response.statusText,
-			cacheStatus,
-			url: response.url,
-		});
-		
 		if (!response.ok) {
-			console.error('[Next.js Fetch Cache] API Error:', response.status);
+			const errorData = await response.json().catch(() => ({}));
+			console.error('[Zone API] Proxy error:', {
+				status: response.status,
+				statusText: response.statusText,
+				error: errorData.error || 'Unknown error',
+			});
 			return null;
 		}
 		
 		const data = await response.json();
 		
-		console.log(`[Next.js Fetch Cache] Data parsed:`, {
-			hasZoneId: !!data.zone_id,
-			zoneDataLength: data.zone_data?.length || 0,
-			modulesCount: data.zone_data?.[0]?.modules?.length || 0,
-		});
-
+		// Validate response structure
+		if (!data || typeof data.zone_id === 'undefined') {
+			console.error('[Zone API] Invalid response structure:', data);
+			return null;
+		}
+		
 		return {
 			zone_id: data.zone_id,
 			zone_data: data.zone_data || [],
 		};
-	} catch (error) {
-		console.error('[Next.js Fetch Cache] Network Error:', error);
+	} catch (error: any) {
+		console.error('[Zone API] Error:', {
+			message: error?.message || 'Unknown error',
+			name: error?.name,
+		});
 		return null;
 	}
 }
