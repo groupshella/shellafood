@@ -53,9 +53,13 @@ export async function getAllStores(
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-		'x-localization': lang,
+        'Content-Type': 'application/json',
+		'X-localization': lang,
         'moduleId': moduleId.toString(),
         'zoneId': `[${zoneId}]`, // API expects array format "[2]"
+        'User-Agent': 'ShellaFood-WebApp/1.0',
+        'Origin': 'https://shellafood.com',
+        'Referer': 'https://shellafood.com/',
       },
       // ✅ Next.js built-in cache
       next: {
@@ -170,12 +174,15 @@ export async function getStoreDetails(
 		method: 'GET',
 		headers: {
 		  'Accept': 'application/json',
+		  'Content-Type': 'application/json',
 		  'X-Localization': lang,
 		  'moduleId': moduleId.toString(),
 		  'zoneId': "[2]",
-		  'longitude': "46.5995713",
-		  'latitude': "24.6100271",
-		 
+		  'longitude': longitude || "46.5995713",
+		  'latitude': latitude || "24.6100271",
+		  'User-Agent': 'ShellaFood-WebApp/1.0',
+		  'Origin': 'https://shellafood.com',
+		  'Referer': 'https://shellafood.com/',
 		},
 		// ✅ Next.js built-in cache
 		next: {
@@ -286,9 +293,13 @@ export async function getStoreDetails(
 		method: 'GET',
 		headers: {
 		  'Accept': 'application/json',
+		  'Content-Type': 'application/json',
 		  'X-Localization': lang,
 		  'moduleId': moduleId.toString(),
 		  'zoneId': "[2]",
+		  'User-Agent': 'ShellaFood-WebApp/1.0',
+		  'Origin': 'https://shellafood.com',
+		  'Referer': 'https://shellafood.com/',
 		},
 		// ✅ Next.js built-in cache
 		next: {
