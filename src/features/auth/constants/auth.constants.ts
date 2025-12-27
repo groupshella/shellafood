@@ -36,29 +36,21 @@ export const DEFAULT_LANG = 'ar';
 // In production: Use NEXT_PUBLIC_APP_URL if set, otherwise fallback to production domain
 // For external API calls, use the hardcoded URL in the API route handlers
 const getBaseUrl = () => {
-  // Use environment variable if available (for Vercel deployments)
-  const envUrl = process.env.NEXT_PUBLIC_API_URL ;
+	// Browser
+	if (typeof window !== 'undefined') {
+	  return window.location.origin;
+	}
+	
+	// Vercel (automatic!)
+	if (process.env.VERCEL_URL) {
+	  return `https://${process.env.VERCEL_URL}`;
+	}
+	
+	// Local dev
+	return 'http://localhost:3000';
+  };
   
-  if (envUrl) {
-    // Remove trailing slash and ensure proper protocol
-    const cleanUrl = envUrl.replace(/\/$/, '');
-    // Vercel URL doesn't include protocol, add https
-    if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
-      return cleanUrl;
-    }
-    return `https://${cleanUrl}`;
-  }
-  
-  // Fallback based on environment
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3000';
-  }
-  
-  // Production fallback
-  return 'https://shellafood.com';
-};
-
-export const BASE_URL = getBaseUrl();
+  export const BASE_URL = getBaseUrl();
 
 // ============================================================================
 // Frontend Routes
