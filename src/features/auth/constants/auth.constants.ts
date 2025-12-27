@@ -31,21 +31,31 @@ export const DEFAULT_LANG = 'ar';
 
 // Ensure BASE_URL is set correctly for production
 
-// BASE_URL should be the base domain WITHOUT /api (e.g., https://shellafood.com)
-// The /api/v1/... paths will be added in the API functions
+// BASE_URL is used for internal Next.js API routes (e.g., /api/modules, /api/stores)
+// In development: http://localhost:3000 (Next.js dev server)
+// In production: Use NEXT_PUBLIC_APP_URL if set, otherwise fallback to production domain
+// For external API calls, use the hardcoded URL in the API route handlers
 const getBaseUrl = () => {
-  // In production, require the environment variable
-  if (process.env.NODE_ENV === 'production') {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-	
-   return 'https://shellafood.com';
-  } 
-else if (process.env.NODE_ENV === 'development') {
-  return 'http://localhost:3000';
-}
-else {
+  // Use environment variable if available (for Vercel deployments)
+  const envUrl = process.env.NEXT_PUBLIC_API_URL ;
+  
+  if (envUrl) {
+    // Remove trailing slash and ensure proper protocol
+    const cleanUrl = envUrl.replace(/\/$/, '');
+    // Vercel URL doesn't include protocol, add https
+    if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+      return cleanUrl;
+    }
+    return `https://${cleanUrl}`;
+  }
+  
+  // Fallback based on environment
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+  
+  // Production fallback
   return 'https://shellafood.com';
-}
 };
 
 export const BASE_URL = getBaseUrl();
