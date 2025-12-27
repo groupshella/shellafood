@@ -95,7 +95,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 		setIsLoading(true);
 		setError(null);
 		try {
-			const apiUrl = `https://shellafood.com/api/v1/customer/address/list?limit=${limit}&offset=${currentPage}`;
+			const apiUrl = `https://shellafood.com/api/v1/customer/address/list?limit=${limit}&offset=${currentPage}&lang=ar`;
 			
 			// Use cached fetch function
 			const data = await getCachedAddresses(apiUrl, token);
@@ -160,7 +160,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 		try {
 			if (!token) throw new Error('No authentication token');
 
-			const response = await fetch(`${baseUrl}/api/v1/customer/address/update/${addressId}`, {
+			const response = await fetch(`https://shellafood.com/api/v1/customer/address/update/${addressId}`, {
 				method: 'PUT',
 				headers: {
 					'Authorization': `Bearer ${token}`,
@@ -195,7 +195,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 			if (!token) throw new Error('No authentication token');
 
 			const response = await fetch(
-				`${baseUrl}/api/v1/customer/address/delete?address_id=${addressId}`,
+				`https://shellafood.com/api/v1/customer/address/delete?address_id=${addressId}`,
 				{
 					method: 'DELETE',
 					headers: {

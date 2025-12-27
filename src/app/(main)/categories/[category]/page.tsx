@@ -1,8 +1,8 @@
 import CategoryView from '@/features/categories/components/category-details/CategoryView';
 import { Metadata } from 'next';
-import {  getBaseUrl } from '@/features/auth/constants/auth.constants';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
+import { getBaseUrl } from '@/features/auth/constants/auth.constants';
 
 interface PageProps {
   params: Promise<{ category: string }>;
@@ -49,16 +49,9 @@ export default async function CategoryPageRoute({ params, searchParams }: PagePr
   const offset = Math.max(1, Number(search.page) || 1);
   const zoneId = 2; // zone_id
   
-  // ✅ Use API route as proxy instead of direct call
+  // ✅ Use API route as proxy
   try {
-    // Construct absolute URL for server-side fetch
-    const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
-    const protocol = process.env.NODE_ENV === 'production' 
-      ? 'https' 
-      : (host.includes('localhost') ? 'http' : 'https');
-    
-    const baseUrl = getBaseUrl();
+const baseUrl=getBaseUrl();    
     const url = `${baseUrl}/api/stores?moduleId=${moduleId}&limit=${limit}&offset=${offset}&zoneId=${zoneId}`;
     
     const response = await fetch(url, {
@@ -68,7 +61,7 @@ export default async function CategoryPageRoute({ params, searchParams }: PagePr
       },
       // ✅ Next.js built-in cache
       next: {
-        revalidate: 300, // Re-fetch every 5 minutes
+        revalidate: 3600, // Re-fetch every 5 minutes
         tags: [`stores-${moduleId}-${zoneId}`],
       },
     });

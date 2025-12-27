@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 import ProductPage from '@/features/categories/components/product/ProductPage';
-import { getCachedProductDetails } from '@/features/categories/api/products.api';
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 import { Product } from '@/features/categories/types/product.types';
 import { notFound } from 'next/navigation';
+import { getBaseUrl } from '@/features/auth/constants/auth.constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -89,36 +89,64 @@ export default async function ProductPageRoute({ params }: PageProps) {
     notFound();
   }
 
-  const startTime = Date.now();
+  const zoneId = 2; // zone_id
 
-  const productResponse = await getCachedProductDetails(
-    moduleId,
-    productId,
-    2, // zone_id
-    DEFAULT_LANG
-  );
-
-  const duration = Date.now() - startTime;
-
-  console.log('[Product Page] Product fetched:', {
-    duration: `${duration}ms`,
-    moduleId,
-    storeId,
-    departmentId,
-    productId,
-    hasProduct: !!productResponse?.data,
-    productIdResponse: productResponse?.data?.id || 0,
-    productName: productResponse?.data?.name || '',
-  });
-
-  // ✅ Safe fallback
-  if (!productResponse?.data) {
+  // ✅ Use API route as proxy
+  try {
+    const baseUrl = getBaseUrl();
+    const url = `${baseUrl}/api/product-details?productId=${productId}&moduleId=${moduleId}&zoneId=${zoneId}&locale=${DEFAULT_LANG}`;
+    
+    const startTime = Date.now();
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      // ✅ Next.js built-in cache
+      next: {
+        revalidate: 3600, // Re-fetch every hour
+        tags: [`product-details-${productId}-${moduleId}-${zoneId}`],
+      },
+    });
+    
+    const duration = Date.now() - startTime;
+    
+    if (!response.ok) {
+      console.error('[Product Page] API route error:', response.status);
+      notFound();
+    }
+    
+    const productData = await response.json() as Product;
+    
+    console.log('[Product Page] Product fetched:', {
+      duration: `${duration}ms`,
+      moduleId,
+      storeId,
+      departmentId,
+      productId,
+      hasProduct: !!productData?.id,
+      productIdResponse: productData?.id || 0,
+      productName: productData?.name || '',
+    });
+    
+    // Validate response structure
+    if (!productData || !productData.id) {
+      console.error('[Product Page] Invalid response structure:', productData);
+      notFound();
+    }
+    
+    return (
+      <ProductPage
+        productResponse={productData}
+      />
+    );
+  } catch (error: any) {
+    console.error('[Product Page] Error fetching product details:', {
+      message: error?.message || 'Unknown error',
+      name: error?.name,
+    });
+    
     notFound();
   }
-console.log('productResponse', productResponse);
-  return (
-    <ProductPage
-      productResponse={productResponse.data as Product}
-    />
-  );
 }

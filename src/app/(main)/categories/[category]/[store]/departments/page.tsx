@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { DepartmentsPage } from '@/features/categories';
-import { getCachedDepartments } from '@/features/categories/api/departments.api';
+import { DepartmentsResponse } from '@/features/categories/api/departments.api';
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 import { notFound } from 'next/navigation';
+import { getBaseUrl } from '@/features/auth/constants/auth.constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -100,37 +101,106 @@ export default async function AllDepartmentsPageRoute(
 		const offset = Math.max(1, Number(search.page) || 1);
 		const locale = DEFAULT_LANG;
 	  
-		// ✅ Fetch departments (cached)
-		const departmentsResponse = await getCachedDepartments(
-		  storeId,
-		  limit,
-		  offset,
-		  locale,
-		  moduleId,
-		  zoneId,
-	
-		);
-	  
-		
-	  
-console.log(departmentsResponse.data);
-	return (
-		<DepartmentsPage 
-			initialDepartments={departmentsResponse.data || {
-				store_id: storeId,
-				store_name: "",
-				categories: [],
-				total_categories: 0,
-				limit: limit,
-				offset: offset,
-				has_more: false,
-			}}
-			initialLimit={limit}
-			initialPage={offset}
-			storeId={storeId}
-			zoneId={zoneId}
-			moduleId={moduleId}
-    />
-	);
+		// ✅ Use API route as proxy
+		try {
+			const baseUrl = getBaseUrl();
+			const url = `${baseUrl}/api/departments?storeId=${storeId}&moduleId=${moduleId}&limit=${limit}&offset=${offset}&zoneId=${zoneId}&locale=${locale}`;
+			
+			const response = await fetch(url, {
+				method: 'GET',
+				headers: {
+					'Accept': 'application/json',
+				},
+				// ✅ Next.js built-in cache
+				next: {
+					revalidate: 3600, // Re-fetch every 5 minutes
+					tags: [`departments-${storeId}-${moduleId}-${zoneId}`],
+				},
+			});
+			
+			if (!response.ok) {
+				console.error('[Departments Page] API route error:', response.status);
+				// Return empty departments on error
+				return (
+					<DepartmentsPage 
+						initialDepartments={{
+							store_id: storeId,
+							store_name: "",
+							categories: [],
+							total_categories: 0,
+							limit: limit,
+							offset: offset,
+							has_more: false,
+						}}
+						initialLimit={limit}
+						initialPage={offset}
+						storeId={storeId}
+						zoneId={zoneId}
+						moduleId={moduleId}
+					/>
+				);
+			}
+			
+			const departmentsData = await response.json() as DepartmentsResponse;
+			
+			// Validate response structure
+			if (!departmentsData || typeof departmentsData.store_id === 'undefined') {
+				console.error('[Departments Page] Invalid response structure:', departmentsData);
+				return (
+					<DepartmentsPage 
+						initialDepartments={{
+							store_id: storeId,
+							store_name: "",
+							categories: [],
+							total_categories: 0,
+							limit: limit,
+							offset: offset,
+							has_more: false,
+						}}
+						initialLimit={limit}
+						initialPage={offset}
+						storeId={storeId}
+						zoneId={zoneId}
+						moduleId={moduleId}
+					/>
+				);
+			}
+			
+			return (
+				<DepartmentsPage 
+					initialDepartments={departmentsData}
+					initialLimit={limit}
+					initialPage={offset}
+					storeId={storeId}
+					zoneId={zoneId}
+					moduleId={moduleId}
+				/>
+			);
+		} catch (error: any) {
+			console.error('[Departments Page] Error fetching departments:', {
+				message: error?.message || 'Unknown error',
+				name: error?.name,
+			});
+			
+			// Return empty departments on error
+			return (
+				<DepartmentsPage 
+					initialDepartments={{
+						store_id: storeId,
+						store_name: "",
+						categories: [],
+						total_categories: 0,
+						limit: limit,
+						offset: offset,
+						has_more: false,
+					}}
+					initialLimit={limit}
+					initialPage={offset}
+					storeId={storeId}
+					zoneId={zoneId}
+					moduleId={moduleId}
+				/>
+			);
+		}
 }
 

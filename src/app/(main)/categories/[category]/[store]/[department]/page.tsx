@@ -1,9 +1,9 @@
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 import { DepartmentPage } from '@/features/categories';
-import { getCachedDepartments } from '@/features/categories/api/stores.api';
 import { DepartmentResponse } from '@/features/categories/types/department.types';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { getBaseUrl } from '@/features/auth/constants/auth.constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -94,21 +94,92 @@ export default async function DepartmentPageRoute({
 
   const limit = 20;
   const page = Math.max(1, Number(search.page) || 1);
+  const zoneId = 2; // zone_id
 
-  const departmentsResponse = await getCachedDepartments(
-    limit,
-    page,
-    DEFAULT_LANG,
-    moduleId,
-    2, // zone_id
-    storeId,
-    departmentId
-  );
-
-  if (!departmentsResponse?.data) {
+  // ✅ Use API route as proxy
+  try {
+    const baseUrl = getBaseUrl();
+    const url = `${baseUrl}/api/department-details?storeId=${storeId}&departmentId=${departmentId}&moduleId=${moduleId}&limit=${limit}&offset=${page}&zoneId=${zoneId}&locale=${DEFAULT_LANG}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      // ✅ Next.js built-in cache
+      next: {
+        revalidate: 3600, // Re-fetch every hour
+        tags: [`department-details-${storeId}-${departmentId}-${moduleId}-${zoneId}`],
+      },
+    });
+    
+    if (!response.ok) {
+      console.error('[Department Page] API route error:', response.status);
+      // Return empty department response on error
+      return (
+        <DepartmentPage
+          departmentResponse={{
+            items: [],
+            total_size: 0,
+            offset: page.toString(),
+            limit,
+            has_more: false,
+          }}
+          storeId={storeId}
+          departmentId={departmentId}
+          initialPage={page}
+          initialLimit={limit}
+        />
+      );
+    }
+    
+    const departmentData = await response.json() as DepartmentResponse;
+    
+    // Validate response structure
+    if (!departmentData || !Array.isArray(departmentData.items)) {
+      console.error('[Department Page] Invalid response structure:', departmentData);
+      return (
+        <DepartmentPage
+          departmentResponse={{
+            items: [],
+            total_size: 0,
+            offset: page.toString(),
+            limit,
+            has_more: false,
+          }}
+          storeId={storeId}
+          departmentId={departmentId}
+          initialPage={page}
+          initialLimit={limit}
+        />
+      );
+    }
+    
     return (
       <DepartmentPage
-        departmentResponse={departmentsResponse.data as DepartmentResponse}
+        departmentResponse={departmentData}
+        storeId={storeId}
+        departmentId={departmentId}
+        initialPage={page}
+        initialLimit={limit}
+      />
+    );
+  } catch (error: any) {
+    console.error('[Department Page] Error fetching department details:', {
+      message: error?.message || 'Unknown error',
+      name: error?.name,
+    });
+    
+    // Return empty department response on error
+    return (
+      <DepartmentPage
+        departmentResponse={{
+          items: [],
+          total_size: 0,
+          offset: page.toString(),
+          limit,
+          has_more: false,
+        }}
         storeId={storeId}
         departmentId={departmentId}
         initialPage={page}
@@ -116,14 +187,4 @@ export default async function DepartmentPageRoute({
       />
     );
   }
-
-  return (
-    <DepartmentPage
-      departmentResponse={departmentsResponse.data as DepartmentResponse}
-      storeId={storeId}
-      departmentId={departmentId}
-      initialPage={page}
-      initialLimit={limit}
-    />
-  );
 }
