@@ -1,5 +1,6 @@
 // features/categories/api/modules.api.ts
 
+import { BASE_URL } from '@/features/auth/constants/auth.constants';
 import { cache } from 'react';
 
 interface ZoneData {
@@ -15,20 +16,6 @@ const DEFAULT_LANG = 'ar';
  * Get the base URL for internal API calls
  * This handles different environments correctly
  */
-function getBaseUrl() {
-  // Browser - use relative URL
-  if (typeof window !== 'undefined') {
-    return '';
-  }
-  
-  // Vercel production
-  if (process.env.VERCEL_URL) {
-    return `https://shellafood.com`;
-  }
-  
-  // Local development
-  return 'http://localhost:3000';
-}
 
 export const getZoneDataFromLocation = cache(
   async (
@@ -37,8 +24,7 @@ export const getZoneDataFromLocation = cache(
     lang: string = DEFAULT_LANG
   ): Promise<ZoneData | null> => {
     try {
-      const baseUrl = getBaseUrl();
-      const url = `${baseUrl}/api/modules?latitude=${latitude}&longitude=${longitude}&lang=${lang}`;
+      const url = `${BASE_URL}/api/modules?latitude=${latitude}&longitude=${longitude}&lang=${lang}`;
       const cacheTag = `zone-${latitude.toFixed(4)}-${longitude.toFixed(4)}`;
       
       console.log('[Zone API] Fetching from:', url);

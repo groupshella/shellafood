@@ -38,17 +38,14 @@ const getBaseUrl = () => {
   if (process.env.NODE_ENV === 'production') {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 	
-    if (!apiUrl) {
-      console.error('[ERROR] NEXT_PUBLIC_API_URL is not set in production!');
-      // Fallback to production API (domain only, without /api)
-      return 'https://shellafood.com';
-    }
-    // Remove trailing /api if present to avoid double /api in URLs
-    return apiUrl.replace(/\/api$/, '');
-  }
-  // Development fallback (domain only, without /api)
-  const devUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  return devUrl.replace(/\/api$/, '');
+   return 'https://shellafood.com';
+  } 
+else if (process.env.NODE_ENV === 'development') {
+  return 'http://localhost:3000';
+}
+else {
+  return 'https://shellafood.com';
+}
 };
 
 export const BASE_URL = getBaseUrl();
