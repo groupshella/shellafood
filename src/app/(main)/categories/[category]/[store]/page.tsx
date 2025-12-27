@@ -121,6 +121,7 @@ export default async function StorePageRoute(
       console.error('[Store Page] Invalid response structure:', storeDetails);
       notFound();
     }
+    console.log('storeDetails', storeDetails);
     
     // ✅ Success
     return (

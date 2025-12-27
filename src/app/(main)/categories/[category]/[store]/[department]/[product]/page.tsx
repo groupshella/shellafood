@@ -135,6 +135,7 @@ export default async function ProductPageRoute({ params }: PageProps) {
       console.error('[Product Page] Invalid response structure:', productData);
       notFound();
     }
+    console.log('productData', productData);
     
     return (
       <ProductPage

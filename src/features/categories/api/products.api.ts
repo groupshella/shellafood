@@ -50,13 +50,9 @@ export async function getProductDetails(
 		method: 'GET',
 		headers: {
 		  'Accept': 'application/json',
-		  'Content-Type': 'application/json',
 		  'X-localization': lang, 
 		  'moduleId': moduleId.toString(),
 		  'zoneId': `[${zoneId}]`, // API expects array format "[2]"
-		  'User-Agent': 'ShellaFood-WebApp/1.0',
-		  'Origin': 'https://shellafood.com',
-		  'Referer': 'https://shellafood.com/',
 		},
 		// ✅ Next.js built-in cache
 		next: {

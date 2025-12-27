@@ -75,13 +75,9 @@ export async function getDepartments(
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json',
-				'Content-Type': 'application/json',
 				'X-localization': lang,
 				'moduleId': moduleId.toString(),
 				'zoneId': "[2]",
-				'User-Agent': 'ShellaFood-WebApp/1.0',
-				'Origin': 'https://shellafood.com',
-				'Referer': 'https://shellafood.com/',
 			},
 			next: {
 				revalidate: 12000, // Re-fetch every 10 minutes

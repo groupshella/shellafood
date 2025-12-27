@@ -237,6 +237,8 @@ export interface StoreDetails {
     // Computed/derived fields (may need to be added by API or computed client-side)
     logo_full_url?: string;
     cover_photo_full_url?: string;
+    icon_full_url?: string;
+    thumbnail_full_url?: string;
     meta_image_full_url?: string;
     active_coupons?: any[];
     store_sub?: any | null;

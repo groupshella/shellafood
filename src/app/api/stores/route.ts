@@ -14,8 +14,19 @@ export async function GET(request: NextRequest) {
   const locale =  DEFAULT_LANG;
   const zoneId = Number(searchParams.get('zoneId')) || 2;
 
+  console.log('[Stores API Route] Incoming request:', {
+    moduleId,
+    limit,
+    offset,
+    locale,
+    zoneId,
+    url: request.url,
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
   // Validate params
   if (!moduleId || isNaN(moduleId)) {
+    console.error('[Stores API Route] Invalid module ID:', moduleId);
     return NextResponse.json(
       { error: 'Invalid module ID' },
       { status: 400 }
@@ -23,6 +34,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    console.log('[Stores API Route] Calling getCachedAllStores...');
     const storeListResponse = await getCachedAllStores(
       limit,
       offset,
@@ -31,7 +43,19 @@ export async function GET(request: NextRequest) {
       zoneId
     );
 
+    console.log('[Stores API Route] Response received:', {
+      hasData: !!storeListResponse?.data,
+      error: storeListResponse?.error,
+      status: storeListResponse?.status,
+      storeCount: storeListResponse?.data?.stores?.length || 0,
+    });
+
     if (!storeListResponse?.data) {
+      console.error('[Stores API Route] No data in response:', {
+        error: storeListResponse?.error,
+        status: storeListResponse?.status,
+        fullResponse: JSON.stringify(storeListResponse),
+      });
       return NextResponse.json(
         { 
           error: storeListResponse?.error || 'Failed to fetch stores',
@@ -41,6 +65,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    console.log('[Stores API Route] Returning success response');
     // ✅ Return with cache headers
     return NextResponse.json(storeListResponse.data, {
       headers: {
@@ -48,10 +73,15 @@ export async function GET(request: NextRequest) {
         'CDN-Cache-Control': 'max-age=600',
       },
     });
-  } catch (error) {
-    console.error('API Route Error:', error);
+  } catch (error: any) {
+    console.error('[Stores API Route] Caught error:', {
+      message: error?.message,
+      stack: error?.stack,
+      name: error?.name,
+      cause: error?.cause,
+    });
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error?.message },
       { status: 500 }
     );
   }

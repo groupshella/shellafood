@@ -38,13 +38,10 @@ export async function getAllStores(
   const url = `https://shellafood.com/api/v1/stores/get-stores/all?limit=${limit}&offset=${offset}`;
 
   try {
-    console.log(`[Next.js Fetch Cache] Requesting: ${url}`);
-    console.log(`[Next.js Fetch Cache] Cache config:`, {
-      revalidate: 3600,
-      tags: [cacheTag],
-      lang,
-      moduleId,
-      zoneId,
+    console.log(`[getAllStores] Starting request:`, {
+      url,
+      cacheTag,
+      params: { limit, offset, lang, moduleId, zoneId },
     });
 
     const fetchStartTime = Date.now();
@@ -53,13 +50,9 @@ export async function getAllStores(
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
-		'X-localization': lang,
+		'x-localization': lang,
         'moduleId': moduleId.toString(),
-        'zoneId': `[${zoneId}]`, // API expects array format "[2]"
-        'User-Agent': 'ShellaFood-WebApp/1.0',
-        'Origin': 'https://shellafood.com',
-        'Referer': 'https://shellafood.com/',
+        'zoneId': zoneId.toString(),
       },
       // ✅ Next.js built-in cache
       next: {
@@ -75,20 +68,31 @@ export async function getAllStores(
       response.headers.get('cache-control') ||
       'unknown';
 
-    console.log(`[Next.js Fetch Cache] Response received in ${fetchDuration}ms:`, {
+    console.log(`[getAllStores] Response received in ${fetchDuration}ms:`, {
       status: response.status,
+      statusText: response.statusText,
       cacheStatus,
       url: response.url,
+      headers: Object.fromEntries(response.headers.entries()),
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({
-        message: 'Failed to fetch stores',
-      }));
+      let errorData;
+      const responseText = await response.text();
+      console.log(`[getAllStores] Error response body (raw):`, responseText);
+      
+      try {
+        errorData = JSON.parse(responseText);
+      } catch (e) {
+        errorData = { message: responseText || 'Failed to fetch stores' };
+      }
 
-      console.error('[Next.js Fetch Cache] API Error:', {
+      console.error('[getAllStores] API Error:', {
         status: response.status,
+        statusText: response.statusText,
         message: errorData.message,
+        fullError: errorData,
+        requestParams: { limit, offset, lang, moduleId, zoneId },
       });
 
       return {
@@ -99,9 +103,11 @@ export async function getAllStores(
 
     const data = await response.json() as StoreList;
 
-    console.log(`[Next.js Fetch Cache] Data parsed:`, {
+    console.log(`[getAllStores] Data parsed successfully:`, {
       storesCount: data?.stores?.length ?? 0,
+      totalSize: data?.total_size,
       hasMore: data?.total_size > limit * offset,
+      firstStore: data?.stores?.[0]?.name || 'N/A',
     });
 
     return {
@@ -109,11 +115,17 @@ export async function getAllStores(
       status: response.status,
     };
 
-  } catch (error) {
-    console.error('[Next.js Fetch Cache] Network Error:', error);
+  } catch (error: any) {
+    console.error('[getAllStores] Network/Parse Error:', {
+      message: error?.message,
+      stack: error?.stack,
+      name: error?.name,
+      cause: error?.cause,
+      requestParams: { limit, offset, lang, moduleId, zoneId },
+    });
 
     return {
-      error: 'Network error',
+      error: `Network error: ${error?.message || 'Unknown'}`,
       status: 500,
     };
   }
@@ -174,15 +186,12 @@ export async function getStoreDetails(
 		method: 'GET',
 		headers: {
 		  'Accept': 'application/json',
-		  'Content-Type': 'application/json',
 		  'X-Localization': lang,
 		  'moduleId': moduleId.toString(),
 		  'zoneId': "[2]",
-		  'longitude': longitude || "46.5995713",
-		  'latitude': latitude || "24.6100271",
-		  'User-Agent': 'ShellaFood-WebApp/1.0',
-		  'Origin': 'https://shellafood.com',
-		  'Referer': 'https://shellafood.com/',
+		  'longitude': "46.5995713",
+		  'latitude': "24.6100271",
+		 
 		},
 		// ✅ Next.js built-in cache
 		next: {
@@ -293,13 +302,9 @@ export async function getStoreDetails(
 		method: 'GET',
 		headers: {
 		  'Accept': 'application/json',
-		  'Content-Type': 'application/json',
 		  'X-Localization': lang,
 		  'moduleId': moduleId.toString(),
 		  'zoneId': "[2]",
-		  'User-Agent': 'ShellaFood-WebApp/1.0',
-		  'Origin': 'https://shellafood.com',
-		  'Referer': 'https://shellafood.com/',
 		},
 		// ✅ Next.js built-in cache
 		next: {
