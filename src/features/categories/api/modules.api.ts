@@ -63,6 +63,6 @@ export const getZoneDataFromLocation = cache(
 export const getZoneModules = cache(
   async (latitude: number, longitude: number, lang: string = DEFAULT_LANG) => {
     const zoneData = await getZoneDataFromLocation(latitude, longitude, lang);
-    return zoneData?.zone_data?.[0]?.modules || [];
+    return zoneData?.zone_data?.[0].modules || [];
   }
 );
