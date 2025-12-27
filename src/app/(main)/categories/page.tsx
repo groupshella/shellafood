@@ -1,104 +1,45 @@
-import type { Metadata } from "next";
-import { cookies } from "next/headers";
-import { getCachedZoneData } from "@/features/categories/api/modules.api";
-import { ZoneDataModule } from "@/features/categories/types/module.types";
-import { CategoriesPage } from "@/features/categories/components/category-list";
-import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
 
-export const dynamic = "force-dynamic";
+import { cookies } from 'next/headers';
+import { getZoneModules } from '@/features/categories/api/modules.api';
+import { CategoriesPage } from '@/features/categories/components/category-list';
 
-
-export const metadata: Metadata = {
-	title: "الأقسام | شلة فود",
-	description:
-		"تصفح جميع أقسام شلة فود: مطاعم، سوبرماركت، صيدليات، العناية بالحيوانات، هايبر شلة وأكثر. اكتشف أفضل المتاجر في كل قسم واحصل على توصيل سريع.",
-	keywords: [
-		"أقسام شلة فود",
-		"مطاعم",
-		"سوبرماركت",
-		"صيدليات",
-		"العناية بالحيوانات",
-		"هايبر شلة",
-		"متاجر",
-		"تسوق",
-		"توصيل الطعام",
-	],
-	authors: [{ name: "شلة فود" }],
-	creator: "شلة فود",
-	publisher: "شلة فود",
-	openGraph: {
-		title: "الأقسام | شلة فود",
-		description:
-			"تصفح جميع أقسام شلة فود: مطاعم، سوبرماركت، صيدليات، العناية بالحيوانات، هايبر شلة وأكثر. اكتشف أفضل المتاجر في كل قسم.",
-		type: "website",
-		url: "https://shellafood.com/categories",
-		siteName: "شلة فود",
-		locale: "ar_SA",
-		alternateLocale: ["en_US"],
-		images: [
-			{
-				url: "/og-categories.jpg",
-				width: 1200,
-				height: 630,
-				alt: "أقسام شلة فود",
-			},
-		],
-	},
-	twitter: {
-		card: "summary_large_image",
-		title: "الأقسام | شلة فود",
-		description:
-			"تصفح جميع أقسام شلة فود: مطاعم، سوبرماركت، صيدليات، العناية بالحيوانات، هايبر شلة وأكثر.",
-		images: ["/og-categories.jpg"],
-		creator: "@shellafood",
-	},
-	robots: {
-		index: true,
-		follow: true,
-		googleBot: {
-			index: true,
-			follow: true,
-			"max-video-preview": -1,
-			"max-image-preview": "large",
-			"max-snippet": -1,
-		},
-	},
-	alternates: {
-		canonical: "https://shellafood.com/categories",
-		languages: {
-			"ar-SA": "https://shellafood.com/categories",
-			"en-US": "https://shellafood.com/categories",
-		},
-	},
-	metadataBase: new URL("https://shellafood.com"),
-};
-
-
+// ✅ Only use force-dynamic if you need real-time data
+// Consider using ISR (Incremental Static Regeneration) instead:
+// export const revalidate = 3600; // Regenerate every hour
 
 export default async function CategoriesPageRoute() {
-	const cookieStore = await cookies();
-	const locationCookie = cookieStore.get('location')?.value;
+  // ✅ Default coordinates (Riyadh center)
+  const DEFAULT_LAT = 24.6100;
+  const DEFAULT_LNG = 46.5995;
+  
+  const cookieStore = await cookies();
+  const locationCookie = cookieStore.get('user_location')?.value;
 
-	let latitude = parseFloat('24.6100');
-	let longitude = parseFloat('46.5995');
-	const locale = DEFAULT_LANG;
-	// if (locationCookie) {
-	
-	// 		const parsed = JSON.parse(locationCookie);
-	// 		if (!isNaN(parsed.lat) && !isNaN(parsed.lng)) {
-	// 			latitude = parseFloat(parsed.lat);
-	// 			longitude = parseFloat(parsed.lng);
-	// 		}
-	// }
-	const zoneData = await getCachedZoneData(latitude, longitude, locale);
+  let latitude = DEFAULT_LAT;
+  let longitude = DEFAULT_LNG;
 
-	const zoneModules = zoneData?.zone_data?.[0]?.modules || [];
+//   // ✅ Parse location from cookie if available
+//   if (locationCookie) {
+//     try {
+//       const parsed =JSON.parse(locationCookie);
+//       if (parsed.lat && parsed.lng) {
+//         const lat = parseFloat(parsed.lat);
+//         const lng = parseFloat(parsed.lng);
+        
+//         if (!isNaN(lat) && !isNaN(lng) && 
+//             lat >= -90 && lat <= 90 && 
+//             lng >= -180 && lng <= 180) {
+//           latitude = lat;
+//           longitude = lng;
+//         }
+//       }
+//     } catch (error) {
+//       console.error('[Categories] Invalid location cookie:', error);
+//     }
+//   }
 
-	return (
-			<CategoriesPage 
-				initialModules={zoneModules as ZoneDataModule[]} 
-			/>
-	);
+  // ✅ Fetch modules directly (cleaner API)
+  const modules = await getZoneModules(latitude, longitude, 'ar');
+
+  return <CategoriesPage initialModules={modules} />;
 }
-
-

@@ -1,99 +1,46 @@
-import { Metadata } from "next";
-import { cookies } from "next/headers";
-import { HomePage } from "@/features/home";
-import { ZoneDataModule } from "@/features/categories/types/module.types";
-import { getCachedZoneData } from "@/features/categories/api/modules.api";
-import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
 
-export const metadata: Metadata = {
-	title: "الصفحة الرئيسية | شلة فود - منصة التسوق والتوصيل الرائدة",
-	description:
-		"اكتشف أفضل المتاجر والمطاعم في منطقتك مع شلة فود. تسوق من سوبرماركت، مطاعم، صيدليات وأكثر. توصيل سريع وموثوق إلى باب منزلك مع أفضل الأسعار والعروض.",
-	keywords: [
-		"شلة فود",
-		"تسوق أونلاين",
-		"توصيل طعام",
-		"توصيل سريع",
-		"مطاعم",
-		"سوبرماركت",
-		"صيدليات",
-		"متاجر قريبة",
-		"خصومات",
-		"عروض",
-		"تسوق إلكتروني",
-		"توصيل مجاني",
-	],
-	authors: [{ name: "شلة فود" }],
-	creator: "شلة فود",
-	publisher: "شلة فود",
-	openGraph: {
-		title: "الصفحة الرئيسية | شلة فود",
-		description:
-			"اكتشف أفضل المتاجر والمطاعم في منطقتك مع شلة فود. تسوق من سوبرماركت، مطاعم، صيدليات وأكثر. توصيل سريع وموثوق إلى باب منزلك.",
-		type: "website",
-		url: "https://shellafood.com/home",
-		siteName: "شلة فود",
-		locale: "ar_SA",
-		alternateLocale: ["en_US"],
-		images: [
-			{
-				url: "/og-home.jpg",
-				width: 1200,
-				height: 630,
-				alt: "شلة فود - منصة التسوق والتوصيل",
-			},
-		],
-	},
-	twitter: {
-		card: "summary_large_image",
-		title: "الصفحة الرئيسية | شلة فود",
-		description:
-			"اكتشف أفضل المتاجر والمطاعم في منطقتك مع شلة فود. توصيل سريع وموثوق إلى باب منزلك.",
-		images: ["/og-home.jpg"],
-		creator: "@shellafood",
-	},
-	robots: {
-		index: true,
-		follow: true,
-		googleBot: {
-			index: true,
-			follow: true,
-			"max-video-preview": -1,
-			"max-image-preview": "large",
-			"max-snippet": -1,
-		},
-	},
-	alternates: {
-		canonical: "https://shellafood.com/home",
-		languages: {
-			"ar-SA": "https://shellafood.com/home",
-			"en-US": "https://shellafood.com/home",
-		},
-	},
-	metadataBase: new URL("https://shellafood.com"),
-};
+import { cookies } from 'next/headers';
+import { getZoneModules } from '@/features/categories/api/modules.api';
+import { HomePage } from '@/features/home/components';
+import { ZoneDataModule } from '@/features/categories/types/module.types';
+
 
 export default async function HomePageRoute() {
-	 const cookieStore = await cookies();	
-	 const token = cookieStore.get('auth_token')?.value;
-	// const locationCookie = cookieStore.get('location')?.value;
+	const cookieStore = await cookies();	
+	const token = cookieStore.get('auth_token')?.value;
+  const DEFAULT_LAT = 24.6100;
+  const DEFAULT_LNG = 46.5995;
+  
+  const locationCookie = cookieStore.get('user_location')?.value;
 
-	let latitude = parseFloat('24.540766366665999');
-	let longitude = parseFloat('46.504590739370002');
-	const locale = DEFAULT_LANG;
+  let latitude = DEFAULT_LAT;
+  let longitude = DEFAULT_LNG;
 
-// 	if (locationCookie) {
-// 			const parsed = JSON.parse(locationCookie);
-// 			if (!isNaN(parsed.lat) && !isNaN(parsed.lng)) {
-// 				latitude = parseFloat(parsed.lat);
-// 				longitude = parseFloat(parsed.lng);
-// 	}
-// }
-	const zoneData = await getCachedZoneData(latitude, longitude, locale);
+//   // ✅ Parse location from cookie if available
+//   if (locationCookie) {
+//     try {
+//       const parsed =JSON.parse(locationCookie);
+//       if (parsed.lat && parsed.lng) {
+//         const lat = parseFloat(parsed.lat);
+//         const lng = parseFloat(parsed.lng);
+        
+//         if (!isNaN(lat) && !isNaN(lng) && 
+//             lat >= -90 && lat <= 90 && 
+//             lng >= -180 && lng <= 180) {
+//           latitude = lat;
+//           longitude = lng;
+//         }
+//       }
+//     } catch (error) {
+//       console.error('[Categories] Invalid location cookie:', error);
+//     }
+//   }
 
-	const zoneModules = zoneData?.zone_data?.[0]?.modules
-	return (
-		<HomePage modules={zoneModules as ZoneDataModule[]} token={token as string}/>
+  // ✅ Fetch modules directly (cleaner API)
+  const modules = await getZoneModules(latitude, longitude, 'ar');
+
+  return (
+	<HomePage modules={modules as ZoneDataModule[]} token={token as string}/>
 	);
 }
 

@@ -1,5 +1,4 @@
-
-import { BASE_URL, DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
+import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
 import { Store, StoreList } from "../types/store.types";
 import { sessionCache } from "@/lib/cache/session-cache";
 import type { StoreDetails } from "../types/store.details.types";
@@ -36,7 +35,7 @@ export async function getAllStores(
 ): Promise<ApiResponse<StoreList>> {
 
   const cacheTag = `stores-${moduleId}-${zoneId}-${lang}-${limit}-${offset}`;
-  const url = `${BASE_URL}/api/v1/stores/get-stores/all?limit=${limit}&offset=${offset}`;
+  const url = `https://shellafood.com/api/v1/stores/get-stores/all?limit=${limit}&offset=${offset}`;
 
   try {
     console.log(`[Next.js Fetch Cache] Requesting: ${url}`);

@@ -1,8 +1,8 @@
 import CategoryView from '@/features/categories/components/category-details/CategoryView';
 import { Metadata } from 'next';
-import { getCachedAllStores } from '@/features/categories/api/stores.api';
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 
 interface PageProps {
   params: Promise<{ category: string }>;
@@ -46,18 +46,86 @@ export default async function CategoryPageRoute({ params, searchParams }: PagePr
   
 
   const limit = 20; // Between 12-48
-  const offset =Math.max(1, Number(search.page) || 1);
+  const offset = Math.max(1, Number(search.page) || 1);
+  const zoneId = 2; // zone_id
   
-  
-  const storeListResponse = await getCachedAllStores(
-    limit,
-    offset,
-    DEFAULT_LANG,
-    moduleId,
-    2 // zone_id
-  );
-console.log("storeListResponse", storeListResponse);
-  if (!storeListResponse?.data) {
+  // ✅ Use API route as proxy instead of direct call
+  try {
+    // Construct absolute URL for server-side fetch
+    const headersList = await headers();
+    const host = headersList.get('host') || 'localhost:3000';
+    const protocol = process.env.NODE_ENV === 'production' 
+      ? 'https' 
+      : (host.includes('localhost') ? 'http' : 'https');
+    
+    const url = `${protocol}://${host}/api/stores?moduleId=${moduleId}&limit=${limit}&offset=${offset}&zoneId=${zoneId}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      // ✅ Next.js built-in cache
+      next: {
+        revalidate: 300, // Re-fetch every 5 minutes
+        tags: [`stores-${moduleId}-${zoneId}`],
+      },
+    });
+    
+    if (!response.ok) {
+      console.error('[Category Page] API route error:', response.status);
+      // Return empty store list on error
+      return (
+        <CategoryView 
+          initialStoreList={{
+            stores: [],
+            total_size: 0,
+            limit,
+            offset,
+          }}
+          moduleId={moduleId}
+          initialPage={offset}
+          initialLimit={limit}
+        />
+      );
+    }
+    
+    const storeListData = await response.json();
+    
+    // Validate response structure
+    // The API route returns storeListResponse.data directly (which has stores, total_size, limit, offset)
+    if (!storeListData || !storeListData.stores || !Array.isArray(storeListData.stores)) {
+      console.error('[Category Page] Invalid response structure:', storeListData);
+      return (
+        <CategoryView 
+          initialStoreList={{
+            stores: [],
+            total_size: 0,
+            limit,
+            offset,
+          }}
+          moduleId={moduleId}
+          initialPage={offset}
+          initialLimit={limit}
+        />
+      );
+    }
+    
+    return (
+      <CategoryView 
+        initialStoreList={storeListData}
+        moduleId={moduleId}
+        initialPage={offset}
+        initialLimit={limit}
+      />
+    );
+  } catch (error: any) {
+    console.error('[Category Page] Error fetching stores:', {
+      message: error?.message || 'Unknown error',
+      name: error?.name,
+    });
+    
+    // Return empty store list on error
     return (
       <CategoryView 
         initialStoreList={{
@@ -72,13 +140,4 @@ console.log("storeListResponse", storeListResponse);
       />
     );
   }
-
-  return (
-    <CategoryView 
-      initialStoreList={storeListResponse.data}
-      moduleId={moduleId}
-      initialPage={offset}
-      initialLimit={limit}
-    />
-  );
 }
