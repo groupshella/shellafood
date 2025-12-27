@@ -19,7 +19,7 @@ import {
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { ContractModal } from "@/features/investor";
-import { BASE_URL } from "@/features/auth/constants/auth.constants";
+import { getBaseUrl } from "@/features/auth/constants/auth.constants";
 
 interface IncomeSource {
 	id: number;
@@ -72,7 +72,7 @@ export default function KaidhaWallet({ walletData }: KaidhaWalletProps) {
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [showContractModal, setShowContractModal] = useState(false);
 	const router = useRouter();
-
+	const baseUrl = getBaseUrl();
 	// If no wallet data, show error state
 	if (!walletData || !walletData.wallet) {
 		return (

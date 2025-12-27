@@ -1,6 +1,7 @@
 // features/categories/api/modules.api.ts
 
-import { BASE_URL } from '@/features/auth/constants/auth.constants';
+import { getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { BASE_URL } from '@/features/cart/constants/cart.constants';
 import { cache } from 'react';
 
 interface ZoneData {
@@ -24,7 +25,8 @@ export const getZoneDataFromLocation = cache(
     lang: string = DEFAULT_LANG
   ): Promise<ZoneData | null> => {
     try {
-      const url = `${BASE_URL}/api/modules?latitude=${latitude}&longitude=${longitude}&lang=${lang}`;
+      const baseUrl = getBaseUrl();
+      const url = `${baseUrl}/api/modules?latitude=${latitude}&longitude=${longitude}&lang=${lang}`;
       const cacheTag = `zone-${latitude.toFixed(4)}-${longitude.toFixed(4)}`;
       
       console.log('[Zone API] Fetching from:', url);

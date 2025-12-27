@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import useSWR from "swr";
 import Pagination from "@/features/categories/components/category-details/Pagination";
-import { BASE_URL } from "@/features/auth/constants/auth.constants";
+import { getBaseUrl } from "@/features/auth/constants/auth.constants";
 import { getCookie } from "@/features/auth/lib/utils/cookie.utils";
 
 interface WalletTransaction {
@@ -228,7 +228,7 @@ export default function WalletTransactions({
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const [isPending, startTransition] = useTransition();
-
+	const baseUrl = getBaseUrl();
 	// FIX: Backend sends offset as page number (offset 1 = page 1)
 	const currentPage = Number(searchParams.get('page')) || initialPage;
 	const currentLimit = Number(searchParams.get('limit')) || initialLimit;
@@ -236,7 +236,7 @@ export default function WalletTransactions({
 	const currentOffset = currentPage; // Backend expects offset = page number
 
 	// Construct SWR key
-	const swrKey = `${BASE_URL}/api/v1/customer/wallet/transactions?limit=${currentLimit}&offset=${currentOffset}&type=${currentType}`;
+	const swrKey = `${baseUrl}/api/v1/customer/wallet/transactions?limit=${currentLimit}&offset=${currentOffset}&type=${currentType}`;
 
 	// Use SWR with performance optimizations
 	const { data: transactionsData, error, isLoading, mutate } = useSWR<WalletTransactionsData>(

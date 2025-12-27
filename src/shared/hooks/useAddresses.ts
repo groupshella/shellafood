@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { cache } from "react";
-import { BASE_URL } from "@/features/auth/constants/auth.constants";
+import { getBaseUrl } from "@/features/auth/constants/auth.constants";
 import { getCookie } from "@/features/auth/lib/utils/cookie.utils";
 
 export interface Address {
@@ -89,7 +89,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 	const [error, setError] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(initialPage);
 	const [limit] = useState(initialLimit);
-	
+	const baseUrl = getBaseUrl();
 	// Fetch addresses
 	const fetchAddresses = useCallback(async (currentPage: number) => {
 		setIsLoading(true);
@@ -160,7 +160,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 		try {
 			if (!token) throw new Error('No authentication token');
 
-			const response = await fetch(`${BASE_URL}/api/v1/customer/address/update/${addressId}`, {
+			const response = await fetch(`${baseUrl}/api/v1/customer/address/update/${addressId}`, {
 				method: 'PUT',
 				headers: {
 					'Authorization': `Bearer ${token}`,
@@ -195,7 +195,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 			if (!token) throw new Error('No authentication token');
 
 			const response = await fetch(
-				`${BASE_URL}/api/v1/customer/address/delete?address_id=${addressId}`,
+				`${baseUrl}/api/v1/customer/address/delete?address_id=${addressId}`,
 				{
 					method: 'DELETE',
 					headers: {

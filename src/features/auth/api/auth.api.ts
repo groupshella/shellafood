@@ -1,4 +1,4 @@
-import { AUTH_ENDPOINTS, DEFAULT_LANG, BASE_URL } from '../constants/auth.constants';
+import { AUTH_ENDPOINTS, DEFAULT_LANG, getBaseUrl } from '../constants/auth.constants';
 import { saveAuthToken, getAuthHeader, saveUser } from '../lib/utils/auth.utils';
 import type {
 	LoginFormData,
@@ -22,7 +22,8 @@ import type {
 export async function login(data: LoginFormData, lang: string = DEFAULT_LANG): Promise<LoginResponse> {
 	try {
 		// Construct the full URL
-		const url = `${BASE_URL}/api/v1${AUTH_ENDPOINTS.LOGIN}`;
+		const baseUrl = getBaseUrl();
+		const url = `${baseUrl}/api/v1${AUTH_ENDPOINTS.LOGIN}`;
 		const response = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -162,7 +163,8 @@ export async function register(data: RegisterFormData, lang: string = DEFAULT_LA
  */
 export async function verifyPhone(data: VerifyPhoneData, lang: string = DEFAULT_LANG): Promise<VerifyPhoneResponse> {
 	try {
-		const url = `${BASE_URL}/api/v1${AUTH_ENDPOINTS.VERIFY_PHONE}`;
+		const baseUrl = getBaseUrl();
+		const url = `${baseUrl}/api/v1${AUTH_ENDPOINTS.VERIFY_PHONE}`;
 		const authHeader = getAuthHeader();
 
 		const response = await fetch(url, {
@@ -220,7 +222,8 @@ export async function verifyPhone(data: VerifyPhoneData, lang: string = DEFAULT_
  */
 export async function sendOtpAgain(data: SendOtpData, lang: string = DEFAULT_LANG): Promise<SendOtpResponse> {
 	try {
-		const url = `${BASE_URL}/api/v1${AUTH_ENDPOINTS.SEND_OTP_AGAIN}`;
+		const baseUrl = getBaseUrl();
+		const url = `${baseUrl}/api/v1${AUTH_ENDPOINTS.SEND_OTP_AGAIN}`;
 
 		const response = await fetch(url, {
 			method: 'POST',
@@ -276,10 +279,11 @@ export async function getCurrentUserProfile(lang: string = DEFAULT_LANG): Promis
 		const authHeader = getAuthHeader();
 		
 		// Construct the full URL
-		const url = `${BASE_URL}/api/v1${AUTH_ENDPOINTS.ME}`;
+		const baseUrl = getBaseUrl();
+		const url = `${baseUrl}/api/v1${AUTH_ENDPOINTS.ME}`;
 		
 		// Validate BASE_URL
-		if (!BASE_URL || BASE_URL === '') {
+		if (!baseUrl || baseUrl === '') {
 			throw new Error('API base URL is not configured. Please check your environment variables.');
 		}
 		

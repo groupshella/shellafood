@@ -35,23 +35,17 @@ export const DEFAULT_LANG = 'ar';
 // In development: http://localhost:3000 (Next.js dev server)
 // In production: Use NEXT_PUBLIC_APP_URL if set, otherwise fallback to production domain
 // For external API calls, use the hardcoded URL in the API route handlers
-const getBaseUrl = () => {
-	// Browser
+export const getBaseUrl = () => {
 	if (typeof window !== 'undefined') {
 	  return window.location.origin;
-	}
+	}	
 	
-	// Vercel (automatic!)
 	if (process.env.VERCEL_URL) {
 	  return `https://${process.env.VERCEL_URL}`;
 	}
 	
-	// Local dev
 	return 'http://localhost:3000';
   };
-  
-  export const BASE_URL = getBaseUrl();
-
 // ============================================================================
 // Frontend Routes
 // ============================================================================

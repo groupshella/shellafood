@@ -18,7 +18,7 @@ import { motion } from "framer-motion";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import useSWR from "swr";
 import Pagination from "@/features/categories/components/category-details/Pagination";
-import { BASE_URL } from "@/features/auth/constants/auth.constants";
+import { getBaseUrl } from "@/features/auth/constants/auth.constants";
 import { getCookie } from "@/features/auth/lib/utils/cookie.utils";
 
 interface TransactionMetadata {
@@ -107,7 +107,8 @@ export default function Transactions({
 	const currentOffset = currentPage; // Backend uses offset as page number
 
 	// Construct SWR key
-	const swrKey = `${BASE_URL}/api/qidha-wallet/transactions?limit=${currentLimit}&offset=${currentOffset}&type=${currentType}`;
+	const baseUrl = getBaseUrl();
+		const swrKey = `${baseUrl}/api/qidha-wallet/transactions?limit=${currentLimit}&offset=${currentOffset}&type=${currentType}`;
 
 	// Use SWR for data fetching with initial data
 	const { data: transactionsData, error, isLoading, mutate } = useSWR<TransactionsData>(
