@@ -19,7 +19,7 @@ import {
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { ContractModal } from "@/features/investor";
-import { getBaseUrl } from "@/features/auth/constants/auth.constants";
+import { BASE_URL, getBaseUrl } from "@/features/auth/constants/auth.constants";
 
 interface IncomeSource {
 	id: number;
