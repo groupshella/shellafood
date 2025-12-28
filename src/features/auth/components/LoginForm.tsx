@@ -36,7 +36,6 @@ export default function LoginForm() {
   // ============================================================================
 
   const handlePhoneChange = useCallback((phone: string) => {
-    if(phone!=="+966")
     setFormData((prev) => ({ ...prev, phone }));
 
   }, []);
@@ -224,7 +223,6 @@ export default function LoginForm() {
             isArabic={isArabic}
             required
             name="phone"
-            compact={true}
             disabled={isLoading}
           />
 
