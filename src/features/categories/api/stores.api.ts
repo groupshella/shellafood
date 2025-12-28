@@ -45,7 +45,8 @@ export async function getAllStores(
     });
 
     const fetchStartTime = Date.now();
-
+	const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.  abort(), 10000);
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -53,14 +54,12 @@ export async function getAllStores(
 		'x-localization': lang,
         'moduleId': moduleId.toString(),
         'zoneId': zoneId.toString(),
-        'User-Agent': 'ShellaFood-WebApp/1.0',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
       },
-      // ✅ Next.js built-in cache
-      next: {
-        revalidate: 3600, // 1 hour
-        tags: [cacheTag],
-      },
+	  signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     const fetchDuration = Date.now() - fetchStartTime;
 
