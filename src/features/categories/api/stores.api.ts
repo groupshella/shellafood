@@ -53,6 +53,7 @@ export async function getAllStores(
 		'x-localization': lang,
         'moduleId': moduleId.toString(),
         'zoneId': zoneId.toString(),
+        'User-Agent': 'ShellaFood-WebApp/1.0',
       },
       // ✅ Next.js built-in cache
       next: {
