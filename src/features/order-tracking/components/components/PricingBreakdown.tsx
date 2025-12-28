@@ -54,7 +54,7 @@ export default React.memo(function PricingBreakdown({
 				<div className="space-y-2 sm:space-y-3">
 					{/* Base Price */}
 					<div className={`flex items-center justify-between py-2.5 sm:py-3 px-3 sm:px-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg `}>
-						<div className={`flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 ${isArabic ? "flex-row-reverse" : ""}`}>
+						<div className={`flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 `}>
 							<span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
 								{isService
 									? isArabic
@@ -72,7 +72,7 @@ export default React.memo(function PricingBreakdown({
 
 					{/* Platform Fee */}
 					<div className={`flex items-center justify-between py-2.5 sm:py-3 px-3 sm:px-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg `}>
-						<div className={`flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 ${isArabic ? "flex-row-reverse" : ""}`}>
+						<div className={`flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 `}>
 							<Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
 							<span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
 								{isArabic ? "رسوم المنصة" : "Platform Fee"}
@@ -95,7 +95,7 @@ export default React.memo(function PricingBreakdown({
 
 					{/* VAT */}
 					<div className={`flex items-center justify-between py-2.5 sm:py-3 px-3 sm:px-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg `}>
-						<div className={`flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 ${isArabic ? "flex-row-reverse" : ""}`}>
+						<div className={`flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 `}>
 							<span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
 								{isArabic ? "ضريبة القيمة المضافة (15%)" : "VAT (15%)"}
 							</span>
@@ -131,7 +131,7 @@ export default React.memo(function PricingBreakdown({
 
 				{/* Trust Message */}
 				<div className={`mt-3 sm:mt-4 p-2.5 sm:p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg ${isArabic ? "text-right" : "text-left"}`}>
-					<p className={`text-xs text-blue-800 dark:text-blue-300 flex items-start gap-1.5 sm:gap-2 ${isArabic ? "flex-row-reverse" : ""}`}>
+					<p className={`text-xs text-blue-800 dark:text-blue-300 flex items-start gap-1.5 sm:gap-2 `}>
 						<Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 mt-0.5" />
 						<span>
 							{isArabic

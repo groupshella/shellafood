@@ -62,7 +62,7 @@ export default function OrderHeader({
 		>
 			<div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 ${isArabic ? "sm:flex-row-reverse" : ""}`}>
 				{/* Left/Right Section: Order Info */}
-				<div className={`flex items-start gap-3 sm:gap-4 flex-1 min-w-0 ${isArabic ? "flex-row-reverse" : ""}`}>
+				<div className={`flex items-start gap-3 sm:gap-4 flex-1 min-w-0 `}>
 					{/* Icon */}
 					<div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 ${
 						type === "service" 
@@ -78,7 +78,7 @@ export default function OrderHeader({
 
 					{/* Order Details */}
 					<div className="flex-1 min-w-0">
-						<div className={`flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2 flex-wrap ${isArabic ? "flex-row-reverse" : ""}`}>
+						<div className={`flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2 flex-wrap `}>
 							<h1 className={`text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white truncate ${isArabic ? "text-right" : "text-left"}`}>
 								{isArabic ? "تتبع الطلب" : "Track Order"}
 							</h1>
@@ -98,7 +98,7 @@ export default function OrderHeader({
 
 				{/* Right/Left Section: Time Info */}
 				{getTimeDisplay() && (
-					<div className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-[#10b981]/10 dark:bg-[#10b981]/20 border border-[#10b981]/30 rounded-lg flex-shrink-0 ${isArabic ? "flex-row-reverse" : ""}`}>
+					<div className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-[#10b981]/10 dark:bg-[#10b981]/20 border border-[#10b981]/30 rounded-lg flex-shrink-0 `}>
 						<Clock className="w-4 h-4 sm:w-5 sm:h-5 text-[#10b981] flex-shrink-0" />
 						<p className="text-xs sm:text-sm font-semibold text-[#10b981] whitespace-nowrap">
 							{getTimeDisplay()}

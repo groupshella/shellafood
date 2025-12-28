@@ -56,15 +56,16 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 		handleClose,
 	} = useOrderTracking(orderId, initialData, language);
 
-	// Update orderData when initialData changes
+	// Update orderData when initialData changes (prioritize API data)
 	useEffect(() => {
-		if (initialData && !orderData) {
+		if (initialData) {
 			setOrderData(initialData);
 			setIsLoading(false);
+			return; // Don't fetch if we have initialData
 		}
-	}, [initialData, orderData, setOrderData, setIsLoading]);
+	}, [initialData, setOrderData, setIsLoading]);
 
-	// Fetch order data if not provided
+	// Fetch order data if not provided (fallback to sessionStorage or mock)
 	useEffect(() => {
 		if (initialData || orderData) return;
 

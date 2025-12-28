@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       field_type: body.field_type,
     });
 
-    const backendRes = await fetch(`${API_URL}/api/v1/auth/login`, {
+    const backendRes = await fetch(`https://shellafood.com/api/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

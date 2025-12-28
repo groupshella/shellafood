@@ -59,7 +59,7 @@ export default React.memo(function ETABanner({
 				<div className="absolute bottom-0 left-0 w-24 h-24 sm:w-48 sm:h-48 bg-white/10 dark:bg-white/5 rounded-full -ml-12 -mb-12 sm:-ml-24 sm:-mb-24" />
 
 				<div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-					<div className={`flex items-center gap-3 sm:gap-4 ${isArabic ? "flex-row-reverse" : ""}`}>
+					<div className={`flex items-center gap-3 sm:gap-4 `}>
 						<motion.div
 							animate={{ rotate: 360 }}
 							transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
@@ -93,7 +93,7 @@ export default React.memo(function ETABanner({
 					</div>
 					{driverOrWorker?.name && (
 						<div
-							className={`flex items-center gap-2 sm:gap-3 ${isArabic ? "flex-row-reverse" : ""} ${
+							className={`flex items-center gap-2 sm:gap-3  ${
 								canViewDetails
 									? "cursor-pointer hover:opacity-90 transition-opacity"
 									: "cursor-default"

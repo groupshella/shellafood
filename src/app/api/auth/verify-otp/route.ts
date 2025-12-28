@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const token = body.token; // Token from signup
 
     // Call external API
-    const externalApiUrl = `${BASE_URL}/api/v1/auth/verify-phone`;
+    const externalApiUrl = `https://shellafood.com/api/v1/auth/verify-phone`;
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',

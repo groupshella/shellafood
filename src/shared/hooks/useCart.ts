@@ -15,6 +15,9 @@ interface AddToCartParams {
 	storeNameAr?: string;
 	storeLogo?: string;
 	stock?: number;
+	variation?: any[];
+	add_on_ids?: any[];
+	add_on_qtys?: any[];
 }
 
 interface UpdateQuantityParams {
@@ -54,6 +57,9 @@ export function useCart() {
 		productId, 
 		quantity = 1,
 		priceAtAdd,
+		variation,
+		add_on_ids,
+		add_on_qtys,
 	}: AddToCartParams): Promise<AddToCartResponse> => {
 		setIsLoading(true);
 		try {
@@ -81,9 +87,9 @@ export function useCart() {
 					model: 'Item',
 					price: priceAtAdd,
 					quantity: quantity,
-					variation: [],
-					add_on_ids: [],
-					add_on_qtys: [],
+					variation: variation,
+					add_on_ids: add_on_ids,
+					add_on_qtys: add_on_qtys,
 				}),
 			});
 

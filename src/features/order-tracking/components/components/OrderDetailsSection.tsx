@@ -97,13 +97,13 @@ export default React.memo(function OrderDetailsSection({
 			</h2>
 
 			{/* Pricing Breakdown Section */}
-			{(orderData.basePrice !== undefined || orderData.platformFee !== undefined || orderData.vat !== undefined) && (
+			{/* {(orderData.basePrice !== undefined || orderData.platformFee !== undefined || orderData.vat !== undefined) && (
 				<div className="border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl overflow-hidden mb-3 sm:mb-4">
 					<button
 						onClick={() => toggleDetail("pricing")}
-						className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] ${isArabic ? "flex-row-reverse" : ""}`}
+						className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] `}
 					>
-						<div className={`flex items-center gap-2 sm:gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+						<div className={`flex items-center gap-2 sm:gap-3 `}>
 							<Receipt className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
 							<span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
 								{isArabic ? "تفاصيل التسعير" : "Pricing Breakdown"}
@@ -138,16 +138,16 @@ export default React.memo(function OrderDetailsSection({
 						)}
 					</AnimatePresence>
 				</div>
-			)}
+			)} */}
 
 			{/* Items Section - Product Orders Only */}
 			{!isService && orderData.items && orderData.items.length > 0 && (
 				<div className="border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl overflow-hidden">
 					<button
 						onClick={() => toggleDetail("items")}
-						className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] ${isArabic ? "flex-row-reverse" : ""}`}
+						className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] `}
 					>
-						<div className={`flex items-center gap-2 sm:gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+						<div className={`flex items-center gap-2 sm:gap-3 `}>
 							<Package className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
 							<span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
 								{isArabic ? "عناصر الطلب" : "Order Items"}
@@ -172,7 +172,7 @@ export default React.memo(function OrderDetailsSection({
 									{orderData.items.map((item, index) => (
 										<div
 											key={index}
-											className={`flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0 gap-2 ${isArabic ? "flex-row-reverse" : ""}`}
+											className={`flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0 gap-2 `}
 										>
 											<span className={`text-xs sm:text-sm text-gray-700 dark:text-gray-300 truncate flex-1 ${isArabic ? "text-right" : "text-left"}`}>
 												{isArabic ? item.nameAr || item.name : item.name} × {item.quantity}
@@ -182,7 +182,7 @@ export default React.memo(function OrderDetailsSection({
 											</span>
 										</div>
 									))}
-									<div className={`pt-2 sm:pt-3 border-t-2 border-gray-200 dark:border-gray-700 flex items-center justify-between gap-2 ${isArabic ? "flex-row-reverse" : ""}`}>
+									<div className={`pt-2 sm:pt-3 border-t-2 border-gray-200 dark:border-gray-700 flex items-center justify-between gap-2 `}>
 										<span className={`font-bold text-sm sm:text-base text-gray-900 dark:text-gray-100 ${isArabic ? "text-right" : "text-left"}`}>{isArabic ? "المجموع:" : "Total:"}</span>
 										<span className="text-base sm:text-lg font-extrabold text-green-600 dark:text-green-400 whitespace-nowrap">
 											{(orderData.totalAmount ?? 0).toFixed(2)} {isArabic ? "ريال" : "SAR"}
@@ -199,9 +199,9 @@ export default React.memo(function OrderDetailsSection({
 			<div className="border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl overflow-hidden">
 				<button
 					onClick={() => toggleDetail("payment")}
-					className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] ${isArabic ? "flex-row-reverse" : ""}`}
+					className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] `}
 				>
-					<div className={`flex items-center gap-2 sm:gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+					<div className={`flex items-center gap-2 sm:gap-3 `}>
 						<CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
 						<span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">{isArabic ? "الدفع" : "Payment"}</span>
 					</div>
@@ -238,9 +238,9 @@ export default React.memo(function OrderDetailsSection({
 				<div className="border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl overflow-hidden">
 					<button
 						onClick={() => toggleDetail("serviceDetails")}
-						className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] ${isArabic ? "flex-row-reverse" : ""}`}
+						className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] `}
 					>
-						<div className={`flex items-center gap-2 sm:gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+						<div className={`flex items-center gap-2 sm:gap-3 `}>
 							<Wrench className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
 							<span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
 								{isArabic ? "تفاصيل الخدمة" : "Service Details"}
@@ -283,7 +283,7 @@ export default React.memo(function OrderDetailsSection({
 										</div>
 									)}
 									{orderData.scheduledTime && (
-										<div className={`flex items-center gap-2 ${isArabic ? "flex-row-reverse" : ""}`}>
+										<div className={`flex items-center gap-2 `}>
 											<Clock className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
 											<div className={isArabic ? "text-right" : "text-left"}>
 												<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-0.5">
@@ -310,9 +310,9 @@ export default React.memo(function OrderDetailsSection({
 				<div className="border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl overflow-hidden">
 					<button
 						onClick={() => toggleDetail("deliveryDetails")}
-						className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] ${isArabic ? "flex-row-reverse" : ""}`}
+						className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] `}
 					>
-						<div className={`flex items-center gap-2 sm:gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+						<div className={`flex items-center gap-2 sm:gap-3 `}>
 							<Package className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
 							<span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
 								{isArabic ? "تفاصيل التوصيل" : "Delivery Details"}
@@ -368,7 +368,7 @@ export default React.memo(function OrderDetailsSection({
 												{(orderData as any).order_details.pickupLocation}
 											</p>
 											{(orderData as any).order_details.senderName && (
-												<div className={`mt-2 flex items-center gap-2 ${isArabic ? "flex-row-reverse" : ""}`}>
+												<div className={`mt-2 flex items-center gap-2 `}>
 													<Phone className="w-3 h-3 text-gray-400 flex-shrink-0" />
 													<p className={`text-xs text-gray-600 dark:text-gray-400 ${isArabic ? "text-right" : "text-left"}`}>
 														{(orderData as any).order_details.senderName} - {(orderData as any).order_details.senderPhone}
@@ -384,7 +384,7 @@ export default React.memo(function OrderDetailsSection({
 												{(orderData as any).order_details.dropoffLocation}
 											</p>
 											{(orderData as any).order_details.receiverName && (
-												<div className={`mt-2 flex items-center gap-2 ${isArabic ? "flex-row-reverse" : ""}`}>
+												<div className={`mt-2 flex items-center gap-2 `}>
 													<Phone className="w-3 h-3 text-gray-400 flex-shrink-0" />
 													<p className={`text-xs text-gray-600 dark:text-gray-400 ${isArabic ? "text-right" : "text-left"}`}>
 														{(orderData as any).order_details.receiverName} - {(orderData as any).order_details.receiverPhone}
@@ -461,9 +461,9 @@ export default React.memo(function OrderDetailsSection({
 			<div className="border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl overflow-hidden">
 				<button
 					onClick={() => toggleDetail("address")}
-					className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] ${isArabic ? "flex-row-reverse" : ""}`}
+					className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] `}
 				>
-					<div className={`flex items-center gap-2 sm:gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+					<div className={`flex items-center gap-2 sm:gap-3 `}>
 						<MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
 						<span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
 							{addressLabel}
@@ -485,13 +485,13 @@ export default React.memo(function OrderDetailsSection({
 							className="overflow-hidden"
 						>
 							<div className={`p-3 sm:p-4 ${isArabic ? "text-right" : "text-left"}`}>
-								<div className={`flex items-start gap-2 mb-2 sm:mb-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+								<div className={`flex items-start gap-2 mb-2 sm:mb-3 `}>
 									<MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
 									<p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed flex-1">{orderData.address || (isArabic ? "لا يوجد عنوان" : "No address provided")}</p>
 								</div>
 								<button
 									onClick={copyAddress}
-									className={`flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] ${isArabic ? "flex-row-reverse" : ""}`}
+									className={`flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] `}
 								>
 									{copied ? (
 										<Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
@@ -518,9 +518,9 @@ export default React.memo(function OrderDetailsSection({
 			<div className="border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl overflow-hidden">
 				<button
 					onClick={() => toggleDetail("support")}
-					className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] ${isArabic ? "flex-row-reverse" : ""}`}
+					className={`w-full p-3 sm:p-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] `}
 				>
-					<div className={`flex items-center gap-2 sm:gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+					<div className={`flex items-center gap-2 sm:gap-3 `}>
 						<Info className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
 						<span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">{isArabic ? "الدعم" : "Support"}</span>
 					</div>
@@ -550,7 +550,7 @@ export default React.memo(function OrderDetailsSection({
 												window.open(whatsappUrl, "_blank");
 											}
 										}}
-										className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg font-semibold text-xs sm:text-sm transition-colors shadow-md min-h-[44px] ${isArabic ? "flex-row-reverse" : ""}`}
+										className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg font-semibold text-xs sm:text-sm transition-colors shadow-md min-h-[44px] `}
 									>
 										<Phone className="w-4 h-4 flex-shrink-0" />
 										<span>{isArabic ? "واتساب الدعم" : "WhatsApp Support"}</span>

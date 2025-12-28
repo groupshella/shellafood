@@ -102,6 +102,9 @@ function ProductView({
         storeId: product.store_id?.toString() || '',
         quantity,
         priceAtAdd: product.price,
+        variation: product.variations,
+        add_on_ids: product.add_ons,
+        add_on_qtys: [],
       });
 
       if (result.success) {
@@ -139,6 +142,9 @@ function ProductView({
         storeId: product.store_id?.toString() || '',
         quantity,
         priceAtAdd: product.price,
+        variation: product.variations,
+        add_on_ids: product.add_ons,
+        add_on_qtys: [],
       });
 
       if (result.success) {

@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const lang = body.lang || DEFAULT_LANG;
 
     // Call external API
-    const externalApiUrl = `${BASE_URL}/api/v1/auth/send-otp-again`;
+    const externalApiUrl = `https://shellafood.com/api/v1/auth/send-otp-again`;
     
     const externalResponse = await fetch(externalApiUrl, {
       method: 'POST',

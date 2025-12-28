@@ -78,15 +78,14 @@ async function getTransactionsData(token: string, limit: number, offset: number,
 			cache: 'no-store', // Don't cache this data
 		});
 
-		if (!response.ok) {
-			console.error('[Transactions] API Error:', response.status);
-			return null;
-		}
+		console.log('response', response);
+	
 
 		const data = await response.json();
+		console.log('data', data);
 		return data;
 	} catch (error) {
-		console.error('[Transactions] Fetch Error:', error);
+		console.log('[Transactions] Fetch Error:', error);
 		return null;
 	}
 }
@@ -110,11 +109,12 @@ export default async function TransactionsPageRoute({ searchParams }: PageProps)
 	// Get search params
 	const search = await searchParams;
 	const limit = 10;
-	const offset = Math.max(0, Number(search.page) || 0);
+	const offset = Math.max(1, Number(search.page) || 1);
 	const type = search.type || 'all';
 
 	// Fetch transactions data
 	const transactionsData = await getTransactionsData(authToken.value, limit, offset, type);
+	console.log('transactionsData', transactionsData);
 	return <Transactions initialTransactionsData={transactionsData} initialPage={offset} initialLimit={limit} initialType={type} />;
 }
 

@@ -65,7 +65,8 @@ export const metadata: Metadata = {
 
 async function getTransactionsData(token: string, limit: number, offset: number, type: string) {
 	try {
-		const apiUrl = `https://shellafood.com/api/v1/customer/wallet/transactions?limit=${limit}&offset=${offset}&type=${type}`;
+		const apiUrl = 
+		`https://shellafood.com/api/v1/customer/wallet/transactions?limit=${limit}&offset=${offset}&type=${type}`;
 		
 		const response = await fetch(apiUrl, {
 			method: 'GET',

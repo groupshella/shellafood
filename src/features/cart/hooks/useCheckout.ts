@@ -146,16 +146,12 @@ console.log("response", response);
 			// Success - show notification and route to my-orders
 			const successMessage = result.message || (isArabic ? 'تم وضع الطلب بنجاح' : 'Order placed successfully');
 			const orderId = result.order_id || result.id || result.data?.order_id;
-			
-			showToast(
-				successMessage,
-				'success',
-				isArabic ? successMessage : undefined
-			);
+			console.log("orderId", orderId);
+		
 			
 			// Route to my-orders page
 			setTimeout(() => {
-				router.push('/my-orders');
+				router.push(`/my-orders/${orderId}/track`);
 			}, 1000); // Small delay to show the notification
 			
 			return { success: true, orderId: orderId?.toString() };

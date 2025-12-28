@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Call external API
-    const externalApiUrl = `${API_URL}/api/v1/auth/sign-up`;
+    const externalApiUrl = `https://shellafood.com/api/v1/auth/sign-up`;
     
     const externalResponse = await fetch(externalApiUrl, {
       method: 'POST',
