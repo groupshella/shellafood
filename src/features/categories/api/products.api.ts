@@ -53,6 +53,9 @@ export async function getProductDetails(
 		  'X-localization': lang, 
 		  'moduleId': moduleId.toString(),
 		  'zoneId': `[${zoneId}]`, // API expects array format "[2]"
+		  'Host': 'shellafood.com', // Required for Cloudflare bypass
+		  'Origin': 'https://shellafood.com',
+		  'Referer': 'https://shellafood.com/',
 		},
 		// ✅ Next.js built-in cache
 		next: {

@@ -77,7 +77,10 @@ export async function getDepartments(
 				'Accept': 'application/json',
 				'X-localization': lang,
 				'moduleId': moduleId.toString(),
-				'zoneId': "[2]",
+				'zoneId': `[${zoneId}]`, // Format as array string
+				'Host': 'shellafood.com', // Required for Cloudflare bypass
+				'Origin': 'https://shellafood.com',
+				'Referer': 'https://shellafood.com/',
 			},
 			next: {
 				revalidate: 12000, // Re-fetch every 10 minutes

@@ -22,7 +22,10 @@ export async function GET(request: NextRequest) {
       headers: {
         'Accept': 'application/json',
         'X-localization': lang,
-        'User-Agent': 'ShellaFood-WebApp/1.0',
+        'Host': 'shellafood.com', // Required for Cloudflare bypass
+        'Origin': 'https://shellafood.com',
+        'Referer': 'https://shellafood.com/',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
       },
       signal: controller.signal,
     });

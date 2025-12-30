@@ -37,7 +37,10 @@ export async function DELETE(request: NextRequest) {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
-        'Host': 'shellafood.com',
+        'Host': 'shellafood.com', // Required for Cloudflare bypass
+        'Origin': 'https://shellafood.com',
+        'Referer': 'https://shellafood.com/',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
         'X-localization': locale,
         'moduleId': moduleId,
         'zoneId': `[${zoneId}]`, // Format as array string
