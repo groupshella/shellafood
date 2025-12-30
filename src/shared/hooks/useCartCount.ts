@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { getBaseUrl } from '@/features/auth/constants/auth.constants';
 
 // Helper function to get cookie value
 function getCookie(name: string): string | null {
@@ -25,10 +26,11 @@ export function useCartCount() {
 				return;
 			}
 
-			const response = await fetch(`https://shellafood.com/api/v1/customer/cart/list?guest_id=${guestId}`, {
+			// ✅ Use API route as proxy
+			const baseUrl = getBaseUrl();
+			const response = await fetch(`${baseUrl}/api/cart/list?guest_id=${guestId}`, {
 				method: 'GET',
 				headers: {
-					'Content-Type': 'application/json',
 					'Accept': 'application/json',
 				},
 				cache: 'no-store',
@@ -69,4 +71,5 @@ export function useCartCount() {
 
 	return { count, isLoading, refetch: fetchCartCount };
 }
+
 

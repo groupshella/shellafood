@@ -13,14 +13,16 @@ interface StorePageProps {
 	store: StoreDetails;
 	initialLimit: number;
 	initialPage: number;
+	moduleId: string;
 }
 
 function StorePage({
 	store,
 	initialLimit,
 	initialPage,
+	moduleId,
 }: StorePageProps) {
-	return <StoreView store={store as StoreDetails} initialLimit={initialLimit} initialPage={initialPage} />
+	return <StoreView store={store as StoreDetails} initialLimit={initialLimit} initialPage={initialPage} moduleId={moduleId} />
 }
 
 export default memo(StorePage);

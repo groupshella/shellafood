@@ -4,25 +4,31 @@ import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/providers';
 import { useToast } from '@/shared/components/ui';
-import { BASE_URL, DEFAULT_LANG, STORAGE_KEYS } from '@/features/auth/constants/auth.constants';
+import { BASE_URL, DEFAULT_LANG, STORAGE_KEYS, getBaseUrl } from '@/features/auth/constants/auth.constants';
 import { getCookie } from '@/features/auth/lib/utils/cookie.utils';
 import type { CartItem, PaymentMethod, CardDetails, CartTotals } from '../types/cart.types';
 import type { Address } from '@/shared/hooks/useAddresses';
 
 interface CheckoutPayload {
-	cart: [{ item_id: number, quantity: number, variations: any[] ,add_ons: any[],add_ons_ids: any[]}];
+	cart: Array<{
+		item_id: number;
+		quantity: number;
+		variation: any[];
+		add_on_ids: any[];
+		add_on_qtys: any[];
+	}>;
 	coupon_code: string;
 	order_amount: number;
 	payment_method: string;
-	delivery_address_id: number;
-	order_note: string;
-	delivery_instruction: string;
 	order_type: string;
 	store_id: number;
 	distance: number;
 	address: string;
 	longitude: number;
 	latitude: number;
+	order_note?: string;
+	delivery_instruction?: string;
+	delivery_address_id?: number;
 }
 
 export function useCheckout(token?: string) {
@@ -67,13 +73,13 @@ export function useCheckout(token?: string) {
 					return { success: false, error: 'Invalid store information' };
 			}
 
-			// Format cart items - API expects array of cart item objects with id, item_id, quantity, price
+			// Format cart items - API expects array of cart item objects
 			const cartItems = items.map(item => ({
 				item_id: parseInt(item.productId) || 0,
 				quantity: item.quantity || 1,
-				variations: [],
-				add_ons: [],
-				add_ons_ids: [],
+				variation: [],
+				add_on_ids: [],
+				add_on_qtys: [],
 			}));
 			console.log("cartItems", cartItems);
 			// Get zone_id and module_id from address
@@ -98,43 +104,47 @@ export function useCheckout(token?: string) {
 			console.log("apiPaymentMethod", apiPaymentMethod);
 			// Prepare request body
 			const payload: CheckoutPayload = {
-				cart: cartItems as any,
+				cart: cartItems,
 				coupon_code: couponCode || '',
 				order_amount: orderAmount,
 				payment_method: apiPaymentMethod,
-				delivery_address_id: address.id,
-				order_note: '',
-				delivery_instruction: '',
 				order_type: 'delivery',
 				store_id: storeId,
 				distance: 2.5,
 				address: address.address || '',
 				longitude: parseFloat(address.longitude || '0'),
 				latitude: parseFloat(address.latitude || '0'),
+				order_note: '',
+				delivery_instruction: '',
+				...(address.id && { delivery_address_id: address.id }),
 			};
 			console.log("payload", payload);
-			// Make API call
-			const response = await fetch(`${BASE_URL}/api/v1/customer/order/place`, {
+			console.log("moduleId", moduleId);
+			console.log("zoneId", zoneId);
+			// ✅ Use API route as proxy
+			const baseUrl = getBaseUrl();
+			const response = await fetch(`${baseUrl}/api/order/place`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					'Accept': 'application/json',
 					'X-localization': language || DEFAULT_LANG,
-					'moduleId': "6",
+					'moduleId': "3",
 					'zoneId': "[2]",
-					'Authorization': `Bearer ${authToken}`,
 				},
 				body: JSON.stringify(payload),
 			});
 
-		
-console.log("response", response);
-			const result = await response.json();
-			console.log("result", result);
-			
 			// Check if request was successful
 			if (!response.ok) {
-				const errorMessage = result.message || result.error || (isArabic ? 'فشل إتمام الطلب' : 'Failed to place order');
+				let errorMessage = isArabic ? 'فشل إتمام الطلب' : 'Failed to place order';
+				try {
+					const errorData = await response.json();
+					errorMessage = errorData.error || errorData.message || errorMessage;
+				} catch {
+					// If JSON parsing fails, use default message
+				}
+				console.log("errorMessage", errorMessage);
 				showToast(
 					errorMessage,
 					'error',
@@ -142,6 +152,9 @@ console.log("response", response);
 				);
 				return { success: false, error: errorMessage };
 			}
+			
+			const result = await response.json();
+			console.log("result in useCheckout", result);
 			
 			// Success - show notification and route to my-orders
 			const successMessage = result.message || (isArabic ? 'تم وضع الطلب بنجاح' : 'Order placed successfully');

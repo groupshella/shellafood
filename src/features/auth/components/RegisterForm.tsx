@@ -72,7 +72,7 @@ export default function RegisterForm() {
 		e.preventDefault();
 
 		// Validation
-		if (!formData.first_name || !formData.last_name || !formData.phone||!formData.email  || !formData.password) {
+		if (!formData.first_name || !formData.last_name || !formData.phone  || !formData.password) {
 			setNotification({
 				message: isArabic
 					? "يرجى ملء جميع الحقول المطلوبة"
@@ -118,7 +118,7 @@ export default function RegisterForm() {
 					l_name: formData.last_name,
 					name: `${formData.first_name} ${formData.last_name}`,
 					phone: formData.phone,
-					...(formData.email && formData.email.trim() !== '' && { email: formData.email }),
+					email: formData.email,
 					password: formData.password,
 					referral_code: '',
 				}),

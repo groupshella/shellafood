@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useLanguage } from '@/providers';
+import { getBaseUrl } from '@/features/auth/constants/auth.constants';
 
 interface AddToCartParams {
 	productId: string;
@@ -52,6 +53,7 @@ function getCookie(name: string): string | null {
 export function useCart() {
 	const [isLoading, setIsLoading] = useState(false);
 	const { language } = useLanguage();
+	const baseUrl = getBaseUrl();
 
 	const addToCart = useCallback(async ({ 
 		productId, 
@@ -73,8 +75,8 @@ export function useCart() {
 				};
 			}
 
-			// Call API to add to cart
-			const response = await fetch('https://shellafood.com/api/v1/customer/cart/add', {
+			// ✅ Use API route as proxy
+			const response = await fetch(`${baseUrl}/api/cart/add`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -82,25 +84,25 @@ export function useCart() {
 					'x-localization': 'ar',
 				},
 				body: JSON.stringify({
-					guest_id: guestId,
 					item_id: parseInt(productId),
 					model: 'Item',
 					price: priceAtAdd,
 					quantity: quantity,
-					variation: variation,
-					add_on_ids: add_on_ids,
-					add_on_qtys: add_on_qtys,
+					variation: variation || [],
+					add_on_ids: add_on_ids || [],
+					add_on_qtys: add_on_qtys || [],
 				}),
 			});
 
-			const data = await response.json();
-
-			if (!response.ok || !data) {
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Failed to add to cart' }));
 				return {
 					success: false,
-					error: data?.message || (language === 'ar' ? 'فشل في إضافة المنتج' : 'Failed to add product'),
+					error: errorData?.error || errorData?.message || (language === 'ar' ? 'فشل في إضافة المنتج' : 'Failed to add product'),
 				};
 			}
+
+			const data = await response.json();
 
 			// Trigger storage event for cart count update
 			window.dispatchEvent(new Event('cartUpdated'));
@@ -119,7 +121,7 @@ export function useCart() {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [language]);
+	}, [language, baseUrl]);
 	const updateQuantityItem = useCallback(async ({ 
 		cart_id,
 		price_at_add,
@@ -137,8 +139,8 @@ export function useCart() {
 				};
 			}
 
-			// Call API to add to cart
-			const response = await fetch('https://shellafood.com/api/v1/customer/cart/update', {
+			// ✅ Use API route as proxy
+			const response = await fetch(`${baseUrl}/api/cart/update`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -147,31 +149,31 @@ export function useCart() {
 				},
 				body: JSON.stringify({
 					cart_id: cart_id,
-					guest_id: guestId,
 					price: price_at_add,
 					quantity: quantity,
 				}),
 			});
 
-			const data = await response.json();
-console.log(data);
-			if (!response.ok || !data) {
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Failed to update cart' }));
 				return {
 					success: false,
-					error: data?.message || (language === 'ar' ? 'فشل في إضافة المنتج' : 'Failed to add product'),
+					error: errorData?.error || errorData?.message || (language === 'ar' ? 'فشل في تحديث المنتج' : 'Failed to update product'),
 				};
 			}
+
+			const data = await response.json();
 
 			// Trigger storage event for cart count update
 			window.dispatchEvent(new Event('cartUpdated'));
 
 			return {
 				success: true,
-				message: data?.message || (language === 'ar' ? 'تم إضافة المنتج للسلة' : 'Product added to cart'),
+				message: data?.message || (language === 'ar' ? 'تم تحديث المنتج' : 'Product updated'),
 				data: data,
 			};
 		} catch (error) {
-			console.error('Error adding to cart:', error);
+			console.error('Error updating cart:', error);
 			return {
 				success: false,
 				error: language === 'ar' ? 'حدث خطأ في الاتصال' : 'Connection error',
@@ -179,7 +181,7 @@ console.log(data);
 		} finally {
 			setIsLoading(false);
 		}
-	}, [language]);
+	}, [language, baseUrl]);
 
 	const removeCartItem = useCallback(async (cartId: string): Promise<AddToCartResponse> => {
 		setIsLoading(true);
@@ -194,27 +196,27 @@ console.log(data);
 				};
 			}
 
-			// Call API to remove item from cart
+			// ✅ Use API route as proxy
 			const response = await fetch(
-				`https://shellafood.com/api/v1/customer/cart/remove-item?cart_id=${cartId}&guest_id=${guestId}`,
+				`${baseUrl}/api/cart/remove-item?cart_id=${cartId}&guest_id=${guestId}`,
 				{
 					method: 'DELETE',
 					headers: {
-						'Content-Type': 'application/json',
 						'Accept': 'application/json',
 						'x-localization': 'ar',
 					},
 				}
 			);
 
-			const data = await response.json();
-
-			if (!response.ok || !data) {
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Failed to remove item' }));
 				return {
 					success: false,
-					error: data?.message || (language === 'ar' ? 'فشل في حذف المنتج' : 'Failed to remove product'),
+					error: errorData?.error || errorData?.message || (language === 'ar' ? 'فشل في حذف المنتج' : 'Failed to remove product'),
 				};
 			}
+
+			const data = await response.json().catch(() => ({}));
 
 			// Trigger storage event for cart count update
 			window.dispatchEvent(new Event('cartUpdated'));
@@ -233,7 +235,7 @@ console.log(data);
 		} finally {
 			setIsLoading(false);
 		}
-	}, [language]);
+	}, [language, baseUrl]);
 
 	const clearCart = useCallback(async (): Promise<AddToCartResponse> => {
 		setIsLoading(true);
@@ -248,27 +250,27 @@ console.log(data);
 				};
 			}
 
-			// Call API to clear cart
+			// ✅ Use API route as proxy
 			const response = await fetch(
-				`https://shellafood.com/api/v1/customer/cart/remove?guest_id=${guestId}`,
+				`${baseUrl}/api/cart/remove?guest_id=${guestId}`,
 				{
 					method: 'DELETE',
 					headers: {
-						'Content-Type': 'application/json',
 						'Accept': 'application/json',
-							'x-localization': 'ar',
+						'x-localization': 'ar',
 					},
 				}
 			);
 
-			const data = await response.json();
-
-			if (!response.ok || !data) {
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Failed to clear cart' }));
 				return {
 					success: false,
-					error: data?.message || (language === 'ar' ? 'فشل في مسح السلة' : 'Failed to clear cart'),
+					error: errorData?.error || errorData?.message || (language === 'ar' ? 'فشل في مسح السلة' : 'Failed to clear cart'),
 				};
 			}
+
+			const data = await response.json().catch(() => ({}));
 
 			// Trigger storage event for cart count update
 			window.dispatchEvent(new Event('cartUpdated'));
@@ -287,7 +289,7 @@ console.log(data);
 		} finally {
 			setIsLoading(false);
 		}
-	}, [language]);
+	}, [language, baseUrl]);
 
 	return {
 		addToCart,

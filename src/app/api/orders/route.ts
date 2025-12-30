@@ -4,21 +4,15 @@ import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const orderId = searchParams.get('order_id');
-  const locale = searchParams.get('locale') || DEFAULT_LANG;
-
-  // Validate params
-  if (!orderId) {
-    return NextResponse.json(
-      { error: 'Order ID is required' },
-      { status: 400 }
-    );
-  }
+  const limit = Number(searchParams.get('limit')) || 20;
+  const offset = Number(searchParams.get('offset')) || 1;
+  const guestId = searchParams.get('guest_id') || '';
 
   try {
-    // Get auth token from cookies
+    // Get cookies
     const cookieStore = await cookies();
     const authToken = cookieStore.get('auth_token')?.value;
+    const locale = request.headers.get('x-localization') || DEFAULT_LANG;
 
     if (!authToken) {
       return NextResponse.json(
@@ -27,12 +21,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const url = `https://shellafood.com/api/v1/customer/order/details?order_id=${orderId}`;
+    // Build URL with query params
+    const queryParams = new URLSearchParams({
+      limit: limit.toString(),
+      offset: offset.toString(),
+    });
+    if (guestId) {
+      queryParams.append('guest_id', guestId);
+    }
 
-    console.log('[Order Details API Route] Fetching order:', {
-      orderId,
-      locale,
+    const url = `https://shellafood.com/api/v1/customer/order/list?${queryParams.toString()}`;
+
+    console.log('[Orders API Route] Fetching orders:', {
       url,
+      limit,
+      offset,
+      guestId,
+      locale,
     });
 
     const response = await fetch(url, {
@@ -41,16 +46,17 @@ export async function GET(request: NextRequest) {
         'Accept': 'application/json',
         'Host': 'shellafood.com',
         'X-localization': locale,
+        'X-Response-Mode': 'minimal',
         'Authorization': `Bearer ${authToken}`,
       },
       next: {
-        revalidate: 60, // Re-fetch every minute for order tracking
+        revalidate: 0, // Always fetch fresh orders
       },
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Order Details API Route] Error:', {
+      console.error('[Orders API Route] Error:', {
         status: response.status,
         statusText: response.statusText,
         error: errorText,
@@ -58,7 +64,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json(
         { 
-          error: `Failed to fetch order details: ${response.statusText}`,
+          error: `Failed to fetch orders: ${response.statusText}`,
           details: errorText 
         },
         { status: response.status }
@@ -67,20 +73,14 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
 
-    console.log('[Order Details API Route] Success:', {
-      orderId,
-      itemsCount: Array.isArray(data) ? data.length : 0,
+    console.log('[Orders API Route] Success:', {
+      ordersCount: data?.orders?.length ?? 0,
+      totalSize: data?.total_size,
     });
 
-    // Return with cache headers
-    return NextResponse.json(data, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
-        'CDN-Cache-Control': 'max-age=60',
-      },
-    });
+    return NextResponse.json(data);
   } catch (error: any) {
-    console.error('[Order Details API Route] Caught error:', {
+    console.error('[Orders API Route] Caught error:', {
       message: error?.message,
       stack: error?.stack,
       name: error?.name,

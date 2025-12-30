@@ -30,6 +30,7 @@
 
   interface StoreViewProps {
     store: StoreDetails;
+    moduleId: string;
     initialLimit: number;
     initialPage: number;
   }
@@ -57,7 +58,7 @@
   // MAIN COMPONENT
   // ============================================================================
 
-  function StoreView({ store, initialLimit, initialPage }: StoreViewProps) {
+  function StoreView({ store,moduleId, initialLimit, initialPage }: StoreViewProps) {
     const { language } = useLanguage();
     const isArabic = language === "ar";
     const router = useRouter();
@@ -265,7 +266,7 @@
                   isMobile={isMobile}
                   t={t}
                   storeId={currentStore.id}
-                  moduleId={currentStore.module_id}
+                  moduleId={moduleId}
                 />
               )}
 
@@ -346,7 +347,7 @@
     isMobile: boolean;
     t: any;
     storeId: number;
-    moduleId: number;
+    moduleId: string;
   }
 
   const DepartmentsTab = memo(({
@@ -421,7 +422,7 @@
               key={dept.id}
               department={dept}
               index={idx}
-              categoryId={moduleId}
+              categoryId={parseInt(moduleId)}
               storeId={storeId}
             />
           ))}

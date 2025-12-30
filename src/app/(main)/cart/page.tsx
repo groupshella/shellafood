@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import CartPage from '@/features/cart/components/CartPage';
 import { RegisterForm } from '@/features/auth';
 import { cookies } from 'next/headers';
-import { BASE_URL, STORAGE_KEYS } from '@/features/auth/constants/auth.constants';
+import { BASE_URL, STORAGE_KEYS, getBaseUrl } from '@/features/auth/constants/auth.constants';
 
 export const metadata: Metadata = {
   title: 'سلة التسوق | شلة فود',
@@ -58,23 +58,31 @@ export const metadata: Metadata = {
 
 async function getCartData(guestId: string | null) {
 	try {
-		const apiUrl = `https://shellafood.com/api/v1/customer/cart/list?guest_id=${guestId}`;
+		if (!guestId) {
+			return null;
+		}
+
+		// ✅ Use API route as proxy
+		const baseUrl = getBaseUrl();
+		const apiUrl = `${baseUrl}/api/cart/list?guest_id=${guestId}`;
 		
 		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
 			'Accept': 'application/json',
-      'x-localization': 'ar',
+			'x-localization': 'ar',
 		};
 
-	
 		const response = await fetch(apiUrl, {
 			method: 'GET',
 			headers,
 			cache: 'no-store', // Don't cache this data
 		});
 
+		if (!response.ok) {
+			console.error('[Cart] API route error:', response.status);
+			return null;
+		}
+
 		const data = await response.json();
-    console.log("data", data);
 		return data;
 	} catch (error) {
 		console.error('[Cart] Fetch Error:', error);

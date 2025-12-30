@@ -4,35 +4,31 @@ import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const orderId = searchParams.get('order_id');
-  const locale = searchParams.get('locale') || DEFAULT_LANG;
+  const guestId = searchParams.get('guest_id');
 
-  // Validate params
-  if (!orderId) {
+  if (!guestId) {
     return NextResponse.json(
-      { error: 'Order ID is required' },
+      { error: 'Guest ID required' },
       { status: 400 }
     );
   }
 
   try {
-    // Get auth token from cookies
+    // Get cookies
     const cookieStore = await cookies();
     const authToken = cookieStore.get('auth_token')?.value;
+    const moduleId = cookieStore.get('moduleId')?.value || searchParams.get('moduleId') || '3';
+    const zoneId = cookieStore.get('zoneId')?.value || searchParams.get('zoneId') || '2';
+    const locale = request.headers.get('x-localization') || DEFAULT_LANG;
 
-    if (!authToken) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+    const url = `https://shellafood.com/api/v1/customer/cart/list?guest_id=${guestId}`;
 
-    const url = `https://shellafood.com/api/v1/customer/order/details?order_id=${orderId}`;
-
-    console.log('[Order Details API Route] Fetching order:', {
-      orderId,
-      locale,
+    console.log('[Cart API Route] Fetching cart:', {
       url,
+      guestId,
+      moduleId,
+      zoneId,
+      locale,
     });
 
     const response = await fetch(url, {
@@ -41,16 +37,18 @@ export async function GET(request: NextRequest) {
         'Accept': 'application/json',
         'Host': 'shellafood.com',
         'X-localization': locale,
-        'Authorization': `Bearer ${authToken}`,
+        'moduleId': moduleId,
+        'zoneId': `[${zoneId}]`, // Format as array string
+        ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
       },
       next: {
-        revalidate: 60, // Re-fetch every minute for order tracking
+        revalidate: 0, // Always fetch fresh cart data
       },
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Order Details API Route] Error:', {
+      console.error('[Cart API Route] List Error:', {
         status: response.status,
         statusText: response.statusText,
         error: errorText,
@@ -58,7 +56,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json(
         { 
-          error: `Failed to fetch order details: ${response.statusText}`,
+          error: `Failed to fetch cart: ${response.statusText}`,
           details: errorText 
         },
         { status: response.status }
@@ -67,20 +65,13 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
 
-    console.log('[Order Details API Route] Success:', {
-      orderId,
+    console.log('[Cart API Route] List Success:', {
       itemsCount: Array.isArray(data) ? data.length : 0,
     });
 
-    // Return with cache headers
-    return NextResponse.json(data, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
-        'CDN-Cache-Control': 'max-age=60',
-      },
-    });
+    return NextResponse.json(data);
   } catch (error: any) {
-    console.error('[Order Details API Route] Caught error:', {
+    console.error('[Cart API Route] Caught error:', {
       message: error?.message,
       stack: error?.stack,
       name: error?.name,

@@ -52,7 +52,6 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
 					onChange={onChange}
 					placeholder={isArabic ? "example@email.com" : "example@email.com"}
 					isArabic={isArabic}
-					required
 					error={errors?.email}
 					disabled={disabled}
 				/>

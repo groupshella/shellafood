@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { MyOrdersPage } from "@/features/orders";
 import type { OrdersResponse, ProductOrder, PaymentStatus, ProductOrderStatus } from "@/features/orders/types";
-import { STORAGE_KEYS, DEFAULT_LANG, BASE_URL } from "@/features/auth/constants/auth.constants";
+import { STORAGE_KEYS, DEFAULT_LANG, BASE_URL, getBaseUrl } from "@/features/auth/constants/auth.constants";
 import { ORDERS_CONSTANTS } from "@/features/orders/constants/orders.constants";
 
 export const dynamic = "force-dynamic";
@@ -82,12 +82,14 @@ interface ApiOrderResponse {
 		id: number;
 		order_amount: number;
 		order_status: string;
-		order_type: string;
-		payment_status: string;
-		payment_method: string;
+		order_type?: string;
+		payment_status?: string;
+		payment_method?: string;
 		created_at: string;
-		item_count: number;
-		delivery_address: {
+		updated_at: string;
+		details_count: number;
+		item_count?: number;
+		delivery_address?: {
 			address: string;
 			longitude: string;
 			latitude: string;
@@ -98,8 +100,13 @@ interface ApiOrderResponse {
 			id: number;
 			name: string;
 			logo: string;
-			latitude: string;
-			longitude: string;
+			latitude?: string;
+			longitude?: string;
+		};
+		delivery_man?: {
+			id: number;
+			f_name: string;
+			l_name: string;
 		};
 	}>;
 }
@@ -140,29 +147,44 @@ async function getOrdersData(
 	limit: number = ORDERS_CONSTANTS.DEFAULT_PAGE_SIZE
 ): Promise<OrdersResponse | null> {
 	try {
-		const apiUrl = `${BASE_URL}/api/v1/customer/order/list?limit=${limit}&offset=${page}`;
+		// ✅ Use API route as proxy
+		const baseUrl = getBaseUrl();
+		const apiUrl = `${baseUrl}/api/orders?limit=${limit}&offset=${page}`;
+		
+		// Get cookies to forward to API route
+		const cookieStore = await cookies();
+		const cookieHeader = cookieStore.getAll()
+			.map(cookie => `${cookie.name}=${cookie.value}`)
+			.join('; ');
 		
 		const response = await fetch(apiUrl, {
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json',
 				'X-localization': DEFAULT_LANG,
-				'Authorization': `Bearer ${token}`,
+				...(cookieHeader && { 'Cookie': cookieHeader }), // Forward cookies for auth
 			},
 			cache: 'no-store', // Don't cache this data
 		});
 
 		if (!response.ok) {
-			console.error('[Orders] API Error:', response.status);
+			console.error('[Orders] API Error:', response.status, response.statusText);
+			const errorText = await response.text().catch(() => 'Unknown error');
+			console.error('[Orders] Error details:', errorText);
 			return null;
 		}
 
 		const apiData = await response.json() as ApiOrderResponse;
+		console.log('[Orders] API Data received:', {
+			ordersCount: apiData?.orders?.length ?? 0,
+			totalSize: apiData?.total_size,
+		});
+		console.log("apiData", apiData);
 		
 		// Map API response to ProductOrder[]
 		const products: ProductOrder[] = apiData.orders.map(order => ({
 			id: order.id.toString(),
-			orderNumber: `ORD-${order.id}`,
+			orderNumber: order.id.toString(),
 			storeName: order.store.name,
 			storeNameAr: order.store.name, // API doesn't provide Arabic name, using same
 			storeLogo: order.store.logo,
@@ -170,9 +192,9 @@ async function getOrdersData(
 			createdAt: order.created_at,
 			items: [], // API doesn't provide items in list, will be empty
 			totalAmount: order.order_amount,
-			paymentMethod: order.payment_method,
-			paymentStatus: mapPaymentStatus(order.payment_status),
-			address: order.delivery_address?.address,
+			paymentMethod: order.payment_method || 'cash_on_delivery', // Default if not provided
+			paymentStatus: mapPaymentStatus(order.payment_status || 'pending'), // Default if not provided
+			address: order.delivery_address?.address || '', // Default to empty string if not provided
 		}));
 
 		return {

@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
         l_name: body.l_name,
         name: body.name,
         phone: body.phone,
-        ...(body.email && typeof body.email === 'string' && body.email.trim() !== '' && { email: body.email.trim() }),
+        email: body.email || '',
         password: body.password,
         referral_code: body.referral_code || '',
       }),

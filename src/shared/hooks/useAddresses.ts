@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { cache } from "react";
+import { useState, useCallback } from "react";
 import { getBaseUrl } from "@/features/auth/constants/auth.constants";
-import { getCookie } from "@/features/auth/lib/utils/cookie.utils";
 
 export interface Address {
 	id: number;
@@ -55,32 +53,25 @@ interface UpdateAddressPayload {
 	floor?: string;
 }
 
-// Cached fetch function using React's cache
-const getCachedAddresses = cache(
-	async (apiUrl: string, token: string) => {
-		const response = await fetch(apiUrl, {
-			method: 'GET',
-			headers: {
-				'Authorization': `Bearer ${token}`,
-				'Content-Type': 'application/json',
-				'Accept': 'application/json',
-			},
-			// Next.js fetch caching with increased time (15 minutes = 900 seconds)
-			next: {
-				revalidate: 900, // Re-fetch every 15 minutes
-				tags: [`addresses-${token?.substring(0, 10) || 'no-token'}`], // For on-demand revalidation
-			},
-		});
+// Fetch addresses from API route
+async function fetchAddressesFromApi(apiUrl: string): Promise<AddressesData | null> {
+	const response = await fetch(apiUrl, {
+		method: 'GET',
+		headers: {
+			'Accept': 'application/json',
+		},
+		// Note: next option only works in server components
+		// Client-side caching is handled by the browser
+	});
 
-		if (!response.ok) {
-			console.error('[Addresses] API Error:', response.status);
-			return null;
-		}
-
-		const data = await response.json() as AddressesData;
-		return data;
+	if (!response.ok) {
+		console.error('[Addresses] API Error:', response.status);
+		return null;
 	}
-);
+
+	const data = await response.json() as AddressesData;
+	return data;
+}
 
 export function useAddresses(initialPage: number = 1, initialLimit: number = 10, token: string) {
 	const [addresses, setAddresses] = useState<Address[]>([]);
@@ -90,24 +81,25 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 	const [currentPage, setCurrentPage] = useState(initialPage);
 	const [limit] = useState(initialLimit);
 	const baseUrl = getBaseUrl();
+	
 	// Fetch addresses
 	const fetchAddresses = useCallback(async (currentPage: number) => {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const apiUrl = `https://shellafood.com/api/v1/customer/address/list?limit=${limit}&offset=${currentPage}&lang=ar`;
+			// ✅ Use API route as proxy
+			const apiUrl = `${baseUrl}/api/addresses?limit=${limit}&offset=${currentPage}&locale=ar`;
 			
-			// Use cached fetch function
-			const data = await getCachedAddresses(apiUrl, token);
+			// Fetch from API route
+			const data = await fetchAddressesFromApi(apiUrl);
 			
 			if (!data) {
 				setError('Failed to fetch addresses');
 				return;
 			}
 			
-			console.log("data", data);
-			setAddresses(data.addresses);
-			setTotalSize(data.total_size);
+			setAddresses(data.addresses || []);
+			setTotalSize(data.total_size || 0);
 			setCurrentPage(currentPage);
 		} catch (error) {
 			console.error('[Addresses] Fetch Error:', error);
@@ -116,7 +108,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 			setIsLoading(false);
 		}
 
-	}, [limit, token]);
+	}, [limit, token, baseUrl]);
 
 
 	// Add new address
@@ -127,30 +119,36 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 		try {
 			if (!token) throw new Error('No authentication token');
 
-			const response = await fetch(`https://shellafood.com/api/v1/customer/address/add`, {
+			// ✅ Use API route as proxy
+			const response = await fetch(`${baseUrl}/api/addresses/add`, {
 				method: 'POST',
 				headers: {
-					'Authorization': `Bearer ${token}`,
 					'Content-Type': 'application/json',
 					'Accept': 'application/json',
 					'x-localization': 'ar',
 				},
 				body: JSON.stringify(addressData),
 			});
-			console.log("response in addAddress", response)
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Failed to add address' }));
+				throw new Error(errorData.error || 'Failed to add address');
+			}
 
 			const result = await response.json();
-			console.log("result in addAddress", result)
+			
+			// Refresh the list after adding
+			await fetchAddresses(currentPage);
 			
 			return result;
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'An error occurred');
-			console.log('Error adding address:', err);
+			console.error('Error adding address:', err);
 			throw err;
 		} finally {
 			setIsLoading(false);
 		}
-	}, [currentPage, fetchAddresses]);
+	}, [baseUrl, fetchAddresses, currentPage]);
 
 	// Update existing address
 	const updateAddress = useCallback(async (addressId: number, addressData: UpdateAddressPayload) => {
@@ -160,10 +158,10 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 		try {
 			if (!token) throw new Error('No authentication token');
 
-			const response = await fetch(`https://shellafood.com/api/v1/customer/address/update/${addressId}`, {
+			// ✅ Use API route as proxy
+			const response = await fetch(`${baseUrl}/api/addresses/update/${addressId}`, {
 				method: 'PUT',
 				headers: {
-					'Authorization': `Bearer ${token}`,
 					'Content-Type': 'application/json',
 					'Accept': 'application/json',
 					'x-localization': 'ar',
@@ -171,10 +169,15 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 				body: JSON.stringify(addressData),
 			});
 
-			
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Failed to update address' }));
+				throw new Error(errorData.error || 'Failed to update address');
+			}
+
 			const result = await response.json();
 			
-		console.log("result", result)
+			// Refresh the list after updating
+			await fetchAddresses(currentPage);
 			
 			return result;
 		} catch (err) {
@@ -184,7 +187,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 		} finally {
 			setIsLoading(false);
 		}
-	}, [currentPage, fetchAddresses]);
+	}, [baseUrl, fetchAddresses, currentPage]);
 
 	// Delete address
 	const deleteAddress = useCallback(async (addressId: number) => {
@@ -194,20 +197,20 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 		try {
 			if (!token) throw new Error('No authentication token');
 
+			// ✅ Use API route as proxy
 			const response = await fetch(
-				`https://shellafood.com/api/v1/customer/address/delete?address_id=${addressId}`,
+				`${baseUrl}/api/addresses/delete?address_id=${addressId}`,
 				{
 					method: 'DELETE',
 					headers: {
-						'Authorization': `Bearer ${token}`,
-						'Content-Type': 'application/json',
 						'Accept': 'application/json',
 					},
 				}
 			);
 
 			if (!response.ok) {
-				throw new Error('Failed to delete address');
+				const errorData = await response.json().catch(() => ({ error: 'Failed to delete address' }));
+				throw new Error(errorData.error || 'Failed to delete address');
 			}
 
 			// Refresh the list
@@ -219,7 +222,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 		} finally {
 			setIsLoading(false);
 		}
-	}, [currentPage, fetchAddresses]);
+	}, [baseUrl, currentPage, fetchAddresses]);
 
 	// Get address by ID
 	const getAddressById = useCallback((addressId: number) => {

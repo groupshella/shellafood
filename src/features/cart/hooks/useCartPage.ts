@@ -123,6 +123,7 @@ console.log("items", items);
 	);
 
 	// Checkout
+	console.log("token in useCartPage", token)
 	const { processCheckout, isProcessing } = useCheckout(token);
 
 	// Computed values

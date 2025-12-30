@@ -129,6 +129,7 @@ export default async function StorePageRoute(
         store={storeDetails}
         initialLimit={limit}
         initialPage={offset}
+        moduleId={moduleId.toString()}
       />
     );
   } catch (error: any) {

@@ -2,20 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const orderId = searchParams.get('order_id');
-  const locale = searchParams.get('locale') || DEFAULT_LANG;
-
-  // Validate params
-  if (!orderId) {
-    return NextResponse.json(
-      { error: 'Order ID is required' },
-      { status: 400 }
-    );
-  }
-
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ addressId: string }> }
+) {
   try {
+    const { addressId } = await params;
+    const addressIdNum = Number(addressId);
+
+    if (!addressIdNum || isNaN(addressIdNum)) {
+      return NextResponse.json(
+        { error: 'Invalid address ID' },
+        { status: 400 }
+      );
+    }
+
     // Get auth token from cookies
     const cookieStore = await cookies();
     const authToken = cookieStore.get('auth_token')?.value;
@@ -27,30 +28,32 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const url = `https://shellafood.com/api/v1/customer/order/details?order_id=${orderId}`;
+    const body = await request.json();
+    const locale = request.headers.get('x-localization') || DEFAULT_LANG;
 
-    console.log('[Order Details API Route] Fetching order:', {
-      orderId,
-      locale,
+    const url = `https://shellafood.com/api/v1/customer/address/update/${addressIdNum}`;
+
+    console.log('[Addresses API Route] Updating address:', {
+      addressId: addressIdNum,
       url,
+      locale,
     });
 
     const response = await fetch(url, {
-      method: 'GET',
+      method: 'PUT',
       headers: {
         'Accept': 'application/json',
-        'Host': 'shellafood.com',
+        'Content-Type': 'application/json',
         'X-localization': locale,
         'Authorization': `Bearer ${authToken}`,
+        'Host': 'shellafood.com',
       },
-      next: {
-        revalidate: 60, // Re-fetch every minute for order tracking
-      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Order Details API Route] Error:', {
+      console.error('[Addresses API Route] Update Error:', {
         status: response.status,
         statusText: response.statusText,
         error: errorText,
@@ -58,7 +61,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json(
         { 
-          error: `Failed to fetch order details: ${response.statusText}`,
+          error: `Failed to update address: ${response.statusText}`,
           details: errorText 
         },
         { status: response.status }
@@ -67,20 +70,11 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
 
-    console.log('[Order Details API Route] Success:', {
-      orderId,
-      itemsCount: Array.isArray(data) ? data.length : 0,
-    });
+    console.log('[Addresses API Route] Update Success');
 
-    // Return with cache headers
-    return NextResponse.json(data, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
-        'CDN-Cache-Control': 'max-age=60',
-      },
-    });
+    return NextResponse.json(data);
   } catch (error: any) {
-    console.error('[Order Details API Route] Caught error:', {
+    console.error('[Addresses API Route] Caught error:', {
       message: error?.message,
       stack: error?.stack,
       name: error?.name,
