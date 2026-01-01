@@ -21,50 +21,48 @@ import { useRouter } from "next/navigation";
 import { ContractModal } from "@/features/investor";
 import { BASE_URL, getBaseUrl } from "@/features/auth/constants/auth.constants";
 
+interface PersonalInfo {
+	first_name: string;
+	father_name: string;
+	grandfather_name: string;
+	last_name: string;
+	national_id: string;
+	mobile: string;
+}
+
 interface IncomeSource {
-	id: number;
-	wallet_id: number;
 	source_of_income: string;
 	monthly_amount: string;
-	created_at: string;
-	updated_at: string;
-	salary_day: number;
+	salary_day: number | null;
 }
 
 interface WalletData {
 	id: number;
-	serial_number: string;
 	user_id: number;
-	created_at: string;
-	updated_at: string;
-	completed_at: string | null;
-	completed_by: string | null;
-	credit_limit: string;
-	minimum_due: string | null;
-	available_balance: string;
-	used_balance: string;
-	usage_percentage_limit: number;
-	auto_lock_day: number;
-	manual_unlock_expiry_date: string | null;
-	usage_percentage_limit_by_monthly: number;
-	signature_path: string;
-	signature_status: number;
-	signature_date: string | null;
 	status: string;
-	coupon_id: string | null;
-	coupon_discount_amount: string | null;
-	lock_day: string;
-	minimum_due_limit: number;
+	credit_limit: number;
+	available_balance: number;
+	used_balance: number;
+	minimum_due: number;
+	usage_percentage_limit: number;
 	purchase_limit: number;
 	used_percentage: number;
-	total_avilable_balance: number;
+	total_available_balance: number;
+	minimum_due_limit: number;
+	lock_day: string;
+	signature_status: boolean;
+	signature_path: string;
+	salary_day: number | null;
+	created_at: string;
+	updated_at: string;
+	personal_info: PersonalInfo;
 	income_source: IncomeSource;
 }
 
 interface KaidhaWalletProps {
 	walletData: {
-		message: string;
-		wallet: WalletData;
+		success: boolean;
+		data: WalletData;
 	} | null;
 }
 
@@ -74,7 +72,7 @@ export default function KaidhaWallet({ walletData }: KaidhaWalletProps) {
 	const router = useRouter();
 	const baseUrl = getBaseUrl();
 	// If no wallet data, show error state
-	if (!walletData || !walletData.wallet) {
+	if (!walletData || !walletData.success || !walletData.data) {
 		return (
 			<div className="min-h-screen bg-gradient-to-br from-gray-50 dark:from-gray-900 via-red-50/20 dark:via-red-900/10 to-white dark:to-gray-900 p-4 md:p-6 lg:p-8 flex items-center justify-center" dir="rtl">
 				<div className="text-center">
@@ -96,13 +94,13 @@ export default function KaidhaWallet({ walletData }: KaidhaWalletProps) {
 		);
 	}
 
-	const wallet = walletData.wallet;
+	const wallet = walletData.data;
 
 	// Parse numeric values
-	const totalBalance = parseFloat(wallet.total_avilable_balance?.toString() || '0');
-	const creditLimit = parseFloat(wallet.credit_limit || '0');
-	const availableBalance = parseFloat(wallet.available_balance || '0');
-	const usedBalance = parseFloat(wallet.used_balance || '0');
+	const totalBalance = wallet.total_available_balance || 0;
+	const creditLimit = wallet.credit_limit || 0;
+	const availableBalance = wallet.available_balance || 0;
+	const usedBalance = wallet.used_balance || 0;
 	const usedPercentage = wallet.used_percentage || 0;
 	const purchaseLimit = wallet.purchase_limit || 0;
 
@@ -166,8 +164,8 @@ export default function KaidhaWallet({ walletData }: KaidhaWalletProps) {
 		}
 	};
 
-	const getSignatureStatus = (status: number) => {
-		return status === 1 
+	const getSignatureStatus = (status: boolean) => {
+		return status 
 			? { text: 'تم التوقيع', color: 'text-green-600 dark:text-green-400', icon: CheckCircle2 }
 			: { text: 'لم يتم التوقيع', color: 'text-yellow-600 dark:text-yellow-400', icon: Clock };
 	};
@@ -193,9 +191,9 @@ export default function KaidhaWallet({ walletData }: KaidhaWalletProps) {
 						</div>
 						<div>
 							<h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-gray-100">محفظة قيدها</h2>
-							{wallet.serial_number && (
+							{wallet.id && (
 								<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-									الرقم التسلسلي: {wallet.serial_number}
+									رقم المحفظة: {wallet.id}
 								</p>
 							)}
 						</div>
@@ -405,38 +403,40 @@ export default function KaidhaWallet({ walletData }: KaidhaWalletProps) {
 				)}
 
 				{/* Optional: Contract Signed Status */}
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, delay: 0.4 }}
-					className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6"
-				>
-					<div className="flex items-center justify-between gap-3">
-						<div className="flex items-center gap-3 flex-1">
-							<div className="p-2.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
-								<SignatureIcon className={`w-5 h-5 ${signatureStatus.color}`} />
+				{wallet.signature_path && (
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.5, delay: 0.4 }}
+						className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6"
+					>
+						<div className="flex items-center justify-between gap-3">
+							<div className="flex items-center gap-3 flex-1">
+								<div className="p-2.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+									<SignatureIcon className={`w-5 h-5 ${signatureStatus.color}`} />
+								</div>
+								<div>
+									<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">حالة التوقيع</p>
+									<p className={`text-base sm:text-lg font-bold ${signatureStatus.color}`}>
+										{signatureStatus.text}
+									</p>
+								</div>
 							</div>
-							<div>
-								<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">حالة التوقيع</p>
-								<p className={`text-base sm:text-lg font-bold ${signatureStatus.color}`}>
-									{signatureStatus.text}
-								</p>
-							</div>
+							{/* View Contract Button - Only show if signed and has signature_path */}
+							{wallet.signature_status && wallet.signature_path && (
+								<button
+									onClick={() => setShowContractModal(true)}
+									className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all hover:shadow-lg active:scale-95 touch-manipulation whitespace-nowrap"
+									aria-label="عرض العقد"
+								>
+									<FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+									<span className="hidden sm:inline">عرض العقد</span>
+									<span className="sm:hidden">عرض</span>
+								</button>
+							)}
 						</div>
-						{/* View Contract Button - Only show if signed and has signature_path */}
-						{wallet.signature_status === 1 && wallet.signature_path && (
-							<button
-								onClick={() => setShowContractModal(true)}
-								className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all hover:shadow-lg active:scale-95 touch-manipulation whitespace-nowrap"
-								aria-label="عرض العقد"
-							>
-								<FileText className="w-4 h-4 sm:w-5 sm:h-5" />
-								<span className="hidden sm:inline">عرض العقد</span>
-								<span className="sm:hidden">عرض</span>
-							</button>
-						)}
-					</div>
-				</motion.div>
+					</motion.div>
+				)}
 
 				{/* Optional: Income Source Info */}
 				{wallet.income_source && (
@@ -460,12 +460,14 @@ export default function KaidhaWallet({ walletData }: KaidhaWalletProps) {
 									{formatCurrency(parseFloat(wallet.income_source.monthly_amount))} ريال
 								</p>
 							</div>
-							<div>
-								<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">يوم استلام الراتب</p>
-								<p className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
-									اليوم {wallet.income_source.salary_day} من كل شهر
-								</p>
-							</div>
+							{wallet.income_source.salary_day && (
+								<div>
+									<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">يوم استلام الراتب</p>
+									<p className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
+										اليوم {wallet.income_source.salary_day} من كل شهر
+									</p>
+								</div>
+							)}
 						</div>
 					</motion.div>
 				)}
@@ -497,7 +499,7 @@ export default function KaidhaWallet({ walletData }: KaidhaWalletProps) {
 				</motion.div>
 
 				{/* Contract Modal */}
-				{wallet.signature_status === 1 && wallet.signature_path && (
+				{wallet.signature_status && wallet.signature_path && (
 					<ContractModal
 						isOpen={showContractModal}
 						onClose={() => setShowContractModal(false)}

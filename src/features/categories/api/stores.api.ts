@@ -35,14 +35,9 @@ export async function getAllStores(
 ): Promise<ApiResponse<StoreList>> {
 
   const cacheTag = `stores-${moduleId}-${zoneId}-${lang}-${limit}-${offset}`;
-  const url = `https://shellafood.com/api/v1/stores/get-stores/all?limit=${limit}&offset=${offset}`;
+  const url = `https://shellafood.com/api/v1/stores/popular?limit=${limit}&offset=${offset}`;
 
   try {
-    console.log(`[getAllStores] Starting request:`, {
-      url,
-      cacheTag,
-      params: { limit, offset, lang, moduleId, zoneId },
-    });
 
     const fetchStartTime = Date.now();
 	const controller = new AbortController();
@@ -51,30 +46,20 @@ export async function getAllStores(
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-		'x-localization': lang,
-        'moduleId': moduleId.toString(),
-        'zoneId': zoneId.toString(),
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+        'X-localization': lang,
+		'moduleId': moduleId.toString(),
+		'zoneId': "[2]",
+		'longitude': "46.5995713",
+		'latitude': "24.6100271",
+		'Host': 'shellafood.com',
       },
 	  signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
 
-    const fetchDuration = Date.now() - fetchStartTime;
 
-    const cacheStatus =
-      response.headers.get('x-vercel-cache') ||
-      response.headers.get('cache-control') ||
-      'unknown';
-
-    console.log(`[getAllStores] Response received in ${fetchDuration}ms:`, {
-      status: response.status,
-      statusText: response.statusText,
-      cacheStatus,
-      url: response.url,
-      headers: Object.fromEntries(response.headers.entries()),
-    });
+   
 
     if (!response.ok) {
       let errorData;
@@ -102,13 +87,7 @@ export async function getAllStores(
     }
 
     const data = await response.json() as StoreList;
-
-    console.log(`[getAllStores] Data parsed successfully:`, {
-      storesCount: data?.stores?.length ?? 0,
-      totalSize: data?.total_size,
-      hasMore: data?.total_size > limit * offset,
-      firstStore: data?.stores?.[0]?.name || 'N/A',
-    });
+   console.log("data", data);
 
     return {
       data,
@@ -188,17 +167,14 @@ export async function getStoreDetails(
 		  'Accept': 'application/json',
 		  'X-Localization': lang,
 		  'moduleId': moduleId.toString(),
-		  'zoneId': `[${zoneId}]`, // Format as array string
-		  'longitude': longitude,
-		  'latitude': latitude,
-		  'Host': 'shellafood.com', // Required for Cloudflare bypass
-		  'Origin': 'https://shellafood.com',
-		  'Referer': 'https://shellafood.com/',
-		  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+		  'zoneId': "[2]",
+		  'longitude': "46.5995713",
+		  'latitude': "24.6100271",
+		 
 		},
 		// ✅ Next.js built-in cache
 		next: {
-		  revalidate: 3600, // 1 hour
+		  revalidate: 1, // 1 hour
 		  tags: [cacheTag],
 		},
 	  });
@@ -307,11 +283,7 @@ export async function getStoreDetails(
 		  'Accept': 'application/json',
 		  'X-Localization': lang,
 		  'moduleId': moduleId.toString(),
-		 // Format as array string
-		  'Host': 'shellafood.com', // Required for Cloudflare bypass
-		  'Origin': 'https://shellafood.com',
-		  'Referer': 'https://shellafood.com/',
-		  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+		  'zoneId': "[2]",
 		},
 		// ✅ Next.js built-in cache
 		next: {

@@ -59,11 +59,6 @@ const baseUrl=getBaseUrl();
       headers: {
         'Accept': 'application/json',
       },
-      // ✅ Next.js built-in cache
-      next: {
-        revalidate: 3600, // Re-fetch every 5 minutes
-        tags: [`stores-${moduleId}-${zoneId}`],
-      },
     });
     
     if (!response.ok) {
@@ -85,7 +80,7 @@ const baseUrl=getBaseUrl();
     }
     
     const storeListData = await response.json();
-    
+    console.log("storeListData", storeListData);
     // Validate response structure
     // The API route returns storeListResponse.data directly (which has stores, total_size, limit, offset)
     if (!storeListData || !storeListData.stores || !Array.isArray(storeListData.stores)) {

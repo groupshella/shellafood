@@ -134,9 +134,15 @@ function StoreHero({ store }: StoreHeroProps) {
   }, [store?.module, isArabic]);
 
   const displayDeliveryTime = useMemo(() => {
-    return store?.delivery_time || 
-           store?.min_delivery_time ? `${store.min_delivery_time} min` :
-           null;
+    // delivery_time is already formatted (e.g., "30-40 min")
+    if (store?.delivery_time) {
+      return store.delivery_time;
+    }
+    // Fallback to min_delivery_time and format if it exists
+    if (store?.min_delivery_time) {
+      return `${store.min_delivery_time} min`;
+    }
+    return null;
   }, [store?.delivery_time, store?.min_delivery_time]);
 
   const displayDistance = useMemo(() => {
@@ -170,8 +176,8 @@ function StoreHero({ store }: StoreHeroProps) {
       if (store.cover_photo.startsWith('http://') || store.cover_photo.startsWith('https://')) {
         return store.cover_photo;
       }
-      // Otherwise construct from filename
-      return `https://shellafood.com/storage/app/public/store/${store.cover_photo}`;
+      // Otherwise construct from filename - API path structure
+      return `https://shellafood.com/storage/store/cover/${store.cover_photo}`;
     }
     
     return null;
@@ -190,8 +196,8 @@ function StoreHero({ store }: StoreHeroProps) {
       if (store.logo.startsWith('http://') || store.logo.startsWith('https://')) {
         return store.logo;
       }
-      // Otherwise construct from filename
-      return `https://shellafood.com/storage/app/public/store/${store.logo}`;
+      // Otherwise construct from filename - API path structure
+      return `https://shellafood.com/storage/store/${store.logo}`;
     }
     
     return null;
@@ -247,6 +253,7 @@ function StoreHero({ store }: StoreHeroProps) {
   // ============================================================================
   // RENDER
   // ============================================================================
+ 
 
   return (
     <>

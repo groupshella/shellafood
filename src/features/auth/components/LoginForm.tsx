@@ -70,8 +70,8 @@ export default function LoginForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          phone: formData.phone,
-          lang: language || DEFAULT_LANG,
+          email_or_phone: formData.phone,
+          field_type: 'phone',
         }),
       });
 
@@ -119,7 +119,7 @@ export default function LoginForm() {
     } finally {
       setIsLoading(false);
     }
-  }, [formData.phone, isArabic, language]);
+  }, [formData.phone, isArabic]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

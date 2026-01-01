@@ -160,7 +160,7 @@ export interface StoreDetails {
     admin_aprove: number;
     created_at: string;
     updated_at: string;
-    free_delivery: number;
+    free_delivery: boolean;
     rating_count: number;
     avg_rating: number;
     cover_photo: string;

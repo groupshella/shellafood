@@ -7,7 +7,7 @@ import { CART_CONFIG } from '../constants/cart.constants';
 export function useCartCalculations(items: CartItem[], coupon: Coupon | null): CartTotals {
 	return useMemo(() => {
 		const subtotal = items.reduce((sum, item) => sum + item.priceAtAdd * item.quantity, 0);
-		const deliveryFee = subtotal >= CART_CONFIG.FREE_DELIVERY_THRESHOLD ? 0 : CART_CONFIG.DELIVERY_FEE;
+		const deliveryFee = 15;
 		
 		let discount = 0;
 		if (coupon) {

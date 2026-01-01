@@ -1,37 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { BASE_URL, DEFAULT_LANG, STORAGE_KEYS } from '@/features/auth/constants/auth.constants';
+import { DEFAULT_LANG, STORAGE_KEYS } from '@/features/auth/constants/auth.constants';
 import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const lang = body.lang || DEFAULT_LANG;
-    const token = body.token; // Token from signup
-
+const cookieStore = await cookies()
+const guest_id = cookieStore.get('guest_id')?.value || '';
     // Call external API
-    const externalApiUrl = `https://shellafood.com/api/v1/auth/verify-phone`;
+    const externalApiUrl = `https://shellafood.com/api/v1/auth/login`;
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      'X-LANG': lang,
       'Accept': 'application/json',
-      'Host': 'shellafood.com', // Required for Cloudflare bypass
-      'Origin': 'https://shellafood.com',
-      'Referer': 'https://shellafood.com/',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+      'Host': 'shellafood.com',
+      'X-localization': lang,
     };
-
-    // Add token if available
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
     const externalResponse = await fetch(externalApiUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify({
+        login_type: 'otp',
         phone: body.phone,
         otp: body.otp,
+        verified: true,
+        guest_id: guest_id,
       }),
     });
 
@@ -45,6 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // If verification successful, set the auth cookie
+    const token = data.token;
     if (token) {
       const cookieStore = await cookies();
       const days = 7; // Default expiry

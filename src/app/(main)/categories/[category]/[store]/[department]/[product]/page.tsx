@@ -3,7 +3,7 @@ import ProductPage from '@/features/categories/components/product/ProductPage';
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 import { Product } from '@/features/categories/types/product.types';
 import { notFound } from 'next/navigation';
-import { getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { getCachedProductDetails } from '@/features/categories/api/products.api';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,36 +91,28 @@ export default async function ProductPageRoute({ params }: PageProps) {
 
   const zoneId = 2; // zone_id
 
-  // ✅ Use API route as proxy
+  // ✅ Use cached function that calls API route
   try {
-    const baseUrl = getBaseUrl();
-    const url = `${baseUrl}/api/product-details?productId=${productId}&moduleId=${moduleId}&zoneId=${zoneId}&locale=${DEFAULT_LANG}`;
+    const productResponse = await getCachedProductDetails(
+      moduleId,
+      productId,
+      zoneId,
+      DEFAULT_LANG
+    );
     
-    const startTime = Date.now();
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-      // ✅ Next.js built-in cache
-      next: {
-        revalidate: 3600, // Re-fetch every hour
-        tags: [`product-details-${productId}-${moduleId}-${zoneId}`],
-      },
-    });
-    
-    const duration = Date.now() - startTime;
-    
-    if (!response.ok) {
-      console.error('[Product Page] API route error:', response.status);
+    if (!productResponse?.data) {
+      console.error('[Product Page] Failed to fetch product:', {
+        error: productResponse?.error,
+        status: productResponse?.status,
+        moduleId,
+        productId,
+      });
       notFound();
     }
     
-    const productData = await response.json() as Product;
+    const productData = productResponse.data;
     
     console.log('[Product Page] Product fetched:', {
-      duration: `${duration}ms`,
       moduleId,
       storeId,
       departmentId,

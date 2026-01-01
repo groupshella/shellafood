@@ -191,7 +191,6 @@ export default function RegisterForm() {
 				body: JSON.stringify({
 					phone: formData.phone,
 					otp: otp,
-					token: registrationToken,
 					lang: language || DEFAULT_LANG,
 				}),
 			});

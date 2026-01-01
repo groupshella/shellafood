@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { BASE_URL, DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,20 +8,18 @@ export async function POST(request: NextRequest) {
     const lang = body.lang || DEFAULT_LANG;
 
     // Call external API
-    const externalApiUrl = `https://shellafood.com/api/v1/auth/send-otp-again`;
-    
+    const externalApiUrl = `https://shellafood.com/api/v1/auth/login`;
+ 
     const externalResponse = await fetch(externalApiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-LANG': lang,
         'Accept': 'application/json',
-        'Host': 'shellafood.com', // Required for Cloudflare bypass
-        'Origin': 'https://shellafood.com',
-        'Referer': 'https://shellafood.com/',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+        'Host': 'shellafood.com',
+        'X-localization': lang,
       },
       body: JSON.stringify({
+        login_type: 'otp',
         phone: body.phone,
       }),
     });

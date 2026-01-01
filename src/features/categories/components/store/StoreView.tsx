@@ -124,11 +124,11 @@
         { label: isArabic ? "الرئيسية" : "Home", href: "/" },
         { 
           label: currentStore.module?.module_name || (isArabic ? "القسم" : "Category"), 
-          href: `/categories/${currentStore.module_id}` 
+          href: `/categories/${moduleId}` 
         },
         { label: currentStore.name },
       ],
-      [currentStore, isArabic]
+      [currentStore, isArabic, moduleId]
     );
 
     // Get all departments (no filtering - search is handled in DepartmentsPage)
@@ -149,7 +149,7 @@
         created_at: '',
         updated_at: '',
         priority: 0,
-        module_id: currentStore.module_id,
+        module_id: currentStore.module_id || Number(moduleId),
         cat_site_id: '',
         slug: '',
         featured: 0,
@@ -453,20 +453,28 @@
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Store Details Grid - Mobile Optimized */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          <InfoItem icon={Phone} label={t.phone} value={store.phone} href={`tel:${store.phone}`} isPhone={true} />
-          <InfoItem icon={Mail} label={t.email} value={store.email || t.notAvailable} href={store.email ? `mailto:${store.email}` : undefined} />
-          <InfoItem icon={MapPin} label={t.address} value={store.address || t.notSpecified} className="sm:col-span-2" />
-          <InfoItem icon={DollarSign} label={t.minOrder} value={`${store.minimum_order} ${t.sar}`} />
+          {store.phone && (
+            <InfoItem icon={Phone} label={t.phone} value={store.phone} href={`tel:${store.phone}`} isPhone={true} />
+          )}
+          {store.email && (
+            <InfoItem icon={Mail} label={t.email} value={store.email || t.notAvailable} href={store.email ? `mailto:${store.email}` : undefined} />
+          )}
+          {store.address && (
+            <InfoItem icon={MapPin} label={t.address} value={store.address || t.notSpecified} className="sm:col-span-2" />
+          )}
+          {store.minimum_order && (
+            <InfoItem icon={DollarSign} label={t.minOrder} value={`${store.minimum_order} ${t.sar}`} />
+          )}
           <InfoItem 
             icon={Tag} 
             label={t.deliveryFee} 
-            value={store.free_delivery === 1 ? t.free : `${store.minimum_shipping_charge || '0.00'} ${t.sar}`}
-            highlight={store.free_delivery === 1}
+            value={store.free_delivery ? t.free : `${store.minimum_shipping_charge || store.price_range?.min_price || '0.00'} ${t.sar}`}
+            highlight={store.free_delivery}
           />
           <InfoItem 
             icon={Clock} 
             label={t.deliveryTime} 
-            value={store.delivery_time || store.min_delivery_time ? `${store.min_delivery_time} min` : t.notSpecified}
+            value={store.delivery_time || store.min_delivery_time ? (store.delivery_time || `${store.min_delivery_time} min`) : t.notSpecified}
           />
         </div>
 
@@ -543,21 +551,21 @@
         <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg sm:rounded-xl p-3 sm:p-4 border-2 border-yellow-200 dark:border-yellow-800">
           <Star className="w-6 h-6 sm:w-8 sm:h-8 fill-yellow-400 text-yellow-400" />
           <span className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white">
-            {store.avg_rating.toFixed(1)}
+            {(store.avg_rating || 0).toFixed(1)}
           </span>
         </div>
       </div>
       
-      {store.rating_count === 0 ? (
+      {(!store.rating_count || store.rating_count === 0) ? (
         <div className="text-center py-8 sm:py-12 md:py-16">
           <Star className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 text-gray-300 dark:text-gray-600" />
           <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
             {t.noReviews}
           </p>
         </div>
-      ) : (
+      ) : store.ratings && store.ratings.length > 0 ? (
         <div className="space-y-3 sm:space-y-4">
-          {store.ratings?.map((count: number, index: number) => {
+          {store.ratings.map((count: number, index: number) => {
             const rating = 5 - index;
             const percentage = (count / store.rating_count) * 100;
             return (
@@ -589,6 +597,13 @@
             );
           })}
         </div>
+      ) : (
+        <div className="text-center py-8 sm:py-12 md:py-16">
+          <Star className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 text-gray-300 dark:text-gray-600" />
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
+            {t.noReviews}
+          </p>
+        </div>
       )}
     </motion.div>
   ));
@@ -613,9 +628,9 @@
         </h2>
       </div>
       
-      {store.active_coupons?.length > 0 ? (
+      {(store.active_coupons?.length > 0 || store.combos?.length > 0) ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-          {store.active_coupons.map((coupon: any, index: number) => (
+          {(store.active_coupons || store.combos || []).map((coupon: any, index: number) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, scale: 0.95 }}

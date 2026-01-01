@@ -35,7 +35,7 @@ function StoreCard({ store, index = 0, isCompact = false }: StoreCardProps) {
   const isBusy = store.status?.is_busy ?? false;
   const rating = store.avg_rating || 0;
   const ratingCount = store.rating_count || 0;
-  const distance = store.distance ? `${store.distance.toFixed(1)}` : null;
+  const distance = store.distance ? `${(store.distance/1000).toFixed(1)}` : null;
   const deliveryTime = store.delivery_time || store.min_delivery_time || null;
   const deliveryFee = store.delivery?.delivery_fee ?? store.minimum_shipping_charge ?? 0;
   const isFreeDelivery = store.free_delivery || deliveryFee === 0;
@@ -61,8 +61,8 @@ function StoreCard({ store, index = 0, isCompact = false }: StoreCardProps) {
       if (store.logo.startsWith('http://') || store.logo.startsWith('https://')) {
         return store.logo;
       }
-      // Otherwise construct from filename
-      return `https://shellafood.com/storage/app/public/store/${store.logo}`;
+      // Otherwise construct from filename - API path structure
+      return `https://shellafood.com/storage/store/${store.logo}`;
     }
     
     return null;
@@ -81,8 +81,8 @@ function StoreCard({ store, index = 0, isCompact = false }: StoreCardProps) {
       if (store.cover_photo.startsWith('http://') || store.cover_photo.startsWith('https://')) {
         return store.cover_photo;
       }
-      // Otherwise construct from filename
-      return `https://shellafood.com/storage/app/public/store/${store.cover_photo}`;
+      // Otherwise construct from filename - API path structure
+      return `https://shellafood.com/storage/store/cover/${store.cover_photo}`;
     }
     
     return null;

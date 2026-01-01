@@ -2,8 +2,9 @@ import { StorePage } from '@/features/categories';
 import { Metadata } from 'next';
 import { StoreDetails } from '@/features/categories/types/store.details.types';
 import { notFound } from 'next/navigation';
-import { getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { getCachedStoreDetails } from '@/features/categories/api/stores.api';
 import { cookies } from 'next/headers';
+import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 
 interface PageProps {
   params: Promise<{
@@ -85,43 +86,43 @@ export default async function StorePageRoute(
   const offset = Math.max(1, Number(search.page) || 1);
   const zoneId = 2; // TODO: replace with real zone resolver
   
-  // ✅ Use API route as proxy
+  // ✅ Use cached function that calls API route
   try {
     const cookieStore = await cookies();
-    // Format cookies as header string
-    const cookieHeader = cookieStore.getAll()
-      .map(cookie => `${cookie.name}=${cookie.value}`)
-      .join('; ');
+    const userLocation = cookieStore.get('user_location');
     
-    const baseUrl = getBaseUrl();
-    const url = `${baseUrl}/api/store-details?storeId=${storeId}&moduleId=${moduleId}&limit=${limit}&offset=${offset}&zoneId=${zoneId}`;
+    const longitude = userLocation?.value.split(',')[0] || '46.5995713';
+    const latitude = userLocation?.value.split(',')[1] || '24.6100271';
     
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        ...(cookieHeader && { 'Cookie': cookieHeader }), // Forward cookies for location
-      },
-      // ✅ Next.js built-in cache
-      next: {
-        revalidate: 3600, // Re-fetch every 5 minutes
-        tags: [`store-details-${storeId}-${moduleId}-${zoneId}`],
-      },
-    });
+    const storeDetailsResponse = await getCachedStoreDetails(
+      limit,
+      offset,
+      DEFAULT_LANG,
+      moduleId,
+      zoneId,
+      storeId,
+      longitude,
+      latitude
+    );
     
-    if (!response.ok) {
-      console.error('[Store Page] API route error:', response.status);
+    if (!storeDetailsResponse?.data) {
+      console.error('[Store Page] Failed to fetch store:', {
+        error: storeDetailsResponse?.error,
+        status: storeDetailsResponse?.status,
+        storeId,
+        moduleId,
+      });
       notFound();
     }
     
-    const storeDetails = await response.json() as StoreDetails;
+    const storeDetails = storeDetailsResponse.data;
+    console.log('storeDetails', storeDetails);
     
     // Validate response structure
     if (!storeDetails || !storeDetails.id) {
       console.error('[Store Page] Invalid response structure:', storeDetails);
       notFound();
     }
-    console.log('storeDetails', storeDetails);
     
     // ✅ Success
     return (

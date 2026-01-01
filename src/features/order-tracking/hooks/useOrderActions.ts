@@ -66,59 +66,60 @@ export function useOrderActions({
 		[orderId, language, showNotification]
 	);
 
-	const handleCancel = useCallback(async () => {
+	const handleCancel = useCallback(async (reason?: string) => {
 		if (!orderData) return;
 
 		setIsCancelling(true);
 		try {
-			// TODO: Replace with actual API call
-			// const response = await fetch(`/api/orders/${orderId}/cancel`, {
-			//   method: 'POST',
-			// });
+			const response = await fetch(`/api/orders/${orderId}/cancel`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					reason: reason || (isArabic ? 'غيرت رأيي' : 'Changed my mind'),
+				}),
+			});
+
+			const data = await response.json();
+			if (!response.ok || !data.success) {
+				// Handle error response
+				const errorMessage =  (isArabic 
+					? 'حدث خطأ أثناء إلغاء الطلب'
+					: 'An error occurred while cancelling the order');
+				
+				throw new Error(errorMessage);
+			}
+
 			
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 1500));
-
-			// Update order status to cancelled
-			const cancellationTimelineStep: TimelineStep = {
-				label: "Order Cancelled",
-				labelAr: "تم إلغاء الطلب",
-				time: new Date().toISOString(),
-				comment: isArabic ? "تم إلغاء الطلب من قبل المستخدم" : "Order cancelled by user",
-				commentAr: "تم إلغاء الطلب من قبل المستخدم",
-			};
-
-			const updatedOrder: OrderData = {
-				...orderData,
-				status: "cancelled",
-				timeline: [...orderData.timeline, cancellationTimelineStep],
-			};
-
-			onOrderUpdate?.(updatedOrder);
 			setShowCancelConfirm(false);
 			
 			showNotification?.({
-				message: isArabic
+				message: data.message || (isArabic
 					? "تم إلغاء الطلب بنجاح"
-					: "Order cancelled successfully",
-				messageAr: "تم إلغاء الطلب بنجاح",
+					: "Order cancelled successfully"),
+				messageAr: data.message || "تم إلغاء الطلب بنجاح",
 				type: "success",
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error("Error cancelling order:", error);
-			showNotification?.({
-				message: isArabic
+			// Extract error message safely
+			const errorMessage = 
+				 (isArabic
 					? "حدث خطأ أثناء إلغاء الطلب"
-					: "An error occurred while cancelling the order",
-				messageAr: "حدث خطأ أثناء إلغاء الطلب",
+					: "An error occurred while cancelling the order");
+			
+			console.error("Error cancelling order:", errorMessage);
+			showNotification?.({
+				message: errorMessage,
+				messageAr: errorMessage,
 				type: "error",
 				duration: 5000,
 			});
 		} finally {
 			setIsCancelling(false);
 		}
-	}, [orderId, orderData, language, onOrderUpdate, showNotification]);
+	}, [orderId, orderData, language, isArabic, onOrderUpdate, showNotification]);
 
 	const handleDownloadInvoice = useCallback(async () => {
 		if (!orderData) return;

@@ -449,7 +449,7 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 						<ActionButtons
 							language={language}
 							status={orderData.status}
-							type={orderData.type}
+							type={"product"}
 							isActive={isActive}
 							isCompleted={isCompleted}
 							supportPhone={orderData.supportPhone}

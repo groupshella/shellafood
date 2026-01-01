@@ -40,6 +40,7 @@ export default async function CategoriesPageRoute() {
 
   // ✅ Fetch modules directly (cleaner API)
   const modules = await getZoneModules(latitude, longitude, 'ar');
+  console.log("modules", modules);
 
   return <CategoriesPage initialModules={modules} />;
 }

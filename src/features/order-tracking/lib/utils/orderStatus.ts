@@ -82,11 +82,7 @@ export function isOrderActive(status: string): boolean {
  * Check if order can be cancelled (type-aware)
  */
 export function canCancelOrder(status: string, type?: OrderType): boolean {
-	// Service orders can be cancelled until technician is on the way
-	if (type === ORDER_TYPE.SERVICE) {
-		const cancellableStatuses = ["pending", "confirmed", "assigned"];
-		return cancellableStatuses.includes(status);
-	}
+
 	// Product orders can be cancelled until out for delivery
 	const cancellableStatuses = ["pending", "confirmed", "preparing", "ready"];
 	return cancellableStatuses.includes(status);

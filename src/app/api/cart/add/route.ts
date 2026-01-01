@@ -36,10 +36,7 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Host': 'shellafood.com', // Required for Cloudflare bypass
-        'Origin': 'https://shellafood.com',
-        'Referer': 'https://shellafood.com/',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+        'Host': 'shellafood.com',
         'X-localization': locale,
         'moduleId': moduleId,
         'zoneId': `[${zoneId}]`, // Format as array string

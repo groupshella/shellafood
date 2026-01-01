@@ -8,18 +8,19 @@ export async function POST(req: NextRequest) {
     
     console.log('[Forgot Password API] Request received:', {
       phone: body.phone,
-      lang: body.lang,
     });
 
-    const backendRes = await fetch(`${API_URL}/api/v1/auth/forgot-password`, {
+    const backendRes = await fetch(`https://shellafood.com/api/v1/auth/forgot-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-LANG': body.lang || 'ar',
+        'X-localization': body.lang || 'ar',
+        'Host': 'shellafood.com',
         'Accept': 'application/json',
       },
       body: JSON.stringify({
-        phone: body.phone,
+        email_or_phone: body.email_or_phone,
+        field_type: body.field_type
       }),
     });
 

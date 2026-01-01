@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCachedAllStores } from '@/features/categories/api/stores.api';
+import { getAllStores, getCachedAllStores } from '@/features/categories/api/stores.api';
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 
 // Removed edge runtime to avoid compatibility issues with external API calls
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
   try {
     console.log('[Stores API Route] Calling getCachedAllStores...');
-    const storeListResponse = await getCachedAllStores(
+    const storeListResponse = await getAllStores(
       limit,
       offset,
       locale,

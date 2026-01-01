@@ -36,10 +36,11 @@ export const getZoneDataFromLocation = cache(
           'Accept': 'application/json',
         },
         next: {
-          revalidate: 3600,
+          revalidate: 1,
           tags: [cacheTag],
         },
       });
+      console.log("response", response);
       
       if (!response.ok) {
         console.error('[Zone API] Error:', response.status);
