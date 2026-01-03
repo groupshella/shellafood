@@ -389,8 +389,8 @@ NEXT_PUBLIC_API_URL=https://api.shellafood.com
 
 ### للمستخدمين
 - **الموقع**: [shellafood.com](https://shellafood.com)
-- **البريد**: support@shellafood.com
-- **الهاتف**: +966 50 123 4567
+- **البريد**: info@shellafood.com
+- **الهاتف**:+966599966674
 
 ---
 
