@@ -129,6 +129,8 @@ export default async function DepartmentPageRoute({
           departmentId={departmentId}
           initialPage={page}
           initialLimit={limit}
+          moduleId={moduleId}
+          zoneId={zoneId}
         />
       );
     }
@@ -151,6 +153,8 @@ export default async function DepartmentPageRoute({
           departmentId={departmentId}
           initialPage={page}
           initialLimit={limit}
+          moduleId={moduleId}
+          zoneId={zoneId}
         />
       );
     }
@@ -162,6 +166,8 @@ export default async function DepartmentPageRoute({
         departmentId={departmentId}
         initialPage={page}
         initialLimit={limit}
+        moduleId={moduleId}
+        zoneId={zoneId}
       />
     );
   } catch (error: any) {
@@ -184,6 +190,8 @@ export default async function DepartmentPageRoute({
         departmentId={departmentId}
         initialPage={page}
         initialLimit={limit}
+        moduleId={moduleId}
+        zoneId={zoneId}
       />
     );
   }

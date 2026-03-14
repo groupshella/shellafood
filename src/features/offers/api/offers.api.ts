@@ -1,104 +1,55 @@
-/**
- * API client for offers endpoints
- * Handles fetching offers, offer details, and offer-related operations
- */
+// features/categories/api/modules.api.ts
 
-import type { Offer, OfferDriver, ApiResponse } from '../types';
-import { OFFERS_CONSTANTS } from '../constants/offers.constants';
+import { getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { cache } from 'react';
+import type { Offer } from '@/shared/types/offer.types';
 
-const BASE_URL = OFFERS_CONSTANTS.BASE_URL;
-const DEFAULT_LANG = OFFERS_CONSTANTS.DEFAULT_LANG;
+const DEFAULT_LANG = 'ar';
 
-/**
- * Get all offers
- */
-export async function getOffers(
-	lang: string = DEFAULT_LANG,
-	category?: string
-): Promise<ApiResponse<Offer[]>> {
-	try {
-		// TODO: Replace with actual API endpoint when available
-		// const url = category && category !== 'all' 
-		// 	? `${BASE_URL}/api/v1/offers?category=${category}`
-		// 	: `${BASE_URL}/api/v1/offers`;
-		// const response = await fetch(url, {
-		// 	method: 'GET',
-		// 	headers: {
-		// 		'Content-Type': 'application/json',
-		// 		'X-LANG': lang,
-		// 		'Accept': 'application/json',
-		// 	},
-		// });
 
-		// if (!response.ok) {
-		// 	const error = await response.json().catch(() => ({ message: 'Network error' }));
-		// 	return {
-		// 		success: false,
-		// 		error: error.message || `HTTP ${response.status}`,
-		// 	};
-		// }
+export const getOffers = cache(
+  async (
+    zoneId: number,
+    moduleId: number,
+    lang: string = DEFAULT_LANG
+  ): Promise<Offer[] | null> => {
+    try {
+      const baseUrl = getBaseUrl();
+      const url = `${baseUrl}/api/offers?zoneId=${zoneId}&moduleId=${moduleId}&lang=${lang}`;
+      const cacheTag = `offers-${zoneId}-${moduleId}`;
+      
+      console.log('[Offers API] Fetching from:', url);
+      
+      const response = await fetch(url, {
+        headers: {
+          'Accept': 'application/json',
+        },
+        next: {
+          revalidate: 1,
+          tags: [cacheTag],
+        },
+      });
+      console.log("response", response);
+      
+      if (!response.ok) {
+        console.error('[Offers API] Error:', response.status);
+        return null;
+      }
+      
+      const data = await response.json();
+      
+      return data.offers || [];
+      
+    } catch (error: any) {
+      console.error('[Offers API] Error:', error?.message || error);
+      return null;
+    }
+  }
+);
 
-		// const data = await response.json();
-		// return {
-		// 	success: true,
-		// 	data,
-		// };
-
-		// Temporary mock response - will use service for now
-		return {
-			success: true,
-			data: [],
-		};
-	} catch (error) {
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Network error',
-		};
-	}
-}
-
-/**
- * Get offer by ID
- */
-export async function getOfferById(
-	offerId: number,
-	lang: string = DEFAULT_LANG
-): Promise<ApiResponse<Offer>> {
-	try {
-		// TODO: Replace with actual API endpoint when available
-		// const response = await fetch(`${BASE_URL}/api/v1/offers/${offerId}`, {
-		// 	method: 'GET',
-		// 	headers: {
-		// 		'Content-Type': 'application/json',
-		// 		'X-LANG': lang,
-		// 		'Accept': 'application/json',
-		// 	},
-		// });
-
-		// if (!response.ok) {
-		// 	const error = await response.json().catch(() => ({ message: 'Network error' }));
-		// 	return {
-		// 		success: false,
-		// 		error: error.message || `HTTP ${response.status}`,
-		// 	};
-		// }
-
-		// const data = await response.json();
-		// return {
-		// 	success: true,
-		// 	data,
-		// };
-
-		// Temporary mock response
-		return {
-			success: false,
-			error: 'Offer not found',
-		};
-	} catch (error) {
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Network error',
-		};
-	}
-}
-
+export const getCachedOffers = cache(
+  async (zoneId: number, moduleId: number, lang: string = DEFAULT_LANG): Promise<Offer[] | null> => {
+    const offers = await getOffers(zoneId, moduleId, lang);
+    return offers as Offer[] || [];
+  }
+);

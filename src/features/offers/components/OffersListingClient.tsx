@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Sparkles, Tag, TrendingUp, Clock, TrendingDown, ChevronRight, ShoppingCart, Check, Eye, Heart } from "lucide-react";
 import Image from "next/image";
 import offerService from "../services/offer.service";
-import type { Offer } from "../types";
+import type { Offer } from "@/shared/types/offer.types";
 import { Product } from "@/shared/components";
 import { TEST_PRODUCTS, TEST_STORES, TEST_CATEGORIES, TEST_DEPARTMENTS } from "@/lib/data/categories/testData";
 import { navigateToProduct } from "@/lib/utils/categories/navigation";
@@ -349,14 +349,14 @@ const ProductDiscountCard = memo(function ProductDiscountCard({
 	);
 });
 
-function OffersListingClient() {
+function OffersListingClient({ initialOffers }: { initialOffers: Offer[] }) {
 	const router = useRouter();
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
 	const { addToCart } = useCart();
 	const { toasts, showToast, removeToast } = useToast();
 
-	const [offers, setOffers] = useState<Offer[]>([]);
+	const [offers, setOffers] = useState<Offer[]>(initialOffers);
 	const [isLoading, setIsLoading] = useState(true);
 	const [selectedCategory, setSelectedCategory] = useState<string>("all");
 	const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());

@@ -106,7 +106,7 @@ const galleryImages = useMemo(() => {
 	}, [router, bookingPath]);
 
 	const handleBookingMouseEnter = useCallback(() => {
-		localStorage.removeItem("bookingData");
+		
 		router.prefetch(bookingPath);
 	}, [router, bookingPath]);
 

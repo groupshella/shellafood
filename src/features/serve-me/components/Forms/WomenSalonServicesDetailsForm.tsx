@@ -92,7 +92,7 @@ export default function WomenSalonServicesDetailsForm({ service, serviceType }: 
     useEffect(() => {
         if (serviceData) {
             updateBooking({
-                serviceId: `${service}-${serviceType}`,
+                serviceId: serviceType,
                 serviceName: serviceData.titleEn,
                 serviceNameAr: serviceData.titleAr,
                 unitPrice: serviceData.priceStartsFrom,

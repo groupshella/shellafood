@@ -1,6 +1,7 @@
 // features/categories/api/modules.api.ts
 
 import { getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { cookies } from 'next/headers';
 import { BASE_URL } from '@/features/cart/constants/cart.constants';
 import { cache } from 'react';
 
@@ -48,7 +49,7 @@ export const getZoneDataFromLocation = cache(
       }
       
       const data = await response.json();
-      
+  
       return {
         zone_id: data.zone_id,
         zone_data: data.zone_data || [],

@@ -76,6 +76,8 @@ async function getWishListData(token: string) {
 				'Content-Type': 'application/json',
 				'Accept': 'application/json',
 				'x-localization': 'ar',
+				'X-Response-Mode': 'minimal',
+				"Host": "shellafood.com",
 				'zoneId': '[2]',
 			},
 			next: {

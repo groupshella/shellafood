@@ -79,6 +79,7 @@ export default function KaidhaForm() {
 								name="grandFatherName"
 								value={formData.grandFatherName || ""}
 								onChange={handleChange}
+								required
 								isArabic={isArabic}
 							/>
 							<FormInput
@@ -116,6 +117,7 @@ export default function KaidhaForm() {
 								]}
 								value={formData.socialStatus || ""}
 								onChange={handleChange}
+								required
 								isArabic={isArabic}
 								placeholder={t('kaidhaForm.placeholder.choose')}
 							/>
@@ -128,6 +130,7 @@ export default function KaidhaForm() {
 								}))}
 								value={formData.familyMembersCount || ""}
 								onChange={handleChange}
+								required
 								isArabic={isArabic}
 								placeholder={t('kaidhaForm.placeholder.choose')}
 							/>
@@ -138,9 +141,8 @@ export default function KaidhaForm() {
 									{ value: "nationalId", label: t('kaidhaForm.option.nationalId') },
 									{ value: "passport", label: t('kaidhaForm.option.passport') },
 								]}
-								value={formData.idType}
+								value={formData.idType || ""}
 								onChange={handleChange}
-								required
 								isArabic={isArabic}
 								placeholder={t('kaidhaForm.placeholder.choose')}
 							/>
@@ -159,6 +161,7 @@ export default function KaidhaForm() {
 								type="date"
 								value={formData.idExpirationDate || new Date().toISOString().split('T')[0]}
 								onChange={handleChange}
+								required
 								isArabic={isArabic}
 							/>
 
@@ -198,6 +201,7 @@ export default function KaidhaForm() {
 								]}
 								value={formData.homeType || ""}
 								onChange={handleChange}
+								required
 								isArabic={isArabic}
 								placeholder={t('kaidhaForm.placeholder.choose')}
 							/>
@@ -228,6 +232,7 @@ export default function KaidhaForm() {
 								value={formData.neighborhood || ""}
 								onChange={handleChange}
 								placeholder={t('kaidhaForm.placeholder.neighborhood')}
+								required
 								isArabic={isArabic}
 							/>
 							
@@ -264,6 +269,7 @@ export default function KaidhaForm() {
 									name="companyName"
 									value={formData.companyName || ""}
 									onChange={handleChange}
+									required
 									isArabic={isArabic}
 								/>
 								<FormInput
@@ -287,7 +293,41 @@ export default function KaidhaForm() {
 									type="number"
 									value={formData.grossSalary || ""}
 									onChange={handleChange}
+									required
 									isArabic={isArabic}
+								/>
+								<FormSelect
+									label={ (isArabic ? 'يوم الراتب' : 'Salary Day')}
+									name="salaryDay"
+									options={Array.from({ length: 31 }, (_, i) => (
+										{
+										value: String(i + 1),
+										label: String(i + 1),
+									}))}
+									value={formData.salaryDay || ""}
+									onChange={handleChange}
+									required
+									isArabic={isArabic}
+									placeholder={t('kaidhaForm.placeholder.choose')}
+								/>
+								<FormInput
+									label={t('kaidhaForm.incomeSource') || (isArabic ? 'مصدر الدخل' : 'Source of Income')}
+									name="incomeSource"
+									value={formData.incomeSource || ""}
+									onChange={handleChange}
+									required
+									isArabic={isArabic}
+									placeholder={isArabic ? 'مصدر الدخل' : 'Source of Income'}
+								/>
+								<FormInput
+									label={t('kaidhaForm.additionalAmount') || (isArabic ? 'المبلغ الشهري' : 'Monthly Amount')}
+									name="additionalAmount"
+									type="number"
+									value={formData.additionalAmount || ""}
+									onChange={handleChange}
+									required
+									isArabic={isArabic}
+									placeholder={isArabic ? 'المبلغ الشهري' : 'Monthly Amount'}
 								/>
 								<FormInput
 									label={t('kaidhaForm.workAddress')}

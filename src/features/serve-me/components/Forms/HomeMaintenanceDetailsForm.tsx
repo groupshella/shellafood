@@ -104,7 +104,7 @@ export default function HomeMaintenanceDetailsForm({ service, serviceType }: { s
 	useEffect(() => {
 		if (serviceData) {
 			updateBooking({
-				serviceId: `${service}-${serviceType}`,
+				serviceId: serviceType,
 				serviceName: serviceData.titleEn,
 				serviceNameAr: serviceData.titleAr,
 				unitPrice: serviceData.priceStartsFrom,

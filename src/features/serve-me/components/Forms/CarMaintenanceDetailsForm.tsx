@@ -67,7 +67,7 @@ const {recordingTime,removeImage,removeVideo,removeVoice,isRecording,voice,video
 	useEffect(() => {
 		if (serviceData) {
 			updateBooking({
-				serviceId: `${service}-${serviceType}`,
+				serviceId: serviceType,
 				serviceName: serviceData.titleEn,
 				serviceNameAr: serviceData.titleAr,
 				unitPrice: serviceData.priceStartsFrom,

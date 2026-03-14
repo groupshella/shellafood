@@ -35,6 +35,7 @@ export interface KaidhaFormData {
 	hasAdditionalIncome: string;
 	additionalAmount: string;
 	incomeSource: string;
+	salaryDay: string; // New field for salary day
 }
 
 export interface InstallmentItem {

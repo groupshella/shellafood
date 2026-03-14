@@ -213,6 +213,7 @@ export default function ConfirmCheckoutModal({
 												{isArabic ? "إلغاء" : "Cancel"}
 											</motion.button>
 											<motion.button
+												type="button"
 												whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(16, 185, 129, 0.3)" }}
 												whileTap={{ scale: 0.98 }}
 												onClick={onConfirm}

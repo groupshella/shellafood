@@ -35,26 +35,36 @@ function getCookie(name: string): string | null {
 
 function mapApiCartToCartItems(apiCart: ApiCartItem[]): CartItem[] {
 	if (!apiCart || !Array.isArray(apiCart)) return [];
-	
-	return apiCart.map((cartItem) => ({
-		id: cartItem.id.toString(),
-		productId: cartItem.item_id.toString(),
-		productName: cartItem.item.name,
-		productNameAr: cartItem.item.name, // API doesn't separate languages
-		productImage: cartItem.item.image_full_url || cartItem.item.image,
-		quantity: cartItem.quantity,
-		priceAtAdd: cartItem.price,
-		originalPrice: cartItem.original_price,
-		storeId: cartItem.item.store_id.toString(),
-		storeName: cartItem.item.store_name,
-		storeNameAr: cartItem.item.store_name,
-		storeLogo: undefined,
-		stock: cartItem.item.stock,
-		unit: cartItem.item.unit_type,
-		unitAr: cartItem.item.unit_type,
-		hasSpecialOffer: cartItem.discount_amount > 0,
-		discountAmount: cartItem.discount_amount,
-	}));
+
+	return apiCart
+		.filter((cartItem) => cartItem != null && cartItem.item != null)
+		.map((cartItem) => {
+			const item = cartItem.item!;
+			const id = cartItem.id != null ? String(cartItem.id) : '';
+			const productId = cartItem.item_id != null ? String(cartItem.item_id) : '';
+			const storeId = item.store_id != null ? String(item.store_id) : '';
+			const priceAtAdd = Number(cartItem.price) || 0;
+			const quantity = Math.max(1, Number(cartItem.quantity) || 0);
+			return {
+				id,
+				productId,
+				productName: item.name ?? '',
+				productNameAr: item.name ?? '',
+				productImage: item.image_full_url || item.image || '',
+				quantity,
+				priceAtAdd,
+				originalPrice: Number(cartItem.original_price) || priceAtAdd,
+				storeId,
+				storeName: item.store_name ?? '',
+				storeNameAr: item.store_name ?? '',
+				storeLogo: undefined,
+				stock: item.stock ?? 0,
+				unit: item.unit_type ?? '',
+				unitAr: item.unit_type ?? '',
+				hasSpecialOffer: (Number(cartItem.discount_amount) || 0) > 0,
+				discountAmount: Number(cartItem.discount_amount) || 0,
+			};
+		});
 }
 
 export function useCartItems(initialCartData?: any[]) {
@@ -67,9 +77,19 @@ export function useCartItems(initialCartData?: any[]) {
 
 
 	useEffect(() => {
-		// Use initialCartData from API if available
-		if (initialCartData && Array.isArray(initialCartData)) {
-			const mappedItems = mapApiCartToCartItems(initialCartData);
+		// Normalize: API may return raw array or wrapped object (e.g. { data: [...] })
+		const rawCart =
+			initialCartData != null && Array.isArray(initialCartData)
+				? initialCartData
+				: initialCartData != null && typeof initialCartData === 'object' && !Array.isArray(initialCartData)
+					? (initialCartData as Record<string, unknown>).data ??
+						(initialCartData as Record<string, unknown>).cart ??
+						(initialCartData as Record<string, unknown>).items ??
+						[]
+					: undefined;
+
+		if (rawCart != null && Array.isArray(rawCart) && rawCart.length >= 0) {
+			const mappedItems = mapApiCartToCartItems(rawCart as ApiCartItem[]);
 			setItems(mappedItems);
 			setIsLoading(false);
 		} else {

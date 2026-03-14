@@ -5,6 +5,7 @@
 
 import type { KaidhaFormData, ApiResponse, KaidhaSubmissionResponse } from '../types/kaidha.types';
 import { KAIDHA_CONSTANTS } from '../constants/kaidha.constants';
+import { getBaseUrl } from '@/features/auth/constants/auth.constants';
 
 const BASE_URL = KAIDHA_CONSTANTS.BASE_URL;
 const DEFAULT_LANG = KAIDHA_CONSTANTS.DEFAULT_LANG;
@@ -17,13 +18,14 @@ export async function submitKaidhaForm(
 	lang: string = DEFAULT_LANG
 ): Promise<ApiResponse<KaidhaSubmissionResponse>> {
 	try {
-		const response = await fetch(`${BASE_URL}/api/v1/kaidha/register`, {
+		const baseUrl = getBaseUrl();
+		const response = await fetch(`${baseUrl}/api/qidha-wallet/store`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json',
-				'X-LANG': lang,
 				'Accept': 'application/json',
+				'Content-Type': 'application/json',
 			},
+			credentials: 'include', // Include cookies for auth
 			body: JSON.stringify(formData),
 		});
 

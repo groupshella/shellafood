@@ -158,22 +158,55 @@ console.log("items", items);
 	}, [canCheckout, validationErrors, isArabic, showToast, router, token]);
 
 	const handleCheckoutConfirm = useCallback(async () => {
+		if (!selectedAddress) {
+			showToast(
+				isArabic ? 'يجب اختيار عنوان التوصيل' : 'Please select a delivery address',
+				'warning',
+				isArabic ? 'يجب اختيار عنوان التوصيل' : undefined
+			);
+			return;
+		}
+		if (!selectedPaymentMethod) {
+			showToast(
+				isArabic ? 'يجب اختيار طريقة الدفع' : 'Please select a payment method',
+				'warning',
+				isArabic ? 'يجب اختيار طريقة الدفع' : undefined
+			);
+			return;
+		}
 		try {
 			const result = await processCheckout(
 				items,
-				selectedAddress as Address,
-				selectedPaymentMethod!,
+				selectedAddress,
+				selectedPaymentMethod,
 				orderSummary,
 				cardDetails,
 				appliedCoupon?.code,
 			);
-			if (!result.success) {
+			if (result.success) {
 				setShowCheckoutModal(false);
+				showToast(
+					isArabic ? 'تم وضع الطلب بنجاح' : 'Order placed successfully',
+					'success',
+					isArabic ? 'تم وضع الطلب بنجاح' : undefined
+				);
+			} else {
+				setShowCheckoutModal(false);
+				showToast(
+					result.error || (isArabic ? 'فشل إتمام الطلب' : 'Failed to place order'),
+					'error',
+					result.error
+				);
 			}
-		} catch (error) {
+		} catch (error: any) {
 			setShowCheckoutModal(false);
+			showToast(
+				error?.message || (isArabic ? 'فشل إتمام الطلب' : 'Failed to place order'),
+				'error',
+				isArabic ? error?.message : undefined
+			);
 		}
-	}, [items, selectedAddress, selectedPaymentMethod, cardDetails, appliedCoupon, processCheckout, orderSummary]);
+	}, [items, selectedAddress, selectedPaymentMethod, cardDetails, appliedCoupon, processCheckout, orderSummary, isArabic, showToast]);
 
 	const handleClearAll = useCallback(async () => {
 		try {

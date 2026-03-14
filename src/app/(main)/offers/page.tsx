@@ -1,5 +1,6 @@
 import { Metadata } from "next";
-import { OffersListingClient } from "@/features/offers";
+import { getCachedOffers, OffersListingClient } from "@/features/offers";
+import type { Offer } from "@/shared/types/offer.types";
 
 export const metadata: Metadata = {
 	title: "العروض الخاصة | شلة فود",
@@ -65,6 +66,8 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://shellafood.com"),
 };
 
-export default function OffersPageRoute() {
-	return <OffersListingClient />;
+export default async function OffersPageRoute() {
+	const offers = await getCachedOffers(2, 3, 'ar');
+	console.log("offers", offers);
+	return <OffersListingClient initialOffers={offers as Offer[]} />;
 }

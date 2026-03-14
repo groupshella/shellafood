@@ -42,6 +42,7 @@ const INITIAL_FORM_DATA: KaidhaFormData = {
 	hasAdditionalIncome: "",
 	additionalAmount: "",
 	incomeSource: "",
+	salaryDay: "",
 };
 
 export function useKaidhaRegistration(language: string) {

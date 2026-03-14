@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useMemo, useState, useTransition, memo, useCallback } from "react";
+import { useMemo, useState, useTransition, memo, useCallback, useEffect } from "react";
 import { useLanguageDirection, useMobile } from "@/shared/hooks";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DepartmentResponse, Item } from "../../types/department.types";
@@ -16,6 +16,8 @@ import { SlidersHorizontal, Grid3x3, X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import useSWR from "swr";
 import UnifiedProductCard from "../shared/UnifiedProductCard";
+import { transformSearchProductToItem, SearchResponse } from "../../api/search.api";
+import DepartmentLoading from "@/app/(main)/categories/[category]/[store]/[department]/loading";
 
 interface DepartmentViewProps {
   departmentResponse: DepartmentResponse;
@@ -23,6 +25,8 @@ interface DepartmentViewProps {
   departmentId: number;
   initialPage: number;
   initialLimit: number;
+  moduleId: number;
+  zoneId: number;
 }
 
 // ============================================================================
@@ -39,7 +43,9 @@ const ITEMS_PER_PAGE_OPTIONS = [12, 24, 48] as const;
 // ============================================================================
 
 const fetcher = async (url: string) => {
+  console.log(url);
   const res = await fetch(url);
+  console.log(res);
   if (!res.ok) throw new Error('Failed to fetch products');
   return res.json();
 };
@@ -54,6 +60,8 @@ function DepartmentView({
   departmentId,
   initialPage,
   initialLimit,
+  moduleId,
+  zoneId,
 }: DepartmentViewProps) {
   // ============================================================================
   // HOOKS
@@ -72,6 +80,16 @@ function DepartmentView({
   const [sortBy, setSortBy] = useState<SortType>('name');
   const [filterBy, setFilterBy] = useState<FilterType>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  // ✅ Debounce search term to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 1000); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // ✅ Get current page and limit from URL
   const currentOffset = Number(searchParams.get('page')) || initialPage;
@@ -81,9 +99,26 @@ function DepartmentView({
   // SWR DATA FETCHING
   // ============================================================================
 
-  // ✅ SWR for client-side pagination
-  const { data: departmentData, isLoading, error } = useSWR<DepartmentResponse>(
-    `/api/departments?departmentId=${departmentId}&storeId=${storeId}&limit=${currentLimit}&offset=${currentOffset}`,
+  // ✅ SWR for search (use debounced term)
+  const searchKey = debouncedSearchTerm.trim() 
+    ? `/api/search?name=${encodeURIComponent(debouncedSearchTerm.trim())}&limit=${currentLimit}&offset=${currentOffset}&moduleId=${moduleId}&zoneId=${zoneId}&locale=${isArabic ? 'ar' : 'en'}`
+    : null;
+
+  const { data: searchData, isLoading: isSearchLoading, error: searchError } = useSWR<SearchResponse>(
+    searchKey,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+      dedupingInterval: 5000,
+    }
+  );
+
+  // ✅ SWR for client-side pagination (only when not searching)
+  const { data: departmentData, isLoading: isDepartmentLoading, error: departmentError } = useSWR<DepartmentResponse>(
+    !debouncedSearchTerm.trim() 
+      ? `/api/department-details?departmentId=${departmentId}&storeId=${storeId}&moduleId=${moduleId}&zoneId=${zoneId}&limit=${currentLimit}&offset=${currentOffset}&locale=${isArabic ? 'ar' : 'en'}`
+      : null,
     fetcher,
     {
       fallbackData: departmentResponse, // ✅ Use server data initially
@@ -94,30 +129,50 @@ function DepartmentView({
     }
   );
 
-  // ✅ Prefetch next page on current page load
+  // ✅ Prefetch next page on current page load (only when not searching)
   useSWR(
-    departmentData && currentOffset < Math.ceil(departmentData.total_size / currentLimit)
-      ? `/api/departments?departmentId=${departmentId}&storeId=${storeId}&limit=${currentLimit}&offset=${currentOffset + 1}`
+    !debouncedSearchTerm.trim() && departmentData && currentOffset < Math.ceil(departmentData.total_size / currentLimit)
+      ? `/api/department-details?departmentId=${departmentId}&storeId=${storeId}&moduleId=${moduleId}&zoneId=${zoneId}&limit=${currentLimit}&offset=${currentOffset + 1}&locale=${isArabic ? 'ar' : 'en'}`
       : null,
     fetcher,
     { revalidateOnMount: false }
   );
 
-  // ✅ Prefetch previous page
+  // ✅ Prefetch previous page (only when not searching)
   useSWR(
-    currentOffset > 1
-      ? `/api/departments?departmentId=${departmentId}&storeId=${storeId}&limit=${currentLimit}&offset=${currentOffset - 1}`
+    !debouncedSearchTerm.trim() && currentOffset > 1
+      ? `/api/department-details?departmentId=${departmentId}&storeId=${storeId}&moduleId=${moduleId}&zoneId=${zoneId}&limit=${currentLimit}&offset=${currentOffset - 1}&locale=${isArabic ? 'ar' : 'en'}`
       : null,
     fetcher,
     { revalidateOnMount: false }
   );
+
+  // ✅ Determine which data to use
+  const isLoading = debouncedSearchTerm.trim() ? isSearchLoading : isDepartmentLoading;
+  const error = debouncedSearchTerm.trim() ? searchError : departmentError;
 
   
   // ============================================================================
   // COMPUTED VALUES
   // ============================================================================
 
-  const currentDepartment = departmentData || departmentResponse;
+  // ✅ Transform search results to Item format if searching
+  const searchItems = useMemo(() => {
+    if (!debouncedSearchTerm.trim() || !searchData?.products) return [];
+    return searchData.products.map(transformSearchProductToItem);
+  }, [debouncedSearchTerm, searchData]);
+
+  // ✅ Use search results when searching, otherwise use department items
+  const currentDepartment = debouncedSearchTerm.trim() 
+    ? { 
+        items: searchItems, 
+        total_size: searchData?.total_size ?? 0,
+        offset: searchData?.offset ?? currentOffset.toString(),
+        limit: currentLimit,
+        has_more: false
+      }
+    : (departmentData || departmentResponse);
+
   const totalItems = currentDepartment?.total_size ?? 0;
   const totalPages = currentDepartment ? Math.ceil(totalItems / currentLimit) : 1;
   
@@ -245,9 +300,22 @@ function DepartmentView({
     startTransition(() => {
       router.push(`?${params.toString()}`, { scroll: true });
     });
-    
-
   }
+
+  // ✅ Handle search input change
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+    // Reset to page 1 when clearing search
+    if (value.trim() === '' && debouncedSearchTerm.trim() !== '') {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', '1');
+      startTransition(() => {
+        router.push(`?${params.toString()}`, { scroll: false });
+      });
+    }
+  }, [debouncedSearchTerm, searchParams, router]);
+
+ 
 
 
   const handleFilterChange = useCallback((filter: FilterType) => {
@@ -261,20 +329,10 @@ function DepartmentView({
   // ============================================================================
   // RENDER
   // ============================================================================
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={direction}>
-        <div className="container mx-auto px-4 py-8">
-          <EmptyState
-            icon="❌"
-            title={t.errorLoading}
-            description={t.tryAgain}
-          />
-        </div>
-      </div>
-    );
-  }
+if(isLoading) {
+  return  <DepartmentLoading />
+}
+ 
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={direction}>
@@ -296,7 +354,7 @@ function DepartmentView({
 						<input
 							type="text"
 							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
+							onChange={(e) => handleSearchChange(e.target.value)}
 							placeholder={isArabic ? 'ابحث عن منتجات...' : 'Search products...'}
 							className={`w-full ${isArabic ? 'pr-10 sm:pr-11 pl-3 sm:pl-4' : 'pl-10 sm:pl-11 pr-3 sm:pr-4'} py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-gray-800 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all`}
 						/>

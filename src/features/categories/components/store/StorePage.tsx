@@ -22,6 +22,10 @@ function StorePage({
 	initialPage,
 	moduleId,
 }: StorePageProps) {
+	sessionStorage.setItem('module_id_store', store.module_id.toString());
+    sessionStorage.setItem('zone_id_store', store.zone_id.toString());
+    sessionStorage.setItem('longitude_store', store.longitude.toString());
+    sessionStorage.setItem('latitude_store', store.latitude.toString());
 	return <StoreView store={store as StoreDetails} initialLimit={initialLimit} initialPage={initialPage} moduleId={moduleId} />
 }
 

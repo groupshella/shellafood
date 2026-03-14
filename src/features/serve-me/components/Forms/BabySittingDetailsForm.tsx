@@ -91,7 +91,7 @@ export default function BabySittingDetailsForm({ service, serviceType }: { servi
     useEffect(() => {
         if (serviceData) {
             updateBooking({
-                serviceId: `${service}-${serviceType}`,
+                serviceId: serviceType,
                 serviceName: serviceData.titleEn,
                 serviceNameAr: serviceData.titleAr,
                 unitPrice: serviceData.priceStartsFrom,

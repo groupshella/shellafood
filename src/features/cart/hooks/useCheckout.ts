@@ -36,8 +36,35 @@ export function useCheckout(token?: string) {
 	const { language } = useLanguage();
 	const isArabic = language === 'ar';
 	const { showToast } = useToast();
-	const [isProcessing, setIsProcessing] = useState(false);
 
+	const [isProcessing, setIsProcessing] = useState(false);
+	const toRadians = (degrees: number): number => {
+		return degrees * (Math.PI / 180);
+	  }
+	const calculateDistance = (
+		lat1: number,
+		lon1: number,
+		lat2: number,
+		lon2: number
+	  ): number => {
+		const R = 6371; // Earth's radius in kilometers
+		
+		const dLat = toRadians(lat2 - lat1);
+		const dLon = toRadians(lon2 - lon1);
+		
+		const a =
+		  Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+		  Math.cos(toRadians(lat1)) *
+		  Math.cos(toRadians(lat2)) *
+		  Math.sin(dLon / 2) *
+		  Math.sin(dLon / 2);
+		
+		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		
+		const distance = R * c;
+		
+		return distance;
+	  }
 	const processCheckout = useCallback(async (
 		items: CartItem[],
 		address: Address,
@@ -46,7 +73,14 @@ export function useCheckout(token?: string) {
 		cardDetails?: CardDetails,
 		couponCode?: string
 	): Promise<{ success: boolean; orderId?: string; error?: string }> => {
+		const latitudeStore = sessionStorage.getItem('latitude_store');
+		const longitudeStore = sessionStorage.getItem('longitude_store');
+		const moduleId = sessionStorage.getItem('module_id_store');
+		const zoneId = sessionStorage.getItem('zone_id_store');
+		
 		setIsProcessing(true);
+		const distance = calculateDistance(parseFloat(address.latitude || '0'), parseFloat(address.longitude || '0'), parseFloat(latitudeStore || '0') || 0, parseFloat(longitudeStore || '0') || 0);
+		console.log("distance", distance);
 		try {
 			// Get auth token
 			const authToken = token ;
@@ -83,10 +117,8 @@ export function useCheckout(token?: string) {
 			}));
 			console.log("cartItems", cartItems);
 			// Get zone_id and module_id from address
-			const zoneId = address.zone_id || address.zone_ids?.[0] || 0;
 			// For moduleId, we'll need to get it from store or zone data
 			// For now, using 0 as fallback - you may need to fetch it from store details
-			const moduleId = 0; // TODO: Get moduleId from store or zone data
 			console.log("zoneId", zoneId);
 			console.log("moduleId", moduleId);
 			// Calculate order amount from orderSummary or items
@@ -110,7 +142,7 @@ export function useCheckout(token?: string) {
 				payment_method: apiPaymentMethod,
 				order_type: 'delivery',
 				store_id: storeId,
-				distance: 2.5,
+				distance: distance,
 				address: address.address || '',
 				longitude: parseFloat(address.longitude || '0'),
 				latitude: parseFloat(address.latitude || '0'),
@@ -129,8 +161,8 @@ export function useCheckout(token?: string) {
 					'Content-Type': 'application/json',
 					'Accept': 'application/json',
 					'X-localization': language || DEFAULT_LANG,
-					'moduleId': "3",
-					'zoneId': "[2]",
+					'moduleId': moduleId?.toString() || '',
+					'zoneId':`[${zoneId?.toString()}]`
 				},
 				body: JSON.stringify(payload),
 			});

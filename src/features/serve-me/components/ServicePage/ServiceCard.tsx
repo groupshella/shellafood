@@ -1,10 +1,11 @@
 "use client";
 
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import type { BookingData } from "@/providers/BookingContext";
 
 interface ServiceCardProps {
 	title: string;
@@ -35,13 +36,59 @@ export const ServiceCard: React.FC<ServiceCardProps> = memo(({
 	description,
 	onClick,
 }) => {
+	console.log(serviceSlug);
 	const router = useRouter();
+	const [hasExistingBooking, setHasExistingBooking] = useState(false);
 
-	const handleClick = useCallback(() => {
+	// Check if service exists in localStorage
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			try {
+				const bookingDataStr = localStorage.getItem("bookingData");
+				if (bookingDataStr) {
+					const bookingData: BookingData = JSON.parse(bookingDataStr);
+					// Check if serviceId matches the current serviceSlug
+					// serviceId is set to serviceType (serviceTypeSlug) in the booking form
+					console.log("BookingData serviceId:", bookingData.serviceId);
+					console.log("Current serviceSlug:", serviceSlug);
+					if (bookingData.serviceId === serviceSlug) {
+						setHasExistingBooking(true);
+						console.log("✅ Matching booking found - showing Return Order button");
+					} else {
+						setHasExistingBooking(false);
+						console.log("❌ No matching booking found");
+					}
+				} else {
+					setHasExistingBooking(false);
+					console.log("❌ No bookingData in localStorage");
+				}
+			} catch (error) {
+				console.error("Error reading bookingData from localStorage:", error);
+				setHasExistingBooking(false);
+			}
+		}
+	}, [serviceSlug]);
+
+	const handleOrderClick = useCallback((e: React.MouseEvent) => {
 		if (onClick) {
 			onClick();
 		}
+		// Remove localStorage when clicking "Order" to start fresh
+		if (typeof window !== "undefined") {
+			console.log("🗑️ Removing bookingData from localStorage (starting new order)");
+			localStorage.removeItem("bookingData");
+		}
 	}, [onClick]);
+
+	const handleReturnOrderClick = useCallback((e: React.MouseEvent) => {
+		e.preventDefault();
+		if (onClick) {
+			onClick();
+		}
+		// Keep localStorage when clicking "Return Order" (form will auto-fill)
+		console.log("↩️ Returning to existing order - keeping bookingData in localStorage");
+		router.push(serviceSlugPath);
+	}, [onClick, router, serviceSlugPath]);
 
 	// Prefetch route on hover for instant navigation
 	const handleMouseEnter = useCallback(() => {
@@ -104,28 +151,52 @@ export const ServiceCard: React.FC<ServiceCardProps> = memo(({
 					</p>
 				)}
 
-				{/* Button with Link - Modern Gradient Style */}
-				<Link
-					href={serviceSlugPath}
-					onClick={handleClick}
-					onMouseEnter={handleMouseEnter}
-					prefetch={true}
-					aria-label={isArabic ? `${buttonText} - ${title}` : `${buttonText} - ${title}`}
-					className={`group/btn block w-full rounded-xl bg-gradient-to-r from-[#10b981] via-emerald-600 to-teal-600 hover:from-[#059669] hover:via-emerald-700 hover:to-teal-700 text-white py-3 sm:py-3.5 px-4 sm:px-6 font-bold text-sm sm:text-base transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-[#10b981]/30 text-center focus:outline-none focus:ring-2 focus:ring-[#10b981] focus:ring-offset-2 active:scale-[0.98] ${
-						isArabic ? "flex-row-reverse" : ""
-					}`}
-				>
-					<span className="flex items-center justify-center gap-2">
-						{buttonText}
-						<motion.span
-							animate={{ x: isArabic ? [0, -4, 0] : [0, 4, 0] }}
-							transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-							className="inline-block"
+				{/* Buttons Container */}
+				<div className={`flex gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+					{/* Order Button - Always visible */}
+					<Link
+						href={serviceSlugPath}
+						onClick={handleOrderClick}
+						onMouseEnter={handleMouseEnter}
+						prefetch={true}
+						aria-label={isArabic ? `${buttonText} - ${title}` : `${buttonText} - ${title}`}
+						className={`group/btn flex-1 rounded-xl bg-gradient-to-r from-[#10b981] via-emerald-600 to-teal-600 hover:from-[#059669] hover:via-emerald-700 hover:to-teal-700 text-white py-3 sm:py-3.5 px-4 sm:px-6 font-bold text-sm sm:text-base transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-[#10b981]/30 text-center focus:outline-none focus:ring-2 focus:ring-[#10b981] focus:ring-offset-2 active:scale-[0.98]`}
+					>
+						<span className="flex items-center justify-center gap-2">
+							{buttonText}
+							<motion.span
+								animate={{ x: isArabic ? [0, -4, 0] : [0, 4, 0] }}
+								transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+								className="inline-block"
+							>
+								{isArabic ? "←" : "→"}
+							</motion.span>
+						</span>
+					</Link>
+
+					{/* Return Order Button - Only visible if booking exists */}
+					{hasExistingBooking && (
+						<Link
+							href={serviceSlugPath}
+							onClick={handleReturnOrderClick}
+							onMouseEnter={handleMouseEnter}
+							prefetch={true}
+							aria-label={isArabic ? `العودة للطلب - ${title}` : `Return Order - ${title}`}
+							className={`group/btn flex-1 rounded-xl bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white py-3 sm:py-3.5 px-4 sm:px-6 font-bold text-sm sm:text-base transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-blue-500/30 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:scale-[0.98]`}
 						>
-							{isArabic ? "←" : "→"}
-						</motion.span>
-					</span>
-				</Link>
+							<span className="flex items-center justify-center gap-2">
+								{isArabic ? "العودة للطلب" : "Return Order"}
+								<motion.span
+									animate={{ x: isArabic ? [0, -4, 0] : [0, 4, 0] }}
+									transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+									className="inline-block"
+								>
+									{isArabic ? "←" : "→"}
+								</motion.span>
+							</span>
+						</Link>
+					)}
+				</div>
 			</div>
 		</motion.div>
 	);

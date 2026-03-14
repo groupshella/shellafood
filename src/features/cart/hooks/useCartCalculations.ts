@@ -7,7 +7,7 @@ import { CART_CONFIG } from '../constants/cart.constants';
 export function useCartCalculations(items: CartItem[], coupon: Coupon | null): CartTotals {
 	return useMemo(() => {
 		const subtotal = items.reduce((sum, item) => sum + item.priceAtAdd * item.quantity, 0);
-		const deliveryFee = 15;
+		const deliveryFee = 0;
 		
 		let discount = 0;
 		if (coupon) {

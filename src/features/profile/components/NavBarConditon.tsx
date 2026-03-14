@@ -1,6 +1,7 @@
 "use client";
 
 import {
+	Bell,
 	ClipboardList,
 	Globe,
 	Home,
@@ -47,7 +48,7 @@ const NAVIGATION_ITEMS: NavItem[] = [
 	{ id: "cart", label: "السلة", icon: ShoppingBag, href: "/cart", showInDesktop: true, showInMobile: true, hasBadge: true },
 	{ id: "profile", label: "الملف الشخصي", icon: User, href:"/profile", showInDesktop: true, showInMobile: true },
 	{ id: "categories", label: "الفئات", icon: List, href: "/categories", showInDesktop: false, showInMobile: true },
-	{ id: "contact", label: "اتصل بنا", icon: Mail, href: "#", showInDesktop: true, showInMobile: true, isAction: true },
+	{ id: "notifications", label: "الإشعارات", icon: Bell, href: "/notifications", showInDesktop: true, showInMobile: true },
 	{ id: "language", label: "عربية", icon: Globe, href: "/", showInDesktop: false, showInMobile: false }, // Handled separately
 	{ id: "logout", label: "تسجيل الخروج", icon: LogOut, href: "#", showInDesktop: true, showInMobile: true, isAction: true },
 ];
@@ -56,7 +57,6 @@ const NAVIGATION_ITEMS: NavItem[] = [
 	onClose,
 	activeTab,
 	setActiveTab,
-	openAterms,
 	cartCount,
 	language,
 	setLanguage,
@@ -70,7 +70,6 @@ const NAVIGATION_ITEMS: NavItem[] = [
 	onClose: () => void;
 	activeTab: string;
 	setActiveTab: (tab: string) => void;
-	openAterms: () => void;
 	cartCount: number;
 	language: string;
 	setLanguage: (lang: 'ar' | 'en') => void;
@@ -93,9 +92,7 @@ const NAVIGATION_ITEMS: NavItem[] = [
 
 	const handleItemClick = (item: NavItem) => {
 		setActiveTab(item.id);
-		if (item.isAction && item.id === "contact") {
-			openAterms();
-		} else if (item.isAction && item.id === "logout") {
+		if (item.isAction && item.id === "logout") {
 			// Logout is handled separately with confirmation
 			return;
 		} else if (item.href !== "#") {
@@ -332,6 +329,7 @@ export default  function NavBarCondition({ islogin }: { islogin: boolean }) {
 		if (pathname.startsWith("/profile")) setActiveTab("profile");
 		else if (pathname.startsWith("/cart")) setActiveTab("cart");
 		else if (pathname.startsWith("/my-orders")) setActiveTab("my-orders");
+		else if (pathname.startsWith("/notifications")) setActiveTab("notifications");
 		else setActiveTab("home");
 	}, [pathname]);
 
@@ -397,9 +395,6 @@ export default  function NavBarCondition({ islogin }: { islogin: boolean }) {
 		setActiveTab(item.id);
 		if(item.id==='profile') {
 			router.push('/profile');
-		}
-		if (item.isAction && item.id === "contact") {
-			setShowAterms(true);
 		}
 		if (item.isAction && item.id === "logout") {
 			handleLogout();
@@ -636,7 +631,6 @@ export default  function NavBarCondition({ islogin }: { islogin: boolean }) {
 						onClose={() => setIsMenuOpen(false)}
 						activeTab={activeTab}
 						setActiveTab={setActiveTab}
-						openAterms={() => setShowAterms(true)}
 						cartCount={cartCount}
 						language={language}
 						setLanguage={setLanguage}
