@@ -106,11 +106,7 @@ export default async function DepartmentPageRoute({
       headers: {
         'Accept': 'application/json',
       },
-      // ✅ Next.js built-in cache
-      next: {
-        revalidate: 3600, // Re-fetch every hour
-        tags: [`department-details-${storeId}-${departmentId}-${moduleId}-${zoneId}`],
-      },
+      cache: 'no-store',
     });
     
     if (!response.ok) {

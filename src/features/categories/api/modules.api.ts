@@ -36,10 +36,7 @@ export const getZoneDataFromLocation = cache(
         headers: {
           'Accept': 'application/json',
         },
-        next: {
-          revalidate: 1,
-          tags: [cacheTag],
-        },
+        cache: 'no-store',
       });
       console.log("response", response);
       

@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const url = `https://shellafood.com/api/v1/config/get-zone-id?latitude=${latitude}&longitude=${longitude}`;
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.  abort(), REQUEST_TIMEOUT);
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
     
     const response = await fetch(url, {
       method: 'GET',

@@ -80,9 +80,7 @@ async function getWishListData(token: string) {
 				"Host": "shellafood.com",
 				'zoneId': '[2]',
 			},
-			next: {
-				revalidate: 300, // cache this data for 5 minutes
-			},
+			cache: 'no-store',
 		});
 
 	

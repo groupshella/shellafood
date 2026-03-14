@@ -36,9 +36,7 @@ export async function GET(request: NextRequest) {
 				'Authorization': `Bearer ${authToken}`,
 				'zoneId': "[2]",
 			},
-			next: {
-				revalidate: 0, // Always fetch fresh notifications
-			},
+			cache: 'no-store',
 		});
 
 		if (!response.ok) {

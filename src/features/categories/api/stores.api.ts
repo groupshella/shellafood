@@ -172,11 +172,7 @@ export async function getStoreDetails(
 		  'latitude': "24.6100271",
 		 
 		},
-		// ✅ Next.js built-in cache
-		next: {
-		  revalidate: 1, // 1 hour
-		  tags: [cacheTag],
-		},
+		cache: 'no-store',
 	  });
   
 	  const fetchDuration = Date.now() - fetchStartTime;
@@ -285,11 +281,7 @@ export async function getStoreDetails(
 		  'moduleId': moduleId.toString(),
 		  'zoneId': "[2]",
 		},
-		// ✅ Next.js built-in cache
-		next: {
-		  revalidate: 3600, // 1 hour
-		  tags: [cacheTag],
-		},
+		cache: 'no-store',
 	  });
   
 	  const fetchDuration = Date.now() - fetchStartTime;

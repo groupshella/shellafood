@@ -43,9 +43,7 @@ export async function GET(request: NextRequest) {
         'X-localization': locale,
         'Authorization': `Bearer ${authToken}`,
       },
-      next: {
-        revalidate: 60, // Re-fetch every minute for order tracking
-      },
+      cache: 'no-store',
     });
 
     if (!response.ok) {

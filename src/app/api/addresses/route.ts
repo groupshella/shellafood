@@ -37,10 +37,7 @@ export async function GET(request: NextRequest) {
         'Authorization': `Bearer ${authToken}`,
         'Host': 'shellafood.com',
       },
-      next: {
-        revalidate: 10, // Re-fetch every 10 seconds
-        tags: [`addresses-${authToken.substring(0, 10)}`],
-      },
+      cache: 'no-store',
     });
 
     if (!response.ok) {

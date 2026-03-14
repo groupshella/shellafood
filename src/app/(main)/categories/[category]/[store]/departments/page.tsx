@@ -111,11 +111,7 @@ export default async function AllDepartmentsPageRoute(
 				headers: {
 					'Accept': 'application/json',
 				},
-				// ✅ Next.js built-in cache
-				next: {
-					revalidate: 3600, // Re-fetch every 5 minutes
-					tags: [`departments-${storeId}-${moduleId}-${zoneId}`],
-				},
+				cache: 'no-store',
 			});
 			
 			if (!response.ok) {

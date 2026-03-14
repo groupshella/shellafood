@@ -41,9 +41,7 @@ export async function GET(request: NextRequest) {
         'zoneId': `[${zoneId}]`, // Format as array string
         ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
       },
-      next: {
-        revalidate: 0, // Always fetch fresh cart data
-      },
+      cache: 'no-store',
     });
 
     if (!response.ok) {

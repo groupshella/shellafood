@@ -94,13 +94,9 @@ export default async function TrackOrderPageRoute({ params }: TrackOrderPageRout
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json',
-				...(cookieHeader && { 'Cookie': cookieHeader }), // Forward cookies for auth
+				...(cookieHeader && { 'Cookie': cookieHeader }),
 			},
-			// ✅ Next.js built-in cache
-			next: {
-				revalidate: 120, // Re-fetch every minute for real-time tracking
-				tags: [`order-details-${orderId}`],
-			},
+			cache: 'no-store',
 		});
 		
 		if (!response.ok) {

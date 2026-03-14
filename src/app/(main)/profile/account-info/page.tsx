@@ -76,10 +76,7 @@ async function getAccountInfoData(token: string, guestId: string) {
 				'Accept': 'application/json',
 				'x-localization': 'ar',
 			},
-			next: {
-				revalidate: 3600, // cache this data for 1 hour
-				tags: [cacheTag],
-			},
+			cache: 'no-store',
 		});
 
 		if (!response.ok) {

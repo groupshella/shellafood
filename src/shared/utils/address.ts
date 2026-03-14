@@ -38,11 +38,7 @@ const getCachedLocationAddress = cache(
 						Accept: "application/json",
 						"User-Agent": "YourAppName/1.0",
 					},
-					// Next.js fetch caching with increased time (15 minutes)
-					next: {
-						revalidate: 900, // Re-fetch every 15 minutes
-						tags: [`location-${cacheKey}`], // For on-demand revalidation
-					},
+					cache: 'no-store',
 				}
 			);
 

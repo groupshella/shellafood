@@ -45,9 +45,7 @@ export async function getNotifications(
 		const response = await fetch(url, {
 			method: 'GET',
 			headers,
-			next: {
-				revalidate: 0, // Always fetch fresh notifications
-			},
+			cache: 'no-store',
 		});
 		
 		const fetchDuration = Date.now() - fetchStartTime;

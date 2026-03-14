@@ -54,11 +54,7 @@ export async function getProductDetails(
 		  'moduleId': moduleId.toString(),
 		  'zoneId': `[${zoneId}]`, // API expects array format "[2]"
 		},
-		// ✅ Next.js built-in cache
-		next: {
-		  revalidate: 3600, // 1 hour
-		  tags: [cacheTag],
-		},
+		cache: 'no-store',
 	  });
   
 	  const fetchDuration = Date.now() - fetchStartTime;

@@ -49,9 +49,7 @@ export async function GET(request: NextRequest) {
         'X-Response-Mode': 'minimal',
         'Authorization': `Bearer ${authToken}`,
       },
-      next: {
-        revalidate: 0, // Always fetch fresh orders
-      },
+      cache: 'no-store',
     });
 
     if (!response.ok) {

@@ -79,10 +79,7 @@ export async function getDepartments(
 				'moduleId': moduleId.toString(),
 				'zoneId': "[2]",
 			},
-			next: {
-				revalidate: 12000, // Re-fetch every 10 minutes
-				tags: [cacheTag],
-			},
+			cache: 'no-store',
 		});
 		
 		const fetchDuration = Date.now() - fetchStartTime;

@@ -88,10 +88,7 @@ export async function searchProducts(
 				'zoneId':"[2]",
 				'X-Response-Mode': 'minimal',
 			},
-			next: {
-				revalidate: 1, // Re-fetch every 5 minutes
-				tags: [cacheTag],
-			},
+			cache: 'no-store',
 		});
 		
 		const fetchDuration = Date.now() - fetchStartTime;
