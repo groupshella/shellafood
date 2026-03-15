@@ -152,7 +152,7 @@
   
 
   export interface DepartmentResponse {
-    items: Item[];
+    products: Item[];
     total_size: number;
     offset: string;
     limit: number;

@@ -162,36 +162,40 @@ function DepartmentView({
     return searchData.products.map(transformSearchProductToItem);
   }, [debouncedSearchTerm, searchData]);
 
-  // ✅ Use search results when searching, otherwise use department items
-  const currentDepartment = debouncedSearchTerm.trim() 
-    ? { 
-        items: searchItems, 
+  // ✅ Use search results when searching, otherwise use department data (API returns products or items)
+  const currentDepartment = debouncedSearchTerm.trim()
+    ? {
+        products: searchItems,
         total_size: searchData?.total_size ?? 0,
         offset: searchData?.offset ?? currentOffset.toString(),
         limit: currentLimit,
-        has_more: false
+        has_more: false,
       }
     : (departmentData || departmentResponse);
 
+  // ✅ Support both API shapes: { products: [...] } and { items: [...] }
+  const departmentItems: Item[] = Array.isArray(currentDepartment?.products)
+    ? currentDepartment.products
+    : Array.isArray((currentDepartment as any)?.items)
+      ? (currentDepartment as any).items
+      : [];
+
   const totalItems = currentDepartment?.total_size ?? 0;
   const totalPages = currentDepartment ? Math.ceil(totalItems / currentLimit) : 1;
-  
-  // Safe access to items array
-  const departmentItems = currentDepartment?.items || [];
 
   // Client-side filtering and sorting on current page
   const filteredAndSortedProducts = useMemo(() => {
-    if (!departmentItems || departmentItems.length === 0) return [];
+    if (!departmentItems.length) return [];
 
     let filtered = departmentItems;
 
     // Apply filters
     switch (filterBy) {
       case 'inStock':
-        filtered = filtered.filter(item => (item.stock ?? 0) > 0);
+        filtered = filtered.filter((item: Item) => (item.stock ?? 0) > 0);
         break;
       case 'offers':
-        filtered = filtered.filter(item => 
+        filtered = filtered.filter((item: Item) => 
           item.discount_type || (item.original_price && item.original_price > (item.price || 0))
         );
         break;
@@ -265,21 +269,20 @@ function DepartmentView({
   }), [isArabic]);
 
   const filterButtons = useMemo(() => [
-    { key: 'all' as const, label: t.all, count: currentDepartment.items?.length || 0 },
+    { key: 'all' as const, label: t.all, count: departmentItems?.length || 0 },
     { 
       key: 'inStock' as const, 
       label: t.inStock, 
-      count: currentDepartment.items?.filter(item => (item.stock ?? 0) > 0).length || 0 
+      count: departmentItems?.filter((item: Item) => (item.stock ?? 0) > 0).length || 0 
     },
     { 
       key: 'offers' as const, 
       label: t.offers, 
-      count: currentDepartment.items?.filter(item => 
+      count: departmentItems?.filter((item: Item) => 
         item.discount_type || (item.original_price && item.original_price > (item.price || 0))
       ).length || 0 
     },
-  ], [t, currentDepartment.items]);
-
+  ], [t, departmentItems]);
   const sortOptions = useMemo(() => [
     { value: 'name' as const, label: t.name },
     { value: 'price' as const, label: t.price },
@@ -391,7 +394,7 @@ if(isLoading) {
 					{/* Sort Dropdown - Responsive */}
 					<select
 						value={sortBy}
-						onChange={(e) => setSortBy(e.target.value as "name" | "price" | "rating")}
+						onChange={(e) => setSortBy(e.target.value as SortType)}
 						className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full sm:w-auto`}
 						dir={direction}
 					>
@@ -486,75 +489,3 @@ export default memo(DepartmentView);
 // PERFORMANCE OPTIMIZATIONS APPLIED
 // ============================================================================
 
-/*
-✅ OPTIMIZATIONS IMPLEMENTED:
-
-1. **SWR Data Fetching**
-   - Automatic caching and revalidation
-   - Prefetches next/previous pages
-   - keepPreviousData prevents loading flash
-   - Deduplication of requests
-
-2. **Smart Filtering & Sorting**
-   - Client-side (no API calls)
-   - Memoized with useMemo
-   - Only processes current page
-   - Efficient array operations
-
-3. **URL State Management**
-   - Page and limit in URL (bookmarkable)
-   - useTransition for smooth updates
-   - scroll: false prevents jump
-   - Smooth scroll to products
-
-4. **Proper Memoization**
-   - memo() on component
-   - useMemo() for computed values
-   - useCallback() for handlers
-   - Prevents unnecessary re-renders
-
-5. **Loading States**
-   - Separate isPending and isLoading
-   - Smooth transitions with AnimatePresence
-   - Loading indicators where needed
-   - No blocking UI
-
-6. **Filter Counts**
-   - Show count for each filter
-   - Real-time updates
-   - Helps user decision making
-   - Better UX
-
-7. **Items Per Page**
-   - User can choose 12, 24, or 48
-   - Resets to page 1 on change
-   - Persisted in URL
-   - Standard e-commerce practice
-
-8. **Error Handling**
-   - Graceful error display
-   - User-friendly messages
-   - No crash, just fallback UI
-   - Try again option
-
-9. **Responsive Design**
-   - Mobile-optimized grid (2 cols)
-   - Desktop expanded (6 cols)
-   - Touch-friendly controls
-   - Adaptive pagination
-
-10. **Performance Metrics**
-    - Initial render: ~50ms (server data)
-    - Filter change: ~5ms (client-side)
-    - Sort change: ~5ms (client-side)
-    - Page change: ~50ms (prefetched)
-    - Re-renders: Minimal (memoized)
-
-COMPARED TO ORIGINAL:
-- 70% fewer re-renders
-- 95% faster filtering (no API)
-- 95% faster sorting (no API)
-- 90% faster pagination (prefetch)
-- 40% smaller component
-- 100% better UX (no loading flash)
-*/

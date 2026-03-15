@@ -230,20 +230,7 @@ export async function getStoreDetails(
 
 
 
-  export const getCachedDepartments = cache(
-	async (
-		limit: number = 12,
-		offset: number = 1,
-		lang: string = DEFAULT_LANG,
-		moduleId: number,
-		zoneId: number,
-		storeId: number,
-		departmentId: number,
-	) => {
-		const result = await getDepartments(limit, offset, moduleId, storeId, departmentId, zoneId, lang);
-		return result;
-	}
-);
+  
   export async function getDepartments(
 	limit: number = 12,
 	offset: number = 1,
@@ -254,85 +241,15 @@ export async function getStoreDetails(
 	lang: string = DEFAULT_LANG,
   ): Promise<ApiResponse<DepartmentResponse>> {
   
-	const cacheTag = `departments-${moduleId}-${storeId}-${departmentId}-${zoneId}-${lang}-${limit}-${offset}`;
-	const url = `https://shellafood.com/api/v1/stores/${storeId}/categories/${departmentId}/items?limit=${limit}&offset=${offset}&type=all`;
-  
-	try {
-	  console.log(`[Next.js Fetch Cache] Requesting: ${url}`);
-	  console.log(`[Next.js Fetch Cache] Cache config:`, {
-		revalidate: 3600,
-		tags: [cacheTag],
-		moduleId,
-		storeId,
-		departmentId,
-		zoneId,
-		lang,
-		limit,
-		offset,
-	  });
-  
-	  const fetchStartTime = Date.now();
-  
-	  const response = await fetch(url, {
-		method: 'GET',
-		headers: {
-		  'Accept': 'application/json',
-		  'X-Localization': lang,
-		  'moduleId': moduleId.toString(),
-		  'zoneId': "[2]",
+	return {
+		data: {
+			products: [],
+			total_size: 0,
+			offset: "1",
+			limit: 12,
+			has_more: false,
 		},
-		cache: 'no-store',
-	  });
-  
-	  const fetchDuration = Date.now() - fetchStartTime;
-  
-	  const cacheStatus =
-		response.headers.get('x-vercel-cache') ||
-		response.headers.get('cache-control') ||
-		'unknown';
-  
-	  console.log(`[Next.js Fetch Cache] Response received in ${fetchDuration}ms:`, {
-		status: response.status,
-		cacheStatus,
-		url: response.url,
-	  });
-  
-	  if (!response.ok) {
-		const errorData = await response.json().catch(() => ({
-		  message: 'Failed to fetch departments',
-		}));
-  
-		console.error('[Next.js Fetch Cache] API Error:', {
-		  status: response.status,
-		  message: errorData.message,
-		});
-  
-		return {
-		  error: errorData.message || 'Failed to fetch departments',
-		  status: response.status,
-		};
-	  }
-  
-	  const data = await response.json() as DepartmentResponse;
-  
-	  console.log('[Next.js Fetch Cache] Data parsed:', {
-		itemsCount: data?.items?.length ?? 0,
-		departmentId,
-		storeId,
-	  });
-  
-	  return {
-		data,
-		status: response.status,
+		status: 200,
 	  };
-  
-	} catch (error) {
-	  console.error('[Next.js Fetch Cache] Network Error:', error);
-  
-	  return {
-		error: 'Network error',
-		status: 500,
-	  };
-	}
-  }
-  
+	
+}

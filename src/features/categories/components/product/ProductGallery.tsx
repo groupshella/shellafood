@@ -34,14 +34,40 @@ function ProductGallery({ product, storeId }: ProductGalleryProps) {
   }, [product, isArabic]);
 
   const allImages = useMemo(() => {
+    const seen = new Set<string>();
+    const add = (url: string | undefined) => {
+      if (url && typeof url === 'string' && url.startsWith('http') && !seen.has(url)) {
+        seen.add(url);
+        return url;
+      }
+      return null;
+    };
     const images: string[] = [];
-    if (product.image_full_url) images.push(product.image_full_url);
-    else if (product.image) images.push(product.image);
-    
-    if (product.images_full_url && Array.isArray(product.images_full_url) && product.images_full_url.length > 0) {
-      images.push(...product.images_full_url);
-    } else if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-      images.push(...product.images.map((img: any) => img.img || img));
+    if (product.image) {
+      const u = add(product.image);
+      if (u) images.push(u);
+    }
+    if (product.image_full_url) {
+      const u = add(product.image_full_url);
+      if (u) images.push(u);
+    }
+    if (Array.isArray(product.images_full_url) && product.images_full_url.length > 0) {
+      product.images_full_url.forEach((url) => {
+        const u = add(typeof url === 'string' ? url : (url as any)?.img ?? (url as any)?.url);
+        if (u) images.push(u);
+      });
+    }
+    const parsedImages = Array.isArray(product.images)
+      ? product.images
+      : typeof product.images === 'string'
+        ? (() => { try { const a = JSON.parse(product.images); return Array.isArray(a) ? a : []; } catch { return []; } })()
+        : [];
+    if (parsedImages.length > 0) {
+      parsedImages.forEach((img: any) => {
+        const url = typeof img === 'string' ? img : img?.img ?? img?.image_full_url ?? img?.url;
+        const u = add(url);
+        if (u) images.push(u);
+      });
     }
     return images;
   }, [product]);

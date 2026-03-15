@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCachedDepartments } from '@/features/categories/api/stores.api';
+
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { DepartmentResponse } from '@/features/categories/types/department.types';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -13,45 +14,45 @@ export async function GET(request: NextRequest) {
   const locale = searchParams.get('locale') || DEFAULT_LANG;
   const zoneId = Number(searchParams.get('zoneId')) || 2;
 
-  // Validate params
-  if (!storeId || isNaN(storeId) || !departmentId || isNaN(departmentId) || !moduleId || isNaN(moduleId)) {
-    return NextResponse.json(
-      { error: 'Invalid store ID, department ID, or module ID' },
-      { status: 400 }
-    );
-  }
 
-  try {
-    const departmentResponse = await getCachedDepartments(
-      limit,
-      offset,
-      locale,
-      moduleId,
-      zoneId,
-      storeId,
-      departmentId
-    );
 
-    if (!departmentResponse?.data) {
+   // ✅ صح
+const url = `https://shellafood.com/api/v1/categories/items/${departmentId}?store_id=${storeId}&limit=${limit}&offset=${offset}`;
+    try {
+    
+    
+    
+      const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Localization': "ar",
+        'moduleId': moduleId.toString(),
+        'zoneId': "[2,3,4,5]",
+       'longitude': "46.5995713",
+        'latitude': "24.6100271",
+        'Host': 'shellafood.com',
+      },
+      cache: 'no-store',
+      });
+    
+  
+    
+      const data = await response.json() as DepartmentResponse;
+    
+  console.log("data", data);
+  return NextResponse.json(data, {
+    status: 200,
+  });
+
+    } catch (error) {
+      console.error('Department Details API Route Error:', error);
       return NextResponse.json(
-        { error: departmentResponse?.error || 'Failed to fetch department details' },
-        { status: departmentResponse?.status || 500 }
+        { error: 'Internal server error' },
+        { status: 500 }
       );
     }
 
-    // ✅ Return with cache headers
-    return NextResponse.json(departmentResponse.data, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
-        'CDN-Cache-Control': 'max-age=600',
-      },
-    });
-  } catch (error) {
-    console.error('Department Details API Route Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+   
   }
-}
-
+  

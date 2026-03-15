@@ -76,15 +76,16 @@ function UnifiedProductCard({
 		return product.name;
 	}, [product, isArabic]);
 
-	// Get display unit from translations
+	// Get display unit (unit can be null; fallback to unit_type)
 	const displayUnit = useMemo(() => {
-		if (isArabic) {
-			const arTranslation = product.unit?.translations?.find(
+		const baseUnit = product.unit?.unit ?? product.unit_type ?? '';
+		if (isArabic && product.unit?.translations?.length) {
+			const arTranslation = product.unit.translations.find(
 				(t: any) => t.locale === 'ar' && t.key === 'unit'
 			);
-			return arTranslation?.value || product.unit?.unit || '';
+			return arTranslation?.value || baseUnit;
 		}
-		return product.unit?.unit || '';
+		return baseUnit;
 	}, [product, isArabic]);
 
 	// Get badge (discount percentage)
@@ -98,32 +99,42 @@ function UnifiedProductCard({
 		return undefined;
 	}, [product, isArabic]);
 
-	// Check availability
+	// Check availability (availability object or stock/status fallback)
 	const isAvailable = useMemo(() => {
-		return product.availability?.is_available ?? (product.stock > 0 && product.status === 1);
+		if (product.availability && typeof product.availability === 'object') {
+			const av = product.availability as { is_available?: boolean; is_available_now?: boolean };
+			return av.is_available ?? av.is_available_now ?? false;
+		}
+		const stock = product.stock ?? 0;
+		const status = product.status ?? 1;
+		return stock > 0 && status === 1;
 	}, [product]);
 
-	// Check if has discount
+	// Check if has discount (handle null/undefined prices)
 	const hasDiscountPrice = useMemo(() => {
-		return product.original_price > 0 && product.original_price > product.price;
+		const orig = product.original_price ?? 0;
+		const price = product.price ?? 0;
+		return orig > 0 && orig > price;
 	}, [product]);
 
-	// Get product image
+	// Get product image (prefer product.image e.g. delivery hero URL, then image_full_url)
 	const productImage = useMemo(() => {
-		return product.image_full_url || product.image || '';
+		return (product.image && typeof product.image === 'string' && product.image.startsWith('http'))
+			? product.image
+			: (product.image_full_url || product.image || '');
 	}, [product]);
 
-	// Product favorites hook
+	// Product favorites hook (unit can be null; use unit_type fallback)
 	const { isFavorite, isLoading: favoriteLoading, toggleFavorite } = useProductFavorites(
 		product.id.toString(),
 		{
 			name: product.name,
 			nameAr: product.translations?.find((t: any) => t.locale === 'ar' && t.key === 'name')?.value || product.name,
 			image: productImage,
-			price: product.price,
-			originalPrice: product.original_price > 0 ? product.original_price : undefined,
-			unit: product.unit?.unit || '',
-			unitAr: product.unit?.translations?.find((t: any) => t.locale === 'ar' && t.key === 'unit')?.value || product.unit?.unit || '',
+			price: product.price ?? 0,
+			originalPrice: (product.original_price ?? 0) > 0 ? product.original_price : undefined,
+			unit: product.unit?.unit ?? product.unit_type ?? '',
+			unitAr: product.unit?.translations?.find((t: any) => t.locale === 'ar' && t.key === 'unit')?.value || product.unit?.unit || product.unit_type || '',
 			storeId: (product.store_id || storeId)?.toString(),
 		}
 	);
@@ -364,10 +375,10 @@ function MobileVariant({
 		>
 			{/* Product Image */}
 			<div className="relative aspect-square bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 overflow-hidden group/image">
-				{!imageError && (product.image_full_url || product.image) ? (
+				{!imageError && (product.image || product.image_full_url) ? (
 					<>
 						<Image
-							src={product.image_full_url || product.image}
+							src={product.image || product.image_full_url || ''}
 							alt={displayName}
 							fill
 							sizes={getImageSizes('card')}
@@ -443,10 +454,10 @@ function MobileVariant({
 					)}
 				>
 					<span className="text-lg font-black text-green-600 dark:text-green-400">
-						{product.price}
+						{product.price ?? 0}
 					</span>
 					<span className="text-xs text-gray-600 dark:text-gray-400">{isArabic ? "ريال" : "SAR"}</span>
-					{hasDiscountPrice && product.original_price > 0 && (
+					{hasDiscountPrice && (product.original_price ?? 0) > 0 && (
 						<span className="text-xs text-gray-400 dark:text-gray-500 line-through ml-1">
 							{product.original_price}
 						</span>
@@ -579,10 +590,10 @@ function CompactVariant({
 		>
 			{/* Image Container */}
 			<div className="relative aspect-square overflow-hidden rounded-md bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 mb-2 group/image">
-				{!imageError && (product.image_full_url || product.image) ? (
+				{!imageError && (product.image || product.image_full_url) ? (
 					<>
 						<Image
-							src={product.image_full_url || product.image}
+							src={product.image || product.image_full_url || ''}
 							alt={displayName}
 							fill
 							className="object-cover transition-transform duration-500 group-hover/image:scale-110"
@@ -714,7 +725,7 @@ function CompactVariant({
 					<span className="text-sm font-bold text-green-600 dark:text-green-400">
 						{product.price} {isArabic ? "ريال" : "SAR"}
 					</span>
-					{hasDiscountPrice && product.original_price > 0 && (
+					{hasDiscountPrice && (product.original_price ?? 0) > 0 && (
 						<span className="text-xs text-gray-400 dark:text-gray-500 line-through">
 							{product.original_price}
 						</span>
@@ -796,10 +807,10 @@ function DefaultVariant({
 		>
 			{/* Product Image */}
 			<div className="relative aspect-square bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 overflow-hidden group/image">
-				{!imageError && product.image ? (
+				{!imageError && (product.image || product.image_full_url) ? (
 					<>
 						<Image
-							src={product.image}
+							src={product.image || product.image_full_url || ''}
 							alt={displayName}
 							fill
 							sizes={getImageSizes('card')}
@@ -869,10 +880,10 @@ function DefaultVariant({
 					}`}
 				>
 					<span className="text-lg font-black text-green-600 dark:text-green-400">
-						{product.price}
+						{product.price ?? 0}
 					</span>
 					<span className="text-xs text-gray-600 dark:text-gray-400">SAR</span>
-					{hasDiscountPrice && product.original_price > 0 && (
+					{hasDiscountPrice && (product.original_price ?? 0) > 0 && (
 						<span className="text-xs text-gray-400 dark:text-gray-500 line-through ml-1">
 							{product.original_price}
 						</span>

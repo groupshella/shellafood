@@ -96,99 +96,20 @@ export default async function DepartmentPageRoute({
   const page = Math.max(1, Number(search.page) || 1);
   const zoneId = 2; // zone_id
 
-  // ✅ Use API route as proxy
-  try {
+ 
     const baseUrl = getBaseUrl();
-    const url = `${baseUrl}/api/department-details?storeId=${storeId}&departmentId=${departmentId}&moduleId=${moduleId}&limit=${limit}&offset=${page}&zoneId=${zoneId}&locale=${DEFAULT_LANG}`;
+    const url = `${baseUrl}/api/department-details?storeId=${storeId}&departmentId=${departmentId}&moduleId=${moduleId}&limit=${limit}&offset=${page}&zoneId=${zoneId}`;
     
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
       },
-      cache: 'no-store',
+    
     });
+const data = await response.json();
+console.log("data", data);
+    return <DepartmentPage departmentResponse={data as DepartmentResponse} storeId={storeId} departmentId={departmentId} initialPage={page} initialLimit={limit} moduleId={moduleId} zoneId={zoneId} />
     
-    if (!response.ok) {
-      console.error('[Department Page] API route error:', response.status);
-      // Return empty department response on error
-      return (
-        <DepartmentPage
-          departmentResponse={{
-            items: [],
-            total_size: 0,
-            offset: page.toString(),
-            limit,
-            has_more: false,
-          }}
-          storeId={storeId}
-          departmentId={departmentId}
-          initialPage={page}
-          initialLimit={limit}
-          moduleId={moduleId}
-          zoneId={zoneId}
-        />
-      );
-    }
-    
-    const departmentData = await response.json() as DepartmentResponse;
-    
-    // Validate response structure
-    if (!departmentData || !Array.isArray(departmentData.items)) {
-      console.error('[Department Page] Invalid response structure:', departmentData);
-      return (
-        <DepartmentPage
-          departmentResponse={{
-            items: [],
-            total_size: 0,
-            offset: page.toString(),
-            limit,
-            has_more: false,
-          }}
-          storeId={storeId}
-          departmentId={departmentId}
-          initialPage={page}
-          initialLimit={limit}
-          moduleId={moduleId}
-          zoneId={zoneId}
-        />
-      );
-    }
-    
-    return (
-      <DepartmentPage
-        departmentResponse={departmentData}
-        storeId={storeId}
-        departmentId={departmentId}
-        initialPage={page}
-        initialLimit={limit}
-        moduleId={moduleId}
-        zoneId={zoneId}
-      />
-    );
-  } catch (error: any) {
-    console.error('[Department Page] Error fetching department details:', {
-      message: error?.message || 'Unknown error',
-      name: error?.name,
-    });
-    
-    // Return empty department response on error
-    return (
-      <DepartmentPage
-        departmentResponse={{
-          items: [],
-          total_size: 0,
-          offset: page.toString(),
-          limit,
-          has_more: false,
-        }}
-        storeId={storeId}
-        departmentId={departmentId}
-        initialPage={page}
-        initialLimit={limit}
-        moduleId={moduleId}
-        zoneId={zoneId}
-      />
-    );
-  }
+   
 }
