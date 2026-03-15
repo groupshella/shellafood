@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getCachedDepartments, getDepartments, getStoreDetails } from "../api/stores.api";
-import type { StoreDetails } from "../types/store.details.types";
+import { getDepartments } from "../api/stores.api";
 import type { DepartmentResponse } from "../types/department.types";
-import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
 export interface NotificationState {
 	message: string;
 	type: "success" | "error" | "info";
