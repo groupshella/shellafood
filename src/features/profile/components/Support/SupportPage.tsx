@@ -42,10 +42,9 @@ export default function SupportPage() {
 			contactInfoTitle: "معلومات الاتصال",
 			contactInfoText: "تواصل معنا عبر القنوات التالية:",
 			contactInfoItems: [
-				"الهاتف: 920000000",
-				"البريد الإلكتروني: support@shilla.com",
-				"العنوان: المملكة العربية السعودية, الرياض, المنطقة الشرقية",
-			
+				"الهاتف: 0599966674",
+				"البريد الإلكتروني: info@shellafood.com",
+				"العنوان: مبنى رقم 3890، شارع المدينة المنورة، الرياض",
 			],
 			noticeTitle: "ملاحظة مهمة:",
 			noticeText: "نحن ملتزمون بتقديم أفضل خدمة عملاء ممكنة. لا تتردد في التواصل معنا في أي وقت، وسنكون سعداء لمساعدتك."
@@ -81,10 +80,9 @@ export default function SupportPage() {
 			contactInfoTitle: "Contact Information",
 			contactInfoText: "Contact us through the following channels:",
 			contactInfoItems: [
-				"Phone: 920000000",
-				"Email: support@shilla.com",
-				"Address: KSA, Saudi Arabia, Umm Al Hammam",
-			
+				"Phone: 0599966674",
+				"Email: info@shellafood.com",
+				"Address: Building Number 3890, Al Madinah Almunawarah Street, Riyadh",
 			],
 			noticeTitle: "Important Note:",
 			noticeText: "We are committed to providing the best possible customer service. Don't hesitate to contact us anytime, and we'll be happy to help you."

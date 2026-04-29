@@ -40,9 +40,9 @@ export default function PrivacyPolicy() {
 			contactTitle: "معلومات الاتصال",
 			contactText: "للاستفسارات حول سياسة الخصوصية، يمكنك التواصل معنا عبر:",
 			contactItems: [
-				"البريد الإلكتروني: privacy@shilla.com",
-				"الهاتف: 920000000",
-			
+				"البريد الإلكتروني: info@shellafood.com",
+				"الهاتف: 0599966674",
+				"العنوان: مبنى رقم 3890، شارع المدينة المنورة، الرياض",
 			],
 			noticeTitle: "إشعار مهم:",
 			noticeText: "نحتفظ بالحق في تحديث هذه السياسة من وقت لآخر. سيتم إشعارك بأي تغييرات مهمة عبر البريد الإلكتروني أو التطبيق."
@@ -77,9 +77,9 @@ export default function PrivacyPolicy() {
 			contactTitle: "Contact Information",
 			contactText: "For inquiries about the privacy policy, you can contact us via:",
 			contactItems: [
-				"Email: privacy@shilla.com",
-				"Phone: 920000000",
-			
+				"Email: info@shellafood.com",
+				"Phone: 0599966674",
+				"Address: Building Number 3890, Al Madinah Almunawarah Street, Riyadh",
 			],
 			noticeTitle: "Important Notice:",
 			noticeText: "We reserve the right to update this policy from time to time. You will be notified of any significant changes via email or the app."

@@ -105,8 +105,9 @@ export default function ConditionTerms() {
 			contactTitle: "معلومات الاتصال",
 			contactText: "للاستفسارات حول الشروط والأحكام، يمكنك التواصل معنا عبر:",
 			contactItems: [
-				"البريد الإلكتروني: legal@shilla.com",
-				"الهاتف: 920000000",
+				"البريد الإلكتروني: info@shellafood.com",
+				"الهاتف: 0599966674",
+				"العنوان: مبنى رقم 3890، شارع المدينة المنورة، الرياض",
 			],
 			noticeTitle: "إشعار مهم:",
 			noticeText: "تُشكل هذه الشروط والأحكام إطاراً قانونياً شاملاً يحكم العلاقة بين شلة التجارية وعملائها، ويهدف إلى ضمان حقوق جميع الأطراف وخلق بيئة عمل آمنة وشفافة."
@@ -206,8 +207,9 @@ export default function ConditionTerms() {
 			contactTitle: "Contact Information",
 			contactText: "For inquiries about terms and conditions, you can contact us via:",
 			contactItems: [
-				"Email: legal@shilla.com",
-				"Phone: 920000000",
+				"Email: info@shellafood.com",
+				"Phone: 0599966674",
+				"Address: Building Number 3890, Al Madinah Almunawarah Street, Riyadh",
 			],
 			noticeTitle: "Important Notice:",
 			noticeText: "These terms and conditions form a comprehensive legal framework that governs the relationship between Shilla Commercial and its customers, aiming to ensure the rights of all parties and create a safe and transparent work environment."

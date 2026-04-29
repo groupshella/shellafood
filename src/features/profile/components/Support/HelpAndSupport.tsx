@@ -26,7 +26,7 @@ export default function HelpAndSupport() {
 								عناويننا
 							</span>
 							<span className="text-sm text-gray-500">
-								ksa, saudi arabia , umm al hammam
+								مبنى رقم 3890، شارع المدينة المنورة، الرياض
 							</span>
 						</div>
 					</div>
@@ -40,7 +40,7 @@ export default function HelpAndSupport() {
 							<span className="text-lg font-semibold text-gray-900">
 								اتصل بنا
 							</span>
-							<span className="text-sm text-gray-500">920000000</span>
+							<span className="text-sm text-gray-500">0599966674</span>
 						</div>
 					</div>
 				</div>
@@ -54,7 +54,7 @@ export default function HelpAndSupport() {
 								راسلنا
 							</span>
 							<span className="text-sm text-gray-500">
-								support@shilla.com
+								info@shellafood.com
 							</span>
 						</div>
 					</div>

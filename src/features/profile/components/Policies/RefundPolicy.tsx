@@ -41,8 +41,9 @@ export default function RefundPolicy() {
 			contactTitle: "معلومات الاتصال",
 			contactText: "للاستفسارات أو طلبات الاسترداد، يرجى التواصل معنا عبر:",
 			contactItems: [
-				"البريد الإلكتروني: support@shilla.com",
-				"الهاتف: 920000000",
+				"البريد الإلكتروني: info@shellafood.com",
+				"الهاتف: 0599966674",
+				"العنوان: مبنى رقم 3890، شارع المدينة المنورة، الرياض",
 				"تطبيق شلة - قسم خدمة العملاء"
 			],
 			warningTitle: "تنبيه مهم:",
@@ -79,8 +80,9 @@ export default function RefundPolicy() {
 			contactTitle: "Contact Information",
 			contactText: "For inquiries or refund requests, please contact us via:",
 			contactItems: [
-				"Email: support@shilla.com",
-				"Phone: 920000000",
+				"Email: info@shellafood.com",
+				"Phone: 0599966674",
+				"Address: Building Number 3890, Al Madinah Almunawarah Street, Riyadh",
 				"Shella App - Customer Service Section"
 			],
 			warningTitle: "Important Notice:",

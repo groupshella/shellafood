@@ -51,9 +51,9 @@ export default function KaidhaTerms() {
 			contactTitle: "معلومات الاتصال",
 			contactText: "للاستفسارات حول خدمات التمويل، يمكنك التواصل معنا عبر:",
 			contactItems: [
-				"البريد الإلكتروني: kaidha@shilla.com",
-				"الهاتف: 920000000",
-			
+				"البريد الإلكتروني: info@shellafood.com",
+				"الهاتف: 0599966674",
+				"العنوان: مبنى رقم 3890، شارع المدينة المنورة، الرياض",
 			],
 			noticeTitle: "إشعار مهم:",
 			noticeText: "يُرجى قراءة جميع الشروط والأحكام بعناية قبل الموافقة عليها. الموافقة على هذه الشروط تعني أنك توافق على جميع البنود المذكورة وتتحمل المسؤولية الكاملة عن التزاماتك المالية."
@@ -99,8 +99,9 @@ export default function KaidhaTerms() {
 			contactTitle: "Contact Information",
 			contactText: "For inquiries about financing services, you can contact us via:",
 			contactItems: [
-				"Email: kaidha@shilla.com",
-				"Phone: 920000000",
+				"Email: info@shellafood.com",
+				"Phone: 0599966674",
+				"Address: Building Number 3890, Al Madinah Almunawarah Street, Riyadh",
 			],
 			noticeTitle: "Important Notice:",
 			noticeText: "Please read all terms and conditions carefully before agreeing to them. Agreeing to these terms means you agree to all mentioned clauses and bear full responsibility for your financial obligations."
