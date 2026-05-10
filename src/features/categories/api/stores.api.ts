@@ -27,87 +27,87 @@ export const getCachedAllStores = cache(
  * Get all stores with session storage caching
  */
 export async function getAllStores(
-  limit: number = 12,
-  offset: number = 1,
-  lang: string = DEFAULT_LANG,
-  moduleId: number,
-  zoneId: number,
+	limit: number = 12,
+	offset: number = 1,
+	lang: string = DEFAULT_LANG,
+	moduleId: number,
+	zoneId: number,
 ): Promise<ApiResponse<StoreList>> {
 
-  const cacheTag = `stores-${moduleId}-${zoneId}-${lang}-${limit}-${offset}`;
-  const url = `https://shellafood.com/api/v1/stores/popular?limit=${limit}&offset=${offset}`;
+	const cacheTag = `stores-${moduleId}-${zoneId}-${lang}-${limit}-${offset}`;
+	const url = `https://shellafood.com/api/v1/stores/get-stores?limit=${limit}&offset=${offset}`;
 
-  try {
+	try {
 
-    const fetchStartTime = Date.now();
-	const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.  abort(), 10000);
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'X-localization': lang,
-		'moduleId': moduleId.toString(),
-		'zoneId': "[2]",
-		'longitude': "46.5995713",
-		'latitude': "24.6100271",
-		'Host': 'shellafood.com',
-      },
-	  signal: controller.signal,
-    });
+		const fetchStartTime = Date.now();
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 10000);
+		const response = await fetch(url, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json',
+				'X-localization': lang,
+				'moduleId': moduleId.toString(),
+				'zoneId': "[2]",
+				'longitude': "46.5995713",
+				'latitude': "24.6100271",
+				'Host': 'shellafood.com',
+			},
+			signal: controller.signal,
+		});
 
-    clearTimeout(timeoutId);
+		clearTimeout(timeoutId);
 
 
-   
 
-    if (!response.ok) {
-      let errorData;
-      const responseText = await response.text();
-      console.log(`[getAllStores] Error response body (raw):`, responseText);
-      
-      try {
-        errorData = JSON.parse(responseText);
-      } catch (e) {
-        errorData = { message: responseText || 'Failed to fetch stores' };
-      }
 
-      console.error('[getAllStores] API Error:', {
-        status: response.status,
-        statusText: response.statusText,
-        message: errorData.message,
-        fullError: errorData,
-        requestParams: { limit, offset, lang, moduleId, zoneId },
-      });
+		if (!response.ok) {
+			let errorData;
+			const responseText = await response.text();
+			console.log(`[getAllStores] Error response body (raw):`, responseText);
 
-      return {
-        error: errorData.message || 'Failed to fetch stores',
-        status: response.status,
-      };
-    }
+			try {
+				errorData = JSON.parse(responseText);
+			} catch (e) {
+				errorData = { message: responseText || 'Failed to fetch stores' };
+			}
 
-    const data = await response.json() as StoreList;
-   console.log("data", data);
+			console.error('[getAllStores] API Error:', {
+				status: response.status,
+				statusText: response.statusText,
+				message: errorData.message,
+				fullError: errorData,
+				requestParams: { limit, offset, lang, moduleId, zoneId },
+			});
 
-    return {
-      data,
-      status: response.status,
-    };
+			return {
+				error: errorData.message || 'Failed to fetch stores',
+				status: response.status,
+			};
+		}
 
-  } catch (error: any) {
-    console.error('[getAllStores] Network/Parse Error:', {
-      message: error?.message,
-      stack: error?.stack,
-      name: error?.name,
-      cause: error?.cause,
-      requestParams: { limit, offset, lang, moduleId, zoneId },
-    });
+		const data = await response.json() as StoreList;
+		console.log("data", data);
 
-    return {
-      error: `Network error: ${error?.message || 'Unknown'}`,
-      status: 500,
-    };
-  }
+		return {
+			data,
+			status: response.status,
+		};
+
+	} catch (error: any) {
+		console.error('[getAllStores] Network/Parse Error:', {
+			message: error?.message,
+			stack: error?.stack,
+			name: error?.name,
+			cause: error?.cause,
+			requestParams: { limit, offset, lang, moduleId, zoneId },
+		});
+
+		return {
+			error: `Network error: ${error?.message || 'Unknown'}`,
+			status: 500,
+		};
+	}
 }
 
 
@@ -133,105 +133,105 @@ export async function getStoreDetails(
 	limit: number = 12,
 	offset: number = 1,
 	moduleId: number,
-	zoneId: number, 
+	zoneId: number,
 	storeId: number,
 	lang: string = DEFAULT_LANG,
 	longitude: string,
 	latitude: string,
-  ): Promise<ApiResponse<StoreDetails>> {
-  
+): Promise<ApiResponse<StoreDetails>> {
+
 	const cacheTag = `store-details-${moduleId}-${zoneId}-${storeId}-${lang}-${limit}-${offset}`;
 	const url = `https://shellafood.com/api/v1/stores/details/${storeId}?limit=${limit}&offset=${offset}&include_categories=1`;
-  
+
 	try {
-	  console.log(`[Next.js Fetch Cache] Requesting: ${url}`);
-	  console.log(`[Next.js Fetch Cache] Cache config:`, {
-		revalidate: 3600,
-		tags: [cacheTag],
-		lang,
-		storeId,
-		moduleId,
-		zoneId,
-		limit,
-		offset,
-	  });
-  
-	  const fetchStartTime = Date.now();
-  console.log("longitude", longitude);
-  console.log("latitude", latitude);
-  console.log("moduleId", moduleId);
-  
-	  const response = await fetch(url, {
-		method: 'GET',
-		headers: {
-		  'Accept': 'application/json',
-		  'X-Localization': lang,
-		  'moduleId': moduleId.toString(),
-		  'zoneId': "[2]",
-		  'longitude': "46.5995713",
-		  'latitude': "24.6100271",
-		 
-		},
-		cache: 'no-store',
-	  });
-  
-	  const fetchDuration = Date.now() - fetchStartTime;
-  
-	  const cacheStatus =
-		response.headers.get('x-vercel-cache') ||
-		response.headers.get('cache-control') ||
-		'unknown';
-  
-	  console.log(`[Next.js Fetch Cache] Response received in ${fetchDuration}ms:`, {
-		status: response.status,
-		cacheStatus,
-		url: response.url,
-	  });
-  
-	  if (!response.ok) {
-		const errorData = await response.json().catch(() => ({
-		  message: 'Failed to fetch store details',
-		}));
-  
-		console.error('[Next.js Fetch Cache] API Error:', {
-		  status: response.status,
-		  message: errorData.message,
+		console.log(`[Next.js Fetch Cache] Requesting: ${url}`);
+		console.log(`[Next.js Fetch Cache] Cache config:`, {
+			revalidate: 3600,
+			tags: [cacheTag],
+			lang,
+			storeId,
+			moduleId,
+			zoneId,
+			limit,
+			offset,
 		});
-  
+
+		const fetchStartTime = Date.now();
+		console.log("longitude", longitude);
+		console.log("latitude", latitude);
+		console.log("moduleId", moduleId);
+
+		const response = await fetch(url, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json',
+				'X-Localization': lang,
+				'moduleId': moduleId.toString(),
+				'zoneId': "[2]",
+				'longitude': "46.5995713",
+				'latitude': "24.6100271",
+
+			},
+			cache: 'no-store',
+		});
+
+		const fetchDuration = Date.now() - fetchStartTime;
+
+		const cacheStatus =
+			response.headers.get('x-vercel-cache') ||
+			response.headers.get('cache-control') ||
+			'unknown';
+
+		console.log(`[Next.js Fetch Cache] Response received in ${fetchDuration}ms:`, {
+			status: response.status,
+			cacheStatus,
+			url: response.url,
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({
+				message: 'Failed to fetch store details',
+			}));
+
+			console.error('[Next.js Fetch Cache] API Error:', {
+				status: response.status,
+				message: errorData.message,
+			});
+
+			return {
+				error: errorData.message || 'Failed to fetch store details',
+				status: response.status,
+			};
+		}
+
+		const data = await response.json() as StoreDetails;
+
+		console.log('[Next.js Fetch Cache] Data parsed:', {
+			data: data,
+			hasStore: !!data?.id,
+			storeId: data?.id,
+		});
+
 		return {
-		  error: errorData.message || 'Failed to fetch store details',
-		  status: response.status,
+			data,
+			status: response.status,
 		};
-	  }
-  
-	  const data = await response.json() as StoreDetails;
-  
-	  console.log('[Next.js Fetch Cache] Data parsed:', {
-		data:data,
-		hasStore: !!data?.id,
-		storeId: data?.id,
-	  });
-  
-	  return {
-		data,
-		status: response.status,
-	  };
-  
+
 	} catch (error) {
-	  console.error('[Next.js Fetch Cache] Network Error:', error);
-  
-	  return {
-		error: 'Network error',
-		status: 500,
-	  };
+		console.error('[Next.js Fetch Cache] Network Error:', error);
+
+		return {
+			error: 'Network error',
+			status: 500,
+		};
 	}
-  }
-  
+}
 
 
 
-  
-  export async function getDepartments(
+
+
+export async function getDepartments(
 	limit: number = 12,
 	offset: number = 1,
 	moduleId: number,
@@ -239,8 +239,8 @@ export async function getStoreDetails(
 	departmentId: number,
 	zoneId: number,
 	lang: string = DEFAULT_LANG,
-  ): Promise<ApiResponse<DepartmentResponse>> {
-  
+): Promise<ApiResponse<DepartmentResponse>> {
+
 	return {
 		data: {
 			products: [],
@@ -250,6 +250,6 @@ export async function getStoreDetails(
 			has_more: false,
 		},
 		status: 200,
-	  };
-	
+	};
+
 }

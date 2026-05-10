@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import ProductPage from '@/features/categories/components/product/ProductPage';
 import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
-import { Product } from '@/features/categories/types/product.types';
 import { notFound } from 'next/navigation';
 import { getCachedProductDetails } from '@/features/categories/api/products.api';
 
@@ -130,9 +129,7 @@ export default async function ProductPageRoute({ params }: PageProps) {
     console.log('productData', productData);
     
     return (
-      <ProductPage
-        productResponse={productData}
-      />
+      <ProductPage productResponse={productData} departmentId={departmentId} />
     );
   } catch (error: any) {
     console.error('[Product Page] Error fetching product details:', {

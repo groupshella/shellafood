@@ -1,4 +1,4 @@
-import { BASE_URL, DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
+import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
 import { cache } from 'react';
 
 export interface DepartmentItem {
@@ -16,100 +16,96 @@ export interface DepartmentsResponse {
 	store_name: string;
 	categories: DepartmentItem[];
 	total_categories: number;
-	limit: number;
-	offset: number;
-	has_more: boolean;
+	/** Present when Laravel pagination query params were sent */
+	limit?: number;
+	offset?: number;
+	has_more?: boolean;
 }
 
 export interface ApiResponse<T> {
 	data?: T;
-	error?: string;	
+	error?: string;
 	status?: number;
 }
 
-export const getCachedDepartments = cache(
-	async (
-		storeId: number,
-		limit: number,
-		offset: number,	
-		lang: string,
-		moduleId: number,
-		zoneId: number,
-		
-	) => {
-		const result = await getDepartments(storeId, limit, offset, lang, moduleId, zoneId);
-		return result;
-	}
-);
-
 /**
- * Fetch departments for a specific store with pagination
- * @param storeId - Store ID
- * @param limit - Number of departments per page
- * @param offset - Page number (offset=1 means page 1)
- * @param lang - Language code ('ar' or 'en')
+ * Laravel `zoneId` header: JSON array string for json_decode(), e.g. `[2]`.
  */
+export function zoneIdHeaderValue(zoneId: number | number[]): string {
+	const ids = Array.isArray(zoneId) ? zoneId : [zoneId];
+	return JSON.stringify(ids);
+}
+
+function laravelErrorMessage(body: unknown): string {
+	if (!body || typeof body !== 'object') return 'Failed to fetch departments';
+	const o = body as Record<string, unknown>;
+	if (typeof o.message === 'string' && o.message) return o.message;
+	const errors = o.errors;
+	if (Array.isArray(errors) && errors.length > 0) {
+		const first = errors[0] as Record<string, unknown>;
+		if (typeof first?.message === 'string') return first.message;
+	}
+	return 'Failed to fetch departments';
+}
+
 export async function getDepartments(
 	storeId: number,
 	limit: number = 20,
-	offset: number = 1,	
+	offset: number = 1,
 	lang: string = DEFAULT_LANG,
 	moduleId: number,
 	zoneId: number,
-	
+
 ): Promise<ApiResponse<DepartmentsResponse>> {
 	try {
-		const cacheTag = `departments-store-${storeId}-${limit}-${offset}-${moduleId}-${zoneId}-${storeId}`;
+		if (!moduleId || moduleId <= 0 || !zoneId || zoneId <= 0) {
+			return { error: 'Invalid moduleId or zoneId', status: 400 };
+		}
+
 		const url = `https://shellafood.com/api/v1/stores/${storeId}/categories?limit=${limit}&offset=${offset}`;
-		
-		console.log(`[Departments API] Requesting: ${url}`);
-		console.log(`[Departments API] Cache config:`, {
-			revalidate: 600,
-			tags: [cacheTag],
-			lang,
+
+		console.log(`[Departments API] Requesting: ${url}`, {
+			moduleId,
+			zoneIdHeader: zoneIdHeaderValue(zoneId),
 		});
-		
+
 		const fetchStartTime = Date.now();
-		
+
 		const response = await fetch(url, {
 			method: 'GET',
 			headers: {
-				'Accept': 'application/json',
+				Accept: 'application/json',
 				'X-localization': lang,
-				'moduleId': moduleId.toString(),
-				'zoneId': "[2]",
+				moduleId: String(moduleId),
+				zoneId: zoneIdHeaderValue(zoneId),
+				'User-Agent': 'ShellaFood-WebApp/1.0',
 			},
 			cache: 'no-store',
 		});
-		
+
 		const fetchDuration = Date.now() - fetchStartTime;
-		
-		const cacheStatus = response.headers.get('x-vercel-cache') || 
-		                   response.headers.get('cache-control') || 
-		                   'unknown';
-		
+
 		console.log(`[Departments API] Response received in ${fetchDuration}ms:`, {
 			status: response.status,
 			statusText: response.statusText,
-			cacheStatus,
 		});
-		
+
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({
-				message: 'Failed to fetch departments',
-			}));
+			const errorData = await response.json().catch(() => ({}));
+			const message = laravelErrorMessage(errorData);
 			console.error('[Departments API] API Error:', {
 				status: response.status,
-				message: errorData.message,
+				message,
+				body: errorData,
 			});
 			return {
-				error: errorData.message || 'Failed to fetch departments',
+				error: message,
 				status: response.status,
 			};
 		}
-		
+
 		const data = await response.json();
-		
+
 		console.log(`[Departments API] Data parsed:`, {
 			storeId: data.store_id,
 			categoriesCount: data.categories?.length || 0,
@@ -122,10 +118,10 @@ export async function getDepartments(
 				store_id: data.store_id,
 				store_name: data.store_name,
 				categories: data.categories || [],
-				total_categories: data.total_categories || 0,
-				limit: data.limit || limit,
-				offset: data.offset || offset,
-				has_more: data.has_more || false,
+				total_categories: data.total_categories ?? 0,
+				limit: data.limit,
+				offset: data.offset,
+				has_more: data.has_more ?? false,
 			},
 		};
 	} catch (error) {
@@ -137,3 +133,17 @@ export async function getDepartments(
 	}
 }
 
+export const getCachedDepartments = cache(
+	async (
+		storeId: number,
+		limit: number,
+		offset: number,
+		lang: string,
+		moduleId: number,
+		zoneId: number,
+
+	) => {
+		const result = await getDepartments(storeId, limit, offset, lang, moduleId, zoneId);
+		return result;
+	}
+);

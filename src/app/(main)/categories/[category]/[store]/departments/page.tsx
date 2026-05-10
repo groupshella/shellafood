@@ -73,114 +73,54 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 }
 interface PageProps {
 	params: Promise<{
-	  category: string;
-	  store: string;
+		category: string;
+		store: string;
 	}>;
 	searchParams: Promise<{
-	  page?: string;
+		page?: string;
 	}>;
-  }
+}
 export default async function AllDepartmentsPageRoute(
-		{ params, searchParams }: PageProps
-	  ) {
-		const { category, store } = await params;
-		const search = await searchParams;
-	  
-		const storeId = Number(store);
-		const moduleId = Number(category);
-	  const zoneId = 2; // TODO: replace  with real zone resolver
-		// ✅ Validate IDs
-		if (
-		  isNaN(storeId) || storeId <= 0 ||
-		  isNaN(moduleId) || moduleId <= 0
-		) {
-		   notFound();   
-		}
-	  
-		const limit = 20;
-		const offset = Math.max(1, Number(search.page) || 1);
-		const locale = DEFAULT_LANG;
-	  
-		// ✅ Use API route as proxy
-		try {
-			const baseUrl = getBaseUrl();
-			const url = `${baseUrl}/api/departments?storeId=${storeId}&moduleId=${moduleId}&limit=${limit}&offset=${offset}&zoneId=${zoneId}&locale=${locale}`;
-			
-			const response = await fetch(url, {
-				method: 'GET',
-				headers: {
-					'Accept': 'application/json',
-				},
-				cache: 'no-store',
-			});
-			
-			if (!response.ok) {
-				console.error('[Departments Page] API route error:', response.status);
-				// Return empty departments on error
-				return (
-					<DepartmentsPage 
-						initialDepartments={{
-							store_id: storeId,
-							store_name: "",
-							categories: [],
-							total_categories: 0,
-							limit: limit,
-							offset: offset,
-							has_more: false,
-						}}
-						initialLimit={limit}
-						initialPage={offset}
-						storeId={storeId}
-						zoneId={zoneId}
-						moduleId={moduleId}
-					/>
-				);
+	{ params, searchParams }: PageProps
+) {
+	const { category, store } = await params;
+	const search = await searchParams;
+
+	const storeId = Number(store);
+	const moduleId = Number(category);
+	const zoneId = 2; // TODO: replace  with real zone resolver
+	// ✅ Validate IDs
+	if (
+		isNaN(storeId) || storeId <= 0 ||
+		isNaN(moduleId) || moduleId <= 0
+	) {
+		notFound();
+	}
+
+	const limit = 20;
+	const offset = Math.max(1, Number(search.page) || 1);
+	const locale = DEFAULT_LANG;
+
+	// ✅ Use API route as proxy
+	try {
+		const baseUrl = getBaseUrl();
+		const url = `${baseUrl}/api/departments?storeId=${storeId}&moduleId=${moduleId}&limit=${limit}&offset=${offset}&zoneId=${zoneId}&locale=${locale}`;
+
+		const response = await fetch(url, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json',
+			},
+			cache: 'no-store',
+		});
+
+		if (!response.ok) {
+			console.error('[Departments Page] API route error:', response.status);
+			if (response.status === 404) {
+				notFound();
 			}
-			
-			const departmentsData = await response.json() as DepartmentsResponse;
-			
-			// Validate response structure
-			if (!departmentsData || typeof departmentsData.store_id === 'undefined') {
-				console.error('[Departments Page] Invalid response structure:', departmentsData);
-				return (
-					<DepartmentsPage 
-						initialDepartments={{
-							store_id: storeId,
-							store_name: "",
-							categories: [],
-							total_categories: 0,
-							limit: limit,
-							offset: offset,
-							has_more: false,
-						}}
-						initialLimit={limit}
-						initialPage={offset}
-						storeId={storeId}
-						zoneId={zoneId}
-						moduleId={moduleId}
-					/>
-				);
-			}
-			
 			return (
-				<DepartmentsPage 
-					initialDepartments={departmentsData}
-					initialLimit={limit}
-					initialPage={offset}
-					storeId={storeId}
-					zoneId={zoneId}
-					moduleId={moduleId}
-				/>
-			);
-		} catch (error: any) {
-			console.error('[Departments Page] Error fetching departments:', {
-				message: error?.message || 'Unknown error',
-				name: error?.name,
-			});
-			
-			// Return empty departments on error
-			return (
-				<DepartmentsPage 
+				<DepartmentsPage
 					initialDepartments={{
 						store_id: storeId,
 						store_name: "",
@@ -198,5 +138,67 @@ export default async function AllDepartmentsPageRoute(
 				/>
 			);
 		}
+
+		const departmentsData = await response.json() as DepartmentsResponse;
+
+		// Validate response structure
+		if (!departmentsData || typeof departmentsData.store_id === 'undefined') {
+			console.error('[Departments Page] Invalid response structure:', departmentsData);
+			return (
+				<DepartmentsPage
+					initialDepartments={{
+						store_id: storeId,
+						store_name: "",
+						categories: [],
+						total_categories: 0,
+						limit: limit,
+						offset: offset,
+						has_more: false,
+					}}
+					initialLimit={limit}
+					initialPage={offset}
+					storeId={storeId}
+					zoneId={zoneId}
+					moduleId={moduleId}
+				/>
+			);
+		}
+
+		return (
+			<DepartmentsPage
+				initialDepartments={departmentsData}
+				initialLimit={limit}
+				initialPage={offset}
+				storeId={storeId}
+				zoneId={zoneId}
+				moduleId={moduleId}
+			/>
+		);
+	} catch (error: any) {
+		console.error('[Departments Page] Error fetching departments:', {
+			message: error?.message || 'Unknown error',
+			name: error?.name,
+		});
+
+		// Return empty departments on error
+		return (
+			<DepartmentsPage
+				initialDepartments={{
+					store_id: storeId,
+					store_name: "",
+					categories: [],
+					total_categories: 0,
+					limit: limit,
+					offset: offset,
+					has_more: false,
+				}}
+				initialLimit={limit}
+				initialPage={offset}
+				storeId={storeId}
+				zoneId={zoneId}
+				moduleId={moduleId}
+			/>
+		);
+	}
 }
 

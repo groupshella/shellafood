@@ -38,7 +38,7 @@ export interface UseCartPageReturn {
 	productsByStore: GroupedItems;
 	updateQuantity: (cartId: string, priceAtAdd: number, quantity: number) => Promise<boolean>;
 	removeItem: (cartId: string) => Promise<boolean>;
-		clearAll: () => Promise<boolean>;
+	clearAll: () => Promise<boolean>;
 
 	// Coupon
 	appliedCoupon: any;
@@ -50,7 +50,7 @@ export interface UseCartPageReturn {
 
 	selectedAddress: Address | null;
 	setSelectedAddress: (address: Address | null) => void;
-	
+
 
 	// Payment
 	selectedPaymentMethod: any;
@@ -73,7 +73,7 @@ export interface UseCartPageReturn {
 
 	// Checkout
 	isProcessing: boolean;
-		processCheckout: (items: CartItem[], address: Address, paymentMethod: PaymentMethod	, orderSummary?: CartTotals, cardDetails?: CardDetails, couponCode?: string) => Promise<any>;
+	processCheckout: (items: CartItem[], address: Address, paymentMethod: PaymentMethod, orderSummary?: CartTotals, cardDetails?: CardDetails, couponCode?: string) => Promise<any>;
 
 	// Handlers
 	handleCheckoutClick: () => void;
@@ -82,7 +82,7 @@ export interface UseCartPageReturn {
 	handleContinueShopping: () => void;
 }
 
-export function useCartPage(initialCartData?: any[], token?: string	): UseCartPageReturn {
+export function useCartPage(initialCartData?: any[], token?: string): UseCartPageReturn {
 	const router = useRouter();
 	const { language } = useLanguage();
 	const isArabic = language === 'ar';
@@ -94,16 +94,16 @@ export function useCartPage(initialCartData?: any[], token?: string	): UseCartPa
 
 	// Cart items management
 	const { items, isLoading, isUpdating, updateQuantity, removeItem, clearAll } = useCartItems(initialCartData);
-console.log("items", items);
+	console.log("items", items);
 	// Coupon management
 	const { appliedCoupon, isApplying: isApplyingCoupon, error: couponError, applyCoupon, removeCoupon } = useCoupon();
 
 	// Address management
-	
+
 	// Payment management
-	const { 
-		selectedPaymentMethod, 
-		cardDetails, 
+	const {
+		selectedPaymentMethod,
+		cardDetails,
 		selectPaymentMethod,
 		updateCardDetails,
 		formatCardNumber,
@@ -123,7 +123,6 @@ console.log("items", items);
 	);
 
 	// Checkout
-	console.log("token in useCartPage", token)
 	const { processCheckout, isProcessing } = useCheckout(token);
 
 	// Computed values
@@ -144,7 +143,7 @@ console.log("items", items);
 
 	// Handlers
 	const handleCheckoutClick = useCallback(() => {
-		if(!token) {
+		if (!token) {
 			router.push('/login');
 			return;
 		}
@@ -264,7 +263,7 @@ console.log("items", items);
 		removeCoupon,
 
 		selectedAddress,
-			setSelectedAddress,
+		setSelectedAddress,
 		// Payment
 		selectedPaymentMethod,
 		cardDetails,

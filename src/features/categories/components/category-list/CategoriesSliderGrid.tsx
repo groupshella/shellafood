@@ -41,9 +41,9 @@ function CategoriesSliderGrid({
         >
           {/* Image */}
           <div className="relative h-[90px] w-[90px] overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
-            {module.icon_full_url ? (
+            {module.thumbnail ? (
               <Image
-                src={module.icon_full_url}
+                src={`https://shellafood.com/storage/module/${module.thumbnail}`}
                 alt={module.module_name}
                 fill
                 sizes="90px"

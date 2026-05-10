@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
         'Host': 'shellafood.com',
         'X-localization': locale,
         'moduleId': moduleId,
-        'zoneId': `[${zoneId}]`, // Format as array string
+        'zoneId': zoneId, // Format as array string
         ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
       },
       cache: 'no-store',
@@ -53,9 +53,9 @@ export async function GET(request: NextRequest) {
       });
 
       return NextResponse.json(
-        { 
+        {
           error: `Failed to fetch cart: ${response.statusText}`,
-          details: errorText 
+          details: errorText
         },
         { status: response.status }
       );
@@ -63,10 +63,7 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
 
-    console.log('[Cart API Route] List Success:', {
-      itemsCount: Array.isArray(data) ? data.length : 0,
-    });
-
+    console.log("data", data);
     return NextResponse.json(data);
   } catch (error: any) {
     console.error('[Cart API Route] Caught error:', {

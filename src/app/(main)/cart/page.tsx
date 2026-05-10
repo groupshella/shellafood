@@ -57,50 +57,50 @@ export const metadata: Metadata = {
 };
 
 async function getCartData(guestId: string | null) {
-	try {
-		if (!guestId) {
-			return null;
-		}
+  try {
+    if (!guestId) {
+      return null;
+    }
 
-		// ✅ Use API route as proxy
-		const baseUrl = getBaseUrl();
-		const apiUrl = `${baseUrl}/api/cart/list?guest_id=${guestId}`;
-		
-		const headers: HeadersInit = {
-			'Accept': 'application/json',
-			'x-localization': 'ar',
-		};
+    // ✅ Use API route as proxy
+    const baseUrl = getBaseUrl();
+    const apiUrl = `${baseUrl}/api/cart/list?guest_id=${guestId}`;
 
-		const response = await fetch(apiUrl, {
-			method: 'GET',
-			headers,
-			cache: 'no-store', // Don't cache this data
-		});
+    const headers: HeadersInit = {
+      'Accept': 'application/json',
+      'x-localization': 'ar',
+    };
 
-		if (!response.ok) {
-			console.error('[Cart] API route error:', response.status);
-			return null;
-		}
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers,
+      cache: 'no-store', // Don't cache this data
+    });
 
-		const data = await response.json();
-		return data;
-	} catch (error) {
-		console.error('[Cart] Fetch Error:', error);
-		return null;
-	}
+    if (!response.ok) {
+      console.error('[Cart] API route error:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.cart_items;
+  } catch (error) {
+    console.error('[Cart] Fetch Error:', error);
+    return null;
+  }
 }
 
 export default async function CartPageRoute() {
   // Check authentication on server side using the same cookie key as layout
-	const cookieStore = await cookies();
-	const guestId = cookieStore.get("guest_id");
-	const authToken = cookieStore.get(STORAGE_KEYS.TOKEN)?.value || '';
-	console.log("guestId", guestId?.value);
+  const cookieStore = await cookies();
+  const guestId = cookieStore.get("guest_id");
+  const authToken = cookieStore.get(STORAGE_KEYS.TOKEN)?.value || '';
+  console.log("guestId", guestId?.value);
 
-	// Fetch cart data
-	const cartData = await getCartData(
-		guestId?.value || null
-	);
+  // Fetch cart data
+  const cartData = await getCartData(
+    guestId?.value || null
+  );
 
-	return <CartPage initialCartData={cartData} token={authToken} />;
+  return <CartPage initialCartData={cartData} token={authToken} />;
 }

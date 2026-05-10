@@ -25,6 +25,11 @@ const nextConfig = {
         pathname: "/**",
       },
       {
+        protocol: "https",
+        hostname: "dev.shelafood.com",
+        pathname: "/**",
+      },
+      {
         protocol: 'https',
         hostname: 'www.vecteezy.com',
         pathname: '/**',

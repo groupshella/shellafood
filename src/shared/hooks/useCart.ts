@@ -25,7 +25,7 @@ interface UpdateQuantityParams {
 	cart_id: string;
 	price_at_add: number;
 	quantity: number;
-	}
+}
 
 interface AddToCartResponse {
 	success?: boolean;
@@ -55,8 +55,8 @@ export function useCart() {
 	const { language } = useLanguage();
 	const baseUrl = getBaseUrl();
 
-	const addToCart = useCallback(async ({ 
-		productId, 
+	const addToCart = useCallback(async ({
+		productId,
 		quantity = 1,
 		priceAtAdd,
 		variation,
@@ -67,7 +67,7 @@ export function useCart() {
 		try {
 			// Get guest_id from cookie
 			const guestId = getCookie('guest_id');
-			
+
 			if (!guestId) {
 				return {
 					success: false,
@@ -85,6 +85,7 @@ export function useCart() {
 				},
 				body: JSON.stringify({
 					item_id: parseInt(productId),
+					guest_id: guestId,
 					model: 'Item',
 					price: priceAtAdd,
 					quantity: quantity,
@@ -122,16 +123,16 @@ export function useCart() {
 			setIsLoading(false);
 		}
 	}, [language, baseUrl]);
-	const updateQuantityItem = useCallback(async ({ 
+	const updateQuantityItem = useCallback(async ({
 		cart_id,
 		price_at_add,
 		quantity,
-	}: UpdateQuantityParams): Promise<UpdateQuantityResponse> => {	
+	}: UpdateQuantityParams): Promise<UpdateQuantityResponse> => {
 		setIsLoading(true);
 		try {
 			// Get guest_id from cookie
 			const guestId = getCookie('guest_id');
-			
+
 			if (!guestId) {
 				return {
 					success: false,
@@ -188,7 +189,7 @@ export function useCart() {
 		try {
 			// Get guest_id from cookie
 			const guestId = getCookie('guest_id');
-			
+
 			if (!guestId) {
 				return {
 					success: false,
@@ -242,7 +243,7 @@ export function useCart() {
 		try {
 			// Get guest_id from cookie
 			const guestId = getCookie('guest_id');
-			
+
 			if (!guestId) {
 				return {
 					success: false,
