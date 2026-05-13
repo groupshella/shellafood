@@ -18,13 +18,37 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const locale = request.headers.get('x-localization') || DEFAULT_LANG;
 
+    const rawLat = body.latitude ?? body.lat;
+    const rawLng = body.longitude ?? body.lng;
+    const lat = typeof rawLat === 'number' ? rawLat : parseFloat(String(rawLat ?? ''));
+    const lng = typeof rawLng === 'number' ? rawLng : parseFloat(String(rawLng ?? ''));
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return NextResponse.json(
+        { error: 'Valid latitude and longitude are required' },
+        { status: 400 },
+      );
+    }
+
+    const moduleIdFromBody = body.moduleId ?? body.module_id;
+    const moduleIdHeader =
+      moduleIdFromBody !== undefined && moduleIdFromBody !== null && String(moduleIdFromBody).trim() !== ''
+        ? String(moduleIdFromBody)
+        : '3';
+
+    const payload = {
+      ...body,
+      latitude: lat,
+      longitude: lng,
+    };
+
     const url = `https://shellafood.com/api/v1/customer/address/add`;
 
     console.log('[Addresses API Route] Adding address:', {
       url,
       locale,
+      hasCoords: true,
     });
-
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -33,8 +57,9 @@ export async function POST(request: NextRequest) {
         'X-localization': locale,
         'Authorization': `Bearer ${authToken}`,
         'Host': 'shellafood.com',
+        'moduleId': moduleIdHeader,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -45,12 +70,25 @@ export async function POST(request: NextRequest) {
         error: errorText,
       });
 
+      let parsed: { errors?: Array<{ code?: string; message?: string }>; message?: string } | undefined;
+      try {
+        parsed = JSON.parse(errorText) as {
+          errors?: Array<{ code?: string; message?: string }>;
+          message?: string;
+        };
+      } catch {
+        parsed = undefined;
+      }
+      const firstError = parsed?.errors?.[0]?.message;
+      const message =
+        firstError || parsed?.message || `Failed to add address: ${response.statusText}`;
+
       return NextResponse.json(
-        { 
-          error: `Failed to add address: ${response.statusText}`,
-          details: errorText 
+        {
+          error: message,
+          errors: parsed?.errors,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 

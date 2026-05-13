@@ -3,9 +3,9 @@
 import { useLanguage } from "@/providers";
 import { useMemo, useState, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
-import { useCart, useCartCount } from "@/shared/hooks";
+import { useCart } from "@/shared/hooks";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Share2, Package, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Share2, Package } from "lucide-react";
 import ProductGallery from "./ProductGallery";
 import ProductInfo from "./ProductInfo";
 import RelatedProducts from "./RelatedProducts";
@@ -156,7 +156,6 @@ function ProductView({ product, departmentId }: ProductViewProps) {
   const router = useRouter();
   const { addToCart } = useCart();
   const isMobile = useMobile(768);
-  const { count: cartCount } = useCartCount();
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
@@ -456,27 +455,6 @@ function ProductView({ product, departmentId }: ProductViewProps) {
           </motion.section>
         )}
       </div>
-      <AnimatePresence>
-        {cartCount > 0 && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            onClick={() => router.push("/cart")}
-            className={`fixed ${isArabic ? "left-4" : "right-4"} bottom-6 z-50 w-14 h-14 bg-gradient-to-br from-green-600 to-emerald-600 rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-all duration-300 hover:shadow-green-500/50 hover:scale-110`}
-          >
-            <ShoppingCart className="w-6 h-6 text-white" />
-            <motion.span
-              key={cartCount}
-              initial={{ scale: 1.5 }}
-              animate={{ scale: 1 }}
-              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full text-white text-xs font-bold flex items-center justify-center shadow-lg"
-            >
-              {cartCount > 99 ? "99+" : cartCount}
-            </motion.span>
-          </motion.button>
-        )}
-      </AnimatePresence>
       <NotificationDialog
         message={notification.message}
         type={notification.type}

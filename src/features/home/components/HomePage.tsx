@@ -13,18 +13,23 @@ import PopularStores from "./PopularStores";
 import { TEST_STORES, TEST_CATEGORIES, TEST_PRODUCTS } from "@/lib/data/categories/testData";
 import { ArrowUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import ServiceRequestsSection from "./ServiceRequestsSection";	
+import ServiceRequestsSection from "./ServiceRequestsSection";
 import { useHomePage } from "../hooks/useHomePage";
 import { startTransition, useTransition, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ZoneDataModule } from "@/features/categories/types/module.types";
+import TopRatedStores from "./TopRatedStores";
+import DiscountedStores from "./DiscountedStores";
+import TopOfferNearMe from "./TopOfferNearMe";
+import LatestStores from "./LatestStores";
+import RecommendedStores from "./RecommendedStores";
 
 export default function HomePage({ modules, token }: { modules: ZoneDataModule[], token: string }) {
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
-	const {  showScrollToTop, handleDeliveryAddressChange, scrollToTop } = useHomePage();
+	const { showScrollToTop, handleDeliveryAddressChange, scrollToTop } = useHomePage();
 
-	
+
 	return (
 		<div
 			className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 font-sans antialiased"
@@ -38,23 +43,23 @@ export default function HomePage({ modules, token }: { modules: ZoneDataModule[]
 				{/* Categories Section */}
 				<CategoriesSection modules={modules} />
 				{/* Promotional Banner */}
-				<PromotionalBanner />
-                {/* <ServiceRequestsSection /> */}
+				{/* <PromotionalBanner /> */}
+				{/* <ServiceRequestsSection /> */}
 				{/* Offers Strip */}
 				<OffersStrip />
-				{/* Previously Ordered Stores */}
-				<PreviouslyOrderedStores stores={TEST_STORES.slice(0, 5) as Store[]} />
-				{/* Nearby Stores */}
-				<NearbyStores stores={TEST_STORES.slice(0, 4) as Store[]} />
-				{/* Discounts */}
-				<Discounts
-					products={TEST_PRODUCTS.filter(
-						(p) => p.badge || (p.originalPrice && p.originalPrice > (p.price || 0))
-					).slice(0, 8) as Product[]}
-				/>
 
+				{/* Latest Stores */}
+				<LatestStores />
 				{/* Popular Stores */}
-				<PopularStores stores={TEST_STORES.slice(0, 4) as Store[]} />	
+				<PopularStores />
+				{/* Recommended Stores */}
+				<RecommendedStores />
+				{/* Top Rated Stores */}
+				{/* <TopRatedStores /> */}
+				{/* Top Offer Near Me */}
+				<TopOfferNearMe />
+				{/* Discounted Stores */}
+				{/* <DiscountedStores /> */}
 			</div>
 
 			{/* Scroll to Top Button - Square like cart button */}

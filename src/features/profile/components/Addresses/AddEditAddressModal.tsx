@@ -5,6 +5,26 @@ import { createPortal } from "react-dom";
 import { useLanguage } from "@/providers";
 import { FaTimes, FaMapMarkerAlt, FaHome, FaBuilding, FaStore, FaSave, FaMap, FaSpinner } from "react-icons/fa";
 import MapSelectionModal from "./MapSelectionModal";
+import { DEFAULT_SERVICE_LAT, DEFAULT_SERVICE_LNG } from "@/shared/constants/location.constants";
+
+const LOCATION_COOKIE_KEY = "user_location";
+
+function coordsFromCookie(): { lat: string; lng: string } | null {
+	if (typeof document === "undefined") return null;
+	const match = document.cookie.split("; ").find((row) => row.startsWith(`${LOCATION_COOKIE_KEY}=`));
+	if (!match) return null;
+	const value = decodeURIComponent(match.split("=")[1]);
+	const [lat, lng] = value.split(",").map(Number);
+	if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+	return { lat: String(lat), lng: String(lng) };
+}
+
+function defaultCoordsForAddress(): { lat: string; lng: string } {
+	return coordsFromCookie() ?? {
+		lat: String(DEFAULT_SERVICE_LAT),
+		lng: String(DEFAULT_SERVICE_LNG),
+	};
+}
 
 interface Address {
 	id: number;
@@ -103,16 +123,16 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		
+
 		// Clean phone number (remove any non-numeric characters except +)
 		const cleanedPhone = formData.contact_person_number.replace(/[^\d+]/g, '');
-		
+
+		const { lat: fbLat, lng: fbLng } = defaultCoordsForAddress();
 		onSave({
 			...formData,
 			contact_person_number: cleanedPhone,
-			// Ensure coordinates are strings
-			latitude: formData.latitude || "24.7136",
-			longitude: formData.longitude || "46.6753",
+			latitude: formData.latitude.trim() || fbLat,
+			longitude: formData.longitude.trim() || fbLng,
 			// Convert empty strings to null for optional fields
 			road: formData.road || undefined,
 			house: formData.house || undefined,
@@ -162,7 +182,7 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 				</div>
 
 				{/* Modal Body - Scrollable */}
-				<form onSubmit={handleSubmit}  className="p-4 sm:p-6 space-y-5 sm:space-y-6 flex-1 overflow-y-auto">
+				<form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 sm:space-y-6 flex-1 overflow-y-auto">
 					{/* Address Type */}
 					<div>
 						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -176,11 +196,10 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 										key={type.value}
 										type="button"
 										onClick={() => handleInputChange('address_type', type.value)}
-										className={`flex flex-col items-center p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 touch-manipulation ${
-											formData.address_type === type.value
+										className={`flex flex-col items-center p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 touch-manipulation ${formData.address_type === type.value
 												? 'border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 shadow-sm'
 												: 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-										}`}
+											}`}
 									>
 										<Icon className="text-lg sm:text-xl mb-2" />
 										<span className="text-xs sm:text-sm font-medium text-center">{type.label}</span>
@@ -317,14 +336,14 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 								<span>{isArabic ? "جاري الحفظ..." : "Saving..."}</span>
 							</div>
 						) : (
-						<button
-							type="submit"
-							disabled={isLoading}
-							className="flex-1 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-3.5 sm:py-2.5 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl hover:from-green-700 hover:to-emerald-700 active:scale-[0.98] transition-all touch-manipulation shadow-lg hover:shadow-xl"
-						>
-							<FaSave className="text-base sm:text-sm" />
-							<span>{isArabic ? "حفظ" : "Save"}</span>
-						</button>
+							<button
+								type="submit"
+								disabled={isLoading}
+								className="flex-1 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-3.5 sm:py-2.5 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl hover:from-green-700 hover:to-emerald-700 active:scale-[0.98] transition-all touch-manipulation shadow-lg hover:shadow-xl"
+							>
+								<FaSave className="text-base sm:text-sm" />
+								<span>{isArabic ? "حفظ" : "Save"}</span>
+							</button>
 						)}
 					</div>
 				</form>

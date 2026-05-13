@@ -321,35 +321,28 @@ const [locationAddress, setLocationAddress] = useState<LocationResult | null>(nu
             type: 'success',
             show: true,
           });
+          setShowAddModal(false);
+          setEditingAddress(null);
         } else {
-          const result = await addAddress(addressData);
-          console.log("result", result);
-          if (result.ok) {
-            	setNotification({
-              message: isArabic ? "تم إضافة العنوان بنجاح" : "Address added successfully",
-              type: 'success',
-              show: true,
-            });
-            // Refresh addresses
-            //await fetchAddresses(1);
-          }
-          else {
-            const errorMessage = result.errors && result.errors.length > 0 
-              ? result.errors[0]?.message 
-              : null;
-            setNotification({
-              message: errorMessage || (isArabic ? "فشل إضافة العنوان" : "Failed to add address"),
-              type: 'error',
-              show: true,
-            });
-          }
+          await addAddress(addressData);
+          setNotification({
+            message: isArabic ? "تم إضافة العنوان بنجاح" : "Address added successfully",
+            type: 'success',
+            show: true,
+          });
+          setShowAddModal(false);
+          setEditingAddress(null);
         }
-        setShowAddModal(false);
-        setEditingAddress(null);
       } catch (error) {
         console.log("error", error);
+        const msg =
+          error instanceof Error
+            ? error.message
+            : isArabic
+              ? "حدث خطأ في حفظ العنوان"
+              : "Error saving address";
         setNotification({
-          message: isArabic ? "حدث خطأ في حفظ العنوان" : "Error saving address",
+          message: msg,
           type: 'error',
           show: true,
         });

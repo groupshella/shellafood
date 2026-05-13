@@ -23,7 +23,7 @@ function CategoriesSliderGrid({
   const router = useRouter();
 
   const handleClick = (module: ZoneDataModule) => {
-    const path = `/categories/${module.id}`;
+    const path = `/categories/${module.id}?moduleName=${module.module_name}`;
     router.push(path);
   };
 

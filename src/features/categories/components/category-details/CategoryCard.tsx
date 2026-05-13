@@ -31,7 +31,7 @@ function CategoryCard({ module }: CategoryCardProps) {
 
     // Small delay for visual feedback, then navigate
     setTimeout(() => {
-      router.push(`/categories/${module.id}`, { scroll: true });
+      router.push(`/categories/${module.id}?moduleName=${module.module_name}`, { scroll: true });
     }, 150);
   }, [router, module.id, isNavigating]);
 
@@ -51,8 +51,8 @@ function CategoryCard({ module }: CategoryCardProps) {
         }`} />
 
       <div className={`relative bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 border-2 transition-all duration-300 h-full ${isNavigating
-          ? 'border-green-500 dark:border-green-500'
-          : 'border-gray-200 dark:border-gray-700 group-hover:border-transparent'
+        ? 'border-green-500 dark:border-green-500'
+        : 'border-gray-200 dark:border-gray-700 group-hover:border-transparent'
         }`}>
 
         {/* Thumbnail */}
@@ -125,8 +125,8 @@ function CategoryCard({ module }: CategoryCardProps) {
         <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 rtl:left-3 sm:rtl:left-4 md:rtl:left-6 ltr:right-3 sm:ltr:right-4 md:ltr:right-6">
           <ArrowRight
             className={`w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 transition-all rtl:rotate-180 ${isNavigating
-                ? 'text-green-500 dark:text-green-400'
-                : 'text-gray-400 dark:text-gray-500 group-hover:text-green-500 dark:group-hover:text-green-400'
+              ? 'text-green-500 dark:text-green-400'
+              : 'text-gray-400 dark:text-gray-500 group-hover:text-green-500 dark:group-hover:text-green-400'
               } ${isArabic ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}
           />
         </div>

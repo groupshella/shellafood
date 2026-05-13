@@ -44,29 +44,29 @@ export default function CategoryView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isMobile = useMobile(768);
-  
+
   const [isPending, startTransition] = useTransition();
   const [mobileViewMode, setMobileViewMode] = useState<"single" | "double">("single");
   const [showFilters, setShowFilters] = useState(false);
-	const { filters, updateFilter, clearFilters, hasActiveFilters } = useFilters();
-	const handleFilterChange = (filterType: string, value: any) => {
-		updateFilter(filterType, value);
-	};
-	const handleClearFilters = () => {
-		clearFilters();
-	};
-  
+  const { filters, updateFilter, clearFilters, hasActiveFilters } = useFilters();
+  const handleFilterChange = (filterType: string, value: any) => {
+    updateFilter(filterType, value);
+  };
+  const handleClearFilters = () => {
+    clearFilters();
+  };
+
   // ✅ Get current page and limit from URL
   const currentOffset = Number(searchParams.get('page')) || initialPage;
   const currentLimit = initialLimit;
- 
-  
+
+
   // ✅ SWR for client-side pagination
   const { data: storeList, isLoading, error } = useSWR<StoreList>(
     `/api/stores?moduleId=${moduleId}&limit=${currentLimit}&offset=${currentOffset}`,
     fetcher,
     {
-      fallbackData: initialStoreList, 
+      fallbackData: initialStoreList,
       revalidateOnMount: false, // ✅ Don't refetch on mount
       revalidateOnFocus: false,
       keepPreviousData: true, // ✅ Show old data while fetching new
@@ -77,7 +77,7 @@ export default function CategoryView({
   // ✅ Prefetch next page on current page load
   useSWR(
     storeList && currentOffset < Math.ceil(storeList.total_size / currentLimit)
-      ? `/api/stores?moduleId=${moduleId}&limit=${currentLimit}&offset=${currentOffset+1}`
+      ? `/api/stores?moduleId=${moduleId}&limit=${currentLimit}&offset=${currentOffset + 1}`
       : null,
     fetcher,
     { revalidateOnMount: false }
@@ -86,7 +86,7 @@ export default function CategoryView({
   // ✅ Prefetch previous page
   useSWR(
     currentOffset > 1
-      ? `/api/stores?moduleId=${moduleId}&limit=${currentLimit}&offset=${currentOffset-1}`
+      ? `/api/stores?moduleId=${moduleId}&limit=${currentLimit}&offset=${currentOffset - 1}`
       : null,
     fetcher,
     { revalidateOnMount: false }
@@ -96,7 +96,7 @@ export default function CategoryView({
     () => [
       { label: isArabic ? "الرئيسية" : "Home", href: "/home" },
       { label: isArabic ? "الأقسام" : "Categories", href: "/categories" },
-      { label: storeList?.stores[0]?.module?.module_name || (isArabic ? "القسم" : "Category") },
+      { label: searchParams.get('moduleName') || '' },
     ],
     [isArabic, storeList]
   );
@@ -107,10 +107,10 @@ export default function CategoryView({
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', page.toString());
-    
+
     // Scroll to top first
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
+
     // ✅ Update URL without full page reload
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`, { scroll: true });
@@ -122,19 +122,17 @@ export default function CategoryView({
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbItems} className="mb-6" />
-        {moduleId === 3 && (
-          <DailyNeeded />
-        )}
+
         {/* Header Section */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
             <div className="flex items-start sm:items-center gap-3 sm:gap-4">
               <div className="flex-1 min-w-0">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white mb-1 sm:mb-2">
-                  {storeList?.stores[0]?.module?.module_name || (isArabic ? "المتاجر" : "Stores")}
+                  {searchParams.get('moduleName') || 'المتاجر'}
                 </h1>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-2">
-                  {isArabic 
+                  {isArabic
                     ? `اكتشف ${storeList?.total_size || 0} متجر في منطقتك`
                     : `Discover ${storeList?.total_size || 0} stores in your area`
                   }
@@ -142,8 +140,8 @@ export default function CategoryView({
               </div>
             </div>
           </div>
-            {/* Filter Bar - Simplified */}
-            <div className="flex items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+          {/* Filter Bar - Simplified */}
+          <div className="flex items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Mobile Filter Button */}
               <button
@@ -161,22 +159,20 @@ export default function CategoryView({
               <div className="sm:hidden flex items-center gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                 <button
                   onClick={() => setMobileViewMode("single")}
-                  className={`p-1.5 rounded transition-colors ${
-                    mobileViewMode === "single"
-                      ? "bg-green-600 text-white"
-                      : "text-gray-600 dark:text-gray-400"
-                  }`}
+                  className={`p-1.5 rounded transition-colors ${mobileViewMode === "single"
+                    ? "bg-green-600 text-white"
+                    : "text-gray-600 dark:text-gray-400"
+                    }`}
                   aria-label={isArabic ? "عرض واحد" : "Single view"}
                 >
                   <Grid3x3 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setMobileViewMode("double")}
-                  className={`p-1.5 rounded transition-colors ${
-                    mobileViewMode === "double"
-                      ? "bg-green-600 text-white"
-                      : "text-gray-600 dark:text-gray-400"
-                  }`}
+                  className={`p-1.5 rounded transition-colors ${mobileViewMode === "double"
+                    ? "bg-green-600 text-white"
+                    : "text-gray-600 dark:text-gray-400"
+                    }`}
                   aria-label={isArabic ? "عرض مزدوج" : "Double view"}
                 >
                   <Grid2x2 className="w-4 h-4" />
@@ -193,13 +189,13 @@ export default function CategoryView({
         <div className={`grid lg:grid-cols-[280px_1fr] mb-6 sm:mb-8 gap-6 lg:gap-8 ${showFilters ? "block" : "hidden"} lg:block`}>
           {/* Filters Sidebar */}
           {showFilters && (
-          <FiltersSidebar
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onClearAll={handleClearFilters}
-          />
-         )}
-         </div>
+            <FiltersSidebar
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onClearAll={handleClearFilters}
+            />
+          )}
+        </div>
 
         {/* Loading Indicator */}
         <AnimatePresence>
@@ -230,15 +226,14 @@ export default function CategoryView({
             <>
               <motion.div
                 key={`stores-page-${currentOffset}`}
-                
+
                 variants={staggerContainer}
                 initial="initial"
                 animate="animate"
-                className={`grid ${
-                  mobileViewMode === "double" 
-                    ? "grid-cols-2 gap-2.5" 
-                    : "grid-cols-1 gap-4"
-                } sm:grid-cols-2 sm:gap-4 lg:gap-5`}
+                className={`grid ${mobileViewMode === "double"
+                  ? "grid-cols-2 gap-2.5"
+                  : "grid-cols-1 gap-4"
+                  } sm:grid-cols-2 sm:gap-4 lg:gap-5`}
               >
                 {storeList.stores.map((store) => (
                   <div key={store.id} className="w-full">

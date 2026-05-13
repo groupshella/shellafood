@@ -82,7 +82,8 @@ export function useCartItems(initialCartData?: any[]) {
 			initialCartData != null && Array.isArray(initialCartData)
 				? initialCartData
 				: initialCartData != null && typeof initialCartData === 'object' && !Array.isArray(initialCartData)
-					? (initialCartData as Record<string, unknown>).data ??
+					? (initialCartData as Record<string, unknown>).cart_items ??
+						(initialCartData as Record<string, unknown>).data ??
 						(initialCartData as Record<string, unknown>).cart ??
 						(initialCartData as Record<string, unknown>).items ??
 						[]

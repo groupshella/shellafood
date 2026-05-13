@@ -26,13 +26,24 @@ export interface ProductOrder {
 	storeName: string;
 	storeNameAr?: string;
 	storeLogo?: string;
+	/** Backend store id (navigation / support) */
+	storeId?: number;
 	status: ProductOrderStatus;
 	createdAt: string;
+	/** When API returns list rows with history */
+	updatedAt?: string;
 	items: ProductOrderItem[];
-	totalAmount: number;
+	/** null when API omits amount fields */
+	totalAmount: number | null;
 	paymentMethod: string;
 	paymentStatus: PaymentStatus;
+	/** Street / formatted address when provided */
 	address?: string;
+	deliveryPhone?: string;
+	deliveryContactName?: string;
+	/** From list API when line items are omitted */
+	detailsCount?: number;
+	orderType?: string;
 }
 
 export interface ServiceRequest {
@@ -115,5 +126,7 @@ export interface OrdersResponse {
 	products: ProductOrder[];
 	services: ServiceRequest[];
 	delivery: DeliveryOrder[];
+	/** Total matching rows from API (pagination) */
+	totalSize?: number;
 }
 

@@ -25,7 +25,8 @@ import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
 import { useToast } from "@/shared/components/ui";
 import HelpAndSupport from "./Support/HelpAndSupport";
 import { getAuthToken, removeAuthToken, removeUser } from "@/features/auth/lib/utils/auth.utils";
-
+import { useCartCount } from "@/shared/hooks/useCartCount";
+import FloatingCart from "@/features/home/components/FloatingCart";
 
 // Single source of truth for navigation items
 type LucideIcon = React.ComponentType<React.SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
@@ -318,7 +319,7 @@ export default  function NavBarCondition({ islogin }: { islogin: boolean }) {
 	const [activeTab, setActiveTab] = useState("");
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [showAterms, setShowAterms] = useState(false);
-	const [cartCount, setCartCount] = useState(0);
+	const { count: cartCount } = useCartCount();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -750,6 +751,8 @@ export default  function NavBarCondition({ islogin }: { islogin: boolean }) {
 					</>
 				)}
 			</AnimatePresence>
+
+			<FloatingCart cartCount={pathname.startsWith("/cart") ? 0 : cartCount} />
 		</>
 	);
 }

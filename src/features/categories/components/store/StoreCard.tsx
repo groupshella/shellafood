@@ -3,7 +3,7 @@
 "use client";
 
 import { useLanguage } from "@/providers";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { MapPin, Clock, Star } from "lucide-react";
 import { motion } from "framer-motion";
@@ -70,7 +70,7 @@ function StoreCard({ store: storeProp, index = 0, isCompact = false }: StoreCard
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
-
+  const searchParams = useSearchParams();
   const storeName = store.name || (isArabic ? "متجر" : "Store");
   const isOpen = store.is_open;
   const rating = store.avg_rating ?? 0;
@@ -97,10 +97,10 @@ function StoreCard({ store: storeProp, index = 0, isCompact = false }: StoreCard
       e.preventDefault();
       setIsNavigating(true);
       setTimeout(() => {
-        router.push(`/categories/${store.module_id}/${store.id}`, { scroll: true });
+        router.push(`/categories/${store.module_id}/${store.id}?moduleName=${searchParams.get('moduleName')}&storeName=${store.name}`, { scroll: true });
       }, 150);
     },
-    [router, store.module_id, store.id, isNavigating]
+    [router, store.module_id, store.id, isNavigating, searchParams]
   );
 
   if (isCompact) {
@@ -115,11 +115,10 @@ function StoreCard({ store: storeProp, index = 0, isCompact = false }: StoreCard
         whileTap={{ scale: 0.98 }}
       >
         <div
-          className={`relative h-full bg-white dark:bg-gray-800 rounded-xl overflow-hidden border transition-all duration-300 ${
-            isNavigating
-              ? "border-green-500 dark:border-green-400 shadow-lg"
-              : "border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:shadow-lg"
-          }`}
+          className={`relative h-full bg-white dark:bg-gray-800 rounded-xl overflow-hidden border transition-all duration-300 ${isNavigating
+            ? "border-green-500 dark:border-green-400 shadow-lg"
+            : "border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:shadow-lg"
+            }`}
         >
           <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
             {coverUrl ? (
@@ -224,11 +223,10 @@ function StoreCard({ store: storeProp, index = 0, isCompact = false }: StoreCard
       whileTap={{ scale: 0.99 }}
     >
       <div
-        className={`relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border transition-all duration-300 ${
-          isNavigating
-            ? "border-green-500 dark:border-green-400 shadow-xl"
-            : "border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:shadow-xl"
-        }`}
+        className={`relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border transition-all duration-300 ${isNavigating
+          ? "border-green-500 dark:border-green-400 shadow-xl"
+          : "border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:shadow-xl"
+          }`}
       >
         <div className="relative h-48 sm:h-52 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
           {coverUrl ? (

@@ -132,7 +132,14 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({ error: 'Failed to add address' }));
-				throw new Error(errorData.error || 'Failed to add address');
+				const fromErrors =
+					Array.isArray((errorData as { errors?: { message?: string }[] }).errors) &&
+					(errorData as { errors: { message?: string }[] }).errors[0]?.message;
+				const message =
+					fromErrors ||
+					(errorData as { error?: string }).error ||
+					'Failed to add address';
+				throw new Error(message);
 			}
 
 			const result = await response.json();
@@ -171,7 +178,14 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({ error: 'Failed to update address' }));
-				throw new Error(errorData.error || 'Failed to update address');
+				const fromErrors =
+					Array.isArray((errorData as { errors?: { message?: string }[] }).errors) &&
+					(errorData as { errors: { message?: string }[] }).errors[0]?.message;
+				const message =
+					fromErrors ||
+					(errorData as { error?: string }).error ||
+					'Failed to update address';
+				throw new Error(message);
 			}
 
 			const result = await response.json();

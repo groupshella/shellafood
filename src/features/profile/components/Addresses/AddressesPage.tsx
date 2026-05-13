@@ -125,7 +125,12 @@ const [notification, setNotification] = useState<NotificationState>({
 		} catch (err) {
 			console.log("err", err)
 			setNotification({
-				message: isArabic ? "فشل حفظ العنوان" : "Failed to save address",
+				message:
+					err instanceof Error
+						? err.message
+						: isArabic
+							? "فشل حفظ العنوان"
+							: "Failed to save address",
 				type: 'error',
 				show: true,
 			})

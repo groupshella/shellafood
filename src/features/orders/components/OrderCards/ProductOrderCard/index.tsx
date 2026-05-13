@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { CreditCard, Star, MapPin, Store, ChevronRight } from "lucide-react";
+import { CreditCard, Star, MapPin, Phone, Store, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/providers";
 import RatingModal from "@/features/serve-me/components/Modals/RatingModal";
 import { OrderStatusBadge } from "../../shared/OrderStatusBadge";
@@ -121,71 +121,144 @@ export function ProductOrderCard({
 							</div>
 						</div>
 
-						{/* Order Items Preview - First 2 items */}
-						<div className="mb-4 sm:mb-5 space-y-2 sm:space-y-2.5">
-							{order.items.slice(0, 2).map((item, i) => (
-								<div
-									key={i}
-									className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-900/30 dark:to-gray-800/30 border border-gray-200/50 dark:border-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
-								>
-									<div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0 shadow-sm">
-										{item.image ? (
-											<Image
-												src={item.image}
-												alt={isArabic ? item.productNameAr || item.productName : item.productName}
-												width={56}
-												height={56}
-												className="object-cover w-full h-full"
-											/>
-										) : (
-											<div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-												<span className="text-xs text-gray-400 font-medium">IMG</span>
-											</div>
+						{(order.address || order.deliveryPhone || order.deliveryContactName) && (
+							<div
+								className={cn(
+									"mb-4 rounded-xl border border-gray-100 bg-gray-50/80 p-3 text-xs dark:border-gray-700 dark:bg-gray-900/30 sm:text-sm",
+									isArabic ? "text-right" : "text-left",
+								)}
+							>
+								{order.address ? (
+									<div className="flex items-start gap-2">
+										<MapPin
+											className="mt-0.5 h-4 w-4 shrink-0 text-gray-500"
+											aria-hidden
+										/>
+										<span className="leading-snug text-gray-700 dark:text-gray-300">
+											{order.address}
+										</span>
+									</div>
+								) : null}
+								{(order.deliveryContactName || order.deliveryPhone) && (
+									<div
+										className={cn(
+											"flex items-start gap-2",
+											order.address ? "mt-2" : "",
 										)}
+									>
+										<Phone
+											className="mt-0.5 h-4 w-4 shrink-0 text-gray-500"
+											aria-hidden
+										/>
+										<span className="leading-snug text-gray-700 dark:text-gray-300">
+											{[order.deliveryContactName, order.deliveryPhone]
+												.filter(Boolean)
+												.join(" · ")}
+										</span>
 									</div>
-									<div className="flex-1 min-w-0">
-										<p
-											className={cn(
-												"text-xs sm:text-sm font-semibold text-gray-900 dark:text-white truncate mb-0.5 sm:mb-1",
-												isArabic ? "text-right" : "text-left"
-											)}
-										>
-											{isArabic ? item.productNameAr || item.productName : item.productName}
-										</p>
-										<p
-											className={cn(
-												"text-xs font-medium text-gray-600 dark:text-gray-400",
-												isArabic ? "text-right" : "text-left"
-											)}
-										>
-											{item.quantity}x • {(item.price ?? 0).toFixed(2)} {isArabic ? "ريال" : "SAR"}
-										</p>
-									</div>
-								</div>
-							))}
+								)}
+							</div>
+						)}
 
-							{order.items.length > 2 && (
-								<button
-									onClick={() => setShowDetails(!showDetails)}
+						{/* Order items / summary */}
+						<div className="mb-4 sm:mb-5 space-y-2 sm:space-y-2.5">
+							{order.items.length > 0 ? (
+								<>
+									{order.items.slice(0, 2).map((item, i) => (
+										<div
+											key={i}
+											className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-900/30 dark:to-gray-800/30 border border-gray-200/50 dark:border-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+										>
+											<div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0 shadow-sm">
+												{item.image ? (
+													<Image
+														src={item.image}
+														alt={isArabic ? item.productNameAr || item.productName : item.productName}
+														width={56}
+														height={56}
+														className="object-cover w-full h-full"
+													/>
+												) : (
+													<div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+														<span className="text-xs text-gray-400 font-medium">IMG</span>
+													</div>
+												)}
+											</div>
+											<div className="flex-1 min-w-0">
+												<p
+													className={cn(
+														"text-xs sm:text-sm font-semibold text-gray-900 dark:text-white truncate mb-0.5 sm:mb-1",
+														isArabic ? "text-right" : "text-left"
+													)}
+												>
+													{isArabic ? item.productNameAr || item.productName : item.productName}
+												</p>
+												<p
+													className={cn(
+														"text-xs font-medium text-gray-600 dark:text-gray-400",
+														isArabic ? "text-right" : "text-left"
+													)}
+												>
+													{item.quantity}x • {(item.price ?? 0).toFixed(2)} {isArabic ? "ريال" : "SAR"}
+												</p>
+											</div>
+										</div>
+									))}
+
+									{order.items.length > 2 && (
+										<button
+											onClick={() => setShowDetails(!showDetails)}
+											className={cn(
+												"text-sm text-green-600 dark:text-green-400 font-semibold hover:text-green-700 dark:hover:text-green-300 transition-colors flex items-center gap-1.5",
+												isArabic ? "text-right flex-row-reverse" : "text-left"
+											)}
+										>
+											{showDetails
+												? isArabic
+													? "عرض أقل"
+													: "Show less"
+												: isArabic
+													? `+${order.items.length - 2} منتجات أخرى`
+													: `+${order.items.length - 2} more items`}
+										</button>
+									)}
+								</>
+							) : (
+								<div
 									className={cn(
-										"text-sm text-green-600 dark:text-green-400 font-semibold hover:text-green-700 dark:hover:text-green-300 transition-colors flex items-center gap-1.5",
-										isArabic ? "text-right flex-row-reverse" : "text-left"
+										"rounded-xl border border-dashed border-gray-200 bg-gray-50/80 p-3 text-sm dark:border-gray-600 dark:bg-gray-900/40",
+										isArabic ? "text-right" : "text-left"
 									)}
 								>
-									{showDetails
-										? isArabic
-											? "عرض أقل"
-											: "Show less"
-										: isArabic
-											? `+${order.items.length - 2} منتجات أخرى`
-											: `+${order.items.length - 2} more items`}
-								</button>
+									<p className="font-medium text-gray-700 dark:text-gray-300">
+										{order.detailsCount != null && order.detailsCount > 0
+											? isArabic
+												? `${order.detailsCount} صنف في الطلب`
+												: `${order.detailsCount} items in order`
+											: isArabic
+												? "تفاصيل الأصناف غير متوفرة"
+												: "No item details in list"}
+									</p>
+									{order.orderType ? (
+										<span className="mt-2 inline-flex rounded-full bg-gray-200/80 px-2.5 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+											{order.orderType === "delivery"
+												? isArabic
+													? "توصيل"
+													: "Delivery"
+												: order.orderType === "take_away"
+													? isArabic
+														? "استلام من الفرع"
+														: "Pickup"
+													: order.orderType}
+										</span>
+									) : null}
+								</div>
 							)}
 						</div>
 
-						{/* Expandable Details */}
+						{/* Expandable Details — only when items exist */}
 						<AnimatePresence>
-							{showDetails && (
+							{showDetails && order.items.length > 2 && (
 								<motion.div
 									initial={{ height: 0, opacity: 0 }}
 									animate={{ height: "auto", opacity: 1 }}
@@ -261,9 +334,16 @@ export function ProductOrderCard({
 								<div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
 									{isArabic ? "المجموع" : "Total"}
 								</div>
-								<div className="text-xl sm:text-2xl md:text-3xl font-black text-green-600 dark:text-green-400 tracking-tight">
-									{(order.totalAmount ?? 0).toFixed(2)} <span className="text-base sm:text-lg">{isArabic ? "ريال" : "SAR"}</span>
-								</div>
+								{order.totalAmount != null ? (
+									<div className="text-xl sm:text-2xl md:text-3xl font-black text-green-600 dark:text-green-400 tracking-tight">
+										{order.totalAmount.toFixed(2)}{" "}
+										<span className="text-base sm:text-lg">{isArabic ? "ريال" : "SAR"}</span>
+									</div>
+								) : (
+									<div className="text-lg font-semibold text-gray-400 dark:text-gray-500">
+										{isArabic ? "غير متوفر" : "N/A"}
+									</div>
+								)}
 							</div>
 						</div>
 

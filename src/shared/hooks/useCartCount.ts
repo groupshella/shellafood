@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { extractCartRowsForCount, sumCartLineQuantities } from '@/shared/lib/cartCountFromResponse';
 
 // Helper function to get cookie value
 function getCookie(name: string): string | null {
@@ -31,18 +32,16 @@ export function useCartCount() {
 			const response = await fetch(`${baseUrl}/api/cart/list?guest_id=${guestId}`, {
 				method: 'GET',
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
+					'x-localization': 'ar',
 				},
 				cache: 'no-store',
 			});
 
 			if (response.ok) {
 				const data = await response.json();
-				// Calculate total quantity from cart items
-				const totalCount = Array.isArray(data) 
-					? data.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0)
-					: 0;
-				setCount(totalCount);
+				const rows = extractCartRowsForCount(data);
+				setCount(sumCartLineQuantities(rows));
 			} else {
 				setCount(0);
 			}

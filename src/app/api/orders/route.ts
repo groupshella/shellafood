@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       queryParams.append('guest_id', guestId);
     }
 
-    const url = `https://shellafood.com/api/v1/customer/order/list?${queryParams.toString()}`;
+    const url = `https://shellafood.com/api/v1/customer/order/running-orders?${queryParams.toString()}`;
 
     console.log('[Orders API Route] Fetching orders:', {
       url,
