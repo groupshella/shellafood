@@ -4,9 +4,11 @@ import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  
+
   const productId = Number(searchParams.get('productId'));
   const moduleId = Number(searchParams.get('moduleId'));
+  const storeId = Number(searchParams.get('storeId'));
+  const categoryId = Number(searchParams.get('categoryId'));
   const zoneId = Number(searchParams.get('zoneId')) || 2;
   const locale = searchParams.get('locale') || DEFAULT_LANG;
 
@@ -21,6 +23,8 @@ export async function GET(request: NextRequest) {
   try {
     const productResponse = await getCachedProductDetails(
       moduleId,
+      storeId,
+      categoryId,
       productId,
       zoneId,
       locale

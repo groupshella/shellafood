@@ -85,15 +85,15 @@ export default async function StorePageRoute(
   const limit = 20;
   const offset = Math.max(1, Number(search.page) || 1);
   const zoneId = 2; // TODO: replace with real zone resolver
-  
+
   // ✅ Use cached function that calls API route
   try {
     const cookieStore = await cookies();
     const userLocation = cookieStore.get('user_location');
-    
-    const longitude = userLocation?.value.split(',')[0] || '46.5995713';
-    const latitude = userLocation?.value.split(',')[1] || '24.6100271';
-    
+
+    const longitude = userLocation?.value.split(',')[0] || '46.5444937';
+    const latitude = userLocation?.value.split(',')[1] || '24.567752';
+
     const storeDetailsResponse = await getCachedStoreDetails(
       limit,
       offset,
@@ -104,7 +104,7 @@ export default async function StorePageRoute(
       longitude,
       latitude
     );
-    
+
     if (!storeDetailsResponse?.data) {
       console.error('[Store Page] Failed to fetch store:', {
         error: storeDetailsResponse?.error,
@@ -114,18 +114,18 @@ export default async function StorePageRoute(
       });
       notFound();
     }
-    
+
     const storeDetails = storeDetailsResponse.data;
     console.log('storeDetails', storeDetails);
-    
+
     // Validate response structure
     if (!storeDetails || !storeDetails.id) {
       console.error('[Store Page] Invalid response structure:', storeDetails);
       notFound();
     }
 
-  
-    
+
+
     // ✅ Success
     return (
       <StorePage
@@ -140,7 +140,7 @@ export default async function StorePageRoute(
       message: error?.message || 'Unknown error',
       name: error?.name,
     });
-    
+
     notFound();
   }
 }

@@ -13,8 +13,8 @@ export async function GET(req: NextRequest) {
   const headers: Record<string, string> = {
     "zoneId": "[2]",
     "moduleId": "3",
-    "longitude": "46.5995713",
-    "latitude": "24.6100271",
+    "longitude": "46.5444937",
+    "latitude": "24.567752",
     "Content-Type": "application/json"
   };
 

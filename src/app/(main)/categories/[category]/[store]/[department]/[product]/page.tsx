@@ -22,7 +22,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { category, store, department, product } = await params;
 
-    const categoryName = "المتاجر";
+  const categoryName = "المتاجر";
   const storeName = "المتجر ";
   const departmentName = "القسم ";
   const productName = "المنتج ";
@@ -94,11 +94,13 @@ export default async function ProductPageRoute({ params }: PageProps) {
   try {
     const productResponse = await getCachedProductDetails(
       moduleId,
+      storeId,
+      departmentId,
       productId,
       zoneId,
       DEFAULT_LANG
     );
-    
+
     if (!productResponse?.data) {
       console.error('[Product Page] Failed to fetch product:', {
         error: productResponse?.error,
@@ -108,9 +110,9 @@ export default async function ProductPageRoute({ params }: PageProps) {
       });
       notFound();
     }
-    
+
     const productData = productResponse.data;
-    
+
     console.log('[Product Page] Product fetched:', {
       moduleId,
       storeId,
@@ -120,14 +122,14 @@ export default async function ProductPageRoute({ params }: PageProps) {
       productIdResponse: productData?.id || 0,
       productName: productData?.name || '',
     });
-    
+
     // Validate response structure
     if (!productData || !productData.id) {
       console.error('[Product Page] Invalid response structure:', productData);
       notFound();
     }
     console.log('productData', productData);
-    
+
     return (
       <ProductPage productResponse={productData} departmentId={departmentId} />
     );
@@ -136,7 +138,7 @@ export default async function ProductPageRoute({ params }: PageProps) {
       message: error?.message || 'Unknown error',
       name: error?.name,
     });
-    
+
     notFound();
   }
 }

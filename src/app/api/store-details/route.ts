@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  
+
   const storeId = Number(searchParams.get('storeId'));
   const moduleId = Number(searchParams.get('moduleId'));
   const limit = Number(searchParams.get('limit')) || 12;
@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   const userLocation = cookieStore.get('user_location');
 
-  const longitude = userLocation?.value.split(',')[0] || '46.5995713';
-  const latitude = userLocation?.value.split(',')[1] || '24.6100271';
+  const longitude = userLocation?.value.split(',')[0] || '46.5444937';
+  const latitude = userLocation?.value.split(',')[1] || '24.567752';
   // Validate params
   if (!storeId || isNaN(storeId) || !moduleId || isNaN(moduleId)) {
     return NextResponse.json(

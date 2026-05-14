@@ -100,7 +100,7 @@ function DepartmentView({
   // ============================================================================
 
   // ✅ SWR for search (use debounced term)
-  const searchKey = debouncedSearchTerm.trim() 
+  const searchKey = debouncedSearchTerm.trim()
     ? `/api/search?name=${encodeURIComponent(debouncedSearchTerm.trim())}&limit=${currentLimit}&offset=${currentOffset}&moduleId=${moduleId}&zoneId=${zoneId}&locale=${isArabic ? 'ar' : 'en'}`
     : null;
 
@@ -116,7 +116,7 @@ function DepartmentView({
 
   // ✅ SWR for client-side pagination (only when not searching)
   const { data: departmentData, isLoading: isDepartmentLoading, error: departmentError } = useSWR<DepartmentResponse>(
-    !debouncedSearchTerm.trim() 
+    !debouncedSearchTerm.trim()
       ? `/api/department-details?departmentId=${departmentId}&storeId=${storeId}&moduleId=${moduleId}&zoneId=${zoneId}&limit=${currentLimit}&offset=${currentOffset}&locale=${isArabic ? 'ar' : 'en'}`
       : null,
     fetcher,
@@ -151,7 +151,7 @@ function DepartmentView({
   const isLoading = debouncedSearchTerm.trim() ? isSearchLoading : isDepartmentLoading;
   const error = debouncedSearchTerm.trim() ? searchError : departmentError;
 
-  
+
   // ============================================================================
   // COMPUTED VALUES
   // ============================================================================
@@ -165,12 +165,12 @@ function DepartmentView({
   // ✅ Use search results when searching, otherwise use department data (API returns products or items)
   const currentDepartment = debouncedSearchTerm.trim()
     ? {
-        products: searchItems,
-        total_size: searchData?.total_size ?? 0,
-        offset: searchData?.offset ?? currentOffset.toString(),
-        limit: currentLimit,
-        has_more: false,
-      }
+      products: searchItems,
+      total_size: searchData?.total_size ?? 0,
+      offset: searchData?.offset ?? currentOffset.toString(),
+      limit: currentLimit,
+      has_more: false,
+    }
     : (departmentData || departmentResponse);
 
   // ✅ Support both API shapes: { products: [...] } and { items: [...] }
@@ -195,7 +195,7 @@ function DepartmentView({
         filtered = filtered.filter((item: Item) => (item.stock ?? 0) > 0);
         break;
       case 'offers':
-        filtered = filtered.filter((item: Item) => 
+        filtered = filtered.filter((item: Item) =>
           item.discount_type || (item.original_price && item.original_price > (item.price || 0))
         );
         break;
@@ -209,29 +209,29 @@ function DepartmentView({
       switch (sortBy) {
         case 'name':
           return (a.name || '').localeCompare(b.name || '', isArabic ? 'ar' : 'en');
-        
+
         case 'price': {
           const priceA = a.price ?? 0;
           const priceB = b.price ?? 0;
           return priceA - priceB;
         }
-        
+
         case 'rating': {
           const ratingA = a.avg_rating ?? 0;
           const ratingB = b.avg_rating ?? 0;
           return ratingB - ratingA; // Higher rating first
         }
-        
+
         case 'discount': {
-          const discountA = a.original_price && a.price 
-            ? ((a.original_price - a.price) / a.original_price) * 100 
+          const discountA = a.original_price && a.price
+            ? ((a.original_price - a.price) / a.original_price) * 100
             : 0;
-          const discountB = b.original_price && b.price 
-            ? ((b.original_price - b.price) / b.original_price) * 100 
+          const discountB = b.original_price && b.price
+            ? ((b.original_price - b.price) / b.original_price) * 100
             : 0;
           return discountB - discountA; // Higher discount first
         }
-        
+
         default:
           return 0;
       }
@@ -246,8 +246,8 @@ function DepartmentView({
 
   const t = useMemo(() => ({
     title: isArabic ? 'المنتجات' : 'Products',
-    description: isArabic 
-      ? 'تصفح جميع المنتجات في هذا القسم' 
+    description: isArabic
+      ? 'تصفح جميع المنتجات في هذا القسم'
       : 'Browse all products in this department',
     filters: isArabic ? 'التصفية' : 'Filters',
     sort: isArabic ? 'الترتيب' : 'Sort',
@@ -270,17 +270,17 @@ function DepartmentView({
 
   const filterButtons = useMemo(() => [
     { key: 'all' as const, label: t.all, count: departmentItems?.length || 0 },
-    { 
-      key: 'inStock' as const, 
-      label: t.inStock, 
-      count: departmentItems?.filter((item: Item) => (item.stock ?? 0) > 0).length || 0 
+    {
+      key: 'inStock' as const,
+      label: t.inStock,
+      count: departmentItems?.filter((item: Item) => (item.stock ?? 0) > 0).length || 0
     },
-    { 
-      key: 'offers' as const, 
-      label: t.offers, 
-      count: departmentItems?.filter((item: Item) => 
+    {
+      key: 'offers' as const,
+      label: t.offers,
+      count: departmentItems?.filter((item: Item) =>
         item.discount_type || (item.original_price && item.original_price > (item.price || 0))
-      ).length || 0 
+      ).length || 0
     },
   ], [t, departmentItems]);
   const sortOptions = useMemo(() => [
@@ -298,7 +298,7 @@ function DepartmentView({
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', page.toString());
-    
+
     // ✅ Update URL without full page reload
     startTransition(() => {
       router.push(`?${params.toString()}`, { scroll: true });
@@ -318,7 +318,7 @@ function DepartmentView({
     }
   }, [debouncedSearchTerm, searchParams, router]);
 
- 
+
 
 
   const handleFilterChange = useCallback((filter: FilterType) => {
@@ -332,79 +332,78 @@ function DepartmentView({
   // ============================================================================
   // RENDER
   // ============================================================================
-if(isLoading) {
-  return  <DepartmentLoading />
-}
- 
+  if (isLoading) {
+    return <DepartmentLoading />
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={direction}>
       <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        
+
         {/* Page Header */}
         <PageHeader
-		title={t.title}	
-		description={t.description}
+          title={t.title}
+          description={t.description}
         />
 
         {/* Controls Bar */}
         <div className="mb-6 space-y-4 sm:space-y-0">
-          
+
           {/* Search Bar - Responsive */}
-				<div className="mb-4 sm:mb-6">
-					<div className="relative">
-						<Search className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-3 sm:right-4' : 'left-3 sm:left-4'} w-4 h-4 sm:w-5 sm:h-5 text-gray-400`} />
-						<input
-							type="text"
-							value={searchTerm}
-							onChange={(e) => handleSearchChange(e.target.value)}
-							placeholder={isArabic ? 'ابحث عن منتجات...' : 'Search products...'}
-							className={`w-full ${isArabic ? 'pr-10 sm:pr-11 pl-3 sm:pl-4' : 'pl-10 sm:pl-11 pr-3 sm:pr-4'} py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-gray-800 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all`}
-						/>
-						{searchTerm && (
-							<button
-								onClick={() => setSearchTerm('')}
-								className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-3 sm:left-4' : 'right-3 sm:right-4'} w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors`}
-							>
-								<X className="w-4 h-4 sm:w-5 sm:h-5" />
-							</button>
-						)}
-					</div>
-				</div>
+          <div className="mb-4 sm:mb-6">
+            <div className="relative">
+              <Search className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-3 sm:right-4' : 'left-3 sm:left-4'} w-4 h-4 sm:w-5 sm:h-5 text-gray-400`} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                placeholder={isArabic ? 'ابحث عن منتجات...' : 'Search products...'}
+                className={`w-full ${isArabic ? 'pr-10 sm:pr-11 pl-3 sm:pl-4' : 'pl-10 sm:pl-11 pr-3 sm:pr-4'} py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-gray-800 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all`}
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-3 sm:left-4' : 'right-3 sm:right-4'} w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors`}
+                >
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              )}
+            </div>
+          </div>
 
-				{/* Filters and Sort - Responsive */}
-				<div className={`mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 ${isArabic ? 'sm:justify-start' : 'sm:justify-end'}`}>
-					{/* Filter Buttons - Responsive */}
-					<div className="flex flex-wrap gap-2 sm:gap-2">
-						{filterButtons.map((filter) => (
-							<button
-								key={filter.key}
-								onClick={() => setFilterBy(filter.key)}
-								className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-									filterBy === filter.key
-										? 'bg-green-600 dark:bg-green-500 text-white shadow-md dark:shadow-green-900/50'
-										: 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-								}`}
-							>
-								{filter.label}
-							</button>
-						))}
-					</div>
+          {/* Filters and Sort - Responsive */}
+          <div className={`mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 ${isArabic ? 'sm:justify-start' : 'sm:justify-end'}`}>
+            {/* Filter Buttons - Responsive */}
+            <div className="flex flex-wrap gap-2 sm:gap-2">
+              {filterButtons.map((filter) => (
+                <button
+                  key={filter.key}
+                  onClick={() => setFilterBy(filter.key)}
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap ${filterBy === filter.key
+                      ? 'bg-green-600 dark:bg-green-500 text-white shadow-md dark:shadow-green-900/50'
+                      : 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
 
-					{/* Sort Dropdown - Responsive */}
-					<select
-						value={sortBy}
-						onChange={(e) => setSortBy(e.target.value as SortType)}
-						className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full sm:w-auto`}
-						dir={direction}
-					>
-						{sortOptions.map((option) => (
-							<option key={option.value} value={option.value}>
-								{option.label}
-							</option>
-						))}
-					</select>
-				</div>  
+            {/* Sort Dropdown - Responsive */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortType)}
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full sm:w-auto`}
+              dir={direction}
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Results Info */}
           <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 px-2">
@@ -438,8 +437,8 @@ if(isLoading) {
                     product={product}
                     index={index}
                     onClick={() => router.push(`/products/${product.id}`)}
-                    onQuickAdd={() => {}}
-                    onAddToCart={() => {}}
+                    onQuickAdd={() => { }}
+                    onAddToCart={() => { }}
                     showRating={true}
                     showStock={true}
                     showActions={true}

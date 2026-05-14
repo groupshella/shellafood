@@ -91,8 +91,8 @@ function UnifiedProductCard({
 	// Get badge (discount percentage)
 	const displayBadge = useMemo(() => {
 		if (product.discount > 0 && product.discount_type) {
-			const discountValue = product.discount_type === 'percentage' 
-				? `${product.discount}%` 
+			const discountValue = product.discount_type === 'percentage'
+				? `${product.discount}%`
 				: `${product.discount} ${isArabic ? 'ريال' : 'SAR'}`;
 			return isArabic ? `${discountValue} خصم` : `${discountValue} OFF`;
 		}
@@ -143,30 +143,30 @@ function UnifiedProductCard({
 	const handleClick = useCallback((e?: React.MouseEvent<HTMLDivElement>) => {
 		// Prevent double clicks and multiple navigations
 		if (isNavigating) return;
-		
+
 		if (e) {
 			e.preventDefault();
 		}
-		
+
 		setIsNavigating(true);
-		
+
 		// Small delay for visual feedback, then navigate
 		setTimeout(() => {
-			router.push(`/categories/${product.module_id}/${product.store_id}/${product.category_id}/${product.id}`, { scroll: true });
+			router.push(`/categories/${product.module_id}/${storeId}/${product.category_id}/${product.id}`, { scroll: true });
 		}, 150);
 	}, [router, product.module_id, product.store_id, product.category_id, product.id, isNavigating]);
 
-	
 
-	
+
+
 
 	const handleQuickAdd = useCallback(
 		async (e: React.MouseEvent) => {
 			e.stopPropagation();
 			if (!isAvailable || isAddingToCart) return;
-			
+
 			setIsAddingToCart(true);
-			
+
 			try {
 				const finalStoreId = product.store_id || storeId;
 				const result = await addToCart({
@@ -214,7 +214,7 @@ function UnifiedProductCard({
 
 	// Render based on variant
 	if (detectedVariant === 'mobile') {
-		return <MobileVariant 
+		return <MobileVariant
 			product={product}
 			displayName={displayName}
 			displayUnit={displayUnit}
@@ -240,7 +240,7 @@ function UnifiedProductCard({
 	}
 
 	if (detectedVariant === 'compact') {
-		return <CompactVariant 
+		return <CompactVariant
 			product={product}
 			displayName={displayName}
 			displayUnit={displayUnit}
@@ -267,8 +267,8 @@ function UnifiedProductCard({
 		/>;
 	}
 
-		// Default variant
-	return <DefaultVariant 
+	// Default variant
+	return <DefaultVariant
 		product={product}
 		displayName={displayName}
 		displayUnit={displayUnit}
@@ -356,8 +356,8 @@ function MobileVariant({
 			className={cn(
 				"relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer",
 				"shadow-sm hover:shadow-lg dark:shadow-gray-900/50 dark:hover:shadow-gray-900/80",
-				isNavigating 
-					? "border-green-500 dark:border-green-400 opacity-75 pointer-events-none" 
+				isNavigating
+					? "border-green-500 dark:border-green-400 opacity-75 pointer-events-none"
 					: "border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600",
 				className
 			)}
@@ -579,8 +579,8 @@ function CompactVariant({
 			className={cn(
 				"group relative rounded-lg border bg-white dark:bg-gray-800 p-2",
 				"shadow-sm dark:shadow-gray-900/50 transition-all duration-200",
-				isNavigating 
-					? "border-green-500 dark:border-green-400 opacity-75 pointer-events-none" 
+				isNavigating
+					? "border-green-500 dark:border-green-400 opacity-75 pointer-events-none"
 					: "border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600",
 				"cursor-pointer",
 				className
@@ -789,8 +789,8 @@ function DefaultVariant({
 			className={cn(
 				"relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer",
 				"shadow-sm hover:shadow-lg dark:shadow-gray-900/50 dark:hover:shadow-gray-900/80",
-				isNavigating 
-					? "border-green-500 dark:border-green-400 opacity-75 pointer-events-none" 
+				isNavigating
+					? "border-green-500 dark:border-green-400 opacity-75 pointer-events-none"
 					: "border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600"
 			)}
 			whileHover={{ scale: 1.01, y: -2 }}
@@ -866,18 +866,16 @@ function DefaultVariant({
 			<div className="p-3">
 				{/* Name - 2 lines max */}
 				<h3
-					className={`text-sm font-bold text-gray-900 dark:text-white line-clamp-2 mb-1 min-h-[2.5rem] ${
-						isArabic ? "text-right" : "text-left"
-					}`}
+					className={`text-sm font-bold text-gray-900 dark:text-white line-clamp-2 mb-1 min-h-[2.5rem] ${isArabic ? "text-right" : "text-left"
+						}`}
 				>
 					{displayName}
 				</h3>
 
 				{/* Price - Large and prominent */}
 				<div
-					className={`flex items-baseline gap-1 mb-2 ${
-						isArabic ? " justify-end" : "justify-start"
-					}`}
+					className={`flex items-baseline gap-1 mb-2 ${isArabic ? " justify-end" : "justify-start"
+						}`}
 				>
 					<span className="text-lg font-black text-green-600 dark:text-green-400">
 						{product.price ?? 0}
@@ -893,9 +891,8 @@ function DefaultVariant({
 				{/* Rating - Compact */}
 				{showRating && product.avg_rating > 0 && (
 					<div
-						className={`flex items-center gap-1 mb-3 ${
-							isArabic ? " justify-end" : "justify-start"
-						}`}
+						className={`flex items-center gap-1 mb-3 ${isArabic ? " justify-end" : "justify-start"
+							}`}
 					>
 						<Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
 						<span className="text-xs font-semibold text-gray-900 dark:text-white">
@@ -920,8 +917,8 @@ function DefaultVariant({
 							"w-full py-2.5 text-white text-sm font-bold rounded-lg transition-all duration-200",
 							"disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[44px]",
 							"shadow-md hover:shadow-lg",
-							isFavorite 
-								? "bg-green-500 dark:bg-green-500" 
+							isFavorite
+								? "bg-green-500 dark:bg-green-500"
 								: "bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 active:bg-green-800 dark:active:bg-green-700"
 						)}
 						aria-label={isArabic ? "إضافة للسلة" : "Add to cart"}
@@ -975,8 +972,8 @@ function DefaultVariant({
 			)}
 
 			{/* Toast Container */}
-			<ToastContainer toasts={[]} onRemoveToast={() => {}} isArabic={isArabic} />
-		</motion.div>					
+			<ToastContainer toasts={[]} onRemoveToast={() => { }} isArabic={isArabic} />
+		</motion.div>
 	);
 }
 

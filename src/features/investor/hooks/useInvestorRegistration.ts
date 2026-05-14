@@ -50,7 +50,7 @@ export function useInvestorRegistration(language: string) {
 	const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
 		const { name, value, type } = e.target;
 		const finalValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
-		
+
 		setFormData((prev) => ({
 			...prev,
 			[name]: finalValue,
@@ -86,10 +86,10 @@ export function useInvestorRegistration(language: string) {
 	 */
 	const checkNafathStatusLocal = useCallback(async () => {
 		if (!nafathRequestId) return false;
-		
+
 		try {
 			const result = await checkNafathStatus(nafathRequestId, language);
-			
+
 			if (result.data) {
 				if (result.data.status === 'approved') {
 					stopPolling();
@@ -120,11 +120,11 @@ export function useInvestorRegistration(language: string) {
 	 */
 	const startPolling = useCallback(() => {
 		stopPolling(); // Clear any existing interval
-		
+
 		const interval = setInterval(async () => {
 			setPollingAttempts((prev) => {
 				const newCount = prev + 1;
-				
+
 				// Timeout after max attempts
 				if (newCount >= INVESTOR_CONSTANTS.POLLING.MAX_ATTEMPTS) {
 					stopPolling();
@@ -132,7 +132,7 @@ export function useInvestorRegistration(language: string) {
 					setCurrentStep('form');
 					return 0;
 				}
-				
+
 				return newCount;
 			});
 
@@ -149,7 +149,7 @@ export function useInvestorRegistration(language: string) {
 		try {
 			setIsLoading(true);
 			const result = await submitInvestorForm(formData, language);
-			
+
 			if (result.data && result.data.id && result.data.is_completed) {
 				setInvestorId(result.data.id);
 				await fetchSignedContract();
@@ -172,10 +172,10 @@ export function useInvestorRegistration(language: string) {
 			setIsLoading(false);
 			return;
 		}
-		
+
 		try {
 			const result = await checkNafathStatus(nafathRequestId, language);
-			
+
 			if (result.data && result.data.signed_file_url) {
 				setSignedContractUrl(result.data.signed_file_url);
 				setSignedContractData(result.data);
@@ -201,7 +201,7 @@ export function useInvestorRegistration(language: string) {
 		try {
 			setIsLoading(true);
 			const result = await previewContractPDF(formData, language);
-			
+
 			if (result.data) {
 				const url = URL.createObjectURL(result.data);
 				setContractPdfUrl(url);
@@ -225,7 +225,7 @@ export function useInvestorRegistration(language: string) {
 		try {
 			setIsLoading(true);
 			const result = await initNafathVerification(formData, language);
-			
+
 			if (result.data && result.data.request_id && result.data.external_response?.[0]?.random) {
 				setNafathRequestId(result.data.request_id);
 				setNafathCode(result.data.external_response[0].random);
@@ -294,7 +294,7 @@ export function useInvestorRegistration(language: string) {
 		// Form state
 		formData,
 		setFormData,
-		
+
 		// Workflow state
 		currentStep,
 		isLoading,
@@ -307,18 +307,18 @@ export function useInvestorRegistration(language: string) {
 		setShowPdfModal,
 		investorId,
 		signedContractData,
-		
+
 		// Notification
 		notification,
 		setNotification,
-		
+
 		// Handlers
 		handleChange,
 		handleSubmit,
 		handleReset,
 		previewContract,
 		cancelVerification,
-		
+
 		// Translation helper
 		t,
 		isArabic,
