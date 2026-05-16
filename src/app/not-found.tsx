@@ -15,7 +15,7 @@ export default function NotFound() {
 	const isArabic = language === "ar";
 
 	return (
-		<div className={`min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4 ${isArabic ? "rtl" : "ltr"}`} dir={isArabic ? "rtl" : "ltr"}>
+		<div className={`min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-top justify-center px-4 ${isArabic ? "rtl" : "ltr"}`} dir={isArabic ? "rtl" : "ltr"}>
 			<div className="max-w-2xl w-full text-center">
 				{/* 404 Number */}
 				<div className="mb-8">
@@ -38,7 +38,7 @@ export default function NotFound() {
 
 				{/* Description */}
 				<p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-					{isArabic 
+					{isArabic
 						? "الصفحة التي تبحث عنها غير موجودة أو تم نقلها. يرجى التحقق من الرابط أو العودة إلى الصفحة الرئيسية."
 						: "The page you're looking for doesn't exist or has been moved. Please check the URL or return to the homepage."
 					}

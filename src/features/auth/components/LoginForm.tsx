@@ -79,8 +79,8 @@ export default function LoginForm() {
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         throw new Error(
-          isArabic 
-            ? "فشل إرسال رابط إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى." 
+          isArabic
+            ? "فشل إرسال رابط إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى."
             : "Failed to send password reset link. Please try again."
         );
       }
@@ -89,9 +89,9 @@ export default function LoginForm() {
 
       if (!response.ok || !data.success) {
         throw new Error(
-          data.message || 
-          (isArabic 
-            ? "فشل إرسال رابط إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى." 
+          data.message ||
+          (isArabic
+            ? "فشل إرسال رابط إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى."
             : "Failed to send password reset link. Please try again.")
         );
       }
@@ -107,9 +107,9 @@ export default function LoginForm() {
 
     } catch (error: any) {
       console.error('[Forgot Password] Error:', error);
-      
+
       setNotification({
-        message: error.message || 
+        message: error.message ||
           (isArabic
             ? "فشل إرسال رابط إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى."
             : "Failed to send password reset link. Please try again."),
@@ -125,7 +125,7 @@ export default function LoginForm() {
     e.preventDefault();
 
     // Validation
-    if (!formData.phone || formData.phone==="+966"|| !formData.password) {
+    if (!formData.phone || formData.phone === "+966" || !formData.password) {
       setNotification({
         message: isArabic
           ? "يرجى ملء جميع الحقول المطلوبة"
@@ -178,9 +178,9 @@ export default function LoginForm() {
 
     } catch (error: any) {
       console.error('[Login Form] Error:', error);
-      
+
       setNotification({
-        message:  (isArabic
+        message: (isArabic
           ? "فشل تسجيل الدخول. يرجى التحقق من رقم الهاتف وكلمة المرور."
           : "Login failed. Please check your phone number and password."),
         type: "error",
@@ -196,9 +196,9 @@ export default function LoginForm() {
   // ============================================================================
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-8 sm:py-12">
+    <div className="min-h-screen  bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-top justify-center py-8 sm:py-12"  >
       <div className="w-full max-w-[90%] sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto px-4">
-        
+
         {/* Header */}
         <div className={`text-center mb-6 sm:mb-8 ${isArabic ? 'text-right' : 'text-left'}`}>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100">
@@ -210,14 +210,14 @@ export default function LoginForm() {
         </div>
 
         {/* Form */}
-        <form 
-          onSubmit={handleSubmit} 
+        <form
+          onSubmit={handleSubmit}
           className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-900 p-6 sm:p-8 lg:p-10 space-y-5 sm:space-y-6"
         >
-          
+
           {/* Phone Number */}
           <PhoneInput
-            label={ (isArabic ? "رقم الهاتف" : "Phone Number")}
+            label={(isArabic ? "رقم الهاتف" : "Phone Number")}
             value={formData.phone}
             onChange={handlePhoneChange}
             isArabic={isArabic}
@@ -262,8 +262,8 @@ export default function LoginForm() {
               className="rounded border-gray-300 text-green-600 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
               disabled={isLoading}
             />
-            <label 
-              htmlFor="remember" 
+            <label
+              htmlFor="remember"
               className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
             >
               {isArabic ? "تذكرني" : "Remember me"}
@@ -292,8 +292,8 @@ export default function LoginForm() {
             {/* Register Link */}
             <p className="mt-4 text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               {t("login.noAccount") || (isArabic ? "ليس لديك حساب؟" : "Don't have an account?")}{" "}
-              <a 
-                href="/register" 
+              <a
+                href="/register"
                 className="font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline"
               >
                 {t("login.registerLink") || (isArabic ? "سجل الآن" : "Register now")}

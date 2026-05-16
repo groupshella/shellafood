@@ -18,7 +18,7 @@ interface ProductGalleryProps {
 function ProductGallery({ product, storeId }: ProductGalleryProps) {
   const { language } = useLanguage();
   const isArabic = language === "ar";
-  const isMobile=useMobile(768);
+  const isMobile = useMobile(768);
   // ============================================================================
   // DATA EXTRACTION
   // ============================================================================
@@ -47,28 +47,7 @@ function ProductGallery({ product, storeId }: ProductGalleryProps) {
       const u = add(product.image);
       if (u) images.push(u);
     }
-    if (product.image_full_url) {
-      const u = add(product.image_full_url);
-      if (u) images.push(u);
-    }
-    if (Array.isArray(product.images_full_url) && product.images_full_url.length > 0) {
-      product.images_full_url.forEach((url) => {
-        const u = add(typeof url === 'string' ? url : (url as any)?.img ?? (url as any)?.url);
-        if (u) images.push(u);
-      });
-    }
-    const parsedImages = Array.isArray(product.images)
-      ? product.images
-      : typeof product.images === 'string'
-        ? (() => { try { const a = JSON.parse(product.images); return Array.isArray(a) ? a : []; } catch { return []; } })()
-        : [];
-    if (parsedImages.length > 0) {
-      parsedImages.forEach((img: any) => {
-        const url = typeof img === 'string' ? img : img?.img ?? img?.image_full_url ?? img?.url;
-        const u = add(url);
-        if (u) images.push(u);
-      });
-    }
+
     return images;
   }, [product]);
 
@@ -91,8 +70,8 @@ function ProductGallery({ product, storeId }: ProductGalleryProps) {
 
   const displayBadge = useMemo(() => {
     if (product.discount > 0 && product.discount_type) {
-      const discountValue = product.discount_type === 'percent' 
-        ? `${product.discount}%` 
+      const discountValue = product.discount_type === 'percent'
+        ? `${product.discount}%`
         : `${product.discount} ${isArabic ? 'ريال' : 'SAR'}`;
       return isArabic ? `${discountValue} خصم` : `${discountValue} OFF`;
     }
@@ -225,11 +204,10 @@ function ProductGallery({ product, storeId }: ProductGalleryProps) {
               animate={{ opacity: 1 }}
               transition={{ delay: i * 0.05 }}
               onClick={() => handleThumbnailClick(i)}
-              className={`relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
-                selectedImageIndex === i
+              className={`relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all duration-200 ${selectedImageIndex === i
                   ? "border-green-500 dark:border-green-400 ring-2 ring-green-500/50 scale-105 shadow-lg"
                   : "border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:scale-105"
-              }`}
+                }`}
               aria-label={`${displayName} ${i + 1}`}
             >
               <Image

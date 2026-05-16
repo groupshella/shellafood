@@ -32,7 +32,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 				setZones(result.data);
 			} else {
 				setNotification({
-					message: result.error || (isArabic ? "فشل تحميل المناطق" : "Failed to load zones"),
+					message: (isArabic ? "فشل تحميل المناطق" : "Failed to load zones"),
 					type: "error",
 					isVisible: true,
 				});
@@ -57,7 +57,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 				setModules(result.data);
 			} else {
 				setNotification({
-					message: result.error || (isArabic ? "فشل تحميل الوحدات" : "Failed to load modules"),
+					message: (isArabic ? "فشل تحميل الوحدات" : "Failed to load modules"),
 					type: "error",
 					isVisible: true,
 				});
@@ -96,7 +96,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 	) => {
 		const { name, value, type } = e.target;
 		const checked = (e.target as HTMLInputElement).checked;
-		
+
 		setFormData((prev: PartnerFormData) => ({
 			...prev,
 			[name]: type === "checkbox" ? checked : value,
@@ -112,12 +112,12 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 
 	const handleSubmit = useCallback(async (e: React.FormEvent) => {
 		e.preventDefault();
-		
+
 		const result = partnerFormSchema.safeParse(formData);
 		if (!result.success) {
 			const firstError = result.error.issues[0];
 			setNotification({
-				message: firstError.message||(isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
+				message: firstError.message || (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 				type: "error",
 				isVisible: true,
 			});
@@ -126,7 +126,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 
 		setIsSubmitting(true);
 		try {
-	
+
 			// Prepare data for API
 			const registrationData = {
 				f_name: formData.f_name,
@@ -156,7 +156,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 				handleReset();
 			} else {
 				setNotification({
-					message: apiResult.error|| (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
+					message: apiResult.error || (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 					type: "error",
 					isVisible: true,
 				});
@@ -164,7 +164,7 @@ export function usePartnerRegistration(initialData: PartnerFormData, language: s
 		} catch (error) {
 			console.error('Error registering partner:', error);
 			setNotification({
-				message:  (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
+				message: (isArabic ? "حدث خطأ أثناء التسجيل" : "Registration failed"),
 				type: "error",
 				isVisible: true,
 			});

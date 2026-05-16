@@ -13,7 +13,7 @@ const DEFAULT_LANG = 'ar';
  */
 export async function getDriverZonesList(lang: string = DEFAULT_LANG): Promise<ApiResponse<Zone[]>> {
 	try {
-		const response = await fetch(`${BASE_URL}/api/v1/zone/list`, {
+		const response = await fetch(`/api/zones/list?lang=${encodeURIComponent(lang)}`, {
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json',
@@ -21,12 +21,12 @@ export async function getDriverZonesList(lang: string = DEFAULT_LANG): Promise<A
 			},
 			cache: 'no-store',
 		});
- 
+
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: 'Failed to fetch zones' }));
+			const errorData = await response.json().catch(() => ({ message: 'حدث خطأ في تحميل المناطق' }));
 			return {
-				error: errorData.message || 'Failed to fetch zones',
+				error: 'حدث خطأ في تحميل المناطق',
 				status: response.status,
 			};
 		}
@@ -38,7 +38,7 @@ export async function getDriverZonesList(lang: string = DEFAULT_LANG): Promise<A
 		};
 	} catch (error) {
 		return {
-			error:  'Network error',
+			error: 'حدث خطأ في تحميل المناطق',
 			status: 500,
 		};
 	}
@@ -53,7 +53,7 @@ export async function registerDriver(
 ): Promise<ApiResponse<any>> {
 	try {
 		const formData = new FormData();
-		
+
 		// Append text fields
 		formData.append('f_name', data.f_name);
 		formData.append('l_name', data.l_name);
@@ -92,8 +92,8 @@ export async function registerDriver(
 		if (responseData.errors) {
 			console.log(responseData.errors[0].message);
 			return {
-				error:responseData.errors[0].message,
-				status:404,
+				error: responseData.errors[0].message,
+				status: 404,
 			};
 		}
 
@@ -104,7 +104,7 @@ export async function registerDriver(
 	} catch (error) {
 		console.log(error);
 		return {
-			error:  'Network error',
+			error: 'حدث خطأ في تسجيل السائق',
 			status: 500,
 		};
 	}
@@ -130,7 +130,7 @@ export async function getDriverProfile(
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({ message: 'Failed to fetch driver profile' }));
 			return {
-				error: errorData.message || 'Failed to fetch driver profile',
+				error: 'حدث خطأ في تحميل الملف الشخصي للسائق',
 				status: response.status,
 			};
 		}
@@ -142,7 +142,7 @@ export async function getDriverProfile(
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في تحميل الملف الشخصي للسائق',
 			status: 500,
 		};
 	}
@@ -166,9 +166,9 @@ export async function getChatMessages(
 		});
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: 'Failed to fetch messages' }));
+			const errorData = await response.json().catch(() => ({ message: 'حدث خطأ في تحميل الرسائل' }));
 			return {
-				error: errorData.message || 'Failed to fetch messages',
+				error: 'حدث خطأ في تحميل الرسائل',
 				status: response.status,
 			};
 		}
@@ -189,7 +189,7 @@ export async function getChatMessages(
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في تحميل الرسائل',
 			status: 500,
 		};
 	}
@@ -215,9 +215,9 @@ export async function sendChatMessage(
 		});
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: 'Failed to send message' }));
+			const errorData = await response.json().catch(() => ({ message: 'حدث خطأ في إرسال الرسالة' }));
 			return {
-				error: errorData.message || 'Failed to send message',
+				error: 'حدث خطأ في إرسال الرسالة',
 				status: response.status,
 			};
 		}
@@ -229,7 +229,7 @@ export async function sendChatMessage(
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في إرسال الرسالة',
 			status: 500,
 		};
 	}

@@ -14,7 +14,7 @@ const DEFAULT_LANG = WORKER_CONSTANTS.DEFAULT_LANG;
  */
 export async function getWorkerZonesList(lang: string = DEFAULT_LANG): Promise<ApiResponse<Zone[]>> {
 	try {
-		const response = await fetch(`${BASE_URL}/api/v1/zone/list`, {
+		const response = await fetch(`/api/zones/list?lang=${encodeURIComponent(lang)}`, {
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json',
@@ -24,9 +24,9 @@ export async function getWorkerZonesList(lang: string = DEFAULT_LANG): Promise<A
 		});
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: 'Failed to fetch zones' }));
+			const errorData = await response.json().catch(() => ({ message: 'حدث خطأ في تحميل المناطق' }));
 			return {
-				error: errorData.message || 'Failed to fetch zones',
+				error: 'حدث خطأ في تحميل المناطق',
 				status: response.status,
 			};
 		}
@@ -38,7 +38,7 @@ export async function getWorkerZonesList(lang: string = DEFAULT_LANG): Promise<A
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في تحميل المناطق',
 			status: 500,
 		};
 	}
@@ -53,7 +53,7 @@ export async function getWorkerModulesByZone(
 ): Promise<ApiResponse<Module[]>> {
 	try {
 		const response = await fetch(
-			`${BASE_URL}/api/v1/module?zone_id=${zoneId}`,
+			`/api/zones/modules?zone_id=${zoneId}&lang=${encodeURIComponent(lang)}`,
 			{
 				method: 'GET',
 				headers: {
@@ -65,9 +65,9 @@ export async function getWorkerModulesByZone(
 		);
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: 'Failed to fetch modules' }));
+			const errorData = await response.json().catch(() => ({ message: 'حدث خطأ في تحميل الموديولات' }));
 			return {
-				error: errorData.message || 'Failed to fetch modules',
+				error: 'حدث خطأ في تحميل الموديولات',
 				status: response.status,
 			};
 		}
@@ -79,7 +79,7 @@ export async function getWorkerModulesByZone(
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في تحميل الموديولات',
 			status: 500,
 		};
 	}
@@ -94,7 +94,7 @@ export async function registerWorker(
 ): Promise<ApiResponse<WorkerRegistrationResponse>> {
 	try {
 		const formData = new FormData();
-		
+
 		// Append required text fields
 		formData.append('first_name', data.first_name);
 		formData.append('last_name', data.last_name);
@@ -156,7 +156,7 @@ export async function registerWorker(
 	} catch (error) {
 		console.error('Worker registration network error:', error);
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في تسجيل العامل',
 			status: 500,
 		};
 	}
@@ -182,7 +182,7 @@ export async function getWorkerProfile(
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({ message: 'Failed to fetch worker profile' }));
 			return {
-				error: 'Failed to fetch worker profile',
+				error: 'حدث خطأ في تحميل الملف الشخصي للعامل',
 				status: response.status,
 			};
 		}
@@ -194,7 +194,7 @@ export async function getWorkerProfile(
 		};
 	} catch (error) {
 		return {
-			error:  'Network error',
+			error: 'حدث خطأ في تحميل الملف الشخصي للعامل',
 			status: 500,
 		};
 	}
@@ -218,9 +218,9 @@ export async function getChatMessages(
 		});
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: 'Failed to fetch messages' }));
+			const errorData = await response.json().catch(() => ({ message: 'حدث خطأ في تحميل الرسائل' }));
 			return {
-				error: errorData.message || 'Failed to fetch messages',
+				error: 'حدث خطأ في تحميل الرسائل',
 				status: response.status,
 			};
 		}
@@ -246,7 +246,7 @@ export async function getChatMessages(
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في إرسال الرسالة',
 			status: 500,
 		};
 	}
@@ -272,9 +272,9 @@ export async function sendChatMessage(
 		});
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: 'Failed to send message' }));
+			const errorData = await response.json().catch(() => ({ message: 'حدث خطأ في إرسال الرسالة' }));
 			return {
-				error: errorData.message || 'Failed to send message',
+				error: 'حدث خطأ في إرسال الرسالة',
 				status: response.status,
 			};
 		}
@@ -286,7 +286,7 @@ export async function sendChatMessage(
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في إرسال الرسالة',
 			status: 500,
 		};
 	}

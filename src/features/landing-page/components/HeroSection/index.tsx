@@ -56,7 +56,7 @@ export default function HeroSection() {
 						className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-black mb-4 sm:mb-6 leading-[1.1] tracking-tight px-2"
 					>
 						<span className=" text-gray-900 dark:text-white mb-1 sm:mb-2">
-							{isArabic ?  "مع " : "With "}
+							{isArabic ? "مع " : "With "}
 						</span>
 						<span >
 							<span className="bg-gradient-to-r mx-2 from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
@@ -89,32 +89,20 @@ export default function HeroSection() {
 							className="group relative px-6 py-4 sm:px-8 sm:py-4 md:px-10 md:py-5 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden min-h-[44px] flex items-center justify-center"
 							aria-label={isArabic ? "تصفح الآن" : "Browse now"}
 						>
-							<div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ${
-								isArabic 
-									? "translate-x-[200%] group-hover:translate-x-[-200%]" 
+							<div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ${isArabic
+									? "translate-x-[200%] group-hover:translate-x-[-200%]"
 									: "translate-x-[-200%] group-hover:translate-x-[200%]"
-							}`} />
+								}`} />
 							<span className={`relative z-10 flex items-center gap-2 sm:gap-3 justify-center ${isArabic ? "flex-row-reverse" : ""}`}>
 								<Rocket className="w-5 h-5 sm:w-6 sm:h-6" />
 								<span className="whitespace-nowrap">{t("landing.hero.browseButton")}</span>
-								<ArrowRight className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${
-									isArabic 
-										? "rotate-180 group-hover:-translate-x-2" 
+								<ArrowRight className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${isArabic
+										? "rotate-180 group-hover:-translate-x-2"
 										: "group-hover:translate-x-2"
-								}`} />
+									}`} />
 							</span>
 						</Link>
 
-						{/* Secondary CTA */}
-						<button
-							className="group px-6 py-4 sm:px-8 sm:py-4 md:px-10 md:py-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl border-2 border-gray-300 dark:border-gray-600 hover:border-green-500 dark:hover:border-green-500 shadow-xl transition-all min-h-[44px] flex items-center justify-center"
-							aria-label={isArabic ? "شاهد كيف يعمل" : "See How It Works"}
-						>
-							<span className="flex items-center gap-2 sm:gap-3 justify-center">
-								<Play className="w-4 h-4 sm:w-5 sm:h-5" />
-								<span className="whitespace-nowrap">{isArabic ? "شاهد كيف يعمل" : "See How It Works"}</span>
-							</span>
-						</button>
 					</motion.div>
 
 					{/* Trust Indicators - Better mobile layout */}

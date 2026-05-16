@@ -10,7 +10,7 @@ export default function ShellaFooter() {
 	const { t, language } = useLanguage();
 	const isArabic = language === "ar";
 	const router = useRouter();
-	
+
 	return (
 		<div
 			className={`w-full bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 ${isArabic ? "rtl" : "ltr"}`}
@@ -60,49 +60,49 @@ export default function ShellaFooter() {
 			<footer className="bg-white dark:bg-gray-900 py-12">
 				<div className="w-full px-4 sm:px-8 lg:px-16">
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 ">
-						
-					{/* Shella Logo Section */}
-					<div className="flex flex-col items-center lg:items-start">
-						<Link href="/" prefetch={true} className="inline-block mb-6">
-							<img
-								src="/shellalogo.png"
-								alt="Shalla Logo"
-								className="h-16 w-auto dark:opacity-80 transition-opacity duration-300"
-							/>
-						</Link>
-						<p className={`text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-xs text-center lg:${isArabic ? "text-right" : "text-left"}`}>
-							{t("footer.companyDescription")}
-						</p>
-					</div>
 
-						{/* Company Links (الشركة) */}
+						{/* Shella Logo Section */}
+						<div className="flex flex-col items-center lg:items-start">
+							<Link href="/" prefetch={true} className="inline-block mb-6">
+								<img
+									src="/shellalogo.png"
+									alt="Shalla Logo"
+									className="h-16 w-auto dark:opacity-80 transition-opacity duration-300"
+								/>
+							</Link>
+							<p className={`text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-xs text-center lg:${isArabic ? "text-right" : "text-left"}`}>
+								{t("footer.companyDescription")}
+							</p>
+						</div>
+
+						{/* Company Links (الشركة)
 						<div className="text-center lg:text-start">
 							<h3 className={`text-lg sm:text-xl font-bold text-green-600 dark:text-green-400 mb-4`}>
 								{t("footer.company")}
 							</h3>
-						<ul className="space-y-2">
-							<li>
-								<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
-									• {t("footer.aboutUs")}
-								</Link>
-							</li>
-							<li>
-								<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
-									• {t("footer.careers")}
-								</Link>
-							</li>
-							<li>
-								<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
-									• {t("footer.faq")}
-								</Link>
-							</li>
-							<li>
-								<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
-									• {t("footer.islamicLaw")}
-								</Link>
-							</li>
-						</ul>
-						</div>
+							<ul className="space-y-2">
+								<li>
+									<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
+										• {t("footer.aboutUs")}
+									</Link>
+								</li>
+								<li>
+									<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
+										• {t("footer.careers")}
+									</Link>
+								</li>
+								<li>
+									<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
+										• {t("footer.faq")}
+									</Link>
+								</li>
+								<li>
+									<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
+										• {t("footer.islamicLaw")}
+									</Link>
+								</li>
+							</ul>
+						</div> */}
 
 						{/* Legal Links (القانونية) */}
 						<div className="text-center lg:text-start">
@@ -125,11 +125,7 @@ export default function ShellaFooter() {
 										• {t("footer.termsConditions")}
 									</Link>
 								</li>
-								<li>
-									<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
-										• {t("footer.violations")}
-									</Link>
-								</li>
+
 							</ul>
 						</div>
 
@@ -168,11 +164,7 @@ export default function ShellaFooter() {
 								{t("footer.customerService")}
 							</h3>
 							<ul className="space-y-2">
-								<li>
-									<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
-										• {t("footer.customerTestimonials")}
-									</Link>
-								</li>
+
 								<li>
 									<Link href="/profile/support" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
 										• {t("footer.contactUs")}

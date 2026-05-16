@@ -14,7 +14,7 @@ const DEFAULT_LANG = PARTNER_CONSTANTS.DEFAULT_LANG;
  */
 export async function getPartnerZonesList(lang: string = DEFAULT_LANG): Promise<ApiResponse<Zone[]>> {
 	try {
-		const response = await fetch(`${BASE_URL}/api/v1/zone/list`, {
+		const response = await fetch(`/api/zones/list?lang=${encodeURIComponent(lang)}`, {
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json',
@@ -24,9 +24,9 @@ export async function getPartnerZonesList(lang: string = DEFAULT_LANG): Promise<
 		});
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: 'Failed to fetch zones' }));
+			const errorData = await response.json().catch(() => ({ message: 'حدث خطأ في تحميل المناطق' }));
 			return {
-				error: errorData.message || 'Failed to fetch zones',
+				error: 'حدث خطأ في تحميل المناطق',
 				status: response.status,
 			};
 		}
@@ -38,7 +38,7 @@ export async function getPartnerZonesList(lang: string = DEFAULT_LANG): Promise<
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في تحميل المناطق',
 			status: 500,
 		};
 	}
@@ -53,7 +53,7 @@ export async function getPartnerModulesByZone(
 ): Promise<ApiResponse<Module[]>> {
 	try {
 		const response = await fetch(
-			`${BASE_URL}/api/v1/module?zone_id=${zoneId}`,
+			`/api/zones/modules?zone_id=${zoneId}&lang=${encodeURIComponent(lang)}`,
 			{
 				method: 'GET',
 				headers: {
@@ -65,9 +65,9 @@ export async function getPartnerModulesByZone(
 		);
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: 'Failed to fetch modules' }));
+			const errorData = await response.json().catch(() => ({ message: 'حدث خطأ في تحميل الموديولات' }));
 			return {
-				error: errorData.message || 'Failed to fetch modules',
+				error: 'حدث خطأ في تحميل الموديولات',
 				status: response.status,
 			};
 		}
@@ -79,7 +79,7 @@ export async function getPartnerModulesByZone(
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في تحميل الموديولات',
 			status: 500,
 		};
 	}
@@ -95,7 +95,7 @@ export async function registerPartner(
 ): Promise<ApiResponse<PartnerRegistrationResponse>> {
 	try {
 		const formData = new FormData();
-		
+
 		// Append required text fields
 		formData.append('f_name', data.f_name);
 		formData.append('l_name', data.l_name);
@@ -147,7 +147,7 @@ export async function registerPartner(
 	} catch (error) {
 		console.error('Partner registration network error:', error);
 		return {
-			error: error instanceof Error ? error.message : 'Network error',
+			error: error instanceof Error ? error.message : 'حدث خطأ في تسجيل الشركة',
 			status: 500,
 		};
 	}
