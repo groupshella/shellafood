@@ -2,10 +2,14 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Star, Package, Users, Clock } from "lucide-react";
+import { Star, Package, Store, Clock } from "lucide-react";
 import { useLanguage } from "@/providers";
 
-export default function TrustBadges() {
+interface TrustBadgesProps {
+	className?: string;
+}
+
+export default function TrustBadges({ className = "" }: TrustBadgesProps) {
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
 
@@ -13,62 +17,72 @@ export default function TrustBadges() {
 		{
 			icon: Package,
 			value: "2M+",
-			label: isArabic ? "طلبات تم توصيلها" : "Orders Delivered",
-			color: "from-green-500 to-emerald-600",
+			label: isArabic ? "طلبات موصّلة" : "Orders delivered",
+			accent: "text-emerald-600 dark:text-emerald-400",
+			bg: "bg-emerald-500/10 dark:bg-emerald-500/15",
 		},
 		{
 			icon: Star,
 			value: "4.8",
-			label: isArabic ? "تقييم العملاء" : "Customer Rating",
-			color: "from-yellow-500 to-orange-500",
+			label: isArabic ? "تقييم العملاء" : "Customer rating",
+			accent: "text-amber-600 dark:text-amber-400",
+			bg: "bg-amber-500/10 dark:bg-amber-500/15",
 		},
 		{
-			icon: Users,
+			icon: Store,
 			value: "50K+",
-			label: isArabic ? "مطعم ومتجر" : "Restaurants & Stores",
-			color: "from-blue-500 to-cyan-500",
+			label: isArabic ? "مطاعم ومتاجر" : "Restaurants & stores",
+			accent: "text-sky-600 dark:text-sky-400",
+			bg: "bg-sky-500/10 dark:bg-sky-500/15",
 		},
 		{
 			icon: Clock,
-			value: "20min",
-			label: isArabic ? "متوسط وقت التوصيل" : "Avg Delivery Time",
-			color: "from-purple-500 to-pink-500",
+			value: "~20",
+			suffix: isArabic ? "د" : "min",
+			label: isArabic ? "متوسط التوصيل" : "Avg. delivery",
+			accent: "text-violet-600 dark:text-violet-400",
+			bg: "bg-violet-500/10 dark:bg-violet-500/15",
 		},
 	];
 
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 20 }}
+		<motion.ul
+			initial={{ opacity: 0, y: 16 }}
 			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.6, delay: 0.4 }}
-			className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"
+			transition={{ duration: 0.5, delay: 0.35 }}
+			className={`grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-2 xl:grid-cols-4 ${className}`}
 		>
 			{badges.map((badge, index) => {
 				const Icon = badge.icon;
 				return (
-					<motion.div
-						key={index}
-						initial={{ opacity: 0, scale: 0.8 }}
-						animate={{ opacity: 1, scale: 1 }}
-						transition={{ delay: 0.5 + index * 0.1 }}
-						whileHover={{ scale: 1.05, y: -4 }}
-						className="backdrop-blur-xl bg-white/60 dark:bg-gray-800/60 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 border border-white/20 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all"
+					<motion.li
+						key={badge.label}
+						initial={{ opacity: 0, y: 12 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.4 + index * 0.06 }}
+						className="flex items-center gap-2.5 sm:gap-3 rounded-xl border border-gray-200/80 bg-white/70 px-3 py-2.5 shadow-sm backdrop-blur-sm dark:border-gray-700/60 dark:bg-gray-800/50 sm:rounded-2xl sm:px-4 sm:py-3"
 					>
-						<div className={`flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2 ${isArabic ? "flex-row-reverse" : ""}`}>
-							<div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br ${badge.color} flex items-center justify-center shadow-md flex-shrink-0`}>
-								<Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-							</div>
-							<div className="min-w-0 flex-1">
-								<p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 truncate">{badge.value}</p>
-							</div>
+						<div
+							className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 sm:rounded-xl ${badge.bg}`}
+						>
+							<Icon className={`h-4 w-4 sm:h-[18px] sm:w-[18px] ${badge.accent}`} strokeWidth={2.25} />
 						</div>
-						<p className={`text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2 ${isArabic ? "text-right" : "text-left"}`}>
-							{badge.label}
-						</p>
-					</motion.div>
+						<div className="min-w-0">
+							<p className="text-base font-bold leading-none text-gray-900 dark:text-gray-50 sm:text-lg">
+								{badge.value}
+								{badge.suffix && (
+									<span className="ms-0.5 text-sm font-semibold text-gray-500 dark:text-gray-400">
+										{badge.suffix}
+									</span>
+								)}
+							</p>
+							<p className="mt-0.5 truncate text-[11px] text-gray-500 dark:text-gray-400 sm:text-xs">
+								{badge.label}
+							</p>
+						</div>
+					</motion.li>
 				);
 			})}
-		</motion.div>
+		</motion.ul>
 	);
 }
-

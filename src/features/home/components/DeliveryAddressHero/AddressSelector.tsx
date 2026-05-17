@@ -509,17 +509,17 @@ interface HeaderProps {
 }
 
 const Header = memo(({ isArabic, addressesCount, onManageAddresses }: HeaderProps) => (
-  <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
-    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-      <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg flex-shrink-0">
-        <MapPin className="h-5 w-5 sm:h-6 sm:h-6 text-white" />
+  <div className="flex items-center justify-between gap-3 border-b border-gray-100 pb-4 dark:border-gray-800">
+    <div className="flex min-w-0 flex-1 items-center gap-3">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600 shadow-md shadow-emerald-600/25">
+        <MapPin className="h-5 w-5 text-white" strokeWidth={2.25} />
       </div>
-      <div className="flex-1 min-w-0">
-        <p className={`text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 truncate ${isArabic ? "text-right" : "text-left"}`}>
-          {isArabic ? "عنوان التوصيل" : "Delivery Address"}
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+          {isArabic ? "عنوان التوصيل" : "Delivery address"}
         </p>
-        <p className={`text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 line-clamp-1 ${isArabic ? "text-right" : "text-left"}`}>
-          {isArabic ? "اختر عنوانك" : "Select your address"}
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {isArabic ? "حدّد مكان توصيل طلبك" : "Where should we deliver?"}
         </p>
       </div>
     </div>
@@ -528,7 +528,7 @@ const Header = memo(({ isArabic, addressesCount, onManageAddresses }: HeaderProp
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={onManageAddresses}
-        className="p-2 sm:p-2.5 text-gray-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+        className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100 hover:text-emerald-600 dark:hover:bg-gray-800 dark:hover:text-emerald-400"
         title={isArabic ? "إدارة العناوين" : "Manage Addresses"}
       >
         <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -552,7 +552,7 @@ const SelectedAddressCard = memo(({ address, addressesCount, showAddressList, is
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     onClick={onClick}
-    className={`p-3 sm:p-4 md:p-5 border-2 border-green-500 dark:border-green-600 rounded-xl sm:rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 ${addressesCount > 1 ? 'cursor-pointer hover:shadow-md' : ''} transition-all ${isArabic ? "text-right" : "text-left"}`}
+    className={`rounded-xl border border-emerald-200/80 bg-emerald-50/60 p-4 ring-1 ring-emerald-500/15 transition-all dark:border-emerald-800/50 dark:bg-emerald-950/30 dark:ring-emerald-500/10 ${addressesCount > 1 ? "cursor-pointer hover:border-emerald-300 hover:shadow-md dark:hover:border-emerald-700" : ""}`}
   >
     <div className="flex items-start justify-between gap-2 sm:gap-3">
       <div className="flex-1 min-w-0">
@@ -563,7 +563,7 @@ const SelectedAddressCard = memo(({ address, addressesCount, showAddressList, is
           <span className="font-semibold text-gray-900 dark:text-gray-100 text-xs sm:text-sm md:text-base truncate">
             {address.contact_person_name}
           </span>
-          <span className="bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium">
+          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium capitalize text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 sm:text-xs">
             {address.address_type}
           </span>
         </div>
@@ -599,14 +599,14 @@ interface QuickActionsProps {
 
 const QuickActions = memo(({ isArabic, isDetecting, isLoading, hasDetectedLocation, onDetectLocation, onChooseLocation, onAddAddress }: QuickActionsProps) => {
   return (
-  <div className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 ${isArabic ? "sm:flex-row-reverse" : ""}`}>
+  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
     {!hasDetectedLocation ? (
       <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
         onClick={onDetectLocation}
         disabled={isDetecting || isLoading}
-        className="flex items-center justify-center gap-2 px-4 sm:px-5 py-3 sm:py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all text-sm sm:text-base min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/25 transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2"
       >
         {isDetecting ? (
           <>
@@ -626,11 +626,11 @@ const QuickActions = memo(({ isArabic, isDetecting, isLoading, hasDetectedLocati
       </motion.button>
     ) : (
       <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
         onClick={onChooseLocation}
         disabled={isLoading}
-        className="flex items-center justify-center gap-2 px-4 sm:px-5 py-3 sm:py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all text-sm sm:text-base min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/25 transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2"
       >
         <Check className="w-4 h-4 sm:w-5 sm:h-5" />
         <span>{isArabic ? "اختر موقعي" : "Choose My Location"}</span>
@@ -638,17 +638,16 @@ const QuickActions = memo(({ isArabic, isDetecting, isLoading, hasDetectedLocati
     )}
 
     <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
       onClick={onAddAddress}
       disabled={isLoading}
-      className="flex items-center justify-center gap-2 px-4 sm:px-5 py-3 sm:py-3.5 bg-white dark:bg-gray-800 border-2 border-green-500 dark:border-green-600 text-green-600 dark:text-green-400 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all text-sm sm:text-base min-h-[44px] disabled:opacity-50"
+      className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition-colors hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-700 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-200 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400"
     >
-      <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-      <span>{isArabic ? "إضافة عنوان" : "Add Address"}</span>
-      </motion.button>
-	
-    </div>
+      <Plus className="h-4 w-4" />
+      <span>{isArabic ? "إضافة عنوان" : "Add address"}</span>
+    </motion.button>
+  </div>
   );
 });
 

@@ -25,7 +25,7 @@ function CategoriesSliderControls({ children }: CategoriesSliderControlsProps) {
 
 			{/* Left Arrow */}
 			<button
-				className="absolute -left-4 z-10 hidden rounded-full bg-white dark:bg-gray-800 p-2 shadow-md dark:shadow-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 md:block"
+				className="absolute -left-4 z-10  rounded-full bg-white dark:bg-gray-800 p-2 shadow-md dark:shadow-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 md:block"
 				onClick={handleScrollLeft}
 			>
 				<svg
@@ -49,7 +49,7 @@ function CategoriesSliderControls({ children }: CategoriesSliderControlsProps) {
 
 			{/* Right Arrow */}
 			<button
-				className="absolute -right-4 z-10 hidden rounded-full bg-white dark:bg-gray-800 p-2 shadow-md dark:shadow-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 md:block"
+				className="absolute -right-4 z-10  rounded-full bg-white dark:bg-gray-800 p-2 shadow-md dark:shadow-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 md:block"
 				onClick={handleScrollRight}
 			>
 				<svg

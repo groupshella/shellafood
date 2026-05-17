@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Search, X, Loader2 } from "lucide-react";
 import { useLanguage } from "@/providers";
-import { Search, X, Loader2, Mic } from "lucide-react";
 import { useDebounce } from "@/shared/hooks";
 import { getSearchSuggestions } from "@/lib/utils/searchUtils";
 
@@ -12,7 +12,6 @@ interface SearchBarProps {
 	onChange: (value: string) => void;
 	onSubmit: (value: string) => void;
 	isLoading?: boolean;
-	placeholder?: string;
 	autoFocus?: boolean;
 }
 
@@ -21,47 +20,39 @@ export default function SearchBar({
 	onChange,
 	onSubmit,
 	isLoading = false,
-	placeholder,
 	autoFocus = false,
 }: SearchBarProps) {
 	const { language } = useLanguage();
-	const isArabic = language === "ar";
+	const isAr = language === "ar";
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [showSuggestions, setShowSuggestions] = useState(false);
 	const [suggestions, setSuggestions] = useState<string[]>([]);
-	const debouncedValue = useDebounce(value, 300);
+	const debouncedValue = useDebounce(value, 250);
 
-	// Auto-focus on mount
 	useEffect(() => {
-		if (autoFocus && inputRef.current) {
-			inputRef.current.focus();
-		}
+		if (autoFocus) inputRef.current?.focus();
 	}, [autoFocus]);
 
-	// Keyboard shortcuts
+	// Global keyboard shortcuts
 	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			// "/" to focus search
-			if (e.key === "/" && e.target !== inputRef.current) {
+		const handler = (e: KeyboardEvent) => {
+			if (e.key === "/" && document.activeElement !== inputRef.current) {
 				e.preventDefault();
 				inputRef.current?.focus();
 			}
-			// "Esc" to clear
 			if (e.key === "Escape" && value) {
 				onChange("");
+				setShowSuggestions(false);
 				inputRef.current?.blur();
 			}
 		};
-
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
+		window.addEventListener("keydown", handler);
+		return () => window.removeEventListener("keydown", handler);
 	}, [value, onChange]);
 
-	// Update suggestions
 	useEffect(() => {
 		if (debouncedValue.trim() && showSuggestions) {
-			const newSuggestions = getSearchSuggestions(debouncedValue, 5);
-			setSuggestions(newSuggestions);
+			setSuggestions(getSearchSuggestions(debouncedValue, 5));
 		} else {
 			setSuggestions([]);
 		}
@@ -70,136 +61,161 @@ export default function SearchBar({
 	const handleSubmit = useCallback(
 		(e: React.FormEvent) => {
 			e.preventDefault();
-			if (value.trim()) {
-				onSubmit(value.trim());
+			const trimmed = value.trim();
+			if (trimmed) {
+				onSubmit(trimmed);
 				setShowSuggestions(false);
 				inputRef.current?.blur();
 			}
 		},
-		[value, onSubmit]
+		[value, onSubmit],
 	);
 
 	const handleClear = useCallback(() => {
 		onChange("");
-		inputRef.current?.focus();
 		setShowSuggestions(false);
+		inputRef.current?.focus();
 	}, [onChange]);
 
 	const handleSuggestionClick = useCallback(
-		(suggestion: string) => {
-			onChange(suggestion);
-			onSubmit(suggestion);
+		(s: string) => {
+			onChange(s);
+			onSubmit(s);
 			setShowSuggestions(false);
-			inputRef.current?.blur();
 		},
-		[onChange, onSubmit]
+		[onChange, onSubmit],
 	);
 
-	const defaultPlaceholder = isArabic
-		? "ابحث عن المتاجر أو المطاعم أو المنتجات..."
-		: "Search for stores, restaurants, or products...";
+	const placeholder = isAr
+		? "ابحث عن المتاجر أو المنتجات..."
+		: "Search stores, restaurants, products...";
 
 	return (
-		<div className="relative mb-8">
-			<form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+		<div className="relative mb-8 max-w-3xl mx-auto">
+			<form onSubmit={handleSubmit}>
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
+					initial={{ opacity: 0, y: 12 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.4, delay: 0.1 }}
-					className="relative"
+					transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+					className="relative group"
 				>
-					{/* Search Input */}
-					<div className="relative group">
-						{/* Search Icon */}
-						<div
-							className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? "right-4" : "left-4"} z-10`}
-						>
-							{isLoading ? (
-								<Loader2 className="w-5 h-5 text-gray-400 dark:text-gray-500 animate-spin" />
-							) : (
-								<Search className="w-5 h-5 text-gray-400 dark:text-gray-500 group-focus-within:text-green-600 dark:group-focus-within:text-green-400 transition-colors" />
-							)}
-						</div>
+					{/* Icon */}
+					<div
+						className={`absolute top-1/2 -translate-y-1/2 ${isAr ? "right-4" : "left-4"} z-10 pointer-events-none`}
+					>
+						{isLoading ? (
+							<Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
+						) : (
+							<Search className="w-5 h-5 text-gray-400 group-focus-within:text-amber-500 transition-colors duration-200" />
+						)}
+					</div>
 
-						{/* Input Field */}
-						<input
-							ref={inputRef}
-							type="text"
-							role="searchbox"
-							aria-label={isArabic ? "بحث" : "Search"}
-							placeholder={placeholder || defaultPlaceholder}
-							value={value}
-							onChange={(e) => {
-								onChange(e.target.value);
-								setShowSuggestions(true);
-							}}
-							onFocus={() => setShowSuggestions(true)}
-							onBlur={() => {
-								// Delay to allow suggestion click
-								setTimeout(() => setShowSuggestions(false), 200);
-							}}
-							className={`w-full ${isArabic ? "pr-12 pl-20" : "pl-12 pr-20"} py-4 sm:py-5 border-2 border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-base sm:text-lg shadow-lg dark:shadow-gray-900/50 transition-all duration-200 backdrop-blur-sm group-hover:shadow-xl group-focus-within:shadow-2xl group-focus-within:scale-[1.01]`}
-							dir={isArabic ? "rtl" : "ltr"}
-						/>
+					<input
+						ref={inputRef}
+						type="text"
+						role="searchbox"
+						aria-label={isAr ? "بحث" : "Search"}
+						placeholder={placeholder}
+						value={value}
+						dir={isAr ? "rtl" : "ltr"}
+						onChange={(e) => {
+							onChange(e.target.value);
+							setShowSuggestions(true);
+						}}
+						onFocus={() => setShowSuggestions(true)}
+						onBlur={() => setTimeout(() => setShowSuggestions(false), 180)}
+						className={`
+              w-full ${isAr ? "pr-12 pl-28" : "pl-12 pr-28"}
+              py-4 sm:py-5 text-base sm:text-lg
+              bg-white dark:bg-gray-900
+              border-2 border-gray-200 dark:border-gray-700
+              rounded-2xl shadow-sm
+              text-gray-900 dark:text-gray-100
+              placeholder-gray-400 dark:placeholder-gray-600
+              focus:outline-none focus:border-amber-400 dark:focus:border-amber-500
+              focus:shadow-[0_0_0_4px_rgba(251,191,36,0.12)]
+              transition-all duration-200
+            `}
+					/>
 
-						{/* Clear Button */}
+					{/* Clear */}
+					<AnimatePresence>
 						{value && (
 							<motion.button
 								type="button"
-								initial={{ opacity: 0, scale: 0 }}
+								key="clear"
+								initial={{ opacity: 0, scale: 0.6 }}
 								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0 }}
+								exit={{ opacity: 0, scale: 0.6 }}
+								transition={{ duration: 0.15 }}
 								onClick={handleClear}
-								className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? "left-16" : "right-16"} z-10 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors`}
-								aria-label={isArabic ? "مسح" : "Clear"}
+								className={`absolute top-1/2 -translate-y-1/2 ${isAr ? "left-20" : "right-20"} z-10 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors`}
+								aria-label={isAr ? "مسح" : "Clear"}
 							>
-								<X className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+								<X className="w-4 h-4 text-gray-400" />
 							</motion.button>
 						)}
-
-						{/* Submit Button */}
-						<motion.button
-							type="submit"
-							disabled={!value.trim() || isLoading}
-							whileHover={{ scale: 1.05 }}
-							whileTap={{ scale: 0.95 }}
-							className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? "left-3" : "right-3"} z-10 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 dark:from-green-500 dark:to-emerald-500 dark:hover:from-green-600 dark:hover:to-emerald-600 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
-							aria-label={isArabic ? "بحث" : "Search"}
-						>
-							{isArabic ? "بحث" : "Search"}
-						</motion.button>
-					</div>
-
-					{/* Search Suggestions Dropdown */}
-					<AnimatePresence>
-						{showSuggestions && suggestions.length > 0 && (
-							<motion.div
-								initial={{ opacity: 0, y: -10 }}
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: -10 }}
-								className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl"
-							>
-								<div className="py-2">
-									{suggestions.map((suggestion, index) => (
-										<button
-											key={index}
-											type="button"
-											onClick={() => handleSuggestionClick(suggestion)}
-											className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${isArabic ? "text-right" : "text-left"}`}
-										>
-											<div className="flex items-center gap-3">
-												<Search className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-												<span className="text-gray-900 dark:text-gray-100">{suggestion}</span>
-											</div>
-										</button>
-									))}
-								</div>
-							</motion.div>
-						)}
 					</AnimatePresence>
+
+					{/* Submit */}
+					<motion.button
+						type="submit"
+						disabled={!value.trim() || isLoading}
+						whileHover={{ scale: 1.03 }}
+						whileTap={{ scale: 0.97 }}
+						className={`
+              absolute top-1/2 -translate-y-1/2 ${isAr ? "left-2" : "right-2"} z-10
+              px-5 py-2.5 rounded-xl
+              bg-amber-500 hover:bg-amber-600
+              text-white font-bold text-sm
+              shadow-md shadow-amber-200 dark:shadow-amber-900/30
+              disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100
+              transition-colors duration-200
+              focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+            `}
+					>
+						{isAr ? "بحث" : "Search"}
+					</motion.button>
 				</motion.div>
+
+				{/* Suggestions */}
+				<AnimatePresence>
+					{showSuggestions && suggestions.length > 0 && (
+						<motion.div
+							key="suggestions"
+							initial={{ opacity: 0, y: -6 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -6 }}
+							transition={{ duration: 0.15 }}
+							className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl z-50 overflow-hidden"
+						>
+							{suggestions.map((s, i) => (
+								<button
+									key={i}
+									type="button"
+									onMouseDown={() => handleSuggestionClick(s)}
+									className={`w-full flex items-center gap-3 px-5 py-3 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors ${isAr ? "flex-row-reverse text-right" : "text-left"}`}
+								>
+									<Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+									<span className="text-gray-800 dark:text-gray-200 text-sm">{s}</span>
+								</button>
+							))}
+						</motion.div>
+					)}
+				</AnimatePresence>
 			</form>
+
+			{/* Keyboard hint */}
+			{!value && (
+				<motion.p
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					transition={{ delay: 0.8 }}
+					className={`absolute -bottom-6 ${isAr ? "right-1" : "left-1"} text-xs text-gray-400 dark:text-gray-600`}
+				>
+					{isAr ? 'اضغط "/" للبحث' : 'Press "/" to focus'}
+				</motion.p>
+			)}
 		</div>
 	);
 }
-

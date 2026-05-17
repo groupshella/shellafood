@@ -42,6 +42,7 @@ export interface StoreStatus {
 
 export interface ApiStore {
     id: number;
+    is_open: boolean;
     name: string;
     phone: string;
     email: string | null;

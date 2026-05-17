@@ -24,12 +24,7 @@ function ProductGallery({ product, storeId }: ProductGalleryProps) {
   // ============================================================================
 
   const displayName = useMemo(() => {
-    if (isArabic) {
-      const arTranslation = product.translations?.find(
-        (t: any) => t.locale === 'ar' && t.key === 'name'
-      );
-      return arTranslation?.value || product.name;
-    }
+
     return product.name;
   }, [product, isArabic]);
 
@@ -205,8 +200,8 @@ function ProductGallery({ product, storeId }: ProductGalleryProps) {
               transition={{ delay: i * 0.05 }}
               onClick={() => handleThumbnailClick(i)}
               className={`relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all duration-200 ${selectedImageIndex === i
-                  ? "border-green-500 dark:border-green-400 ring-2 ring-green-500/50 scale-105 shadow-lg"
-                  : "border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:scale-105"
+                ? "border-green-500 dark:border-green-400 ring-2 ring-green-500/50 scale-105 shadow-lg"
+                : "border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:scale-105"
                 }`}
               aria-label={`${displayName} ${i + 1}`}
             >

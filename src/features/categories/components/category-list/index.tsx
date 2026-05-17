@@ -46,9 +46,9 @@ function CategoriesPage({
 		<div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={direction}>
 			{/* <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8"> */}
 			{/* Hero Section */}
-			<div className="pt-8 pb-6">
+			{/* <div className="pt-8 pb-6">
 				<CategoriesHero />
-			</div>
+			</div> */}
 			{/* Top Supermarket Section */}
 			{/* <TopSupermarketSection /> */}
 

@@ -24,12 +24,26 @@ import TopOfferNearMe from "./TopOfferNearMe";
 import LatestStores from "./LatestStores";
 import RecommendedStores from "./RecommendedStores";
 
-export default function HomePage({ modules, token }: { modules: ZoneDataModule[], token: string }) {
+export default function HomePage({ modules, guestId, token }: { modules: ZoneDataModule[], guestId: string, token: string }) {
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
 	const { showScrollToTop, handleDeliveryAddressChange, scrollToTop } = useHomePage();
 
-
+	const getGuestId = async () => {
+		const response = await fetch('/api/auth/guest/request', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-LANG': 'ar',
+			},
+		});
+		const data = await response.json();
+		console.log("data", data);
+	}
+	console.log("guestId", guestId);
+	if (!guestId) {
+		getGuestId();
+	}
 	return (
 		<div
 			className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 font-sans antialiased"
@@ -46,7 +60,7 @@ export default function HomePage({ modules, token }: { modules: ZoneDataModule[]
 				{/* <PromotionalBanner /> */}
 				{/* <ServiceRequestsSection /> */}
 				{/* Offers Strip */}
-				<OffersStrip />
+				{/* <OffersStrip /> */}
 
 				{/* Latest Stores */}
 				<LatestStores />
@@ -55,11 +69,11 @@ export default function HomePage({ modules, token }: { modules: ZoneDataModule[]
 				{/* Recommended Stores */}
 				<RecommendedStores />
 				{/* Top Rated Stores */}
-				{/* <TopRatedStores /> */}
+				<TopRatedStores />
 				{/* Top Offer Near Me */}
 				<TopOfferNearMe />
 				{/* Discounted Stores */}
-				{/* <DiscountedStores /> */}
+				<DiscountedStores />
 			</div>
 
 			{/* Scroll to Top Button - Square like cart button */}

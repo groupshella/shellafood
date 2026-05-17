@@ -30,13 +30,13 @@ export default function EmptyCartState({ language }: EmptyCartStateProps) {
 				>
 					<div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-emerald-100 via-green-100 to-teal-100 dark:from-emerald-900/30 dark:via-green-900/30 dark:to-teal-900/30 flex items-center justify-center shadow-lg">
 						<motion.div
-							animate={{ 
+							animate={{
 								y: [0, -10, 0],
 								rotate: [0, 5, -5, 0]
 							}}
-							transition={{ 
-								duration: 2, 
-								repeat: Infinity, 
+							transition={{
+								duration: 2,
+								repeat: Infinity,
 								repeatDelay: 1,
 								ease: "easeInOut"
 							}}
@@ -49,7 +49,7 @@ export default function EmptyCartState({ language }: EmptyCartStateProps) {
 						<motion.div
 							key={i}
 							initial={{ opacity: 0, scale: 0 }}
-							animate={{ 
+							animate={{
 								opacity: [0, 1, 0],
 								scale: [0, 1, 0],
 								x: Math.cos((i * Math.PI * 2) / 6) * 60,
@@ -110,16 +110,7 @@ export default function EmptyCartState({ language }: EmptyCartStateProps) {
 						<ArrowRight className={`w-5 h-5 ${isArabic ? "rotate-180" : ""}`} />
 					</motion.button>
 
-					<motion.button
-						whileHover={{ scale: 1.05, y: -2 }}
-						whileTap={{ scale: 0.95 }}
-						onClick={() => router.push("/serve-me")}
-						className={`flex items-center justify-center gap-2 px-8 py-4 bg-white dark:bg-gray-800 border-2 border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400 rounded-xl font-bold text-base hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all shadow-md hover:shadow-lg ${isArabic ? "flex-row-reverse" : ""}`}
-					>
-						<Wrench className="w-5 h-5" />
-						<span>{isArabic ? "استكشف الخدمات" : "Explore Services"}</span>
-						<ArrowRight className={`w-5 h-5 ${isArabic ? "rotate-180" : ""}`} />
-					</motion.button>
+
 				</motion.div>
 
 				{/* Decorative elements */}

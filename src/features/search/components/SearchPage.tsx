@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/providers";
 import { useDebounce } from "@/shared/hooks";
 import { useSearch } from "../hooks/useSearch";
@@ -12,225 +12,170 @@ import {
 	RecentSearches,
 	SearchTabs,
 	SearchResults,
-	SearchFilters as SearchFiltersComponent,
+	SearchFilters as SearchFiltersPanel,
 	SearchEmptyState,
 	SearchLoadingState,
 } from "./index";
-import type { SearchFilters, SearchTab, Store as SearchStore, Product as SearchProduct } from "../types";
-import type { Store, Product } from "@/shared/components";
+import type { SearchFilters } from "../types";
 import { SEARCH_CONSTANTS } from "../constants/search.constants";
+import type { Product } from "@/shared/components";
+import type { ApiStore } from "@/features/home/types/store.types";
 
-const defaultFilters: SearchFilters = {
-	sortBy: "relevance",
+// ─── types ────────────────────────────────────────────────────────────────────
+
+type Tab = "all" | "products" | "stores";
+
+// ─── defaults ─────────────────────────────────────────────────────────────────
+
+const DEFAULT_FILTERS: SearchFilters = {
+	sortBy: "popularity",
 	minRating: null,
 	priceRange: null,
+	dietary: undefined,
+	availableNow: false,
+	inStock: false,
 	categories: [],
 };
+
+// ─── component ────────────────────────────────────────────────────────────────
 
 export default function SearchPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const { language } = useLanguage();
-	const isArabic = language === "ar";
+	const isAr = language === "ar";
 
-	const query = searchParams.get("q") || "";
-	const [searchTerm, setSearchTerm] = useState(query);
-	const [stores, setStores] = useState<SearchStore[]>([]);
-	const [products, setProducts] = useState<SearchProduct[]>([]);
-	const [activeTab, setActiveTab] = useState<SearchTab>("all");
-	const [filters, setFilters] = useState<SearchFilters>(defaultFilters);
+	// ── state ──────────────────────────────────────────────────────────────────
+	const [searchTerm, setSearchTerm] = useState(searchParams.get("q") ?? "");
+	const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
+	const [activeTab, setActiveTab] = useState<Tab>("all");
 	const [hasSearched, setHasSearched] = useState(false);
+	const [products, setProducts] = useState<Product[]>([]);
+	const [stores, setStores] = useState<ApiStore[]>([]);
 
-	const { performSearch, isSearching } = useSearch();
-	const debouncedSearchTerm = useDebounce(searchTerm, SEARCH_CONSTANTS.DEBOUNCE_DELAY);
+	const { performSearch, isSearching, error } = useSearch({
+		lang: language,
+	});
+	const debouncedTerm = useDebounce(searchTerm, SEARCH_CONSTANTS.DEBOUNCE_DELAY ?? 400);
 
-	// Search when query changes from URL
-	useEffect(() => {
-		if (query) {
-			setSearchTerm(query);
-			handleSearch(query);
-		}
-	}, [query]);
-
-	// Perform search
-	const handleSearch = useCallback(
+	// ── run search ─────────────────────────────────────────────────────────────
+	const runSearch = useCallback(
 		async (term: string) => {
 			if (!term.trim()) {
-				setStores([]);
 				setProducts([]);
+				setStores([]);
 				setHasSearched(false);
 				return;
 			}
 
 			setHasSearched(true);
-			const results = await performSearch({
-				query: term,
-				filters: {
-					sortBy: filters.sortBy,
-					minRating: filters.minRating ?? undefined,
-					priceRange: filters.priceRange ?? undefined,
-					categories: filters.categories,
-				},
-			});
-			
-			// Add type markers for filtering
-			const storesWithType = results.stores.map((store) => ({
-				...store,
-				_searchType: "store" as const,
-			}));
-			const productsWithType = results.products.map((product) => ({
-				...product,
-				_searchType: "product" as const,
-			}));
-
-			setStores(storesWithType as SearchStore[]);
-			setProducts(productsWithType as SearchProduct[]);
-
-			// Save to history
-			saveToSearchHistory(term);
+			const result = await performSearch(term);
+			setProducts(result.products);
+			setStores(result.stores);
 		},
-		[performSearch, filters]
+		[performSearch],
 	);
 
-	// Handle search submission
-	const handleSearchSubmit = useCallback(
+	// Bootstrap from URL query
+	useEffect(() => {
+		const q = searchParams.get("q");
+		if (q) {
+			setSearchTerm(q);
+			runSearch(q);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	// ── handlers ───────────────────────────────────────────────────────────────
+	const handleSubmit = useCallback(
 		(term: string) => {
 			const url = new URL(window.location.href);
 			url.searchParams.set("q", term);
 			router.push(url.pathname + url.search);
-			handleSearch(term);
+			saveToSearchHistory(term);
+			runSearch(term);
 		},
-		[router, handleSearch]
+		[router, runSearch],
 	);
 
-	// Handle search term change
-	const handleSearchChange = useCallback((value: string) => {
-		setSearchTerm(value);
-	}, []);
-
-	// Handle filter changes
 	const handleFiltersChange = useCallback((newFilters: SearchFilters) => {
 		setFilters(newFilters);
-		if (searchTerm.trim()) {
-			handleSearch(searchTerm);
-		}
-	}, [searchTerm, handleSearch]);
+		// Filters are UI-only until the API supports them on item-or-store-search
+	}, []);
 
 	const handleFiltersReset = useCallback(() => {
-		setFilters(defaultFilters);
-		if (searchTerm.trim()) {
-			handleSearch(searchTerm);
-		}
-	}, [searchTerm, handleSearch]);
+		setFilters(DEFAULT_FILTERS);
+	}, []);
 
-	// Handle store click
-	const handleStoreClick = useCallback(
-		(store: Store) => {
-			if (store.hasProducts === false) return;
-			router.push(`/categories/${store.id}`);
-		},
-		[router]
-	);
-
-	// Handle product click
 	const handleProductClick = useCallback(
-		(productId: string) => {
-			router.push(`/product/${productId}`);
-		},
-		[router]
+		(id: string) => router.push(`/product/${id}`),
+		[router],
 	);
 
-	// Handle category click
-	const handleCategoryClick = useCallback(
-		(categoryId: string) => {
-			router.push(`/categories/${categoryId}`);
-		},
-		[router]
-	);
-
-	// Handle recent search click
-	const handleRecentSearchClick = useCallback(
+	const handleRecentClick = useCallback(
 		(term: string) => {
 			setSearchTerm(term);
-			handleSearchSubmit(term);
+			handleSubmit(term);
 		},
-		[handleSearchSubmit]
+		[handleSubmit],
 	);
 
-	// Filter results by active tab and map to shared Store/Product types
-	const filteredStores = useMemo(() => {
-		if (activeTab === "all" || activeTab === "stores") {
-			return stores.map((store): Store => ({
-				id: store.id,
-				name: store.name,
-				nameAr: store.nameAr,
-				logo: store.logo ?? null,
-				rating: store.rating?.toString(),
-				reviewsCount: store.reviewsCount,
-				deliveryTime: store.deliveryTime,
-				minimumOrder: store.minimumOrder?.toString(),
-				fee: store.deliveryFee?.toString(),
-				type: "store", // Required by shared Store type
-				hasProducts: true, // Default to true, can be adjusted based on your logic
-			}));
-		}
-		return [];
-	}, [stores, activeTab]);
+	// ── derived state ──────────────────────────────────────────────────────────
+	const visibleProducts = useMemo(
+		() => (activeTab === "all" || activeTab === "products" ? products : []),
+		[products, activeTab],
+	);
+	const visibleStores = useMemo(
+		() => (activeTab === "all" || activeTab === "stores" ? stores : []),
+		[stores, activeTab],
+	);
 
-	const filteredProducts = useMemo(() => {
-		if (activeTab === "all" || activeTab === "products") return products;
-		return [];
-	}, [products, activeTab]);
-
-	// Counts
 	const counts = useMemo(
 		() => ({
-			all: stores.length + products.length,
-			stores: stores.length,
+			all: products.length + stores.length,
 			products: products.length,
+			stores: stores.length,
 		}),
-		[stores.length, products.length]
+		[products.length, stores.length],
 	);
 
-	const hasResults = filteredStores.length > 0 || filteredProducts.length > 0;
-	const showRecentSearches = !hasSearched && !searchTerm.trim();
-	const showTabs = hasResults && hasSearched;
+	const hasResults = visibleProducts.length > 0 || visibleStores.length > 0;
+	const showRecent = !hasSearched && !searchTerm.trim();
+	const showTabs = hasSearched && counts.all > 0;
 
+	// ── render ─────────────────────────────────────────────────────────────────
 	return (
 		<div
-			dir={isArabic ? "rtl" : "ltr"}
-			className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
+			dir={isAr ? "rtl" : "ltr"}
+			className="min-h-screen bg-gray-50 dark:bg-gray-950"
 		>
-			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-				{/* Header */}
+			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
 				<SearchHeader />
 
-				{/* Search Bar */}
 				<SearchBar
 					value={searchTerm}
-					onChange={handleSearchChange}
-					onSubmit={handleSearchSubmit}
+					onChange={setSearchTerm}
+					onSubmit={handleSubmit}
 					isLoading={isSearching}
-					autoFocus={!query}
+					autoFocus={!searchParams.get("q")}
 				/>
 
-				{/* Recent Searches */}
-				<RecentSearches onSearchClick={handleRecentSearchClick} visible={showRecentSearches} />
+				<RecentSearches onSearchClick={handleRecentClick} visible={showRecent} />
 
-				{/* Main Content Layout */}
+				{/* Main layout */}
 				<div className="flex flex-col lg:flex-row gap-8">
-					{/* Filters Sidebar */}
-					<div className="lg:w-64 lg:flex-shrink-0">
-						<SearchFiltersComponent
+					{/* Filters sidebar */}
+					<aside className="lg:w-60 lg:flex-shrink-0">
+						<SearchFiltersPanel
 							filters={filters}
 							onFiltersChange={handleFiltersChange}
 							onReset={handleFiltersReset}
 							visible={hasSearched}
 						/>
-					</div>
+					</aside>
 
-					{/* Results Section */}
-					<div className="flex-1 min-w-0">
+					{/* Results area */}
+					<main className="flex-1 min-w-0">
 						{/* Tabs */}
 						<SearchTabs
 							activeTab={activeTab}
@@ -239,24 +184,18 @@ export default function SearchPage() {
 							visible={showTabs}
 						/>
 
-						{/* Results Count */}
+						{/* Results summary */}
 						{hasResults && (
-							<div className="mb-6 text-center">
-								<p className={`text-gray-600 dark:text-gray-400 ${isArabic ? "text-right" : "text-left"}`}>
-									{isArabic ? "تم العثور على" : "Found"}{" "}
-									<span className="font-bold text-green-600 dark:text-green-400">
-										{filteredStores.length + filteredProducts.length}
-									</span>{" "}
-									{isArabic ? "نتيجة" : "results"}
-									{searchTerm && (
-										<span>
-											{" "}
-											{isArabic ? "لـ" : "for"}{" "}
-											<span className="font-semibold">&quot;{searchTerm}&quot;</span>
-										</span>
-									)}
-								</p>
-							</div>
+							<p className={`text-sm text-gray-500 dark:text-gray-400 mb-5 ${isAr ? "text-right" : ""}`}>
+								{isAr ? "تم العثور على" : "Found"}{" "}
+								<strong className="text-amber-600 dark:text-amber-400">
+									{counts.all}
+								</strong>{" "}
+								{isAr ? "نتيجة" : "results"}
+								{searchTerm && (
+									<> {isAr ? "لـ" : "for"} <q className="font-semibold text-gray-700 dark:text-gray-300">{searchTerm}</q></>
+								)}
+							</p>
 						)}
 
 						{/* Content */}
@@ -264,21 +203,23 @@ export default function SearchPage() {
 							<SearchLoadingState />
 						) : hasResults ? (
 							<SearchResults
-								stores={filteredStores}
-								products={filteredProducts}
-								onStoreClick={handleStoreClick}
+								products={visibleProducts}
+								stores={visibleStores}
 								onProductClick={handleProductClick}
 							/>
 						) : hasSearched ? (
-							<SearchEmptyState
-								type="no-results"
-								searchTerm={searchTerm}
-								onCategoryClick={handleCategoryClick}
-							/>
+							<SearchEmptyState type="no-results" searchTerm={searchTerm} />
 						) : (
-							<SearchEmptyState type="start-search" onCategoryClick={handleCategoryClick} />
+							<SearchEmptyState type="start-search" />
 						)}
-					</div>
+
+						{/* Error banner */}
+						{error && !isSearching && (
+							<p className="mt-6 text-center text-sm text-red-500 dark:text-red-400">
+								{error}
+							</p>
+						)}
+					</main>
 				</div>
 			</div>
 		</div>

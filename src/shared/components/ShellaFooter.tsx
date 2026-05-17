@@ -75,7 +75,7 @@ export default function ShellaFooter() {
 							</p>
 						</div>
 
-						{/* Company Links (الشركة)
+						{/* Company Links (الشركة) */}
 						<div className="text-center lg:text-start">
 							<h3 className={`text-lg sm:text-xl font-bold text-green-600 dark:text-green-400 mb-4`}>
 								{t("footer.company")}
@@ -87,7 +87,7 @@ export default function ShellaFooter() {
 									</Link>
 								</li>
 								<li>
-									<Link href="/" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
+									<Link href="/jobs" prefetch={true} className={`text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors block`}>
 										• {t("footer.careers")}
 									</Link>
 								</li>
@@ -102,7 +102,7 @@ export default function ShellaFooter() {
 									</Link>
 								</li>
 							</ul>
-						</div> */}
+						</div>
 
 						{/* Legal Links (القانونية) */}
 						<div className="text-center lg:text-start">

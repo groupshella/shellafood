@@ -1,17 +1,21 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
+import { Search, TrendingUp } from "lucide-react";
 import { useLanguage } from "@/providers";
-import { Search, TrendingUp, Sparkles } from "lucide-react";
-import Link from "next/link";
 import { TEST_CATEGORIES } from "@/lib/data/categories/testData";
 
 interface SearchEmptyStateProps {
 	type: "no-results" | "start-search";
 	searchTerm?: string;
-	onCategoryClick?: (categoryId: string) => void;
+	onCategoryClick?: (id: string) => void;
 }
+
+const fadeUp: Variants = {
+	hidden: { opacity: 0, y: 12 },
+	show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+};
 
 export default function SearchEmptyState({
 	type,
@@ -19,47 +23,46 @@ export default function SearchEmptyState({
 	onCategoryClick,
 }: SearchEmptyStateProps) {
 	const { language } = useLanguage();
-	const isArabic = language === "ar";
+	const isAr = language === "ar";
+	const popular = TEST_CATEGORIES.slice(0, 6);
 
-	const popularCategories = TEST_CATEGORIES.slice(0, 6);
-
+	// ── No results ─────────────────────────────────────────────────────────────
 	if (type === "no-results") {
 		return (
 			<motion.div
-				initial={{ opacity: 0, scale: 0.95 }}
-				animate={{ opacity: 1, scale: 1 }}
-				exit={{ opacity: 0, scale: 0.95 }}
-				className="flex flex-col items-center justify-center py-20"
+				variants={fadeUp}
+				initial="hidden"
+				animate="show"
+				className="flex flex-col items-center py-20 text-center"
 			>
-				<div className="text-6xl mb-4">🔍</div>
-				<h3 className={`text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-2 ${isArabic ? "text-right" : "text-left"}`}>
-					{isArabic ? "لم نجد نتائج" : "No Results Found"}
+				<div className="text-5xl mb-4">🔍</div>
+				<h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+					{isAr ? "لا توجد نتائج" : "No results found"}
 				</h3>
-				<p className={`text-gray-500 dark:text-gray-400 mb-6 ${isArabic ? "text-right" : "text-left"}`}>
-					{isArabic
-						? `لم نجد نتائج لـ "${searchTerm}". جرب البحث بكلمات مختلفة أو تحقق من الإملاء`
-						: `No results found for "${searchTerm}". Try searching with different words or check your spelling`}
+				<p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm">
+					{isAr
+						? `لم نجد شيئاً لـ "${searchTerm}". جرّب كلمات مختلفة`
+						: `Nothing matched "${searchTerm}". Try different keywords`}
 				</p>
 
-				{/* Suggested Categories */}
-				{popularCategories.length > 0 && (
-					<div className="mt-8 w-full max-w-2xl">
-						<h4 className={`text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 ${isArabic ? "text-right" : "text-left"}`}>
-							{isArabic ? "اقتراحات:" : "Suggestions:"}
-						</h4>
-						<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-							{popularCategories.map((category, index) => (
+				{popular.length > 0 && (
+					<div className="w-full max-w-lg">
+						<p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-3">
+							{isAr ? "تصفح" : "Browse"}
+						</p>
+						<div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+							{popular.map((cat, i) => (
 								<motion.button
-									key={category.id}
-									initial={{ opacity: 0, y: 10 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ delay: index * 0.1 }}
-									whileHover={{ scale: 1.05 }}
-									whileTap={{ scale: 0.95 }}
-									onClick={() => onCategoryClick?.(category.id)}
-									className="px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-green-500 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
+									key={cat.id}
+									initial={{ opacity: 0, scale: 0.9 }}
+									animate={{ opacity: 1, scale: 1 }}
+									transition={{ delay: i * 0.06 }}
+									whileHover={{ scale: 1.04 }}
+									whileTap={{ scale: 0.96 }}
+									onClick={() => onCategoryClick?.(cat.id)}
+									className="px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-amber-300 dark:hover:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-all"
 								>
-									{isArabic ? category.name : category.name}
+									{cat.name}
 								</motion.button>
 							))}
 						</div>
@@ -69,57 +72,53 @@ export default function SearchEmptyState({
 		);
 	}
 
-	// Start search state
+	// ── Start searching ────────────────────────────────────────────────────────
 	return (
 		<motion.div
-			initial={{ opacity: 0, scale: 0.95 }}
-			animate={{ opacity: 1, scale: 1 }}
-			exit={{ opacity: 0, scale: 0.95 }}
-			className="flex flex-col items-center justify-center py-20"
+			variants={fadeUp}
+			initial="hidden"
+			animate="show"
+			className="flex flex-col items-center py-20 text-center"
 		>
 			<motion.div
-				initial={{ scale: 0, rotate: -180 }}
-				animate={{ scale: 1, rotate: 0 }}
-				transition={{ type: "spring", duration: 0.8, delay: 0.2 }}
-				className="relative mb-8"
+				initial={{ scale: 0.7, rotate: -15, opacity: 0 }}
+				animate={{ scale: 1, rotate: 0, opacity: 1 }}
+				transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.1 }}
+				className="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 flex items-center justify-center mb-6 shadow-lg"
 			>
-				<div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-full blur-3xl opacity-50"></div>
-				<div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 flex items-center justify-center shadow-lg border-2 border-green-100 dark:border-green-800">
-					<Search className="w-16 h-16 sm:w-20 sm:h-20 text-green-600 dark:text-green-400" />
-				</div>
+				<Search className="w-10 h-10 text-amber-500" />
 			</motion.div>
 
-			<h3 className={`text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-2 ${isArabic ? "text-right" : "text-left"}`}>
-				{isArabic ? "ابدأ البحث" : "Start Searching"}
+			<h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">
+				{isAr ? "ابدأ البحث" : "What are you craving?"}
 			</h3>
-			<p className={`text-gray-500 dark:text-gray-400 mb-8 max-w-md text-center ${isArabic ? "text-right" : "text-left"}`}>
-				{isArabic
-					? "اكتب في مربع البحث أعلاه للعثور على المتاجر والمنتجات"
-					: "Type in the search box above to find stores and products"}
+			<p className="text-gray-500 dark:text-gray-400 mb-10 max-w-sm">
+				{isAr
+					? "اكتب اسم المنتج أو المتجر للبدء"
+					: "Search for products, stores, or cuisine"}
 			</p>
 
-			{/* Popular Categories */}
-			{popularCategories.length > 0 && (
-				<div className="mt-8 w-full max-w-2xl">
-					<div className={`flex items-center gap-2 mb-4 ${isArabic ? "flex-row-reverse" : ""}`}>
-						<TrendingUp className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-						<h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-							{isArabic ? "الأقسام الشائعة" : "Popular Categories"}
-						</h4>
+			{popular.length > 0 && (
+				<div className="w-full max-w-lg">
+					<div className="flex items-center justify-center gap-2 mb-4">
+						<TrendingUp className="w-4 h-4 text-amber-500" />
+						<span className="text-xs font-bold tracking-widest uppercase text-gray-400">
+							{isAr ? "شائع" : "Trending"}
+						</span>
 					</div>
-					<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-						{popularCategories.map((category, index) => (
+					<div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+						{popular.map((cat, i) => (
 							<motion.button
-								key={category.id}
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.3 + index * 0.1 }}
-								whileHover={{ scale: 1.05, y: -2 }}
-								whileTap={{ scale: 0.95 }}
-								onClick={() => onCategoryClick?.(category.id)}
-								className="px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-green-500 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all shadow-sm hover:shadow-md"
+								key={cat.id}
+								initial={{ opacity: 0, scale: 0.9 }}
+								animate={{ opacity: 1, scale: 1 }}
+								transition={{ delay: 0.3 + i * 0.07 }}
+								whileHover={{ scale: 1.04, y: -2 }}
+								whileTap={{ scale: 0.96 }}
+								onClick={() => onCategoryClick?.(cat.id)}
+								className="px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-amber-300 dark:hover:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/10 hover:shadow-sm transition-all"
 							>
-								{isArabic ? category.name : category.name}
+								{cat.name}
 							</motion.button>
 						))}
 					</div>
@@ -128,4 +127,3 @@ export default function SearchEmptyState({
 		</motion.div>
 	);
 }
-

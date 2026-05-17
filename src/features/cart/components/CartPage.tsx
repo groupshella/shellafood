@@ -141,7 +141,7 @@ export default function CartPage(props: CartPageProps = {}) {
 					{/* Right Column - Summary & Options */}
 					<div className="lg:col-span-1 space-y-6">
 						{/* Coupon Section */}
-						<CouponSection
+						{/* <CouponSection
 							language={language}
 							appliedCoupon={appliedCoupon}
 							isApplying={isApplyingCoupon}
@@ -150,7 +150,7 @@ export default function CartPage(props: CartPageProps = {}) {
 								await applyCoupon(code);
 							}}
 							onRemove={removeCoupon}
-						/>
+						/> */}
 
 						<AddressSelector onAddressChange={(address: Address | null) => setSelectedAddress(address)} token={token} />
 
