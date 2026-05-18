@@ -1,75 +1,66 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
-import { searchItemOrStore } from "../api/search.api";
-import { getSearchLocationFromCookie } from "../lib/getSearchLocation";
-import { mapSearchItemToProduct, mapSearchStoreToApiStore } from "../lib/mapSearchResults";
-import { SEARCH_CONSTANTS } from "../constants/search.constants";
-import type { SearchRequestContext } from "../types";
-import type { Product } from "@/shared/components";
-import type { ApiStore } from "@/features/home/types/store.types";
+import { useState, useCallback, useRef } from "react";
+import { searchStores } from "../api/search.api";
+import type { ApiStore, StoreType, SearchContext } from "../types/search.types";
 
-export interface SearchResult {
-	products: Product[];
+export interface UseSearchResult {
 	stores: ApiStore[];
-	total: number;
+	totalSize: number;
+	isSearching: boolean;
+	error: string | null;
+	search: (name: string, type?: StoreType, offset?: number) => Promise<void>;
+	reset: () => void;
 }
 
-export interface UseSearchOptions extends SearchRequestContext {}
+const LIMIT = 10;
 
-/**
- * Search hook — calls `GET /api/v1/items/item-or-store-search`.
- */
-export function useSearch(options: UseSearchOptions = {}) {
+export function useSearch(ctx: SearchContext): UseSearchResult {
+	const [stores, setStores] = useState<ApiStore[]>([]);
+	const [totalSize, setTotalSize] = useState(0);
 	const [isSearching, setIsSearching] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const context = useMemo<SearchRequestContext>(() => {
-		const cookieLocation = getSearchLocationFromCookie();
-		const moduleId = options.moduleId ?? SEARCH_CONSTANTS.DEFAULT_MODULE_ID;
+	// Abort previous in-flight request when a new one starts
+	const abortRef = useRef<AbortController | null>(null);
 
-		return {
-			lang: options.lang ?? SEARCH_CONSTANTS.DEFAULT_LANG,
-			zoneId: options.zoneId ?? SEARCH_CONSTANTS.DEFAULT_ZONE_ID,
-			moduleId,
-			latitude: options.latitude ?? cookieLocation?.lat ?? SEARCH_CONSTANTS.DEFAULT_LATITUDE,
-			longitude: options.longitude ?? cookieLocation?.lng ?? SEARCH_CONSTANTS.DEFAULT_LONGITUDE,
-		};
-	}, [options.lang, options.zoneId, options.moduleId, options.latitude, options.longitude]);
+	const search = useCallback(
+		async (name: string, type: StoreType = "all", offset: number = 1) => {
+			const trimmed = name.trim();
+			if (!trimmed) { setStores([]); setTotalSize(0); return; }
 
-	const performSearch = useCallback(
-		async (name: string): Promise<SearchResult> => {
-			if (!name.trim()) {
-				return { products: [], stores: [], total: 0 };
-			}
+			// Cancel previous request
+			abortRef.current?.abort();
+			abortRef.current = new AbortController();
 
 			setIsSearching(true);
 			setError(null);
 
-			try {
-				const res = await searchItemOrStore({ name: name.trim() }, context);
+			const result = await searchStores({ name: trimmed, type, limit: LIMIT, offset: offset }, ctx);
 
-				if (!res.success || !res.data) {
-					setError(res.error ?? "Search failed");
-					return { products: [], stores: [], total: 0 };
-				}
+			// Ignore stale responses after abort
+			if (abortRef.current?.signal.aborted) return;
 
-				const products = res.data.items.map(mapSearchItemToProduct);
-				const stores = res.data.stores.map((s) =>
-					mapSearchStoreToApiStore(s, Number(context.moduleId) || 3),
-				);
-
-				return {
-					products,
-					stores,
-					total: products.length + stores.length,
-				};
-			} finally {
-				setIsSearching(false);
+			if (result.success) {
+				// Append on pagination, replace on fresh search
+				setStores(offset === 1 ? result.data.stores : (prev: ApiStore[]) => [...prev, ...result.data.stores]);
+				setTotalSize(result.data.total_size);
+			} else {
+				setError(result.error);
 			}
+
+			setIsSearching(false);
 		},
-		[context],
+		[ctx],
 	);
 
-	return { performSearch, isSearching, error };
+	const reset = useCallback(() => {
+		abortRef.current?.abort();
+		setStores([]);
+		setTotalSize(0);
+		setError(null);
+		setIsSearching(false);
+	}, []);
+
+	return { stores, totalSize, isSearching, error, search, reset };
 }

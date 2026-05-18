@@ -215,7 +215,7 @@ export default function ShellaFooter() {
 
 							{/* Copyright */}
 							<p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-								{t("footer.copyright")}
+								{isArabic ? "جميع الحقوق محفوظة لشلة فود © 2026" : "All rights reserved © ShellaFood 2026"}
 							</p>
 						</div>
 					</div>

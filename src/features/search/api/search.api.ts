@@ -1,85 +1,38 @@
-/**
- * Search API — `GET /api/v1/items/item-or-store-search`
- */
+import { StoreSearchParams, SearchContext, ApiResult, StoreSearchResponse } from "../types/search.types";
 
-import { BASE_URL } from "@/features/auth/constants/auth.constants";
-import { SEARCH_CONSTANTS } from "../constants/search.constants";
-import type {
-	ApiResponse,
-	ItemOrStoreSearchResponse,
-	SearchRequestContext,
-} from "../types";
-
-export interface ItemOrStoreSearchParams {
-	name: string;
-}
-
-function buildSearchHeaders(ctx: SearchRequestContext): HeadersInit {
-	const lang = ctx.lang ?? SEARCH_CONSTANTS.DEFAULT_LANG;
-
-	return {
-		Accept: "application/json",
-		"X-localization": lang,
-		zoneId: ctx.zoneId ?? SEARCH_CONSTANTS.DEFAULT_ZONE_ID,
-		moduleId: "6",
-		longitude: ctx.longitude ?? SEARCH_CONSTANTS.DEFAULT_LONGITUDE,
-		latitude: ctx.latitude ?? SEARCH_CONSTANTS.DEFAULT_LATITUDE,
-	};
-}
-
-/**
- * Search items and stores by name.
- * @see https://shellafood.com/api/v1/items/item-or-store-search
- */
-export async function searchItemOrStore(
-	params: ItemOrStoreSearchParams,
-	context: SearchRequestContext = {},
-): Promise<ApiResponse<ItemOrStoreSearchResponse>> {
-	const name = params.name?.trim();
-	if (!name) {
-		return {
-			success: true,
-			data: { items: [], stores: [] },
-		};
-	}
-
-	const qs = new URLSearchParams({ name });
-	const url = `${BASE_URL}/api/v1/items/item-or-store-search?${qs.toString()}`;
+export async function searchStores(
+	params: StoreSearchParams,
+	ctx: SearchContext,
+): Promise<ApiResult> {
+	const qs = new URLSearchParams({
+		name: params.name,
+		type: params.type ?? "all",
+		limit: String(params.limit ?? 10),
+		offset: String(params.offset ?? 1),
+	});
+	if (params.category_id) qs.set("category_id", String(params.category_id));
+	if (ctx.zoneId) qs.set("zoneId", ctx.zoneId);
+	if (ctx.moduleId) qs.set("moduleId", ctx.moduleId);
+	if (ctx.longitude) qs.set("longitude", ctx.longitude);
+	if (ctx.latitude) qs.set("latitude", ctx.latitude);
+	if (ctx.lang) qs.set("lang", ctx.lang);
 
 	try {
-		const response = await fetch(url, {
+		const res = await fetch(`/api/search/stores?${qs}`, {
 			method: "GET",
-			headers: buildSearchHeaders(context),
+			headers: { Accept: "application/json" },
 			cache: "no-store",
 		});
 
-		if (!response.ok) {
-			const err = await response.json().catch(() => ({ message: "Network error" }));
-			const message =
-				(typeof err === "object" && err && "message" in err && typeof err.message === "string"
-					? err.message
-					: null) ?? `HTTP ${response.status}`;
-			return { success: false, error: message };
+		if (!res.ok) {
+			const err = await res.json().catch(() => null);
+			const msg = err?.errors?.[0]?.message ?? err?.message ?? `HTTP ${res.status}`;
+			return { success: false, error: msg };
 		}
 
-		const data = (await response.json()) as ItemOrStoreSearchResponse;
-		return {
-			success: true,
-			data: {
-				items: Array.isArray(data.items) ? data.items : [],
-				stores: Array.isArray(data.stores) ? data.stores : [],
-			},
-		};
-	} catch (error) {
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : "Network error",
-		};
+		const data: StoreSearchResponse = await res.json();
+		return { success: true, data };
+	} catch (e) {
+		return { success: false, error: e instanceof Error ? e.message : "Network error" };
 	}
 }
-
-/** @deprecated Use searchItemOrStore */
-export const searchProducts = searchItemOrStore;
-
-/** @deprecated Only `name` is sent to item-or-store-search */
-export type SearchApiParams = ItemOrStoreSearchParams;

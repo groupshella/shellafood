@@ -42,29 +42,26 @@ export default function RecentSearches({
 		setHistory([]);
 	}, []);
 
-	if (!visible || history.length === 0) return null;
+	if (!visible || !history.length) return null;
 
 	return (
 		<motion.section
-			initial={{ opacity: 0, y: 8 }}
+			initial={{ opacity: 0, y: 6 }}
 			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.4, delay: 0.2 }}
+			transition={{ duration: 0.35, delay: 0.2 }}
 			className="mb-10 max-w-3xl mx-auto"
 			aria-label={isAr ? "البحث الأخير" : "Recent searches"}
 		>
-			<div
-				className={`flex items-center justify-between mb-3 ${isAr ? "flex-row-reverse" : ""}`}
-			>
-				<div className={`flex items-center gap-2 ${isAr ? "flex-row-reverse" : ""}`}>
+			<div className={`flex items-center justify-between mb-3 ${isAr ? "flex-row-reverse" : ""}`}>
+				<div className={`flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : ""}`}>
 					<Clock className="w-4 h-4 text-gray-400" />
-					<span className="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wide uppercase">
+					<span className="text-xs font-bold tracking-widest uppercase text-gray-400">
 						{isAr ? "بحث سابق" : "Recent"}
 					</span>
 				</div>
 				<button
 					onClick={handleClearAll}
 					className={`flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors ${isAr ? "flex-row-reverse" : ""}`}
-					aria-label={isAr ? "مسح الكل" : "Clear all"}
 				>
 					<Trash2 className="w-3.5 h-3.5" />
 					{isAr ? "مسح الكل" : "Clear all"}
@@ -73,18 +70,18 @@ export default function RecentSearches({
 
 			<div className={`flex flex-wrap gap-2 ${isAr ? "justify-end" : ""}`}>
 				<AnimatePresence>
-					{history.map((item, index) => (
+					{history.map((item, i) => (
 						<motion.div
 							key={item.term}
 							initial={{ opacity: 0, scale: 0.85 }}
 							animate={{ opacity: 1, scale: 1 }}
 							exit={{ opacity: 0, scale: 0.85 }}
-							transition={{ delay: index * 0.04 }}
+							transition={{ delay: i * 0.04 }}
 							className="group relative flex items-center"
 						>
 							<button
 								onClick={() => onSearchClick(item.term)}
-								className="flex items-center gap-2 pl-3 pr-8 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:border-amber-300 dark:hover:border-amber-700 border border-transparent rounded-full text-sm text-gray-700 dark:text-gray-300 transition-all duration-150"
+								className="flex items-center gap-2 pl-3 pr-8 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:border-amber-300 dark:hover:border-amber-700 border border-transparent rounded-full text-sm text-gray-700 dark:text-gray-300 transition-all"
 							>
 								<Clock className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
 								{item.term}

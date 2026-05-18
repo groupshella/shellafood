@@ -1,43 +1,33 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/providers";
-import { useDebounce } from "@/shared/hooks";
 import { useSearch } from "../hooks/useSearch";
 import { saveToSearchHistory } from "../lib/utils/searchUtils";
+import type { StoreType } from "../types/search.types";
+import type { ApiStore } from "../types/search.types";
 import {
 	SearchHeader,
 	SearchBar,
 	RecentSearches,
-	SearchTabs,
+	SearchFilters,
 	SearchResults,
-	SearchFilters as SearchFiltersPanel,
 	SearchEmptyState,
 	SearchLoadingState,
 } from "./index";
-import type { SearchFilters } from "../types";
-import { SEARCH_CONSTANTS } from "../constants/search.constants";
-import type { Product } from "@/shared/components";
-import type { ApiStore } from "@/features/home/types/store.types";
 
-// ─── types ────────────────────────────────────────────────────────────────────
+// ─── Search context ───────────────────────────────────────────────────────────
+// Adjust these or pull from your app's session/context provider
+const SEARCH_CTX = {
+	zoneId: "[2]",
+	moduleId: "6",
+	longitude: "46.6753",
+	latitude: "24.7136",
+	lang: "en",
+} as const;
 
-type Tab = "all" | "products" | "stores";
-
-// ─── defaults ─────────────────────────────────────────────────────────────────
-
-const DEFAULT_FILTERS: SearchFilters = {
-	sortBy: "popularity",
-	minRating: null,
-	priceRange: null,
-	dietary: undefined,
-	availableNow: false,
-	inStock: false,
-	categories: [],
-};
-
-// ─── component ────────────────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function SearchPage() {
 	const router = useRouter();
@@ -45,113 +35,83 @@ export default function SearchPage() {
 	const { language } = useLanguage();
 	const isAr = language === "ar";
 
-	// ── state ──────────────────────────────────────────────────────────────────
 	const [searchTerm, setSearchTerm] = useState(searchParams.get("q") ?? "");
-	const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
-	const [activeTab, setActiveTab] = useState<Tab>("all");
-	const [hasSearched, setHasSearched] = useState(false);
-	const [products, setProducts] = useState<Product[]>([]);
-	const [stores, setStores] = useState<ApiStore[]>([]);
+	const [storeType, setStoreType] = useState<StoreType>("all");
+	const [hasSearched, setHasSearched] = useState(!!searchParams.get("q"));
 
-	const { performSearch, isSearching, error } = useSearch({
-		lang: language,
+	const { stores, totalSize, isSearching, error, search, reset } = useSearch({
+		...SEARCH_CTX,
+		lang: language === "ar" ? "ar" : "en",
 	});
-	const debouncedTerm = useDebounce(searchTerm, SEARCH_CONSTANTS.DEBOUNCE_DELAY ?? 400);
 
-	// ── run search ─────────────────────────────────────────────────────────────
+	// ── Run search ──────────────────────────────────────────────────────────────
 	const runSearch = useCallback(
-		async (term: string) => {
-			if (!term.trim()) {
-				setProducts([]);
-				setStores([]);
-				setHasSearched(false);
-				return;
-			}
-
+		(term: string, type: StoreType = storeType) => {
+			if (!term.trim()) { reset(); setHasSearched(false); return; }
 			setHasSearched(true);
-			const result = await performSearch(term);
-			setProducts(result.products);
-			setStores(result.stores);
+			search(term, type);
 		},
-		[performSearch],
+		[storeType, search, reset],
 	);
 
-	// Bootstrap from URL query
 	useEffect(() => {
 		const q = searchParams.get("q");
-		if (q) {
-			setSearchTerm(q);
-			runSearch(q);
-		}
+		if (q) runSearch(q);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// ── handlers ───────────────────────────────────────────────────────────────
+	// ── Handlers ────────────────────────────────────────────────────────────────
 	const handleSubmit = useCallback(
 		(term: string) => {
+			// Sync URL
 			const url = new URL(window.location.href);
 			url.searchParams.set("q", term);
-			router.push(url.pathname + url.search);
+			router.push(url.pathname + url.search, { scroll: false });
+
 			saveToSearchHistory(term);
 			runSearch(term);
 		},
 		[router, runSearch],
 	);
 
-	const handleFiltersChange = useCallback((newFilters: SearchFilters) => {
-		setFilters(newFilters);
-		// Filters are UI-only until the API supports them on item-or-store-search
-	}, []);
+	const handleTypeChange = useCallback(
+		(type: StoreType) => {
+			setStoreType(type);
+			if (searchTerm.trim()) search(searchTerm, type);
+		},
+		[searchTerm, search],
+	);
 
-	const handleFiltersReset = useCallback(() => {
-		setFilters(DEFAULT_FILTERS);
-	}, []);
+	const handleStoreClick = useCallback(
+		(store: ApiStore) => router.push(`/categories/6/${store.id}?moduleName=${store.name}`),
+		[router],
+	);
 
-	const handleProductClick = useCallback(
-		(id: string) => router.push(`/product/${id}`),
+	const handleCategoryClick = useCallback(
+		(id: string) => router.push(`/categories/${id}`),
 		[router],
 	);
 
 	const handleRecentClick = useCallback(
-		(term: string) => {
-			setSearchTerm(term);
-			handleSubmit(term);
-		},
+		(term: string) => { setSearchTerm(term); handleSubmit(term); },
 		[handleSubmit],
 	);
 
-	// ── derived state ──────────────────────────────────────────────────────────
-	const visibleProducts = useMemo(
-		() => (activeTab === "all" || activeTab === "products" ? products : []),
-		[products, activeTab],
-	);
-	const visibleStores = useMemo(
-		() => (activeTab === "all" || activeTab === "stores" ? stores : []),
-		[stores, activeTab],
-	);
-
-	const counts = useMemo(
-		() => ({
-			all: products.length + stores.length,
-			products: products.length,
-			stores: stores.length,
-		}),
-		[products.length, stores.length],
-	);
-
-	const hasResults = visibleProducts.length > 0 || visibleStores.length > 0;
+	// ── Derived state ────────────────────────────────────────────────────────────
 	const showRecent = !hasSearched && !searchTerm.trim();
-	const showTabs = hasSearched && counts.all > 0;
+	const hasResults = stores.length > 0;
 
-	// ── render ─────────────────────────────────────────────────────────────────
+	// ── Render ───────────────────────────────────────────────────────────────────
 	return (
 		<div
 			dir={isAr ? "rtl" : "ltr"}
 			className="min-h-screen bg-gray-50 dark:bg-gray-950"
 		>
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+				{/* Header */}
 				<SearchHeader />
 
+				{/* Search input */}
 				<SearchBar
 					value={searchTerm}
 					onChange={setSearchTerm}
@@ -160,67 +120,63 @@ export default function SearchPage() {
 					autoFocus={!searchParams.get("q")}
 				/>
 
+				{/* Recent searches — shown only before any search */}
 				<RecentSearches onSearchClick={handleRecentClick} visible={showRecent} />
 
-				{/* Main layout */}
-				<div className="flex flex-col lg:flex-row gap-8">
-					{/* Filters sidebar */}
-					<aside className="lg:w-60 lg:flex-shrink-0">
-						<SearchFiltersPanel
-							filters={filters}
-							onFiltersChange={handleFiltersChange}
-							onReset={handleFiltersReset}
-							visible={hasSearched}
-						/>
-					</aside>
+				{/* Type filter — shown only after a search */}
+				<SearchFilters
+					activeType={storeType}
+					onChange={handleTypeChange}
+					visible={hasSearched}
+				/>
 
-					{/* Results area */}
-					<main className="flex-1 min-w-0">
-						{/* Tabs */}
-						<SearchTabs
-							activeTab={activeTab}
-							onTabChange={setActiveTab}
-							counts={counts}
-							visible={showTabs}
-						/>
-
-						{/* Results summary */}
-						{hasResults && (
-							<p className={`text-sm text-gray-500 dark:text-gray-400 mb-5 ${isAr ? "text-right" : ""}`}>
-								{isAr ? "تم العثور على" : "Found"}{" "}
-								<strong className="text-amber-600 dark:text-amber-400">
-									{counts.all}
-								</strong>{" "}
-								{isAr ? "نتيجة" : "results"}
-								{searchTerm && (
-									<> {isAr ? "لـ" : "for"} <q className="font-semibold text-gray-700 dark:text-gray-300">{searchTerm}</q></>
-								)}
-							</p>
+				{/* Results summary */}
+				{hasResults && !isSearching && (
+					<p className={`text-sm text-gray-500 dark:text-gray-400 mb-5 ${isAr ? "text-right" : ""}`}>
+						{isAr ? "تم العثور على" : "Found"}{" "}
+						<strong className="text-amber-600 dark:text-amber-400">{totalSize}</strong>{" "}
+						{isAr ? "متجر" : totalSize === 1 ? "store" : "stores"}
+						{searchTerm && (
+							<> {isAr ? "لـ" : "for"} <q className="font-semibold text-gray-700 dark:text-gray-300">{searchTerm}</q></>
 						)}
+					</p>
+				)}
 
-						{/* Content */}
-						{isSearching ? (
-							<SearchLoadingState />
-						) : hasResults ? (
-							<SearchResults
-								products={visibleProducts}
-								stores={visibleStores}
-								onProductClick={handleProductClick}
-							/>
-						) : hasSearched ? (
-							<SearchEmptyState type="no-results" searchTerm={searchTerm} />
-						) : (
-							<SearchEmptyState type="start-search" />
-						)}
+				{/* Content area */}
+				{isSearching ? (
+					<SearchLoadingState />
+				) : hasResults ? (
+					<SearchResults
+						stores={stores}
+						totalSize={totalSize}
+						onStoreClick={handleStoreClick}
+					/>
+				) : hasSearched ? (
+					<SearchEmptyState
+						type="no-results"
+						searchTerm={searchTerm}
+						onCategoryClick={handleCategoryClick}
+					/>
+				) : (
+					<SearchEmptyState type="start-search" onCategoryClick={handleCategoryClick} />
+				)}
 
-						{/* Error banner */}
-						{error && !isSearching && (
-							<p className="mt-6 text-center text-sm text-red-500 dark:text-red-400">
-								{error}
-							</p>
-						)}
-					</main>
-				</div>
+				{/* Load more */}
+				{hasResults && !isSearching && stores.length < totalSize && (
+					<div className="mt-8 flex justify-center">
+						<button
+							onClick={() => search(searchTerm, storeType, Math.floor(stores.length / 10) + 1)}
+							className="px-8 py-3 rounded-2xl border-2 border-amber-400 text-amber-600 dark:text-amber-400 font-bold text-sm hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors"
+						>
+							{isAr ? "تحميل المزيد" : "Load more"}
+						</button>
+					</div>
+				)}
+
+				{/* Error */}
+				{error && !isSearching && (
+					<p className="mt-8 text-center text-sm text-red-500 dark:text-red-400">{error}</p>
+				)}
 			</div>
 		</div>
 	);

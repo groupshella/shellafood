@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { StoreCard, StoreCardSkeleton } from "./StoreCard";
 import { ApiStore } from "../../types/store.types";
+import { Variants } from "framer-motion";
 
 interface StoreSectionProps {
     title: string;
@@ -19,7 +20,7 @@ interface StoreSectionProps {
     storesLength?: number;
     /** horizontal scroll (home page) vs grid (all-page) */
     layout?: "scroll" | "grid";
-    cardVariant?: "default" | "compact" | "wide";
+    cardVariant?: "default" | "compact" | "wide"
     icon?: React.ReactNode;
     accentColor?: string; // tailwind class e.g. "from-green-500 to-emerald-600"
 }
@@ -60,14 +61,14 @@ export function StoreSection({
                 <SectionHeader title={title} subtitle={subtitle} icon={icon} accentColor={accentColor} />
                 {isLoading ? (
                     <div className={gridClass(cardVariant)}>
-                        {skeletons.map((_, i) => <StoreCardSkeleton key={i} variant={cardVariant} />)}
+                        {skeletons.map((_, i) => <StoreCardSkeleton key={i} />)}
                     </div>
                 ) : isEmpty ? (
                     <EmptyState message={emptyMessage} />
                 ) : (
                     <div className={gridClass(cardVariant)}>
                         {stores.map((store) => (
-                            <StoreCard key={store.id} store={store} variant={cardVariant} />
+                            <StoreCard key={store.id} store={store} />
                         ))}
                     </div>
                 )}
@@ -84,14 +85,14 @@ export function StoreSection({
                     {isLoading
                         ? skeletons.map((_, i) => (
                             <div key={i} className="snap-start flex-shrink-0 w-48 sm:w-56">
-                                <StoreCardSkeleton variant={cardVariant} />
+                                <StoreCardSkeleton />
                             </div>
                         ))
                         : isEmpty
                             ? <EmptyState message={emptyMessage} />
                             : stores.map((store) => (
                                 <div key={store.id} className="snap-start flex-shrink-0 w-48 sm:w-56">
-                                    <StoreCard store={store} variant={cardVariant} />
+                                    <StoreCard store={store} />
                                 </div>
                             ))}
                 </div>

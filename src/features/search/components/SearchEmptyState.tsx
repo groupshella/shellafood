@@ -13,9 +13,49 @@ interface SearchEmptyStateProps {
 }
 
 const fadeUp: Variants = {
-	hidden: { opacity: 0, y: 12 },
+	hidden: { opacity: 0, y: 10 },
 	show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
 };
+
+function PopularCategories({
+	isAr,
+	onCategoryClick,
+	delay = 0,
+}: {
+	isAr: boolean;
+	onCategoryClick?: (id: string) => void;
+	delay?: number;
+}) {
+	const popular = TEST_CATEGORIES.slice(0, 6);
+	if (!popular.length || !onCategoryClick) return null;
+
+	return (
+		<div className="w-full max-w-lg mt-8">
+			<div className={`flex items-center gap-2 mb-4 ${isAr ? "flex-row-reverse justify-end" : "justify-center"}`}>
+				<TrendingUp className="w-4 h-4 text-amber-500" />
+				<span className="text-xs font-bold tracking-widest uppercase text-gray-400">
+					{isAr ? "الأكثر بحثاً" : "Popular"}
+				</span>
+			</div>
+			<div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+				{popular.map((cat, i) => (
+					<motion.button
+						key={cat.id}
+						initial={{ opacity: 0, scale: 0.9 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ delay: delay + i * 0.06 }}
+						whileHover={{ scale: 1.04, y: -2 }}
+						whileTap={{ scale: 0.96 }}
+						onClick={() => onCategoryClick(cat.id)}
+						className="px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-amber-300 dark:hover:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/10 hover:shadow-sm transition-all"
+					>
+						{cat.name}
+					</motion.button>
+				))}
+			</div>
+		</div>
+	);
+}
 
 export default function SearchEmptyState({
 	type,
@@ -24,9 +64,8 @@ export default function SearchEmptyState({
 }: SearchEmptyStateProps) {
 	const { language } = useLanguage();
 	const isAr = language === "ar";
-	const popular = TEST_CATEGORIES.slice(0, 6);
 
-	// ── No results ─────────────────────────────────────────────────────────────
+	/* ── No results ─────────────────────────────────────────────────────────── */
 	if (type === "no-results") {
 		return (
 			<motion.div
@@ -35,44 +74,24 @@ export default function SearchEmptyState({
 				animate="show"
 				className="flex flex-col items-center py-20 text-center"
 			>
-				<div className="text-5xl mb-4">🔍</div>
-				<h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-					{isAr ? "لا توجد نتائج" : "No results found"}
+				<div className="text-5xl mb-5">🔍</div>
+				<h3 className="text-xl font-black text-gray-800 dark:text-gray-100 mb-2">
+					{isAr ? "لا توجد نتائج" : "No stores found"}
 				</h3>
-				<p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm">
+				<p className="text-gray-500 dark:text-gray-400 mb-2 max-w-sm">
 					{isAr
-						? `لم نجد شيئاً لـ "${searchTerm}". جرّب كلمات مختلفة`
-						: `Nothing matched "${searchTerm}". Try different keywords`}
+						? `لم نجد متاجر لـ "${searchTerm}"`
+						: `No stores matched "${searchTerm}"`}
 				</p>
-
-				{popular.length > 0 && (
-					<div className="w-full max-w-lg">
-						<p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-3">
-							{isAr ? "تصفح" : "Browse"}
-						</p>
-						<div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-							{popular.map((cat, i) => (
-								<motion.button
-									key={cat.id}
-									initial={{ opacity: 0, scale: 0.9 }}
-									animate={{ opacity: 1, scale: 1 }}
-									transition={{ delay: i * 0.06 }}
-									whileHover={{ scale: 1.04 }}
-									whileTap={{ scale: 0.96 }}
-									onClick={() => onCategoryClick?.(cat.id)}
-									className="px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-amber-300 dark:hover:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-all"
-								>
-									{cat.name}
-								</motion.button>
-							))}
-						</div>
-					</div>
-				)}
+				<p className="text-gray-400 dark:text-gray-500 text-sm">
+					{isAr ? "جرّب كلمات بحث مختلفة" : "Try a different search term"}
+				</p>
+				<PopularCategories isAr={isAr} onCategoryClick={onCategoryClick} delay={0.1} />
 			</motion.div>
 		);
 	}
 
-	// ── Start searching ────────────────────────────────────────────────────────
+	/* ── Start searching ─────────────────────────────────────────────────────── */
 	return (
 		<motion.div
 			variants={fadeUp}
@@ -90,40 +109,15 @@ export default function SearchEmptyState({
 			</motion.div>
 
 			<h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">
-				{isAr ? "ابدأ البحث" : "What are you craving?"}
+				{isAr ? "ابدأ البحث" : "Find your next meal"}
 			</h3>
-			<p className="text-gray-500 dark:text-gray-400 mb-10 max-w-sm">
+			<p className="text-gray-500 dark:text-gray-400 max-w-sm">
 				{isAr
-					? "اكتب اسم المنتج أو المتجر للبدء"
-					: "Search for products, stores, or cuisine"}
+					? "ابحث باسم المطعم أو المتجر"
+					: "Search by restaurant or store name"}
 			</p>
 
-			{popular.length > 0 && (
-				<div className="w-full max-w-lg">
-					<div className="flex items-center justify-center gap-2 mb-4">
-						<TrendingUp className="w-4 h-4 text-amber-500" />
-						<span className="text-xs font-bold tracking-widest uppercase text-gray-400">
-							{isAr ? "شائع" : "Trending"}
-						</span>
-					</div>
-					<div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-						{popular.map((cat, i) => (
-							<motion.button
-								key={cat.id}
-								initial={{ opacity: 0, scale: 0.9 }}
-								animate={{ opacity: 1, scale: 1 }}
-								transition={{ delay: 0.3 + i * 0.07 }}
-								whileHover={{ scale: 1.04, y: -2 }}
-								whileTap={{ scale: 0.96 }}
-								onClick={() => onCategoryClick?.(cat.id)}
-								className="px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-amber-300 dark:hover:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/10 hover:shadow-sm transition-all"
-							>
-								{cat.name}
-							</motion.button>
-						))}
-					</div>
-				</div>
-			)}
+			<PopularCategories isAr={isAr} onCategoryClick={onCategoryClick} delay={0.3} />
 		</motion.div>
 	);
 }

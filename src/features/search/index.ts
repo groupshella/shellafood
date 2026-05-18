@@ -6,19 +6,11 @@
 // Components
 export * from './components';
 
-// Types - Export non-conflicting types with wildcard, conflicting types explicitly
-export type {
-	SearchQuery,
-	ApiResponse,
-	SearchFilters,
-	ItemOrStoreSearchResponse,
-	ItemOrStoreSearchItem,
-	ItemOrStoreSearchStore,
-	SearchRequestContext,
-} from './types';
+// Types
+export * from './types/search.types';
 
 /** API payload shape (not the SearchResults UI component) */
-export type { SearchResults as SearchResultsData } from './types';
+export * from './types/search.types';
 
 // Constants
 export * from './constants/search.constants';

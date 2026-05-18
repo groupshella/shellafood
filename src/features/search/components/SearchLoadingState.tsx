@@ -2,44 +2,42 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { useLanguage } from "@/providers";
 
-function Skeleton({ className }: { className?: string }) {
+function SkeletonCard() {
 	return (
-		<div
-			className={`animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800 ${className ?? ""}`}
-		/>
+		<div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+			{/* Cover */}
+			<div className="h-36 bg-gray-200 dark:bg-gray-800 animate-pulse" />
+			{/* Body */}
+			<div className="px-4 pt-7 pb-4 space-y-2">
+				<div className="flex items-center justify-between gap-2">
+					<div className="h-4 w-2/3 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
+					<div className="h-3 w-10  bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
+				</div>
+				<div className="h-3 w-1/2 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
+				<div className="flex gap-1.5 mt-1">
+					<div className="h-5 w-16 bg-gray-200 dark:bg-gray-800 rounded-full animate-pulse" />
+					<div className="h-5 w-14 bg-gray-200 dark:bg-gray-800 rounded-full animate-pulse" />
+				</div>
+				<div className="flex justify-between mt-2">
+					<div className="h-3 w-16 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
+					<div className="h-3 w-12 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
+				</div>
+			</div>
+		</div>
 	);
 }
 
 export default function SearchLoadingState() {
-	const { language } = useLanguage();
-	const isAr = language === "ar";
-
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
-			transition={{ duration: 0.3 }}
-			className="space-y-8"
-			aria-label={isAr ? "جاري البحث..." : "Searching..."}
+			className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
 		>
-			{/* Section label skeleton */}
-			<div className="space-y-4">
-				<Skeleton className="h-5 w-32" />
-				<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-					{Array.from({ length: 10 }).map((_, i) => (
-						<div key={i} className="rounded-2xl overflow-hidden">
-							<Skeleton className="h-40 w-full rounded-2xl" />
-							<div className="mt-2 space-y-1.5 px-1">
-								<Skeleton className="h-3.5 w-3/4" />
-								<Skeleton className="h-3 w-1/2" />
-								<Skeleton className="h-4 w-1/3" />
-							</div>
-						</div>
-					))}
-				</div>
-			</div>
+			{Array.from({ length: 8 }).map((_, i) => (
+				<SkeletonCard key={i} />
+			))}
 		</motion.div>
 	);
 }
