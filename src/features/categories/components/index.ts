@@ -35,4 +35,7 @@ export { default as CategoryView } from './category-details/CategoryView';
 export { default as CategoryCard } from './category-details/CategoryCard';
 export { default as Pagination } from './category-details/Pagination';
 export { default as DailyNeeded } from './category-details/DailyNeeded';
+export { default as StoreCategories } from './category-details/StoreCategories';
+export { default as CategoryStores } from './category-details/CategoryStores';
+export { default as CategoryStoresView } from './category-details/CategoryStoresView';
 

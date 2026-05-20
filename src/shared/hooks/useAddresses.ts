@@ -81,7 +81,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 	const [currentPage, setCurrentPage] = useState(initialPage);
 	const [limit] = useState(initialLimit);
 	const baseUrl = getBaseUrl();
-	
+
 	// Fetch addresses
 	const fetchAddresses = useCallback(async (currentPage: number) => {
 		setIsLoading(true);
@@ -89,15 +89,15 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 		try {
 			// ✅ Use API route as proxy
 			const apiUrl = `${baseUrl}/api/addresses?limit=${limit}&offset=${currentPage}&locale=ar`;
-			
+
 			// Fetch from API route
 			const data = await fetchAddressesFromApi(apiUrl);
-			
+
 			if (!data) {
 				setError('Failed to fetch addresses');
 				return;
 			}
-			
+
 			setAddresses(data.addresses || []);
 			setTotalSize(data.total_size || 0);
 			setCurrentPage(currentPage);
@@ -143,14 +143,13 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 			}
 
 			const result = await response.json();
-			
+
 			// Refresh the list after adding
 			await fetchAddresses(currentPage);
-			
+
 			return result;
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'An error occurred');
-			console.error('Error adding address:', err);
 			throw err;
 		} finally {
 			setIsLoading(false);
@@ -189,10 +188,10 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 			}
 
 			const result = await response.json();
-			
+
 			// Refresh the list after updating
 			await fetchAddresses(currentPage);
-			
+
 			return result;
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'An error occurred');
@@ -227,8 +226,7 @@ export function useAddresses(initialPage: number = 1, initialLimit: number = 10,
 				throw new Error(errorData.error || 'Failed to delete address');
 			}
 
-			// Refresh the list
-			await fetchAddresses(currentPage);
+
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'An error occurred');
 			console.error('Error deleting address:', err);

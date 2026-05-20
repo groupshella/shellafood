@@ -1,19 +1,28 @@
 import CategoryView from '@/features/categories/components/category-details/CategoryView';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { headers } from 'next/headers';
-import { getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { DEFAULT_LANG, getBaseUrl } from '@/features/auth/constants/auth.constants';
+import type { ApiCategory } from '@/features/categories/types/api-category.types';
+import type { StoreList } from '@/features/categories/types/store.types';
 
 interface PageProps {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ 
+  searchParams: Promise<{
     page?: string;
+    moduleName?: string;
   }>;
 }
 
+const EMPTY_STORE_LIST = (limit: number, offset: number): StoreList => ({
+  stores: [],
+  total_size: 0,
+  limit,
+  offset,
+});
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category } = await params;
-  const categoryName = "المتاجر"
+  const categoryName = "المتاجر";
 
   return {
     title: `${categoryName} | شلة فود`,
@@ -37,92 +46,80 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CategoryPageRoute({ params, searchParams }: PageProps) {
   const { category } = await params;
   const search = await searchParams;
-  
+
   const moduleId = Number(category);
-  
-  if(isNaN(moduleId) || moduleId <= 0) {
+  if (isNaN(moduleId) || moduleId <= 0) {
     return notFound();
   }
-  
 
-  const limit = 20; // Between 12-48
+  const limit = 20;
   const offset = Math.max(1, Number(search.page) || 1);
-  const zoneId = 2; // zone_id
-  
-  // ✅ Use API route as proxy
+  const baseUrl = getBaseUrl();
+
+  const storeParams = new URLSearchParams({
+    moduleId: String(moduleId),
+    limit: String(limit),
+    offset: String(offset),
+    zoneId: "2",
+
+  });
+
+  const categoriesParams = new URLSearchParams({
+    moduleId: String(moduleId),
+    zoneId: "[2]",
+    locale: 'ar',
+    "X-Localization": "ar",
+    'Accept-Language': 'ar',
+  });
+
   try {
-const baseUrl=getBaseUrl();    
-    const url = `${baseUrl}/api/stores?moduleId=${moduleId}&limit=${limit}&offset=${offset}&zoneId=${zoneId}`;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-    
-    if (!response.ok) {
-      console.error('[Category Page] API route error:', response.status);
-      // Return empty store list on error
-      return (
-        <CategoryView 
-          initialStoreList={{
-            stores: [],
-            total_size: 0,
-            limit,
-            offset,
-          }}
-          moduleId={moduleId}
-          initialPage={offset}
-          initialLimit={limit}
-        />
-      );
+    const [storesRes, categoriesRes] = await Promise.all([
+      fetch(`${baseUrl}/api/stores?${storeParams}`, {
+        method: "GET",
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      }),
+      fetch(`${baseUrl}/api/modules/categories?${categoriesParams}`, {
+        method: "GET",
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      }),
+    ]);
+
+    let storeListData: StoreList = EMPTY_STORE_LIST(limit, offset);
+    let categories: ApiCategory[] = [];
+
+    if (storesRes.ok) {
+      const data = await storesRes.json();
+      if (data?.stores && Array.isArray(data.stores)) {
+        storeListData = data;
+      }
+    } else {
+      console.error("[Category Page] Stores API error:", storesRes.status);
     }
-    
-    const storeListData = await response.json();
-    console.log("storeListData", storeListData);
-    // Validate response structure
-    // The API route returns storeListResponse.data directly (which has stores, total_size, limit, offset)
-    if (!storeListData || !storeListData.stores || !Array.isArray(storeListData.stores)) {
-      console.error('[Category Page] Invalid response structure:', storeListData);
-      return (
-        <CategoryView 
-          initialStoreList={{
-            stores: [],
-            total_size: 0,
-            limit,
-            offset,
-          }}
-          moduleId={moduleId}
-          initialPage={offset}
-          initialLimit={limit}
-        />
-      );
+
+    if (categoriesRes.ok) {
+      const catData = await categoriesRes.json();
+      categories = Array.isArray(catData?.categories) ? catData.categories : [];
+    } else {
+      console.error("[Category Page] modules/categories API error:", categoriesRes.status);
     }
-    
+
     return (
-      <CategoryView 
+      <CategoryView
         initialStoreList={storeListData}
+        initialCategories={categories}
         moduleId={moduleId}
         initialPage={offset}
         initialLimit={limit}
       />
     );
-  } catch (error: any) {
-    console.error('[Category Page] Error fetching stores:', {
-      message: error?.message || 'Unknown error',
-      name: error?.name,
-    });
-    
-    // Return empty store list on error
+  } catch (error: unknown) {
+    console.error("[Category Page] Error:", error);
     return (
-      <CategoryView 
-        initialStoreList={{
-          stores: [],
-          total_size: 0,
-          limit,
-          offset,
-        }}
+      <CategoryView
+        initialStoreList={EMPTY_STORE_LIST(limit, offset)}
+        initialCategories={[]}
         moduleId={moduleId}
         initialPage={offset}
         initialLimit={limit}

@@ -29,7 +29,7 @@ export function useProductActions() {
 		storeNameAr?: string
 	) => {
 		const targetStoreId = product.storeId || storeId;
-		
+
 		if (!targetStoreId) {
 			showToast(
 				isArabic ? "خطأ: معرف المتجر غير متوفر" : "Error: Store ID not available",

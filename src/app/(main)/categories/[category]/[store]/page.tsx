@@ -91,8 +91,8 @@ export default async function StorePageRoute(
     const cookieStore = await cookies();
     const userLocation = cookieStore.get('user_location');
 
-    const longitude = userLocation?.value.split(',')[0] || '46.5444937';
-    const latitude = userLocation?.value.split(',')[1] || '24.567752';
+    const latitude = userLocation?.value.split(',')[0] || '24.567752';
+    const longitude = userLocation?.value.split(',')[1] || '46.5444937';
 
     const storeDetailsResponse = await getCachedStoreDetails(
       limit,

@@ -73,9 +73,7 @@ export default function AddressCard({ address, onEdit, onDelete, onViewMap, isAr
 	};
 
 	const handleDelete = () => {
-		if (window.confirm(isArabic ? "هل أنت متأكد من حذف هذا العنوان؟" : "Are you sure you want to delete this address?")) {
-			onDelete(address);
-		}
+		onDelete(address);
 	};
 
 	const handleViewMap = () => {
@@ -95,7 +93,7 @@ export default function AddressCard({ address, onEdit, onDelete, onViewMap, isAr
 		>
 			{/* Address Header */}
 			<div className={`flex flex-col  sm:items-start sm:justify-between mb-4 sm:mb-5 gap-3 `}>
-				
+
 				<div className={`flex items-start gap-3 flex-1 min-w-0 `}>
 					<div className={`h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 rounded-xl sm:rounded-2xl flex items-center justify-center ${getAddressTypeColor(address.address_type)} shadow-sm flex-shrink-0`}>
 						<Icon className="text-base sm:text-lg md:text-xl" />

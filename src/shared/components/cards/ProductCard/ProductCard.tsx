@@ -66,7 +66,7 @@ function ProductCard({
 	const { toasts, showToast, removeToast } = useToast();
 	const [isAdded, setIsAdded] = useState(false);
 	const [isAdding, setIsAdding] = useState(false);
-	
+
 	const { isFavorite, isLoading: favoriteLoading, toggleFavorite } = useProductFavorites(product.id, {
 		name: product.name,
 		nameAr: product.nameAr,
@@ -77,7 +77,7 @@ function ProductCard({
 		unitAr: product.unitAr,
 		storeId: product.storeId,
 	});
-	
+
 	const displayName = isArabic && product.nameAr ? product.nameAr : product.name;
 	const displayUnit = isArabic && product.unitAr ? product.unitAr : product.unit;
 	const displayBadge = isArabic && product.badgeAr ? product.badgeAr : product.badge;
@@ -125,7 +125,7 @@ function ProductCard({
 
 	const handleAddToCartClick = useCallback(async (e: React.MouseEvent) => {
 		e.stopPropagation();
-		
+
 		// If onAddToCart callback is provided, use it (backward compatibility)
 		if (onAddToCart) {
 			onAddToCart(product.id);
@@ -153,7 +153,7 @@ function ProductCard({
 		const price = typeof product.price === 'number' ? product.price : parseFloat(String(product.price || '0').replace(/[^0-9.]/g, ''));
 
 		setIsAdding(true);
-		
+
 		try {
 			const result = await addToCart({
 				productId: product.id,
@@ -262,9 +262,8 @@ function ProductCard({
 					<button
 						onClick={handleAddToCartClick}
 						disabled={isAdding}
-						className={`absolute ${isArabic ? 'left-2' : 'right-2'} bottom-2 rounded-full p-2.5 text-white shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 z-10 disabled:opacity-50 disabled:cursor-not-allowed ${
-							isAdded ? "bg-green-500" : "bg-green-600 hover:bg-green-700"
-						}`}
+						className={`absolute ${isArabic ? 'left-2' : 'right-2'} bottom-2 rounded-full p-2.5 text-white shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 z-10 disabled:opacity-50 disabled:cursor-not-allowed ${isAdded ? "bg-green-500" : "bg-green-600 hover:bg-green-700"
+							}`}
 						title={isArabic ? (isAdded ? "تمت الإضافة" : "إضافة للسلة") : (isAdded ? "Added" : "Add to cart")}
 						aria-label={isArabic ? (isAdded ? "تمت الإضافة" : "إضافة للسلة") : (isAdded ? "Added" : "Add to cart")}
 					>

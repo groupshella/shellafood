@@ -4,7 +4,7 @@ import { sessionCache } from "@/lib/cache/session-cache";
 import type { StoreDetails } from "../types/store.details.types";
 import { DepartmentResponse } from "../types/department.types";
 import { cache } from "react";
-
+import { cookies } from "next/headers";
 interface ApiResponse<T> {
 	data?: T;
 	error?: string;
@@ -18,8 +18,11 @@ export const getCachedAllStores = cache(
 		lang: string = DEFAULT_LANG,
 		moduleId: number,
 		zoneId: number,
+		longitude: string,
+		latitude: string,
 	) => {
-		const result = await getAllStores(limit, offset, lang, moduleId, zoneId);
+
+		const result = await getAllStores(limit, offset, lang, moduleId, zoneId, longitude, latitude);
 		return result;
 	}
 );
@@ -32,10 +35,14 @@ export async function getAllStores(
 	lang: string = DEFAULT_LANG,
 	moduleId: number,
 	zoneId: number,
+	longitude: string,
+	latitude: string,
 ): Promise<ApiResponse<StoreList>> {
 
 	const cacheTag = `stores-${moduleId}-${zoneId}-${lang}-${limit}-${offset}`;
 	const url = `https://shellafood.com/api/v1/stores/get-stores?limit=${limit}&offset=${offset}`;
+
+
 
 	try {
 
@@ -49,8 +56,8 @@ export async function getAllStores(
 				'X-localization': lang,
 				'moduleId': moduleId.toString(),
 				'zoneId': "[2]",
-				'longitude': "46.5444937",
-				'latitude': "24.567752",
+				'longitude': longitude,
+				'latitude': latitude,
 				'Host': 'shellafood.com',
 			},
 			signal: controller.signal,
@@ -64,7 +71,6 @@ export async function getAllStores(
 		if (!response.ok) {
 			let errorData;
 			const responseText = await response.text();
-			console.log(`[getAllStores] Error response body (raw):`, responseText);
 
 			try {
 				errorData = JSON.parse(responseText);
@@ -72,13 +78,7 @@ export async function getAllStores(
 				errorData = { message: responseText || 'Failed to fetch stores' };
 			}
 
-			console.error('[getAllStores] API Error:', {
-				status: response.status,
-				statusText: response.statusText,
-				message: errorData.message,
-				fullError: errorData,
-				requestParams: { limit, offset, lang, moduleId, zoneId },
-			});
+
 
 			return {
 				error: errorData.message || 'Failed to fetch stores',
@@ -87,7 +87,6 @@ export async function getAllStores(
 		}
 
 		const data = await response.json() as StoreList;
-		console.log("data", data);
 
 		return {
 			data,
@@ -95,13 +94,6 @@ export async function getAllStores(
 		};
 
 	} catch (error: any) {
-		console.error('[getAllStores] Network/Parse Error:', {
-			message: error?.message,
-			stack: error?.stack,
-			name: error?.name,
-			cause: error?.cause,
-			requestParams: { limit, offset, lang, moduleId, zoneId },
-		});
 
 		return {
 			error: `Network error: ${error?.message || 'Unknown'}`,
@@ -144,22 +136,7 @@ export async function getStoreDetails(
 	const url = `https://shellafood.com/api/v1/stores/details/${storeId}?limit=${limit}&offset=${offset}&include_categories=1`;
 
 	try {
-		console.log(`[Next.js Fetch Cache] Requesting: ${url}`);
-		console.log(`[Next.js Fetch Cache] Cache config:`, {
-			revalidate: 3600,
-			tags: [cacheTag],
-			lang,
-			storeId,
-			moduleId,
-			zoneId,
-			limit,
-			offset,
-		});
 
-		const fetchStartTime = Date.now();
-		console.log("longitude", longitude);
-		console.log("latitude", latitude);
-		console.log("moduleId", moduleId);
 
 		const response = await fetch(url, {
 			method: 'GET',
@@ -168,25 +145,13 @@ export async function getStoreDetails(
 				'X-Localization': lang,
 				'moduleId': moduleId.toString(),
 				'zoneId': "[2]",
-				'longitude': "46.5444937",
-				'latitude': "24.567752",
+				'longitude': longitude,
+				'latitude': latitude,
 
 			},
 			cache: 'no-store',
 		});
 
-		const fetchDuration = Date.now() - fetchStartTime;
-
-		const cacheStatus =
-			response.headers.get('x-vercel-cache') ||
-			response.headers.get('cache-control') ||
-			'unknown';
-
-		console.log(`[Next.js Fetch Cache] Response received in ${fetchDuration}ms:`, {
-			status: response.status,
-			cacheStatus,
-			url: response.url,
-		});
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({

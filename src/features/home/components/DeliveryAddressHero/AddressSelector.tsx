@@ -36,26 +36,26 @@ function setLocationCookie(value: { lat: number; lng: number }) {
   expires.setDate(expires.getDate() + 7);
 
   document.cookie = `${LOCATION_COOKIE_KEY}=${(
-	value.lat.toString() + ',' + value.lng.toString()
+    value.lat.toString() + ',' + value.lng.toString()
   )}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
 }
 function getLocationFromCookie(): { lat: number; lng: number } | null {
-	if (typeof document === "undefined") return null;
-  
-	const match = document.cookie
-	  .split("; ")
-	  .find((row) => row.startsWith("user_location="));
-  
-	if (!match) return null;
-  
-	const value = decodeURIComponent(match.split("=")[1]); // "24.6101534,46.5996687"
-  
-	const [lat, lng] = value.split(",").map(Number);
-  
-	if (isNaN(lat) || isNaN(lng)) return null;
-  
-	return { lat, lng };
-  }
+  if (typeof document === "undefined") return null;
+
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("user_location="));
+
+  if (!match) return null;
+
+  const value = decodeURIComponent(match.split("=")[1]); // "24.6101534,46.5996687"
+
+  const [lat, lng] = value.split(",").map(Number);
+
+  if (isNaN(lat) || isNaN(lng)) return null;
+
+  return { lat, lng };
+}
 
 function useGeolocation() {
   const [isDetecting, setIsDetecting] = useState(false);
@@ -90,7 +90,7 @@ function useGeolocation() {
               lat: position.coords.latitude,
               lng: position.coords.longitude,
             };
-console.log(position);
+            console.log(position);
             // ✅ SAVE LOCATION IN COOKIE
             setLocationCookie(coords);
 
@@ -132,7 +132,7 @@ console.log(position);
           },
           {
             enableHighAccuracy: true,
-            
+
           }
         );
       });
@@ -146,17 +146,17 @@ console.log(position);
 // MAIN COMPONENT
 // ============================================================================
 interface LocationResult {
-	lat: number;
-	lng: number;
-	displayName: string;
-	country?: string;
-	city?: string;
-	state?: string;
-	district?: string;
-	street?: string;
-	postcode?: string;
-  }
-  
+  lat: number;
+  lng: number;
+  displayName: string;
+  country?: string;
+  city?: string;
+  state?: string;
+  district?: string;
+  street?: string;
+  postcode?: string;
+}
+
 
 function AddressSelector({ token, onAddressChange }: AddressSelectorProps) {
   const router = useRouter();
@@ -182,10 +182,12 @@ function AddressSelector({ token, onAddressChange }: AddressSelectorProps) {
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [viewingAddress, setViewingAddress] = useState<Address | null>(null);
   const [locationUpdateTrigger, setLocationUpdateTrigger] = useState(0);
-  
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Get location from cookie, will update when locationUpdateTrigger changes
   const location = useMemo(() => getLocationFromCookie(), [locationUpdateTrigger]);
-const [locationAddress, setLocationAddress] = useState<LocationResult | null>(null);
+  const [locationAddress, setLocationAddress] = useState<LocationResult | null>(null);
   const locationFetchedRef = useRef<string | null>(null);
 
   // Fetch addresses on mount
@@ -194,34 +196,34 @@ const [locationAddress, setLocationAddress] = useState<LocationResult | null>(nu
     if (token) {
       fetchAddresses(1);
     }
-  }, [token, fetchAddresses]);
+  }, [token, fetchAddresses, deleteAddress]);
   useEffect(() => {
-	const fetchLocationAddressEffect = async () => {
-		if (!location) return;
-		
-		// Create a stable key to prevent duplicate fetches
-		const locationKey = `${location.lat.toFixed(6)}-${location.lng.toFixed(6)}`;
-		
-		// Skip if we've already fetched for this exact location
-		if (locationFetchedRef.current === locationKey) {
-			return;
-		}
-		
-		// Mark as fetching
-		locationFetchedRef.current = locationKey;
-		
-		try {
-			const locationAddressResult = await fetchLocationAddress(location);
-			if (locationAddressResult) {
-				setLocationAddress(locationAddressResult);
-			}
-		} catch (error) {
-			console.error("Error fetching location address:", error);
-			locationFetchedRef.current = null; // Reset on error to allow retry
-		}
-	};
-	
-	fetchLocationAddressEffect();
+    const fetchLocationAddressEffect = async () => {
+      if (!location) return;
+
+      // Create a stable key to prevent duplicate fetches
+      const locationKey = `${location.lat.toFixed(6)}-${location.lng.toFixed(6)}`;
+
+      // Skip if we've already fetched for this exact location
+      if (locationFetchedRef.current === locationKey) {
+        return;
+      }
+
+      // Mark as fetching
+      locationFetchedRef.current = locationKey;
+
+      try {
+        const locationAddressResult = await fetchLocationAddress(location);
+        if (locationAddressResult) {
+          setLocationAddress(locationAddressResult);
+        }
+      } catch (error) {
+        console.error("Error fetching location address:", error);
+        locationFetchedRef.current = null; // Reset on error to allow retry
+      }
+    };
+
+    fetchLocationAddressEffect();
   }, [location]); // Use lat/lng instead of the whole object
   // Set default address when addresses load
   useEffect(() => {
@@ -233,33 +235,24 @@ const [locationAddress, setLocationAddress] = useState<LocationResult | null>(nu
     }
   }, [addresses, selectedAddress, onAddressChange]);
 
-  // Handle error display
-  useEffect(() => {
-    if (error) {
-      setNotification({	
-        message: isArabic ? "حدث خطأ في تحميل العناوين" : "Error loading addresses",
-        type: 'error',
-        show: true,
-      });
-    }
-  }, [error, isArabic, setNotification]);
+
 
   // ============================================================================
   // HANDLERS
   // ============================================================================
 
   const handleDetectLocation = useCallback(async () => {
-	const existingLocation = getLocationFromCookie();
-	if (existingLocation) {
-		setNotification({
-			message: isArabic ? "تم تحديد موقعك بنجاح" : "Location detected successfully",
-			type: 'success',
-			show: true,
-		});
-		return;
-	}
+    const existingLocation = getLocationFromCookie();
+    if (existingLocation) {
+      setNotification({
+        message: isArabic ? "تم تحديد موقعك بنجاح" : "Location detected successfully",
+        type: 'success',
+        show: true,
+      });
+      return;
+    }
     const coords = await detectLocation();
-	console.log(coords);
+    console.log(coords);
     if (coords) {
       setNotification({
         message: isArabic ? "تم تحديد موقعك بنجاح" : "Location detected successfully",
@@ -273,7 +266,7 @@ const [locationAddress, setLocationAddress] = useState<LocationResult | null>(nu
 
   const handleSelectDetectedLocation = useCallback(() => {
     if (!location || !locationAddress) return;
-    
+
     // Convert detected location to Address format
     const detectedAddress: Address = {
       id: -1, // Special ID for detected location
@@ -292,7 +285,7 @@ const [locationAddress, setLocationAddress] = useState<LocationResult | null>(nu
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
-    
+
     setSelectedAddress(detectedAddress);
     onAddressChange?.(detectedAddress);
     setNotification({
@@ -334,13 +327,8 @@ const [locationAddress, setLocationAddress] = useState<LocationResult | null>(nu
           setEditingAddress(null);
         }
       } catch (error) {
-        console.log("error", error);
-        const msg =
-          error instanceof Error
-            ? error.message
-            : isArabic
-              ? "حدث خطأ في حفظ العنوان"
-              : "Error saving address";
+        const msg = (error as Error).message;
+        console.log("msg", msg);
         setNotification({
           message: msg,
           type: 'error',
@@ -351,35 +339,51 @@ const [locationAddress, setLocationAddress] = useState<LocationResult | null>(nu
     [editingAddress, addAddress, updateAddress, fetchAddresses, isArabic, setNotification]
   );
 
-  const handleDeleteAddress = useCallback(
-    async (addressId: number) => {
-      if (window.confirm(isArabic ? "هل تريد حذف هذا العنوان؟" : "Delete this address?")) {
-        try {
-          await deleteAddress(addressId);
-          	setNotification({
-            message: isArabic ? "تم حذف العنوان بنجاح" : "Address deleted successfully",
-            type: 'success',
-            show: true,
-          });
-          
-          // If deleted address was selected, select another one
-          if (selectedAddress?.id === addressId) {
-            const remainingAddresses = addresses.filter(a => a.id !== addressId);
-            const newSelected = remainingAddresses[0] || null;
-            setSelectedAddress(newSelected);
-            onAddressChange?.(newSelected);
-          }
-        } catch (error) {
-          setNotification({
-            message: isArabic ? "حدث خطأ في حذف العنوان" : "Error deleting address",
-            type: 'error',
-            show: true,
-          });
-        }
+  const handleDeleteAddress = useCallback((addressId: number) => {
+    setDeleteConfirmId(addressId);
+  }, []);
+
+  const confirmDeleteAddress = useCallback(async () => {
+    if (deleteConfirmId === null) return;
+
+    const addressId = deleteConfirmId;
+    setIsDeleting(true);
+
+    try {
+      await deleteAddress(addressId);
+      setDeleteConfirmId(null);
+
+      if (selectedAddress?.id === addressId) {
+        const remainingAddresses = addresses.filter((a) => a.id !== addressId);
+        const newSelected = remainingAddresses[0] ?? null;
+        setSelectedAddress(newSelected);
+        onAddressChange?.(newSelected);
       }
-    },
-    [deleteAddress, selectedAddress, addresses, isArabic, setNotification, onAddressChange]
-  );
+
+      setNotification({
+        message: isArabic ? "تم حذف العنوان بنجاح" : "Address deleted successfully",
+        type: "success",
+        show: true,
+      });
+    } catch {
+      setDeleteConfirmId(null);
+      setNotification({
+        message: isArabic ? "حدث خطأ في حذف العنوان" : "Error deleting address",
+        type: "error",
+        show: true,
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [
+    deleteConfirmId,
+    deleteAddress,
+    selectedAddress,
+    addresses,
+    isArabic,
+    setNotification,
+    onAddressChange,
+  ]);
 
   const handleViewMap = useCallback((addr: Address) => {
     setViewingAddress(addr);
@@ -413,21 +417,21 @@ const [locationAddress, setLocationAddress] = useState<LocationResult | null>(nu
           />
         )}
 
-{location && locationAddress && (
-			<motion.div
-				initial={{ opacity: 0, height: 0 }}
-				animate={{ opacity: 1, height: "auto" }}
-				exit={{ opacity: 0, height: 0 }}
-				transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-				className="w-full"
-			>
-				<LocationResultCard
-					location={locationAddress}
-					isArabic={isArabic}
-					onClick={handleSelectDetectedLocation}
-				/>
-			</motion.div>
-		)} 
+        {location && locationAddress && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+            className="w-full"
+          >
+            <LocationResultCard
+              location={locationAddress}
+              isArabic={isArabic}
+              onClick={handleSelectDetectedLocation}
+            />
+          </motion.div>
+        )}
         <QuickActions
           isArabic={isArabic}
           isDetecting={isDetecting}
@@ -487,14 +491,31 @@ const [locationAddress, setLocationAddress] = useState<LocationResult | null>(nu
           address={viewingAddress}
         />
       )}
-	  <NotificationDialog
-        message={notification.message}
-        type={notification.type}
-        isVisible={notification.show}
-        onClose={() => setNotification({ message: '', type: 'success', show: false })}
-        isArabic={isArabic}
-      />
-	    </>
+      <div className="z-50">
+        <NotificationDialog
+          message={notification.message}
+          type={notification.type}
+          isVisible={notification.show}
+          onClose={() => setNotification({ message: "", type: "success", show: false })}
+          isArabic={isArabic}
+        />
+        <NotificationDialog
+          type="confirm"
+          message={
+            isArabic
+              ? "هل تريد حذف هذا العنوان؟ لا يمكن التراجع عن هذا الإجراء."
+              : "Delete this address? This action cannot be undone."
+          }
+          isVisible={deleteConfirmId !== null}
+          onClose={() => !isDeleting && setDeleteConfirmId(null)}
+          onConfirm={confirmDeleteAddress}
+          confirmLabel={isArabic ? "حذف" : "Delete"}
+          cancelLabel={isArabic ? "إلغاء" : "Cancel"}
+          isLoading={isDeleting}
+          isArabic={isArabic}
+        />
+      </div>
+    </>
   );
 }
 
@@ -599,55 +620,55 @@ interface QuickActionsProps {
 
 const QuickActions = memo(({ isArabic, isDetecting, isLoading, hasDetectedLocation, onDetectLocation, onChooseLocation, onAddAddress }: QuickActionsProps) => {
   return (
-  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-    {!hasDetectedLocation ? (
-      <motion.button
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
-        onClick={onDetectLocation}
-        disabled={isDetecting || isLoading}
-        className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/25 transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2"
-      >
-        {isDetecting ? (
-          <>
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full"
-            />
-            <span>{isArabic ? "جاري الكشف..." : "Detecting..."}</span>
-          </>
-        ) : (
-          <>
-            <Navigation className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span>{isArabic ? "اكتشف موقعي" : "Detect Location"}</span>
-          </>
-        )}
-      </motion.button>
-    ) : (
-      <motion.button
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
-        onClick={onChooseLocation}
-        disabled={isLoading}
-        className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/25 transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2"
-      >
-        <Check className="w-4 h-4 sm:w-5 sm:h-5" />
-        <span>{isArabic ? "اختر موقعي" : "Choose My Location"}</span>
-      </motion.button>
-    )}
+    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+      {!hasDetectedLocation ? (
+        <motion.button
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          onClick={onDetectLocation}
+          disabled={isDetecting || isLoading}
+          className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/25 transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2"
+        >
+          {isDetecting ? (
+            <>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full"
+              />
+              <span>{isArabic ? "جاري الكشف..." : "Detecting..."}</span>
+            </>
+          ) : (
+            <>
+              <Navigation className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span>{isArabic ? "اكتشف موقعي" : "Detect Location"}</span>
+            </>
+          )}
+        </motion.button>
+      ) : (
+        <motion.button
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          onClick={onChooseLocation}
+          disabled={isLoading}
+          className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/25 transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2"
+        >
+          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span>{isArabic ? "اختر موقعي" : "Choose My Location"}</span>
+        </motion.button>
+      )}
 
-    <motion.button
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.99 }}
-      onClick={onAddAddress}
-      disabled={isLoading}
-      className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition-colors hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-700 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-200 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400"
-    >
-      <Plus className="h-4 w-4" />
-      <span>{isArabic ? "إضافة عنوان" : "Add address"}</span>
-    </motion.button>
-  </div>
+      <motion.button
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+        onClick={onAddAddress}
+        disabled={isLoading}
+        className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition-colors hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-700 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-200 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400"
+      >
+        <Plus className="h-4 w-4" />
+        <span>{isArabic ? "إضافة عنوان" : "Add address"}</span>
+      </motion.button>
+    </div>
   );
 });
 
@@ -712,18 +733,16 @@ const AddressListModal = memo(({ isOpen, addresses, selectedAddress, isArabic, o
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.2, delay: index * 0.05 }}
                     onClick={() => onSelectAddress(addr)}
-                    className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                      isSelected
-                        ? "border-green-500 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20"
-                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
-                    }`}
+                    className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${isSelected
+                      ? "border-green-500 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20"
+                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
+                      }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1.5">
-                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                            isSelected ? "border-green-600" : "border-gray-300"
-                          }`}>
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-green-600" : "border-gray-300"
+                            }`}>
                             {isSelected && (
                               <motion.div
                                 initial={{ scale: 0 }}
@@ -779,20 +798,20 @@ const AddressListModal = memo(({ isOpen, addresses, selectedAddress, isArabic, o
 
 AddressListModal.displayName = "AddressListModal";
 const LocationResultCard = memo(
-	({ location, isArabic, onClick }: { location: LocationResult; isArabic: boolean; onClick: () => void }) => {
-	  return (
-		<motion.div
-		  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-		  animate={{ opacity: 1, y: 0, scale: 1 }}
-		  transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-		  whileHover={{ 
-			scale: 1.02, 
-			y: -4,
-			transition: { duration: 0.2 }
-		  }}
-		  whileTap={{ scale: 0.98 }}
-		  onClick={onClick}
-		  className={`group relative w-full overflow-hidden
+  ({ location, isArabic, onClick }: { location: LocationResult; isArabic: boolean; onClick: () => void }) => {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+        whileHover={{
+          scale: 1.02,
+          y: -4,
+          transition: { duration: 0.2 }
+        }}
+        whileTap={{ scale: 0.98 }}
+        onClick={onClick}
+        className={`group relative w-full overflow-hidden
 			rounded-2xl sm:rounded-3xl
 			bg-gradient-to-br from-white via-green-50/30 to-emerald-50/40
 			dark:from-gray-800 dark:via-green-900/20 dark:to-emerald-900/20
@@ -804,113 +823,113 @@ const LocationResultCard = memo(
 			${isArabic ? "text-right" : "text-left"}
 			before:absolute before:inset-0 before:bg-gradient-to-br before:from-green-500/5 before:via-transparent before:to-emerald-500/5
 			before:opacity-0 group-hover:before:opacity-100 before:transition-opacity before:duration-300`}
-		>
-		  {/* Animated background gradient */}
-		  <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 via-transparent to-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-		  
-		  {/* Content */}
-		  <div className="relative p-4 sm:p-5 md:p-6">
-			<div className="flex items-start justify-between gap-3 sm:gap-4">
-			  <div className="flex-1 min-w-0 space-y-3">
-				{/* Header with Icon and Badge */}
-				<div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-				  {/* GPS Icon with Pulse Animation */}
-				  <motion.div
-					animate={{ 
-					  scale: [1, 1.1, 1],
-					  rotate: [0, 5, -5, 0]
-					}}
-					transition={{ 
-					  duration: 2,
-					  repeat: Infinity,
-					  repeatDelay: 3,
-					  ease: "easeInOut"
-					}}
-					className="relative flex-shrink-0"
-				  >
-					<div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl
+      >
+        {/* Animated background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 via-transparent to-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* Content */}
+        <div className="relative p-4 sm:p-5 md:p-6">
+          <div className="flex items-start justify-between gap-3 sm:gap-4">
+            <div className="flex-1 min-w-0 space-y-3">
+              {/* Header with Icon and Badge */}
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                {/* GPS Icon with Pulse Animation */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatDelay: 3,
+                    ease: "easeInOut"
+                  }}
+                  className="relative flex-shrink-0"
+                >
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl
 					  bg-gradient-to-br from-green-500 to-emerald-600
 					  dark:from-green-600 dark:to-emerald-700
 					  shadow-lg shadow-green-500/30
 					  flex items-center justify-center
 					  group-hover:shadow-xl group-hover:shadow-green-500/40
 					  transition-all duration-300">
-					  <Navigation className="w-5 h-5 sm:w-6 sm:h-6 text-white" strokeWidth={2.5} />
-				</div>
-					{/* Pulse ring effect */}
-					<motion.div
-					  animate={{ 
-						scale: [1, 1.5, 1.5],
-						opacity: [0.6, 0, 0]
-					  }}
-					  transition={{ 
-						duration: 2,
-						repeat: Infinity,
-						repeatDelay: 3,
-						ease: "easeOut"
-					  }}
-					  className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-green-400/50"
-					/>
-				  </motion.div>
+                    <Navigation className="w-5 h-5 sm:w-6 sm:h-6 text-white" strokeWidth={2.5} />
+                  </div>
+                  {/* Pulse ring effect */}
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.5, 1.5],
+                      opacity: [0.6, 0, 0]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatDelay: 3,
+                      ease: "easeOut"
+                    }}
+                    className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-green-400/50"
+                  />
+                </motion.div>
 
-				  {/* Title and GPS Badge */}
-				  <div className="flex items-center gap-2 flex-1 min-w-0">
-					<h3 className="font-bold text-base sm:text-lg md:text-xl text-gray-900 dark:text-white truncate">
-					  {isArabic ? "موقعي الحالي" : "My Current Location"}
-					</h3>
-					<motion.span
-					  whileHover={{ scale: 1.1 }}
-					  className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5
+                {/* Title and GPS Badge */}
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <h3 className="font-bold text-base sm:text-lg md:text-xl text-gray-900 dark:text-white truncate">
+                    {isArabic ? "موقعي الحالي" : "My Current Location"}
+                  </h3>
+                  <motion.span
+                    whileHover={{ scale: 1.1 }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5
 						bg-gradient-to-r from-emerald-500 to-green-500
 						text-white text-[10px] sm:text-xs font-bold
 						rounded-full sm:rounded-lg
 						shadow-md shadow-emerald-500/30
 						backdrop-blur-sm
 						whitespace-nowrap">
-					  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white animate-pulse" />
-				  GPS
-					</motion.span>
-				  </div>
-			  </div>
-  
-				{/* Address Text */}
-				<div className="space-y-2">
-				  <p className="text-sm sm:text-base md:text-lg 
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white animate-pulse" />
+                    GPS
+                  </motion.span>
+                </div>
+              </div>
+
+              {/* Address Text */}
+              <div className="space-y-2">
+                <p className="text-sm sm:text-base md:text-lg 
 					text-gray-800 dark:text-gray-100 
 					font-medium leading-relaxed 
 					line-clamp-2 sm:line-clamp-3
 					group-hover:text-gray-900 dark:group-hover:text-white
 					transition-colors duration-200">
-				{location.displayName}
-			  </p>
-  
-				  {/* Location Details */}
-			  {(location.city || location.state || location.country) && (
-					<div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-					  <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-					  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
-				  {[location.city, location.state, location.country].filter(Boolean).join(" • ")}
-				</p>
-					</div>
-			  )}
-  
-				  {/* Coordinates - Subtle */}
-				  <div className="flex items-center gap-1.5 pt-1">
-					<div className="w-1 h-1 rounded-full bg-green-500/60" />
-					<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-500 font-mono">
-				{location.lat.toFixed(6)}, {location.lng.toFixed(6)}
-			  </p>
-				  </div>
-				</div>
-			  </div>
+                  {location.displayName}
+                </p>
 
-			  {/* Action Indicator */}
-			  <motion.div
-				className="flex-shrink-0 pt-1"
-				whileHover={{ x: isArabic ? -4 : 4 }}
-				transition={{ type: "spring", stiffness: 400, damping: 17 }}
-			  >
-				<div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl
+                {/* Location Details */}
+                {(location.city || location.state || location.country) && (
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
+                      {[location.city, location.state, location.country].filter(Boolean).join(" • ")}
+                    </p>
+                  </div>
+                )}
+
+                {/* Coordinates - Subtle */}
+                <div className="flex items-center gap-1.5 pt-1">
+                  <div className="w-1 h-1 rounded-full bg-green-500/60" />
+                  <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-500 font-mono">
+                    {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Indicator */}
+            <motion.div
+              className="flex-shrink-0 pt-1"
+              whileHover={{ x: isArabic ? -4 : 4 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl
 				  bg-gradient-to-br from-green-100 to-emerald-100
 				  dark:from-green-900/40 dark:to-emerald-900/40
 				  border border-green-200/50 dark:border-green-700/50
@@ -918,33 +937,33 @@ const LocationResultCard = memo(
 				  group-hover:from-green-200 group-hover:to-emerald-200
 				  dark:group-hover:from-green-800/60 dark:group-hover:to-emerald-800/60
 				  transition-all duration-300">
-				  <ChevronDown
-					className={`w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400
+                <ChevronDown
+                  className={`w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400
 					  transition-transform duration-300
 					  group-hover:scale-110
 					  ${isArabic ? "rotate-180" : ""}`}
-				  />
-				</div>
-			  </motion.div>
-			</div>
-  
-			{/* Bottom accent line */}
-			<motion.div
-			  className="absolute bottom-0 left-0 right-0 h-1
+                />
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Bottom accent line */}
+          <motion.div
+            className="absolute bottom-0 left-0 right-0 h-1
 				bg-gradient-to-r from-green-500 via-emerald-500 to-green-500
 				opacity-0 group-hover:opacity-100
 				transition-opacity duration-300"
-			  initial={{ scaleX: 0 }}
-			  whileHover={{ scaleX: 1 }}
-			  transition={{ duration: 0.3 }}
-			/>
-		  </div>
-		</motion.div>
-	  );
-	}
-  );
-  
+            initial={{ scaleX: 0 }}
+            whileHover={{ scaleX: 1 }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
+      </motion.div>
+    );
+  }
+);
 
-  LocationResultCard.displayName = "LocationResultCard";
+
+LocationResultCard.displayName = "LocationResultCard";
 
 export default memo(AddressSelector);

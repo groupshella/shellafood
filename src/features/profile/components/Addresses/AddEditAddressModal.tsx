@@ -151,7 +151,7 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 
 	const modalContent = (
 		<div
-			className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-[9999] animate-in fade-in duration-200"
+			className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-40 animate-in fade-in duration-200"
 			dir={direction}
 			onClick={onClose}
 		>
@@ -197,8 +197,8 @@ export default function AddEditAddressModal({ isOpen, onClose, onSave, editingAd
 										type="button"
 										onClick={() => handleInputChange('address_type', type.value)}
 										className={`flex flex-col items-center p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 touch-manipulation ${formData.address_type === type.value
-												? 'border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 shadow-sm'
-												: 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+											? 'border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 shadow-sm'
+											: 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
 											}`}
 									>
 										<Icon className="text-lg sm:text-xl mb-2" />

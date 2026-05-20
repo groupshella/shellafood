@@ -23,6 +23,10 @@ export { default as CategoryView } from './components/category-details/CategoryV
 export { default as CategoryCard } from './components/category-details/CategoryCard';
 export { default as Pagination } from './components/category-details/Pagination';
 export { default as DailyNeeded } from './components/category-details/DailyNeeded';
+export { default as StoreCategories } from './components/category-details/StoreCategories';
+export { default as CategoryStores } from './components/category-details/CategoryStores';
+export { default as CategoryStoresView } from './components/category-details/CategoryStoresView';
+export { default as ModuleStoresList } from './components/category-details/ModuleStoresList';
 
 // Store Components
 export { default as StorePage } from './components/store/StorePage';

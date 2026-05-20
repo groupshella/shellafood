@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useLanguage } from "@/providers";
 import { useAddresses, type Address } from "@/shared/hooks";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,11 +20,11 @@ export default function AddressesPage({ initialAddressesData, initialPage, initi
 	const isArabic = language === 'ar';
 	const direction = isArabic ? 'rtl' : 'ltr';
 	const router = useRouter();
-const [notification, setNotification] = useState<NotificationState>({
-	message: '',
-	type: 'success',
-	show: false,
-});
+	const [notification, setNotification] = useState<NotificationState>({
+		message: '',
+		type: 'success',
+		show: false,
+	});
 	const {
 		addresses,
 		totalSize,
@@ -37,33 +37,50 @@ const [notification, setNotification] = useState<NotificationState>({
 		deleteAddress,
 		fetchAddresses,
 		goToPage,
-	} = useAddresses(initialPage, initialLimit,token );
-	const addressesData = initialAddressesData.addresses||addresses as Address[];
+	} = useAddresses(initialPage, initialLimit, token);
+	const addressesData = initialAddressesData.addresses || addresses as Address[];
 
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 	const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 	const [viewingAddress, setViewingAddress] = useState<Address | null>(null);
+	const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+	const [isDeleting, setIsDeleting] = useState(false);
 
 	const handleEditAddress = (address: Address) => {
 		setEditingAddress(address);
 		setIsEditModalOpen(true);
 	};
 
-	const handleDeleteAddress = async (address: Address) => {
-		if (window.confirm(isArabic ? "هل أنت متأكد من حذف هذا العنوان؟" : "Are you sure you want to delete this address?")) {
-			try {
-				await deleteAddress(address.id);
-			} catch (err) {
-				setNotification({
-					message: isArabic ? "فشل حذف العنوان" : "Failed to delete address",
-					type: 'error',
-					show: true,
-				})
-			}
+	const handleDeleteAddress = useCallback((address: Address) => {
+		setDeleteConfirmId(address.id);
+	}, []);
+
+	const confirmDeleteAddress = useCallback(async () => {
+		if (deleteConfirmId === null) return;
+
+		setIsDeleting(true);
+		try {
+			await deleteAddress(deleteConfirmId);
+			setDeleteConfirmId(null);
+			setNotification({
+				message: isArabic ? "تم حذف العنوان بنجاح" : "Address deleted successfully",
+				type: "success",
+				show: true,
+			});
+			router.refresh();
+		} catch {
+			setDeleteConfirmId(null);
+			setNotification({
+				message: isArabic ? "فشل حذف العنوان" : "Failed to delete address",
+				type: "error",
+				show: true,
+			});
+		} finally {
+			setIsDeleting(false);
 		}
-	};
+	}, [deleteConfirmId, deleteAddress, isArabic, router]);
 
 	const handleAddAddress = () => {
 		setIsAddModalOpen(true);
@@ -78,7 +95,7 @@ const [notification, setNotification] = useState<NotificationState>({
 		try {
 			if (editingAddress) {
 				// Edit existing address
-			const result = await updateAddress(editingAddress.id, {
+				const result = await updateAddress(editingAddress.id, {
 					address_type: addressData.address_type,
 					contact_person_name: addressData.contact_person_name,
 					contact_person_number: addressData.contact_person_number,
@@ -92,8 +109,8 @@ const [notification, setNotification] = useState<NotificationState>({
 				});
 
 				if (result.errors) {
-				setNotification({
-					message: result.errors[0].message,
+					setNotification({
+						message: result.errors[0].message,
 						type: 'error',
 						show: true,
 					})
@@ -102,7 +119,7 @@ const [notification, setNotification] = useState<NotificationState>({
 				setEditingAddress(null);
 			} else {
 				// Add new address
-			const result = await addAddress({
+				const result = await addAddress({
 					address_type: addressData.address_type,
 					contact_person_name: addressData.contact_person_name,
 					contact_person_number: addressData.contact_person_number,
@@ -113,9 +130,9 @@ const [notification, setNotification] = useState<NotificationState>({
 					house: addressData.house,
 					floor: addressData.floor,
 				});
-				if (result.errors) {	
-				setNotification({
-					message: result.errors[0].message,
+				if (result.errors) {
+					setNotification({
+						message: result.errors[0].message,
 						type: 'error',
 						show: true,
 					})
@@ -135,7 +152,7 @@ const [notification, setNotification] = useState<NotificationState>({
 				show: true,
 			})
 		}
-		router.refresh();	
+		router.refresh();
 	};
 
 	const handleCloseModals = () => {
@@ -151,33 +168,7 @@ const [notification, setNotification] = useState<NotificationState>({
 		router.refresh();
 	};
 
-	if (error) {
-		return (
-			<div className="min-h-screen bg-gradient-to-br from-gray-50 dark:from-gray-900 via-red-50/20 dark:via-red-900/10 to-white dark:to-gray-900 p-4 md:p-6 lg:p-8 flex items-center justify-center" dir={direction}>
-				<div className="text-center">
-					<FaExclamationCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-					<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-						{isArabic ? "خطأ في تحميل العناوين" : "Error Loading Addresses"}
-					</h2>
-					<p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
-					<button
-						onClick={handleRefresh}
-						disabled={isLoading}
-						className="px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-					>
-						{isLoading ? (
-							<div className="flex items-center justify-center gap-2">
-								<FaSpinner className="animate-spin text-base sm:text-sm" />
-								<span>{isArabic ? "جاري التحميل..." : "Loading..."}</span>
-							</div>
-						) : (
-							<span>{isArabic ? "إعادة المحاولة" : "Try Again"}</span>
-						)}
-					</button>
-				</div>
-			</div>
-		);
-	}
+
 
 	return (
 		<div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={direction}>
@@ -349,7 +340,22 @@ const [notification, setNotification] = useState<NotificationState>({
 					message={notification.message}
 					type={notification.type}
 					isVisible={notification.show}
-					onClose={() => setNotification({...notification, show: false})}
+					onClose={() => setNotification({ ...notification, show: false })}
+					isArabic={isArabic}
+				/>
+				<NotificationDialog
+					type="confirm"
+					message={
+						isArabic
+							? "هل أنت متأكد من حذف هذا العنوان؟ لا يمكن التراجع عن هذا الإجراء."
+							: "Are you sure you want to delete this address? This action cannot be undone."
+					}
+					isVisible={deleteConfirmId !== null}
+					onClose={() => !isDeleting && setDeleteConfirmId(null)}
+					onConfirm={confirmDeleteAddress}
+					confirmLabel={isArabic ? "حذف" : "Delete"}
+					cancelLabel={isArabic ? "إلغاء" : "Cancel"}
+					isLoading={isDeleting}
 					isArabic={isArabic}
 				/>
 			</div>

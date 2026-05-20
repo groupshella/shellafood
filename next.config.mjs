@@ -20,6 +20,11 @@ const nextConfig = {
         pathname: '/**',
       },
       {
+        protocol: 'https',
+        hostname: 'd2sdbeqrqgwwdu.cloudfront.net',
+        pathname: '/**',
+      },
+      {
         protocol: "https",
         hostname: "shellafood.com",
         pathname: "/**",
