@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { DEFAULT_LANG, getBaseUrl } from '@/features/auth/constants/auth.constants';
 import type { ApiCategory } from '@/features/categories/types/api-category.types';
 import type { StoreList } from '@/features/categories/types/store.types';
+import { cookies } from 'next/headers';
 
 interface PageProps {
   params: Promise<{ category: string }>;
@@ -55,13 +56,19 @@ export default async function CategoryPageRoute({ params, searchParams }: PagePr
   const limit = 20;
   const offset = Math.max(1, Number(search.page) || 1);
   const baseUrl = getBaseUrl();
+  const cookieStore = await cookies();
+  const userLocation = cookieStore.get('user_location');
+
+  const latitude = userLocation?.value.split(',')[0] || '24.567752';
+  const longitude = userLocation?.value.split(',')[1] || '46.5444937';
 
   const storeParams = new URLSearchParams({
     moduleId: String(moduleId),
     limit: String(limit),
     offset: String(offset),
     zoneId: "2",
-
+    latitude: latitude,
+    longitude: longitude,
   });
 
   const categoriesParams = new URLSearchParams({

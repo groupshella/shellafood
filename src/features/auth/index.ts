@@ -28,3 +28,4 @@ export * from './lib/validation/auth.validation';
 
 // Utils
 export * from './lib/utils/auth.utils';
+export { default as LoginOtpForm } from './components/LoginOtpForm';

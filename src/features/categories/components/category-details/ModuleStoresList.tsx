@@ -107,11 +107,10 @@ export default function ModuleStoresList({
 							variants={staggerContainer}
 							initial="initial"
 							animate="animate"
-							className={`grid ${
-								mobileViewMode === "double"
+							className={`grid ${mobileViewMode === "double"
 									? "grid-cols-2 gap-2.5"
 									: "grid-cols-1 gap-4"
-							} sm:grid-cols-2 sm:gap-4 lg:grid-cols-2 xl:grid-cols-3 lg:gap-5`}
+								} sm:grid-cols-2 sm:gap-4 lg:grid-cols-2 xl:grid-cols-3 lg:gap-5`}
 						>
 							{storeList.stores.map((store) => (
 								<div key={store.id} className="w-full">

@@ -10,12 +10,17 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    console.log("[Login API] Customer 2FA request received:", {
-      email_or_phone: body.email_or_phone,
-      field_type: body.field_type,
-    });
+    if (!body.phone || !body.otp) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Phone and OTP are required",
+        },
+        { status: 400 }
+      );
+    }
 
-    const backendRes = await fetch(`${API_URL}/api/v1/auth/customer-login`, {
+    const backendRes = await fetch(`${API_URL}/api/v1/auth/verify-login-otp`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -23,53 +28,57 @@ export async function POST(req: NextRequest) {
         "X-localization": body.lang || "en",
       },
       body: JSON.stringify({
-        email_or_phone: body.email_or_phone,
-        field_type: body.field_type || "phone",
-        password: body.password,
+        phone: body.phone,
+        otp: body.otp,
         guest_id: body.guest_id || "",
       }),
     });
 
     const data = await backendRes.json().catch(() => ({}));
 
-    console.log("[Login API] Customer 2FA backend status:", backendRes.status);
-
     if (!backendRes.ok) {
-      console.error("[Login API] Customer 2FA backend error:", data);
-
       return NextResponse.json(
         {
           success: false,
-          message: getBackendMessage(data, "Login failed"),
+          message: getBackendMessage(data, "OTP verification failed"),
         },
         { status: backendRes.status }
       );
     }
 
-    if (!data?.otp_required) {
-      console.error("[Login API] OTP was not requested as expected:", data);
+    const token = data?.token;
 
+    if (!token) {
       return NextResponse.json(
         {
           success: false,
-          message: "OTP verification was not requested by the authentication service.",
+          message: "Authentication token was not returned after OTP verification",
         },
         { status: 502 }
       );
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
+      message: "OTP verified successfully",
       data: {
-        otp_required: true,
-        phone: data.phone || body.email_or_phone,
-        email_or_phone: data.email_or_phone || body.email_or_phone,
-        field_type: data.field_type || body.field_type || "phone",
-        retry_after_seconds: data.retry_after_seconds ?? null,
+        user: data.user || null,
+        cart_transferred: data.cart_transferred ?? false,
+        items_transferred: data.items_transferred ?? 0,
       },
     });
+
+    response.cookies.set("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: body.remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } catch (error) {
-    console.error("[Login API] Customer 2FA error:", error);
+    console.error("[Login Verify OTP API] Error:", error);
 
     return NextResponse.json(
       {

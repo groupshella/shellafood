@@ -78,7 +78,7 @@ export async function getAllStores(
 				errorData = { message: responseText || 'Failed to fetch stores' };
 			}
 
-
+			// 20.699283416336305,47.59962532951791
 
 			return {
 				error: errorData.message || 'Failed to fetch stores',
@@ -87,7 +87,6 @@ export async function getAllStores(
 		}
 
 		const data = await response.json() as StoreList;
-
 		return {
 			data,
 			status: response.status,

@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useCallback } from "react";
@@ -157,30 +156,40 @@ export default function LoginForm() {
 
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
-        throw new Error(isArabic ? "فشل تسجيل الدخول. يرجى التحقق من رقم الهاتف وكلمة المرور." : "Login failed. Please check your phone number and password.");
+      if (!response.ok || !data.success || !data.data?.otp_required) {
+        throw new Error(
+          data.message ||
+          (isArabic
+            ? "فشل تسجيل الدخول. يرجى التحقق من رقم الهاتف وكلمة المرور."
+            : "Login failed. Please check your phone number and password.")
+        );
       }
 
-      // Success
+      window.sessionStorage.setItem(
+        "pending_login_otp",
+        JSON.stringify({
+          phone: data.data.phone || formData.phone,
+          remember: Boolean(formData.remember),
+        })
+      );
+
       setNotification({
         message: isArabic
-          ? "تم تسجيل الدخول بنجاح! جاري التحويل..."
-          : "Login successful! Redirecting...",
+          ? "تم إرسال رمز التحقق إلى هاتفك"
+          : "Verification code sent to your phone",
         type: "success",
         isVisible: true,
       });
 
-      // Small delay to show success message
       setTimeout(() => {
-        router.push(AUTH_ROUTES.HOME);
-        router.refresh();
-      }, 1000);
+        router.push(`${AUTH_ROUTES.LOGIN}/verify-otp`);
+      }, 700);
 
     } catch (error: any) {
       console.error('[Login Form] Error:', error);
 
       setNotification({
-        message: (isArabic
+        message: error.message || (isArabic
           ? "فشل تسجيل الدخول. يرجى التحقق من رقم الهاتف وكلمة المرور."
           : "Login failed. Please check your phone number and password."),
         type: "error",
@@ -196,7 +205,7 @@ export default function LoginForm() {
   // ============================================================================
 
   return (
-    <div className="min-h-screen  bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-top justify-center py-8 sm:py-12"  >
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-8 sm:py-12">
       <div className="w-full max-w-[90%] sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto px-4">
 
         {/* Header */}
