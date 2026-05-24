@@ -32,7 +32,6 @@ export function useAuth() {
 
 			// Validate form data
 			const validationResult = loginSchema.safeParse(data);
-			console.log("validationResult", validationResult);
 			if (!validationResult.success) {
 				const firstError = validationResult.error.issues[0];
 				const errorMessage = firstError.message;
@@ -41,7 +40,6 @@ export function useAuth() {
 			}
 
 			const response = await loginApi(validationResult.data);
-			console.log("response", response);
 			if (response.success) {
 				router.push(AUTH_ROUTES.HOME);
 				router.refresh();
@@ -65,7 +63,6 @@ export function useAuth() {
 
 			// Validate form data
 			const validationResult = registerSchema.safeParse(data);
-			console.log("validationResult", validationResult);
 			if (!validationResult.success) {
 				const firstError = validationResult.error.issues[0];
 				const errorMessage = firstError.message;
@@ -74,13 +71,11 @@ export function useAuth() {
 			}
 
 			const response = await registerApi(validationResult.data);
-			console.log("response", response);
 			if (response.success) {
 				router.push(AUTH_ROUTES.HOME);
 				router.refresh();
 			}
 		} catch (err: any) {
-			console.log("error in register", err);
 			const errorMessage = err.message || 'فشل التسجيل. حاول مرة أخرى';
 			setError(errorMessage);
 			throw err;

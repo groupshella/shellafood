@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CreditCard, Star, MapPin, Phone, Store, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/providers";
-import RatingModal from "@/features/serve-me/components/Modals/RatingModal";
+// import RatingModal from "@/features/serve-me/components/Modals/RatingModal";
 import { OrderStatusBadge } from "../../shared/OrderStatusBadge";
 import { PaymentStatusBadge } from "../../shared/PaymentStatusBadge";
 import { cn } from "@/shared/utils";
@@ -380,7 +380,7 @@ export function ProductOrderCard({
 			</motion.div>
 
 			{/* Rating Modal */}
-			{showRating && (
+			{/* {showRating && (
 				<RatingModal
 					isOpen={showRating}
 					onClose={() => setShowRating(false)}
@@ -388,7 +388,7 @@ export function ProductOrderCard({
 					language={language}
 					serviceName={isArabic ? order.storeNameAr || order.storeName : order.storeName}
 				/>
-			)}
+			)} */}
 		</>
 	);
 }

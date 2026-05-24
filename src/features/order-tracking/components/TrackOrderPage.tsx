@@ -11,10 +11,10 @@ import { useOrderActions } from "../hooks/useOrderActions";
 
 // Utils
 import { generateMockOrderData } from "../lib/utils/mockData";
-import { 
-	getServiceInfo, 
-	hasChatAvailable, 
-	buildWorkerDetailsRoute 
+import {
+	getServiceInfo,
+	hasChatAvailable,
+	buildWorkerDetailsRoute
 } from "../lib/utils/routeHelpers";
 import { calculateCurrentStepIndex, isOrderCompleted, isOrderActive } from "../lib/utils/orderStatus";
 
@@ -22,12 +22,12 @@ import { calculateCurrentStepIndex, isOrderCompleted, isOrderActive } from "../l
 const CancelOrderModal = dynamic(() => import("./modals/CancelOrderModal").then((mod) => ({ default: mod.default })), {
 	loading: () => null,
 });
-const RatingModal = dynamic(
-	() => import("@/features/serve-me").then((mod) => ({ default: mod.RatingModal })),
-	{
-		loading: () => null,
-	}
-);
+// const RatingModal = dynamic(
+// 	() => import("@/features/serve-me").then((mod) => ({ default: mod.RatingModal })),
+// 	{
+// 		loading: () => null,
+// 	}
+// );
 
 // Static imports for above-the-fold content
 import ToastNotification from "./ToastNotification";
@@ -72,7 +72,7 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 		const fetchOrderData = async () => {
 			try {
 				setIsLoading(true);
-				
+
 				// Check sessionStorage for Pick and Order data
 				if (typeof window !== "undefined") {
 					const storedData = sessionStorage.getItem(`pickAndOrder_${orderId}`);
@@ -80,14 +80,14 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 						try {
 							const parsed = JSON.parse(storedData);
 							const { orderData: pickAndOrderData, transportType, orderType, createdAt, driverData } = parsed;
-							
+
 							// Convert Pick and Order data to OrderData format
 							const pickupPoints = pickAndOrderData.locationPoints.filter((p: any) => p.type === "pickup");
 							const dropoffPoints = pickAndOrderData.locationPoints.filter((p: any) => p.type === "dropoff");
-							
+
 							const firstPickup = pickupPoints[0] || {};
 							const firstDropoff = dropoffPoints[0] || {};
-							
+
 							// Determine status based on order age
 							const orderCreatedAt = new Date(createdAt);
 							const hoursSinceCreation = (Date.now() - orderCreatedAt.getTime()) / (1000 * 60 * 60);
@@ -101,13 +101,13 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 							} else if (driverData) {
 								status = "assigned";
 							}
-							
+
 							// Use stored pricing data or calculate as fallback
 							let basePrice = 0;
 							let platformFee = 0;
 							let vat = 0;
 							let totalAmount = 0;
-							
+
 							if (parsed.pricing) {
 								// Use stored pricing breakdown
 								basePrice = parsed.pricing.basePrice || 0;
@@ -204,7 +204,7 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 								},
 								eta: hoursSinceCreation < 24 ? new Date(Date.parse(createdAt) + 3 * 60 * 60 * 1000).toISOString() : null,
 							};
-							
+
 							setOrderData(trackingData);
 							setIsLoading(false);
 							return;
@@ -213,7 +213,7 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 						}
 					}
 				}
-				
+
 				// Fallback to mock data
 				const mockData = generateMockOrderData(orderId);
 				setOrderData(mockData);
@@ -271,10 +271,10 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 		const driverId = orderData.driver_or_worker?.id;
 		if (driverId) {
 			// Check if driver data exists in sessionStorage (Pick and Order driver)
-			const storedDriverData = typeof window !== "undefined" 
+			const storedDriverData = typeof window !== "undefined"
 				? sessionStorage.getItem(`driver_${driverId}`)
 				: null;
-			
+
 			if (storedDriverData) {
 				// Route: /driver/[driverId] for Pick and Order drivers
 				const detailsPath = `/driver/${driverId}`;
@@ -307,21 +307,21 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 
 	const handleChatClick = useCallback(() => {
 		if (!orderData) return;
-		
+
 		const driverId = orderData.driver_or_worker?.id;
 		if (driverId) {
 			// Check if driver data exists in sessionStorage (Pick and Order driver)
-			const storedDriverData = typeof window !== "undefined" 
+			const storedDriverData = typeof window !== "undefined"
 				? sessionStorage.getItem(`driver_${driverId}`)
 				: null;
-			
+
 			if (storedDriverData) {
 				// Route: /driver/[driverId]/chat for Pick and Order drivers
 				router.push(`/driver/${driverId}/chat`);
 				return;
 			}
 		}
-		
+
 		// Fallback to Serve Me worker chat
 		if (serviceInfo) {
 			const { service, serviceType, workerId } = serviceInfo;
@@ -479,7 +479,7 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 				/>
 			)}
 
-			{/* Rating Modal */}
+			{/* Rating Modal
 			{showRating && (
 				<RatingModal
 					isOpen={showRating}
@@ -496,7 +496,7 @@ export default function TrackOrderPage({ orderId, initialData }: TrackOrderPageP
 								: "Store"
 					}
 				/>
-			)}
+			)} */}
 		</div>
 	);
 }

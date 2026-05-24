@@ -27,8 +27,7 @@ class SessionCache {
 			}
 
 			const data = JSON.parse(cached);
-			console.log("data in session cache:",data);
-			console.log(`✅ Cache hit: ${key}`);
+
 			return data as T;
 		} catch (error) {
 			console.error(`Error reading cache for key "${key}":`, error);
@@ -47,7 +46,6 @@ class SessionCache {
 
 		try {
 			sessionStorage.setItem(key, JSON.stringify(data));
-			console.log(`💾 Cached: ${key}`);
 			return true;
 		} catch (error) {
 			console.error(`Error saving cache for key "${key}":`, error);
@@ -69,7 +67,6 @@ class SessionCache {
 		}
 
 		sessionStorage.removeItem(key);
-		console.log(`🗑️ Removed cache: ${key}`);
 	}
 
 	/**
@@ -101,7 +98,6 @@ class SessionCache {
 			}
 		});
 
-		console.log(`🗑️ Cleared ${count} cache entries with prefix "${prefix}"`);
 	}
 
 	/**
@@ -113,7 +109,6 @@ class SessionCache {
 		}
 
 		sessionStorage.clear();
-		console.log('🗑️ Cleared all session cache');
 	}
 
 	/**
@@ -166,12 +161,11 @@ class SessionCache {
 		}
 
 		// Cache miss - call fallback
-		console.log(`⚠️ Cache miss: ${key}, fetching data...`);
 		const data = await fallback();
-		
+
 		// Save to cache
 		this.set(key, data);
-		
+
 		return data;
 	}
 }

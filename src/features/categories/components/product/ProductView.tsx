@@ -242,6 +242,12 @@ function ProductView({ product, departmentId }: ProductViewProps) {
           message: isArabic ? "✓ تم الإضافة للسلة بنجاح" : "✓ Added to cart successfully",
           type: "success",
         });
+      } else if (result.status === 409) {
+        setNotification({
+          show: true,
+          message: isArabic ? "لديك منتجات من متجر آخر في السلة. يرجى إفراغ السلة أولاً" : "You have items from a different store in your cart. Please clear cart first",
+          type: "error",
+        });
       } else {
         setNotification({
           show: true,
@@ -250,7 +256,6 @@ function ProductView({ product, departmentId }: ProductViewProps) {
         });
       }
     } catch (error) {
-      console.error("Error adding to cart:", error);
       setNotification({
         show: true,
         message: isArabic ? "حدث خطأ أثناء الإضافة للسلة" : "Error adding to cart",

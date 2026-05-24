@@ -1,27 +1,24 @@
+/**
+ * Pick & Order — Production-Grade Landing Page
+ * Modern, clean, RTL Arabic delivery service UI
+ */
 "use client";
 
-import React from "react";
-import { useLanguage } from "@/providers";
-import { HeroSection } from "./HeroSection";
-import { TransportTypeSection } from "./TransportTypeSection";
-import { FeaturesSection } from "./FeaturesSection";
-import { StepsSection } from "./StepsSection";
+import HeroSection from "./HeroSection";
+import TransportTypeSection from "./TransportTypeSection";
+import FeaturesSection from "./FeaturesSection";
+import StepsSection from "./StepsSection";
 
-/**
- * Main Pick & Order Landing Page Component
- * Modern, production-ready landing page for delivery service
- */
-export const PickAndOrder: React.FC = () => {
-	const { language } = useLanguage();
-	const isArabic = language === "ar";
+function PickAndOrderPage() {
+  return (
+    <div dir="rtl" className="min-h-screen bg-white mb-8" style={{ fontFamily: "'Tajawal', 'Cairo', 'Segoe UI', sans-serif" }}>
+      <HeroSection />
+      <TransportTypeSection />
+      <FeaturesSection />
+      <StepsSection />
+    </div>
+  );
+}
 
-	return (
-		<div dir={isArabic ? "rtl" : "ltr"} className="min-h-screen bg-white dark:bg-gray-900">
-			<HeroSection />
-			<TransportTypeSection />
-			<FeaturesSection />
-			<StepsSection />
-		</div>
-	);
-};
-
+export default PickAndOrderPage;
+export { PickAndOrderPage };

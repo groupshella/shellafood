@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { cn } from "@/shared/utils";
+import { cn } from "@/shared/lib/cn";
 
 interface FormInputProps {
 	label: string;
@@ -16,6 +16,7 @@ interface FormInputProps {
 	max?: string;
 	className?: string;
 	error?: string;
+	ref?: React.RefObject<HTMLInputElement>;
 	disabled?: boolean;
 }
 
@@ -37,6 +38,7 @@ export const FormInput: React.FC<FormInputProps> = ({
 	className = "",
 	error,
 	disabled = false,
+	ref,
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const isPassword = type === "password";
@@ -47,13 +49,13 @@ export const FormInput: React.FC<FormInputProps> = ({
 			<label
 				htmlFor={name}
 				className={cn(
-					"text-sm font-semibold text-gray-700 dark:text-gray-300 md:text-base",
+					"text-sm font-semibold text-gray-700  md:text-base",
 					isArabic ? "text-right" : "text-left"
 				)}
 			>
 				{label}
 				{required && (
-					<span className="ml-1 text-red-500 dark:text-red-400" aria-label="required">
+					<span className="ml-1 text-red-500 " aria-label="required">
 						*
 					</span>
 				)}
@@ -61,6 +63,7 @@ export const FormInput: React.FC<FormInputProps> = ({
 
 			<div className="relative">
 				<input
+					ref={ref}
 					type={inputType}
 					id={name}
 					name={name}
@@ -73,10 +76,10 @@ export const FormInput: React.FC<FormInputProps> = ({
 					aria-invalid={error ? "true" : "false"}
 					aria-describedby={error ? `${name}-error` : undefined}
 					className={cn(
-						"w-full rounded-lg border bg-white dark:bg-gray-700 p-3 text-gray-900 dark:text-gray-100 shadow-sm transition-all duration-200 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-800",
+						"w-full rounded-lg border bg-white  p-3 text-gray-900  shadow-sm transition-all duration-200 focus:border-green-500  focus:ring-2 focus:ring-green-500/20  focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 ",
 						error
-							? "border-red-500 dark:border-red-400"
-							: "border-gray-300 dark:border-gray-600",
+							? "border-red-500 "
+							: "border-gray-300 ",
 						isPassword
 							? isArabic
 								? "text-right pr-12 pl-3"
@@ -94,7 +97,7 @@ export const FormInput: React.FC<FormInputProps> = ({
 						disabled={disabled}
 						aria-label={showPassword ? "Hide password" : "Show password"}
 						className={cn(
-							"absolute top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+							"absolute top-1/2 -translate-y-1/2 text-gray-500  hover:text-gray-700  focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
 							isArabic ? "left-3" : "right-3"
 						)}
 						tabIndex={-1}
@@ -114,7 +117,7 @@ export const FormInput: React.FC<FormInputProps> = ({
 					role="alert"
 					aria-live="polite"
 					className={cn(
-						"text-sm text-red-500 dark:text-red-400",
+						"text-sm text-red-500 ",
 						isArabic ? "text-right" : "text-left"
 					)}
 				>

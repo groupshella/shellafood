@@ -53,6 +53,7 @@ export default function HomePage({
 			{/* ─── 1. HERO ──────────────────────────────────────────────────────── */}
 			{/* Full-bleed dark cinematic banner */}
 			<HeroSection />
+
 			{/* ─── 2. CATEGORIES ───────────────────────────────────────────────── */}
 			{/* Discovery strip — browse by type */}
 			<div

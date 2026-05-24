@@ -20,7 +20,7 @@ export function useCartCount() {
 	const fetchCartCount = useCallback(async () => {
 		try {
 			const guestId = getCookie('guest_id');
-			
+
 			if (!guestId) {
 				setCount(0);
 				setIsLoading(false);
@@ -29,7 +29,7 @@ export function useCartCount() {
 
 			// ✅ Use API route as proxy
 			const baseUrl = getBaseUrl();
-			const response = await fetch(`${baseUrl}/api/cart/list?guest_id=${guestId}`, {
+			const response = await fetch(`${baseUrl}/api/cart?guest_id=${guestId}`, {
 				method: 'GET',
 				headers: {
 					Accept: 'application/json',
@@ -62,7 +62,7 @@ export function useCartCount() {
 		};
 
 		window.addEventListener('cartUpdated', handleCartUpdate);
-		
+
 		return () => {
 			window.removeEventListener('cartUpdated', handleCartUpdate);
 		};

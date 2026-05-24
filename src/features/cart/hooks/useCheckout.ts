@@ -1,216 +1,189 @@
 'use client';
 
+/**
+ * useCheckout — drives the full checkout flow
+ *
+ * Step 1: POST /api/cart/order          → place order (always)
+ * Step 2: branch by paymentMethod
+ *   cash      → nothing extra
+ *   wallet    → POST /api/cart/payment
+ *   kaidha    → POST /api/cart/payment
+ *   myfatoorah→ POST /api/cart/payment  → returns paymentUrl (caller redirects)
+ *   offline   → PUT  /api/cart/payment
+ *
+ * Knows nothing about: cart items state, UI, address selection
+ */
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLanguage } from '@/providers';
-import { useToast } from '@/shared/components/ui';
-import { BASE_URL, DEFAULT_LANG, STORAGE_KEYS, getBaseUrl } from '@/features/auth/constants/auth.constants';
-import { getCookie } from '@/features/auth/lib/utils/cookie.utils';
-import type { CartItem, PaymentMethod, CardDetails, CartTotals } from '../types/cart.types';
-import type { Address } from '@/shared/hooks/useAddresses';
+import type { CheckoutOptions, CheckoutResult, PaymentMethod } from '../types/cart.types';
 
-interface CheckoutPayload {
-	cart: Array<{
-		item_id: number;
-		quantity: number;
-		variation: any[];
-		add_on_ids: any[];
-		add_on_qtys: any[];
-	}>;
-	coupon_code: string;
-	order_amount: number;
-	payment_method: string;
-	order_type: string;
-	store_id: number;
-	distance: number;
-	address: string;
-	longitude: number;
-	latitude: number;
-	order_note?: string;
-	delivery_instruction?: string;
-	delivery_address_id?: number;
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+
+// ─── API constants ────────────────────────────────────────────────────────────
+
+const PAYMENT_API_VALUE: Record<PaymentMethod, string> = {
+  cash: 'cash_on_delivery',
+  wallet: 'wallet',
+  kaidha: 'wallet_qidha',
+  myfatoorah: 'digital_payment',
+  offline: 'offline_payment',
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-export function useCheckout(token?: string) {
-	const router = useRouter();
-	const { language } = useLanguage();
-	const isArabic = language === 'ar';
-	const { showToast } = useToast();
-
-	const [isProcessing, setIsProcessing] = useState(false);
-	const toRadians = (degrees: number): number => {
-		return degrees * (Math.PI / 180);
-	  }
-	const calculateDistance = (
-		lat1: number,
-		lon1: number,
-		lat2: number,
-		lon2: number
-	  ): number => {
-		const R = 6371; // Earth's radius in kilometers
-		
-		const dLat = toRadians(lat2 - lat1);
-		const dLon = toRadians(lon2 - lon1);
-		
-		const a =
-		  Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-		  Math.cos(toRadians(lat1)) *
-		  Math.cos(toRadians(lat2)) *
-		  Math.sin(dLon / 2) *
-		  Math.sin(dLon / 2);
-		
-		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		
-		const distance = R * c;
-		
-		return distance;
-	  }
-	const processCheckout = useCallback(async (
-		items: CartItem[],
-		address: Address,
-		paymentMethod: PaymentMethod,
-		orderSummary?: CartTotals,
-		cardDetails?: CardDetails,
-		couponCode?: string
-	): Promise<{ success: boolean; orderId?: string; error?: string }> => {
-		const latitudeStore = sessionStorage.getItem('latitude_store');
-		const longitudeStore = sessionStorage.getItem('longitude_store');
-		const moduleId = sessionStorage.getItem('module_id_store');
-		const zoneId = sessionStorage.getItem('zone_id_store');
-		
-		setIsProcessing(true);
-		const distance = calculateDistance(parseFloat(address.latitude || '0'), parseFloat(address.longitude || '0'), parseFloat(latitudeStore || '0') || 0, parseFloat(longitudeStore || '0') || 0);
-		console.log("distance", distance);
-		try {
-			// Get auth token
-			const authToken = token ;
-			if (!authToken) {
-				console.log("authToken", authToken);
-				return { success: false, error: 'Authentication required' };
-			}
-
-			// Validate required data
-			if (!address) {
-				console.log("address", address);
-				return { success: false, error: 'Please select a delivery address' };
-			}
-
-			if (items.length === 0) {
-				console.log("items", items);
-				return { success: false, error: 'Cart is empty' };
-			}
-
-			// Get store_id from first item (assuming all items are from same store)
-			const storeId = parseInt(items[0].storeId) || 0;
-			if (!storeId) {
-				console.log("storeId", storeId);
-					return { success: false, error: 'Invalid store information' };
-			}
-
-			// Format cart items - API expects array of cart item objects
-			const cartItems = items.map(item => ({
-				item_id: parseInt(item.productId) || 0,
-				quantity: item.quantity || 1,
-				variation: [],
-				add_on_ids: [],
-				add_on_qtys: [],
-			}));
-			console.log("cartItems", cartItems);
-			// Get zone_id and module_id from address
-			// For moduleId, we'll need to get it from store or zone data
-			// For now, using 0 as fallback - you may need to fetch it from store details
-			console.log("zoneId", zoneId);
-			console.log("moduleId", moduleId);
-			// Calculate order amount from orderSummary or items
-			const orderAmount = orderSummary?.total || 0;
-			console.log("orderAmount", orderAmount);
-			// Map payment method to API format
-			const paymentMethodMap: Record<string, string> = {
-				'cash': 'cash_on_delivery',
-				'wallet': 'wallet',
-				'kaidha': 'wallet_qidha',
-				'myfatoorah': 'digital_payment',
-				'offline': 'offline_payment',
-			};
-			const apiPaymentMethod = paymentMethodMap[paymentMethod || 'cash'] || 'cash_on_delivery';
-			console.log("apiPaymentMethod", apiPaymentMethod);
-			// Prepare request body
-			const payload: CheckoutPayload = {
-				cart: cartItems,
-				coupon_code: couponCode || '',
-				order_amount: orderAmount,
-				payment_method: apiPaymentMethod,
-				order_type: 'delivery',
-				store_id: storeId,
-				distance: distance,
-				address: address.address || '',
-				longitude: parseFloat(address.longitude || '0'),
-				latitude: parseFloat(address.latitude || '0'),
-				order_note: '',
-				delivery_instruction: '',
-				...(address.id && { delivery_address_id: address.id }),
-			};
-			console.log("payload", payload);
-			console.log("moduleId", moduleId);
-			console.log("zoneId", zoneId);
-			// ✅ Use API route as proxy
-			const baseUrl = getBaseUrl();
-			const response = await fetch(`${baseUrl}/api/order/place`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Accept': 'application/json',
-					'X-localization': language || DEFAULT_LANG,
-					'moduleId': moduleId?.toString() || '',
-					'zoneId':`[${zoneId?.toString()}]`
-				},
-				body: JSON.stringify(payload),
-			});
-
-			// Check if request was successful
-			if (!response.ok) {
-				let errorMessage = isArabic ? 'فشل إتمام الطلب' : 'Failed to place order';
-				try {
-					const errorData = await response.json();
-					errorMessage = errorData.error || errorData.message || errorMessage;
-				} catch {
-					// If JSON parsing fails, use default message
-				}
-				console.log("errorMessage", errorMessage);
-				showToast(
-					errorMessage,
-					'error',
-					isArabic ? errorMessage : undefined
-				);
-				return { success: false, error: errorMessage };
-			}
-			
-			const result = await response.json();
-			console.log("result in useCheckout", result);
-			
-			// Success - show notification and route to my-orders
-			const successMessage = result.message || (isArabic ? 'تم وضع الطلب بنجاح' : 'Order placed successfully');
-			const orderId = result.order_id || result.id || result.data?.order_id;
-			console.log("orderId", orderId);
-		
-			
-			// Route to my-orders page
-			setTimeout(() => {
-				router.push(`/my-orders/${orderId}/track`);
-			}, 1000); // Small delay to show the notification
-			
-			return { success: true, orderId: orderId?.toString() };
-		} catch (error: any) {
-			console.log('Checkout error:', error);
-			return { success: false, error: error.message || 'فشل إتمام الطلب' };
-		} finally {
-			setIsProcessing(false);
-		}
-	}, [router, language, token, isArabic, showToast]);
-
-	return {
-		processCheckout,
-		isProcessing,
-	};
+function sessionNum(key: string): number {
+  return parseFloat(sessionStorage.getItem(key) ?? '0') || 0;
 }
 
+async function post<T>(path: string, body: unknown): Promise<{ ok: boolean; data: T }> {
+  const res = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({})) as T;
+  return { ok: res.ok, data };
+}
+
+async function put<T>(path: string, body: unknown): Promise<{ ok: boolean; data: T }> {
+  const res = await fetch(path, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({})) as T;
+  return { ok: res.ok, data };
+}
+
+function firstError(data: unknown): string | null {
+  if (!data || typeof data !== 'object') return null;
+  const d = data as Record<string, unknown>;
+  if (Array.isArray(d.errors)) return (d.errors[0] as any)?.message ?? null;
+  return (d.error as string) ?? (d.message as string) ?? null;
+}
+
+// ─── Hook ─────────────────────────────────────────────────────────────────────
+
+export function useCheckout() {
+  const router = useRouter();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const checkout = useCallback(async (opts: CheckoutOptions): Promise<CheckoutResult> => {
+    const { items, address, paymentMethod, totals, couponCode, offlineMethodId, offlineNote, offlineFields } = opts;
+
+    // ── guards ───────────────────────────────────────────────────────────────
+    if (!items.length) return { success: false, error: 'Cart is empty' };
+    if (!address) return { success: false, error: 'No address selected' };
+
+    const storeId = parseInt(items[0].storeId, 10);
+    if (!storeId) return { success: false, error: 'Invalid store' };
+
+    setIsProcessing(true);
+
+    try {
+      // ── step 1: place order ──────────────────────────────────────────────
+      const storeLat = sessionNum('latitude_store');
+      const storeLon = sessionNum('longitude_store');
+      const addrLat = parseFloat(address.latitude) || 0;
+      const addrLon = parseFloat(address.longitude) || 0;
+
+      const { ok: placedOk, data: placedData } = await post<Record<string, unknown>>(
+        '/api/cart/order',
+        {
+          cart: items.map((i) => ({
+            item_id: parseInt(i.productId, 10),
+            quantity: i.quantity,
+            variation: [],
+            add_on_ids: [],
+            add_on_qtys: [],
+          })),
+          order_amount: totals.total,
+          payment_method: PAYMENT_API_VALUE[paymentMethod],
+          order_type: 'delivery',
+          store_id: storeId,
+          distance: haversineKm(addrLat, addrLon, storeLat, storeLon),
+          address: address.address,
+          latitude: addrLat,
+          longitude: addrLon,
+          coupon_code: couponCode ?? '',
+          order_note: '',
+          delivery_instruction: '',
+          ...(address.id ? { delivery_address_id: address.id } : {}),
+        },
+      );
+
+      if (!placedOk || !placedData.order_id) {
+        return { success: false, error: firstError(placedData) ?? 'Failed to place order' };
+      }
+
+      const orderId = Number(placedData.order_id);
+      const amount = Number(placedData.total_ammount) || totals.total;
+
+      // ── step 2: payment branch ───────────────────────────────────────────
+      switch (paymentMethod) {
+
+        case 'cash':
+          // order is created unpaid — nothing more to do
+          break;
+
+        case 'wallet':
+        case 'kaidha': {
+          const { ok, data } = await post<Record<string, unknown>>('/api/cart/payment', {
+            order_id: orderId,
+            payment_method: PAYMENT_API_VALUE[paymentMethod],
+            amount,
+          });
+          if (!ok) return { success: false, error: firstError(data) ?? 'Wallet payment failed' };
+          break;
+        }
+
+        case 'myfatoorah': {
+          const { ok, data } = await post<Record<string, unknown>>('/api/cart/payment', {
+            order_id: orderId,
+            payment_method: 'digital_payment',
+            amount,
+          });
+          if (!ok || !data.payment_url) {
+            return { success: false, error: firstError(data) ?? 'Digital payment failed' };
+          }
+          // hand URL back to the caller — it handles the redirect
+          return { success: true, orderId: String(orderId), paymentUrl: data.payment_url as string };
+        }
+
+        case 'offline': {
+          if (!offlineMethodId) return { success: false, error: 'Select an offline payment method' };
+          const { ok, data } = await put<Record<string, unknown>>('/api/cart/payment', {
+            order_id: orderId,
+            method_id: offlineMethodId,
+            customer_note: offlineNote ?? '',
+            ...(offlineFields ?? {}),
+          });
+          if (!ok) return { success: false, error: firstError(data) ?? 'Offline payment failed' };
+          break;
+        }
+      }
+
+      // ── step 3: go to tracking ───────────────────────────────────────────
+      router.push(`/my-orders/${orderId}/track`);
+      return { success: true, orderId: String(orderId) };
+
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unexpected error';
+      return { success: false, error: msg };
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [router]);
+
+  return { checkout, isProcessing };
+}

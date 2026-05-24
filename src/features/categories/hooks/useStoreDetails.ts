@@ -11,9 +11,9 @@ export interface NotificationState {
 }
 
 export function useStoreDetails(
-    storeId: string,
+	storeId: string,
 	language: string,
-	
+
 ) {
 	const [store, setStore] = useState<StoreDetails | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
@@ -30,7 +30,7 @@ export function useStoreDetails(
 
 			//const result = await getStoreDetails(storeId, language);
 			//console.log(result);
-			
+
 			//if (result.data) {
 			//	setStore(result.data as StoreDetails);
 			//} else {
@@ -42,7 +42,6 @@ export function useStoreDetails(
 			//	});
 			//}
 		} catch (error) {
-			console.log(error);
 			setNotification({
 				message: isArabic ? "خطأ في تحميل المتجر" : "Error loading store",
 				type: "error",

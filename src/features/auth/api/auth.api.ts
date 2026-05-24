@@ -36,15 +36,15 @@ export async function login(data: LoginFormData, lang: string = DEFAULT_LANG): P
 				phone: data.phone,
 				password: data.password,
 				login_type: 'manual',
-				guest_id:  '',
+				guest_id: '',
 			}),
 		})
 		console.log("response", response);
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => null);
-			const errorMessage = errorData?.message || 
-				(lang === 'ar' 
+			const errorMessage =
+				(lang === 'ar'
 					? 'فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد والمحاولة مرة أخرى.'
 					: 'Login failed. Please check your credentials and try again.');
 			throw new Error(errorMessage);
@@ -60,7 +60,7 @@ export async function login(data: LoginFormData, lang: string = DEFAULT_LANG): P
 
 		return result;
 	} catch (error: any) {
-	
+
 		console.log("error in login", error);
 		throw error;
 	}
@@ -111,7 +111,7 @@ export async function register(data: RegisterFormData, lang: string = DEFAULT_LA
 			// Handle network errors (CORS, connection refused, etc.)
 			console.error('[Auth API] Network error:', fetchError);
 			throw new Error(
-				lang === 'ar' 
+				lang === 'ar'
 					? 'فشل الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.'
 					: 'Failed to connect to server. Please check your internet connection and try again.'
 			);
@@ -119,8 +119,8 @@ export async function register(data: RegisterFormData, lang: string = DEFAULT_LA
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => null);
-			const errorMessage = errorData?.message || errorData?.error || 
-				(lang === 'ar' 
+			const errorMessage = errorData?.message || errorData?.error ||
+				(lang === 'ar'
 					? 'فشل التسجيل. يرجى التحقق من البيانات والمحاولة مرة أخرى.'
 					: 'Registration failed. Please check your data and try again.');
 			throw new Error(errorMessage);
@@ -146,7 +146,7 @@ export async function register(data: RegisterFormData, lang: string = DEFAULT_LA
 		}
 		// Otherwise, create a new error with a default message
 		throw new Error(
-			lang === 'ar' 
+			lang === 'ar'
 				? 'فشل التسجيل. حاول مرة أخرى.'
 				: 'Registration failed. Please try again.'
 		);
@@ -183,7 +183,7 @@ export async function verifyPhone(data: VerifyPhoneData, lang: string = DEFAULT_
 		}).catch((fetchError) => {
 			console.error('[Auth API] Network error:', fetchError);
 			throw new Error(
-				lang === 'ar' 
+				lang === 'ar'
 					? 'فشل الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.'
 					: 'Failed to connect to server. Please check your internet connection and try again.'
 			);
@@ -191,8 +191,8 @@ export async function verifyPhone(data: VerifyPhoneData, lang: string = DEFAULT_
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => null);
-			const errorMessage = errorData?.message || 
-				(lang === 'ar' 
+			const errorMessage = errorData?.message ||
+				(lang === 'ar'
 					? 'فشل التحقق من رقم الهاتف. يرجى التحقق من رمز OTP والمحاولة مرة أخرى.'
 					: 'Phone verification failed. Please check the OTP code and try again.');
 			throw new Error(errorMessage);
@@ -205,7 +205,7 @@ export async function verifyPhone(data: VerifyPhoneData, lang: string = DEFAULT_
 			throw error;
 		}
 		throw new Error(
-			lang === 'ar' 
+			lang === 'ar'
 				? 'فشل التحقق من رقم الهاتف. حاول مرة أخرى.'
 				: 'Phone verification failed. Please try again.'
 		);
@@ -239,7 +239,7 @@ export async function sendOtpAgain(data: SendOtpData, lang: string = DEFAULT_LAN
 		}).catch((fetchError) => {
 			console.error('[Auth API] Network error:', fetchError);
 			throw new Error(
-				lang === 'ar' 
+				lang === 'ar'
 					? 'فشل الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.'
 					: 'Failed to connect to server. Please check your internet connection and try again.'
 			);
@@ -247,8 +247,8 @@ export async function sendOtpAgain(data: SendOtpData, lang: string = DEFAULT_LAN
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => null);
-			const errorMessage = errorData?.message || 
-				(lang === 'ar' 
+			const errorMessage = errorData?.message ||
+				(lang === 'ar'
 					? 'فشل إرسال رمز OTP. يرجى المحاولة مرة أخرى.'
 					: 'Failed to send OTP. Please try again.');
 			throw new Error(errorMessage);
@@ -261,7 +261,7 @@ export async function sendOtpAgain(data: SendOtpData, lang: string = DEFAULT_LAN
 			throw error;
 		}
 		throw new Error(
-			lang === 'ar' 
+			lang === 'ar'
 				? 'فشل إرسال رمز OTP. حاول مرة أخرى.'
 				: 'Failed to send OTP. Please try again.'
 		);
@@ -277,16 +277,16 @@ export async function sendOtpAgain(data: SendOtpData, lang: string = DEFAULT_LAN
 export async function getCurrentUserProfile(lang: string = DEFAULT_LANG): Promise<UserProfileResponse> {
 	try {
 		const authHeader = getAuthHeader();
-		
+
 		// Construct the full URL
 		const baseUrl = getBaseUrl();
 		const url = `${baseUrl}/api/v1${AUTH_ENDPOINTS.ME}`;
-		
+
 		// Validate BASE_URL
 		if (!baseUrl || baseUrl === '') {
 			throw new Error('API base URL is not configured. Please check your environment variables.');
 		}
-		
+
 		const response = await fetch(url, {
 			method: 'GET',
 			headers: {
@@ -299,7 +299,7 @@ export async function getCurrentUserProfile(lang: string = DEFAULT_LANG): Promis
 			// Handle network errors (CORS, connection refused, etc.)
 			console.error('[Auth API] Network error:', fetchError);
 			throw new Error(
-				lang === 'ar' 
+				lang === 'ar'
 					? 'فشل الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.'
 					: 'Failed to connect to server. Please check your internet connection and try again.'
 			);
@@ -307,8 +307,8 @@ export async function getCurrentUserProfile(lang: string = DEFAULT_LANG): Promis
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => null);
-			const errorMessage = errorData?.message || 
-				(lang === 'ar' 
+			const errorMessage = errorData?.message ||
+				(lang === 'ar'
 					? 'فشل تحميل بيانات المستخدم'
 					: 'Failed to load user data');
 			throw new Error(errorMessage);
@@ -329,7 +329,7 @@ export async function getCurrentUserProfile(lang: string = DEFAULT_LANG): Promis
 		}
 		// Otherwise, create a new error with a default message
 		throw new Error(
-			lang === 'ar' 
+			lang === 'ar'
 				? 'فشل تحميل بيانات المستخدم'
 				: 'Failed to load user data'
 		);

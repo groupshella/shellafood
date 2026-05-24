@@ -158,32 +158,44 @@ export default function LoginForm() {
 
       if (!response.ok || !data.success || !data.data?.otp_required) {
         throw new Error(
-          data.message ||
+
           (isArabic
             ? "فشل تسجيل الدخول. يرجى التحقق من رقم الهاتف وكلمة المرور."
             : "Login failed. Please check your phone number and password.")
         );
       }
-
-      window.sessionStorage.setItem(
-        "pending_login_otp",
-        JSON.stringify({
-          phone: data.data.phone || formData.phone,
-          remember: Boolean(formData.remember),
-        })
-      );
-
       setNotification({
         message: isArabic
-          ? "تم إرسال رمز التحقق إلى هاتفك"
-          : "Verification code sent to your phone",
+          ? "تم تسجيل الدخول بنجاح! جاري التحويل..."
+          : "Login successful! Redirecting...",
         type: "success",
         isVisible: true,
       });
 
       setTimeout(() => {
-        router.push(`${AUTH_ROUTES.LOGIN}/verify-otp`);
-      }, 700);
+        router.push(AUTH_ROUTES.HOME);
+        router.refresh();
+      }, 900);
+
+      // window.sessionStorage.setItem(
+      //   "pending_login_otp",
+      //   JSON.stringify({
+      //     phone: data.data.phone || formData.phone,
+      //     remember: Boolean(formData.remember),
+      //   })
+      // );
+
+      // setNotification({
+      //   message: isArabic
+      //     ? "تم إرسال رمز التحقق إلى هاتفك"
+      //     : "Verification code sent to your phone",
+      //   type: "success",
+      //   isVisible: true,
+      // });
+
+      // setTimeout(() => {
+      //   router.push(`${AUTH_ROUTES.LOGIN}/verify-otp`);
+      // }, 700);
 
     } catch (error: any) {
       console.error('[Login Form] Error:', error);

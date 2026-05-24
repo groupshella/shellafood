@@ -81,12 +81,12 @@ async function getNotificationsData(): Promise<Notification[] | null> {
 		// Use API route as proxy
 		const baseUrl = getBaseUrl();
 		const apiUrl = `${baseUrl}/api/notifications?zoneId=2&locale=${DEFAULT_LANG}`;
-		
+
 		// Get cookies to forward to API route
 		const cookieHeader = cookieStore.getAll()
 			.map(cookie => `${cookie.name}=${cookie.value}`)
 			.join('; ');
-		
+
 		const response = await fetch(apiUrl, {
 			method: 'GET',
 			headers: {
@@ -105,16 +105,13 @@ async function getNotificationsData(): Promise<Notification[] | null> {
 		}
 
 		const data = await response.json();
-		
+
 		// Handle both array and object responses
-		const notifications = Array.isArray(data) 
-			? data 
+		const notifications = Array.isArray(data)
+			? data
 			: (data.notifications || []);
-		
-		console.log('[Notifications] API Data received:', {
-			notificationsCount: notifications.length,
-		});
-		
+
+
 		return notifications;
 	} catch (error) {
 		console.error('[Notifications] Fetch Error:', error);
@@ -133,7 +130,7 @@ export default async function NotificationsRoute() {
 
 	// Fetch notifications data
 	const notifications = await getNotificationsData();
-	
+
 	return <NotificationsPage initialNotifications={notifications} />;
 }
 

@@ -94,14 +94,11 @@ async function getAccountInfoData(token: string, guestId: string) {
 
 
 export default async function AccountInfoPageRoute() {
-	  // Check authentication on server side using the same cookie key as layout
-	  const cookieStore = await cookies();
-	  const authToken = cookieStore.get("auth_token");
-	  const guestId = cookieStore.get("guest_id");
-	  console.log("authToken", authToken?.value);
-	  console.log("guestId", guestId?.value);
+	// Check authentication on server side using the same cookie key as layout
+	const cookieStore = await cookies();
+	const authToken = cookieStore.get("auth_token");
+	const guestId = cookieStore.get("guest_id");
 	const accountInfoData = await getAccountInfoData(authToken?.value || '', guestId?.value || '');
-	console.log("accountInfoData", accountInfoData);
 
 	// Map the API response to the component's expected format
 	const personalInfo = accountInfoData ? {

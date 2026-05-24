@@ -41,13 +41,10 @@ export const getZoneDataFromLocation = cache(
 
       // 404 = valid response meaning coords are outside all zones
       if (response.status === 404) {
-        console.info(`[Zone API] Outside zone: ${latitude},${longitude}`);
         return { zone_id: null, zone_data: [] };
       }
 
       if (!response.ok) {
-        console.log("response", response);
-        console.warn(`[Zone API] Non-ok response: ${response.status} for ${latitude},${longitude}`);
         return null;
       }
 
@@ -64,10 +61,8 @@ export const getZoneDataFromLocation = cache(
     } catch (error: unknown) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === 'AbortError') {
-        console.error('[Zone API] Request timed out');
         return null;
       }
-      console.error('[Zone API] Error:', error instanceof Error ? error.message : error);
       return null;
     }
   }

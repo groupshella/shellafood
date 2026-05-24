@@ -53,7 +53,7 @@ function CategoriesPage({
 			{/* <TopSupermarketSection /> */}
 
 			{/* Services Section */}
-			{/* <ServicesSection /> */}
+			<ServicesSection />
 
 			{/* Categories Grid Section */}
 			<section className="py-6 sm:py-8 md:py-12" dir={direction}>

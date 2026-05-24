@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CreditCard, Star, MapPin, Wrench, Clock, User, MessageCircle, AlertCircle, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/providers";
-import { RatingModal } from "@/features/serve-me";
+// import { RatingModal } from "@/features/serve-me/components/";
 import { OrderStatusBadge } from "../../shared/OrderStatusBadge";
 import { PaymentStatusBadge } from "../../shared/PaymentStatusBadge";
 import { cn } from "@/shared/utils";
@@ -325,7 +325,7 @@ export function ServiceOrderCard({
 			</motion.div>
 
 			{/* Rating Modal */}
-			{showRating && (
+			{/* {showRating && (
 				<RatingModal
 					isOpen={showRating}
 					onClose={() => setShowRating(false)}
@@ -335,7 +335,7 @@ export function ServiceOrderCard({
 					driverName={request.workerName}
 					driverPhoto={request.workerPhoto}
 				/>
-			)}
+			)} */}
 		</>
 	);
 }

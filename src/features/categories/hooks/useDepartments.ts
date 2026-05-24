@@ -10,9 +10,9 @@ export interface NotificationState {
 }
 
 export function useDepartments(
-    moduleId: number,
+	moduleId: number,
 	storeId: number,
-    departmentId: number,
+	departmentId: number,
 ) {
 	const [departmentResponse, setDepartmentResponse] = useState<DepartmentResponse | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
@@ -22,16 +22,15 @@ export function useDepartments(
 		isVisible: false,
 	});
 
-	    const fetchDepartments = useCallback(async () => {
+	const fetchDepartments = useCallback(async () => {
 		try {
 			setLoading(true);
 
 			//const result = await getCachedDepartments(limit, offset, moduleId, storeId, departmentId.toString(), DEFAULT_LANG);
 			//setDepartmentResponse(result.data as DepartmentResponse);
 		} catch (error) {
-			console.log(error);
 			setNotification({
-					message: "خطأ في تحميل الأقسام",
+				message: "خطأ في تحميل الأقسام",
 				type: "error",
 				isVisible: true,
 			});

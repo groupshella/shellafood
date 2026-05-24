@@ -1,154 +1,109 @@
-/**
- * Cart Feature Types
- * All types for cart feature
- */
-
-// ============================================================================
-// Cart Item Types
-// ============================================================================
 
 export interface CartItem {
-	id: string;
-	productId: string;
-	productName: string;
-	productNameAr?: string;
-	productImage?: string;
-	quantity: number;
-	priceAtAdd: number;
-	originalPrice?: number;
-	storeId: string;
-	storeName: string;
-	storeNameAr?: string;
-	storeLogo?: string;
-	stock?: number;
-	unit?: string;
-	unitAr?: string;
-	hasSpecialOffer?: boolean;
-	discountAmount?: number;
+    id: string;          // cart row id
+    productId: string;
+    productName: string;
+    productImage: string;
+    quantity: number;
+    priceAtAdd: number;
+    storeId: string;
+    storeName: string;
+    stock: number;
+    hasDiscount: boolean;
+    discountAmount: number;
 }
 
-// ============================================================================
-// Cart State Types
-// ============================================================================
-
-export interface CartState {
-	items: CartItem[];
-	selectedAddressId: number | null;
-	selectedPaymentMethod: PaymentMethod | null;
-	appliedCoupon: Coupon | null;
-	isLoading: boolean;
-	isUpdating: boolean;
-	isProcessing: boolean;
+export interface ApiCartItem {
+    id: number;
+    item_id: number;
+    quantity: number;
+    price: number;
+    original_price: number;
+    discount_amount: number;
+    item: {
+        id: number;
+        name: string;
+        image_full_url: string;
+        image: string;
+        store_id: number;
+        store_name: string;
+        stock: number;
+        unit_type: string;
+    };
 }
-
-export interface CartTotals {
-	subtotal: number;
-	deliveryFee: number;
-	discount: number;
-	total: number;
-	itemsCount: number;
-	remainingForFreeDelivery?: number;
-}
-
-export interface GroupedItems {
-	[storeId: string]: {
-		store: {
-			id: string;
-			name: string;
-			nameAr?: string;
-			logo?: string;
-		};
-		items: CartItem[];
-	};
-}
-
-// ============================================================================
-// Address Types
-// ============================================================================
-
-export interface Address {
-		id: number;
-	address: string;
-	formattedAddress?: string;
-	createdAt: string;
-	lat?: number;
-	lng?: number;
-}
-
-// ============================================================================
-// Payment Types
-// ============================================================================
 
 export type PaymentMethod = 'cash' | 'wallet' | 'kaidha' | 'myfatoorah' | 'offline';
 
-export interface CardDetails {
-	number: string;
-	expiry: string;
-	cvv: string;
-	name: string;
+export interface DeliveryAddress {
+    id?: number;
+    address: string;
+    latitude: string;
+    longitude: string;
 }
 
-export interface PaymentOption {
-	id: PaymentMethod;
-	labelEn: string;
-	labelAr: string;
-	icon: string;
-	descriptionEn?: string;
-	descriptionAr?: string;
-	requiresDetails: boolean;
+export interface OrderTotals {
+    total: number;
 }
 
-// ============================================================================
-// Coupon Types
-// ============================================================================
-
-export interface Coupon {
-	id: string;
-	code: string;
-	titleEn: string;
-	titleAr?: string;
-	discountValue: number;
-	discountType: 'percentage' | 'fixed';
+export interface CheckoutOptions {
+    items: CartItem[];
+    address: DeliveryAddress;
+    paymentMethod: PaymentMethod;
+    totals: OrderTotals;
+    couponCode?: string;
+    offlineMethodId?: string;
+    offlineNote?: string;
+    offlineFields?: Record<string, string>;
 }
 
-// ============================================================================
-// API Response Types
-// ============================================================================
-
-export interface CartResponse {
-	success: boolean;
-	data: {
-		items: CartItem[];
-		totals: CartTotals;
-	};
-	message?: string;
+export interface CheckoutResult {
+    success: boolean;
+    orderId?: string;
+    error?: string;
+    /** Only present for myfatoorah — caller must redirect to this URL */
+    paymentUrl?: string;
 }
 
-export interface CheckoutResponse {
-	success: boolean;
-	data: {
-		orderId: string;
-		orderNumber: string;
-		total: number;
-	};
-	message?: string;
+
+export interface UsePaymentReturn {
+    selectedPaymentMethod: PaymentMethod | null;
+    selectedOfflineMethodId: string | null;
+    offlineCustomerNote: string;
+    offlineFieldValues: Record<string, string>;
+
+    selectPaymentMethod: (method: PaymentMethod) => void;
+    selectOfflineMethod: (methodId: string) => void;
+    setOfflineCustomerNote: (note: string) => void;
+    setOfflineFieldValue: (fieldName: string, value: string) => void;
 }
 
-export interface CouponResponse {
-	success: boolean;
-	data: Coupon | null;
-	message?: string;
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface OfflineMethodField {
+    input_name: string;
+    placeholder: string;
+    is_required: boolean;
 }
 
-// ============================================================================
-// Checkout Data Type
-// ============================================================================
-
-export interface CheckoutData {
-	addressId: number;
-	paymentMethod: PaymentMethod;
-	totals: CartTotals;
-	couponCode?: string;
-	cardDetails?: CardDetails;
+export interface OfflineMethod {
+    id: number;
+    method_name: string;
+    method_fields?: OfflineMethodField[];
 }
 
+export interface QidhaWallet {
+    availableBalance: number;
+    creditLimit: number;
+    purchaseLimit: number;
+    status: string;
+}
+
+export interface UsePaymentDetailsReturn {
+    walletBalance: number | null;      // set when method === 'wallet'
+    qidhaWallet: QidhaWallet | null; // set when method === 'kaidha'
+    offlineMethods: OfflineMethod[];    // set when method === 'offline'
+    isLoading: boolean;
+    error: string | null;
+    hasInsufficientBalance: boolean;
+    isPaymentReady: boolean;
+}

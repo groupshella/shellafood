@@ -24,5 +24,5 @@ export * from './layout';
 export * from './cards';
 
 // Media Components
-export * from './media';
 
+export * from './media';

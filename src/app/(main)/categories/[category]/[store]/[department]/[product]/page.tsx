@@ -113,22 +113,12 @@ export default async function ProductPageRoute({ params }: PageProps) {
 
     const productData = productResponse.data;
 
-    console.log('[Product Page] Product fetched:', {
-      moduleId,
-      storeId,
-      departmentId,
-      productId,
-      hasProduct: !!productData?.id,
-      productIdResponse: productData?.id || 0,
-      productName: productData?.name || '',
-    });
 
     // Validate response structure
     if (!productData || !productData.id) {
       console.error('[Product Page] Invalid response structure:', productData);
       notFound();
     }
-    console.log('productData', productData);
 
     return (
       <ProductPage productResponse={productData} departmentId={departmentId} />

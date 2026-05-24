@@ -24,11 +24,12 @@ export interface ServiceItem {
 	image: string;
 }
 
-export interface FeatureItem {
-	iconName: 'MapPin' | 'Headphones' | 'CheckCircle';
-	titleKey: string;
-	descriptionKey: string;
-}
+export type FeatureItem = Readonly<{
+	icon: React.ReactNode;
+	title: string;
+	description: string;
+  }>;
+  
 export interface ServiceType {
 	id: string;
 	name: string;
@@ -107,14 +108,21 @@ export interface NotificationState {
  * Service Grid Item
  * Used for displaying services in the services grid component
  */
-export interface ServiceGridItem {
-	slug: string;
+export interface MainServiceDto {
+	id: number;
 	title: string;
 	description: string;
-	icon: React.ReactNode;
-	path: string;
-	image: string;
-}
+	imageUrl?: string;
+	isActive: boolean;
+	createdAt: string;
+  }
+  
+  export interface ApiResult<T> {
+	success: boolean;
+	data: T;
+	message?: string;
+	errors: string[];
+  }
 export interface ReviewItem {
 	name: string;
 	rating: number;
@@ -153,16 +161,7 @@ export interface BookingAddress {
  */
 export type BookingServiceType = "instant" | "scheduled";
 
-/**
- * Booking Step
- * Represents a step in the booking process navigation
- */
-export interface BookingStep {
-	id: string;
-	path: string;
-	labelEn: string;
-	labelAr: string;
-}
+
 
 /**
  * Recommended Worker

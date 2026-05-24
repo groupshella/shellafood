@@ -10,9 +10,9 @@ export interface NotificationState {
 }
 
 export function useProducts(
-    moduleId: number,
+	moduleId: number,
 	storeId: number,
-    departmentId: number,
+	departmentId: number,
 	productId: number,
 	language: string,
 ) {
@@ -25,13 +25,13 @@ export function useProducts(
 	});
 	const isArabic = language === 'ar';
 
-	    const fetchProducts = useCallback(async () => {
+	const fetchProducts = useCallback(async () => {
 		try {
 			setLoading(true);
 
 			//const result = await getProductDetails(moduleId, storeId, departmentId, productId, language);
 			//console.log(result);
-			
+
 			//if (result.data) {
 			//	setProductResponse(result.data as Product);
 			//} else {
@@ -43,9 +43,8 @@ export function useProducts(
 			//	});
 			//}
 		} catch (error) {
-			console.log(error);
 			setNotification({
-				    message: isArabic ? "خطأ في تحميل المنتج" : "Error loading product",
+				message: isArabic ? "خطأ في تحميل المنتج" : "Error loading product",
 				type: "error",
 				isVisible: true,
 			});

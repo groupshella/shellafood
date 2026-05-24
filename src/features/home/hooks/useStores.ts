@@ -93,7 +93,6 @@ export function useStores({
                 setTotalSize(data.total_size ?? 0);
                 setStores((prev) => (append ? [...prev, ...(data.stores ?? [])] : data.stores ?? []));
             } catch (err: unknown) {
-                console.log("err", err);
                 if ((err as Error).name === "AbortError") return;
                 setError("عذراً، حدث خطأ ما أثناء تحميل المتاجر. يرجى المحاولة مرة أخرى.");
             } finally {
