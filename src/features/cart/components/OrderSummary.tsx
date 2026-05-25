@@ -233,7 +233,7 @@ export function OrderSummary(props: OrderSummaryProps) {
         whileHover={canCheckout && !isLoading ? { scale: 1.02, boxShadow: '0 10px 28px rgba(16,185,129,0.28)' } : {}}
         whileTap={canCheckout && !isLoading ? { scale: 0.98 } : {}}
         onClick={onCheckout}
-        disabled={!canCheckout || isLoading}
+        disabled={isLoading}
         className={`w-full py-4 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-xl font-bold text-base transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 
           }`}
       >

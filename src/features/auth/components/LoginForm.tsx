@@ -164,19 +164,6 @@ export default function LoginForm() {
             : "Login failed. Please check your phone number and password.")
         );
       }
-      setNotification({
-        message: isArabic
-          ? "تم تسجيل الدخول بنجاح! جاري التحويل..."
-          : "Login successful! Redirecting...",
-        type: "success",
-        isVisible: true,
-      });
-
-      setTimeout(() => {
-        router.push(AUTH_ROUTES.HOME);
-        router.refresh();
-      }, 900);
-
       window.sessionStorage.setItem(
         "pending_login_otp",
         JSON.stringify({
@@ -194,7 +181,7 @@ export default function LoginForm() {
       });
 
       setTimeout(() => {
-        router.push(`${AUTH_ROUTES.LOGIN}/verify-otp`);
+        router.push(`/login/verify-otp`);
       }, 700);
 
     } catch (error: any) {
