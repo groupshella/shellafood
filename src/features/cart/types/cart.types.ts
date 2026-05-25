@@ -107,3 +107,4 @@ export interface UsePaymentDetailsReturn {
     hasInsufficientBalance: boolean;
     isPaymentReady: boolean;
 }
+

@@ -177,25 +177,25 @@ export default function LoginForm() {
         router.refresh();
       }, 900);
 
-      // window.sessionStorage.setItem(
-      //   "pending_login_otp",
-      //   JSON.stringify({
-      //     phone: data.data.phone || formData.phone,
-      //     remember: Boolean(formData.remember),
-      //   })
-      // );
+      window.sessionStorage.setItem(
+        "pending_login_otp",
+        JSON.stringify({
+          phone: data.data.phone || formData.phone,
+          remember: Boolean(formData.remember),
+        })
+      );
 
-      // setNotification({
-      //   message: isArabic
-      //     ? "تم إرسال رمز التحقق إلى هاتفك"
-      //     : "Verification code sent to your phone",
-      //   type: "success",
-      //   isVisible: true,
-      // });
+      setNotification({
+        message: isArabic
+          ? "تم إرسال رمز التحقق إلى هاتفك"
+          : "Verification code sent to your phone",
+        type: "success",
+        isVisible: true,
+      });
 
-      // setTimeout(() => {
-      //   router.push(`${AUTH_ROUTES.LOGIN}/verify-otp`);
-      // }, 700);
+      setTimeout(() => {
+        router.push(`${AUTH_ROUTES.LOGIN}/verify-otp`);
+      }, 700);
 
     } catch (error: any) {
       console.error('[Login Form] Error:', error);

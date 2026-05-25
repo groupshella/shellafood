@@ -77,7 +77,7 @@ export function useCart() {
 			}
 
 			// ✅ Use API route as proxy
-			const response = await fetch(`${baseUrl}/api/cart/add`, {
+			const response = await fetch(`${baseUrl}/api/cart`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -142,8 +142,8 @@ export function useCart() {
 			}
 
 			// ✅ Use API route as proxy
-			const response = await fetch(`${baseUrl}/api/cart/update`, {
-				method: 'POST',
+			const response = await fetch(`${baseUrl}/api/cart`, {
+				method: 'PT',
 				headers: {
 					'Content-Type': 'application/json',
 					'Accept': 'application/json',
@@ -199,7 +199,7 @@ export function useCart() {
 
 			// ✅ Use API route as proxy
 			const response = await fetch(
-				`${baseUrl}/api/cart/remove-item?cart_id=${cartId}&guest_id=${guestId}`,
+				`${baseUrl}/api/cart?cart_id=${cartId}&guest_id=${guestId}`,
 				{
 					method: 'DELETE',
 					headers: {
@@ -252,7 +252,7 @@ export function useCart() {
 
 			// ✅ Use API route as proxy
 			const response = await fetch(
-				`${baseUrl}/api/cart/remove?guest_id=${guestId}`,
+				`${baseUrl}/api/cart/clear?guest_id=${guestId}`,
 				{
 					method: 'DELETE',
 					headers: {
