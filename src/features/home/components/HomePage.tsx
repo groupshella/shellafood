@@ -14,6 +14,7 @@ import { ArrowUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useHomePage } from "../hooks/useHomePage";
 import { ZoneDataModule } from "@/features/categories/types/module.types";
+import { useEffect } from "react";
 
 export default function HomePage({
 	modules,
@@ -27,9 +28,9 @@ export default function HomePage({
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
 	const { showScrollToTop, handleDeliveryAddressChange, scrollToTop } = useHomePage();
-
 	const getGuestId = async () => {
-		const response = await fetch("/api/auth/guest/request", {
+		const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+		const response = await fetch(`${baseUrl}/api/auth/guest/request`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -40,11 +41,12 @@ export default function HomePage({
 		console.log("data", data);
 	};
 
-	console.log("guestId", guestId);
-	if (!guestId) {
-		getGuestId();
-	}
-
+	// Remove the bare if(!guestId) call and replace with:
+	useEffect(() => {
+		if (!guestId) {
+			getGuestId();
+		}
+	}, [guestId]);
 	return (
 		<div
 			className="min-h-screen bg-gray-50 dark:bg-[#0d1117] font-sans antialiased"
