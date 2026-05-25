@@ -37,16 +37,18 @@ export const DEFAULT_LANG = 'ar';
 // For external API calls, use the hardcoded URL in the API route handlers
 export const getBaseUrl = () => {
 	if (typeof window !== 'undefined') {
-	  return window.location.origin;
-	}	
-	
+		return window.location.origin;
+	}
+
 	if (process.env.VERCEL_URL) {
 		return 'https://shellafood.vercel.app';
 	}
-	
+	if (process.env.NEXT_PUBLIC_BASE_URL) {
+		return process.env.NEXT_PUBLIC_BASE_URL;
+	}
 	return 'http://localhost:3000';
-  };
-  export const BASE_URL = "https://shellafood.com";
+};
+export const BASE_URL = "https://shellafood.com";
 // ============================================================================
 // Frontend Routes
 // ============================================================================
