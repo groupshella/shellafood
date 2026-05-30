@@ -28,7 +28,6 @@ interface UpdateQuantityParams {
 }
 
 interface AddToCartResponse {
-	status?: number;
 	success?: boolean;
 	message?: string;
 	error?: string;
@@ -97,10 +96,10 @@ export function useCart() {
 			});
 
 			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Failed to add to cart' }));
 				return {
 					success: false,
-					status: response.status,
-					error: (await response.json()).error || (language === 'ar' ? 'فشل في إضافة المنتج' : 'Failed to add product'),
+					error: errorData?.error || errorData?.message || (language === 'ar' ? 'فشل في إضافة المنتج' : 'Failed to add product'),
 				};
 			}
 
@@ -115,8 +114,8 @@ export function useCart() {
 				data: data,
 			};
 		} catch (error) {
+			console.error('Error adding to cart:', error);
 			return {
-				status: (error as any).status,
 				success: false,
 				error: language === 'ar' ? 'حدث خطأ في الاتصال' : 'Connection error',
 			};
@@ -175,6 +174,7 @@ export function useCart() {
 				data: data,
 			};
 		} catch (error) {
+			console.error('Error updating cart:', error);
 			return {
 				success: false,
 				error: language === 'ar' ? 'حدث خطأ في الاتصال' : 'Connection error',
@@ -228,6 +228,7 @@ export function useCart() {
 				data: data,
 			};
 		} catch (error) {
+			console.error('Error removing item from cart:', error);
 			return {
 				success: false,
 				error: language === 'ar' ? 'حدث خطأ في الاتصال' : 'Connection error',
@@ -281,6 +282,7 @@ export function useCart() {
 				data: data,
 			};
 		} catch (error) {
+			console.error('Error clearing cart:', error);
 			return {
 				success: false,
 				error: language === 'ar' ? 'حدث خطأ في الاتصال' : 'Connection error',
@@ -289,8 +291,6 @@ export function useCart() {
 			setIsLoading(false);
 		}
 	}, [language, baseUrl]);
-
-
 
 	return {
 		addToCart,

@@ -7,9 +7,7 @@ export { PasswordInput } from "./PasswordInput";
 export { CheckBoxInput } from "./CheckboxInput";
 export { FormSelect } from "./Select";
 // export { UploadFileInput } from "./FileUpload";
-export { UploadFileInput } from './UploadFileInput';
-export { PhoneInput } from "./PhoneInput";
-export { MapSection } from "./MapSection";
-export { ServiceAreaSection } from "./ServiceAreaSection/ServiceAreaSection";
-export { DocumentSigner } from './DocumentSigner'
+export {UploadFileInput} from './UploadFileInput';
+export { PhoneInput, PhoneInputField } from "./PhoneInput";
+export { DocumentSigner } from "./DocumentSigner";
 

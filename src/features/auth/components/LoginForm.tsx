@@ -158,7 +158,7 @@ export default function LoginForm() {
 
       if (!response.ok || !data.success || !data.data?.otp_required) {
         throw new Error(
-
+          data.message ||
           (isArabic
             ? "فشل تسجيل الدخول. يرجى التحقق من رقم الهاتف وكلمة المرور."
             : "Login failed. Please check your phone number and password.")
@@ -176,149 +176,151 @@ export default function LoginForm() {
         message: isArabic
           ? "تم إرسال رمز التحقق إلى هاتفك"
           : "Verification code sent to your phone",
+          ? "تم إرسال رمز التحقق إلى هاتفك"
+        : "Verification code sent to your phone",
         type: "success",
         isVisible: true,
       });
 
-      setTimeout(() => {
-        router.push(`/login/verify-otp`);
-      }, 700);
+    setTimeout(() => {
+      router.push(`/login/verify-otp`);
+    }, 700);
 
-    } catch (error: any) {
-      console.error('[Login Form] Error:', error);
+  } catch (error: any) {
+    console.error('[Login Form] Error:', error);
 
-      setNotification({
-        message: error.message || (isArabic
-          ? "فشل تسجيل الدخول. يرجى التحقق من رقم الهاتف وكلمة المرور."
-          : "Login failed. Please check your phone number and password."),
-        type: "error",
-        isVisible: true,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setNotification({
+      message: error.message || (isArabic
+        ? "فشل تسجيل الدخول. يرجى التحقق من رقم الهاتف وكلمة المرور."
+        : "Login failed. Please check your phone number and password."),
+      type: "error",
+      isVisible: true,
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  // ============================================================================
-  // RENDER
-  // ============================================================================
+// ============================================================================
+// RENDER
+// ============================================================================
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-8 sm:py-12">
-      <div className="w-full max-w-[90%] sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto px-4">
+return (
+  <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-8 sm:py-12">
+    <div className="w-full max-w-[90%] sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto px-4">
 
-        {/* Header */}
-        <div className={`text-center mb-6 sm:mb-8 ${isArabic ? 'text-right' : 'text-left'}`}>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100">
-            {t("login.title")}
-          </h1>
-          <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
-            {t("login.subtitle")}
-          </p>
-        </div>
-
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-900 p-6 sm:p-8 lg:p-10 space-y-5 sm:space-y-6"
-        >
-
-          {/* Phone Number */}
-          <PhoneInput
-            label={(isArabic ? "رقم الهاتف" : "Phone Number")}
-            value={formData.phone}
-            onChange={handlePhoneChange}
-            isArabic={isArabic}
-            required
-            name="phone"
-            disabled={isLoading}
-          />
-
-          {/* Password */}
-          <div>
-            <PasswordInput
-              label={t("login.password") || (isArabic ? "كلمة المرور" : "Password")}
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder={isArabic ? "أدخل كلمة المرور" : "Enter password"}
-              required
-              isArabic={isArabic}
-              disabled={isLoading}
-            />
-            {/* Forgot Password Link */}
-            <div className={`mt-2 ${isArabic ? 'text-left' : 'text-right'}`}>
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                disabled={isLoading}
-                className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isArabic ? "نسيت كلمة المرور؟" : "Forgot password?"}
-              </button>
-            </div>
-          </div>
-
-          {/* Remember Me */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="remember"
-              name="remember"
-              checked={formData.remember}
-              onChange={handleChange}
-              className="rounded border-gray-300 text-green-600 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
-              disabled={isLoading}
-            />
-            <label
-              htmlFor="remember"
-              className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
-            >
-              {isArabic ? "تذكرني" : "Remember me"}
-            </label>
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-2 sm:pt-4">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full rounded-lg bg-green-600 px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white transition-all hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-500/50 disabled:bg-gray-400 disabled:cursor-not-allowed active:scale-95"
-            >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="h-4 w-4 sm:h-5 sm:w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                  <span className="text-sm sm:text-base">
-                    {isArabic ? "جاري تسجيل الدخول..." : "Logging in..."}
-                  </span>
-                </span>
-              ) : (
-                t("login.submit") || (isArabic ? "تسجيل الدخول" : "Login")
-              )}
-            </button>
-
-            {/* Register Link */}
-            <p className="mt-4 text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              {t("login.noAccount") || (isArabic ? "ليس لديك حساب؟" : "Don't have an account?")}{" "}
-              <a
-                href="/register"
-                className="font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline"
-              >
-                {t("login.registerLink") || (isArabic ? "سجل الآن" : "Register now")}
-              </a>
-            </p>
-          </div>
-        </form>
+      {/* Header */}
+      <div className={`text-center mb-6 sm:mb-8 ${isArabic ? 'text-right' : 'text-left'}`}>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100">
+          {t("login.title")}
+        </h1>
+        <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
+          {t("login.subtitle")}
+        </p>
       </div>
 
-      {/* Notification Dialog */}
-      <NotificationDialog
-        isVisible={notification.isVisible}
-        onClose={() => setNotification((prev) => ({ ...prev, isVisible: false }))}
-        message={notification.message}
-        type={notification.type}
-        isArabic={isArabic}
-      />
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-900 p-6 sm:p-8 lg:p-10 space-y-5 sm:space-y-6"
+      >
+
+        {/* Phone Number */}
+        <PhoneInput
+          label={(isArabic ? "رقم الهاتف" : "Phone Number")}
+          value={formData.phone}
+          onChange={handlePhoneChange}
+          isArabic={isArabic}
+          required
+          name="phone"
+          disabled={isLoading}
+        />
+
+        {/* Password */}
+        <div>
+          <PasswordInput
+            label={t("login.password") || (isArabic ? "كلمة المرور" : "Password")}
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder={isArabic ? "أدخل كلمة المرور" : "Enter password"}
+            required
+            isArabic={isArabic}
+            disabled={isLoading}
+          />
+          {/* Forgot Password Link */}
+          <div className={`mt-2 ${isArabic ? 'text-left' : 'text-right'}`}>
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={isLoading}
+              className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isArabic ? "نسيت كلمة المرور؟" : "Forgot password?"}
+            </button>
+          </div>
+        </div>
+
+        {/* Remember Me */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="remember"
+            name="remember"
+            checked={formData.remember}
+            onChange={handleChange}
+            className="rounded border-gray-300 text-green-600 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
+            disabled={isLoading}
+          />
+          <label
+            htmlFor="remember"
+            className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+          >
+            {isArabic ? "تذكرني" : "Remember me"}
+          </label>
+        </div>
+
+        {/* Submit Button */}
+        <div className="pt-2 sm:pt-4">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full rounded-lg bg-green-600 px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white transition-all hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-500/50 disabled:bg-gray-400 disabled:cursor-not-allowed active:scale-95"
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="h-4 w-4 sm:h-5 sm:w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                <span className="text-sm sm:text-base">
+                  {isArabic ? "جاري تسجيل الدخول..." : "Logging in..."}
+                </span>
+              </span>
+            ) : (
+              t("login.submit") || (isArabic ? "تسجيل الدخول" : "Login")
+            )}
+          </button>
+
+          {/* Register Link */}
+          <p className="mt-4 text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            {t("login.noAccount") || (isArabic ? "ليس لديك حساب؟" : "Don't have an account?")}{" "}
+            <a
+              href="/register"
+              className="font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline"
+            >
+              {t("login.registerLink") || (isArabic ? "سجل الآن" : "Register now")}
+            </a>
+          </p>
+        </div>
+      </form>
     </div>
-  );
+
+    {/* Notification Dialog */}
+    <NotificationDialog
+      isVisible={notification.isVisible}
+      onClose={() => setNotification((prev) => ({ ...prev, isVisible: false }))}
+      message={notification.message}
+      type={notification.type}
+      isArabic={isArabic}
+    />
+  </div>
+);
 }

@@ -1,62 +1,56 @@
 'use client';
 
-/**
- * usePayment — payment selection state only
- *
- * Owns:
- *   selectedPaymentMethod   — which method tab is active
- *   selectedOfflineMethodId — which sub-method inside "offline"
- *   offlineCustomerNote     — optional free-text note for offline
- *   offlineFieldValues      — dynamic fields for the chosen offline method
- *
- * Knows nothing about: balances, API, validation, checkout
- */
 import { useState, useCallback } from 'react';
-import { PaymentMethod, UsePaymentReturn } from '../types/cart.types';
+import type { PaymentMethod, CardDetails } from '../types/cart.types';
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+export interface UsePaymentReturn {
+	selectedPaymentMethod: PaymentMethod | null;
+	cardDetails: CardDetails;
+	selectPaymentMethod: (method: PaymentMethod) => void;
+	updateCardDetails: (details: Partial<CardDetails>) => void;
+	formatCardNumber: (value: string) => string;
+	formatExpiryDate: (value: string) => string;
+	formatCVV: (value: string) => string;
+}
 
 export function usePayment(): UsePaymentReturn {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
-  const [selectedOfflineMethodId, setSelectedOfflineMethodId] = useState<string | null>(null);
-  const [offlineCustomerNote, setOfflineCustomerNote] = useState('');
-  const [offlineFieldValues, setOfflineFieldValues] = useState<Record<string, string>>({});
+	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
+	const [cardDetails, setCardDetails] = useState<CardDetails>({
+		number: '',
+		expiry: '',
+		cvv: '',
+		name: '',
+	});
 
-  /**
-   * Switching away from 'offline' resets all offline sub-state
-   * so stale data never bleeds into another method's checkout payload.
-   */
-  const selectPaymentMethod = useCallback((method: PaymentMethod) => {
-    setSelectedPaymentMethod(method);
-    if (method !== 'offline') {
-      setSelectedOfflineMethodId(null);
-      setOfflineCustomerNote('');
-      setOfflineFieldValues({});
-    }
-  }, []);
+	const selectPaymentMethod = useCallback((method: PaymentMethod) => {
+		setSelectedPaymentMethod(method);
+	}, []);
 
-  /**
-   * Switching offline sub-method resets its field values
-   * because a different method may have different required fields.
-   */
-  const selectOfflineMethod = useCallback((methodId: string) => {
-    setSelectedOfflineMethodId(methodId);
-    setOfflineFieldValues({});
-  }, []);
+	const updateCardDetails = useCallback((details: Partial<CardDetails>) => {
+		setCardDetails(prev => ({ ...prev, ...details }));
+	}, []);
 
-  /** Update a single dynamic field by name. */
-  const setOfflineFieldValue = useCallback((fieldName: string, value: string) => {
-    setOfflineFieldValues((prev) => ({ ...prev, [fieldName]: value }));
-  }, []);
+	const formatCardNumber = useCallback((value: string): string => {
+		const cleaned = value.replace(/\D/g, '').slice(0, 16);
+		return cleaned.match(/.{1,4}/g)?.join(' ') || cleaned;
+	}, []);
 
-  return {
-    selectedPaymentMethod,
-    selectedOfflineMethodId,
-    offlineCustomerNote,
-    offlineFieldValues,
-    selectPaymentMethod,
-    selectOfflineMethod,
-    setOfflineCustomerNote,
-    setOfflineFieldValue,
-  };
+	const formatExpiryDate = useCallback((value: string): string => {
+		const cleaned = value.replace(/\D/g, '').slice(0, 4);
+		return cleaned.length >= 2 ? `${cleaned.slice(0, 2)}/${cleaned.slice(2)}` : cleaned;
+	}, []);
+
+	const formatCVV = useCallback((value: string): string => {
+		return value.replace(/\D/g, '').slice(0, 3);
+	}, []);
+
+	return {
+		selectedPaymentMethod,
+		cardDetails,
+		selectPaymentMethod,
+		updateCardDetails,
+		formatCardNumber,
+		formatExpiryDate,
+		formatCVV,
+	};
 }

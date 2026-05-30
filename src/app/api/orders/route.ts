@@ -32,6 +32,14 @@ export async function GET(request: NextRequest) {
 
     const url = `https://shellafood.com/api/v1/customer/order/running-orders?${queryParams.toString()}`;
 
+    console.log('[Orders API Route] Fetching orders:', {
+      url,
+      limit,
+      offset,
+      guestId,
+      locale,
+    });
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -46,11 +54,16 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('[Orders API Route] Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+      });
 
       return NextResponse.json(
-        {
+        { 
           error: `Failed to fetch orders: ${response.statusText}`,
-          details: errorText
+          details: errorText 
         },
         { status: response.status }
       );
@@ -58,8 +71,18 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
 
+    console.log('[Orders API Route] Success:', {
+      ordersCount: data?.orders?.length ?? 0,
+      totalSize: data?.total_size,
+    });
+
     return NextResponse.json(data);
   } catch (error: any) {
+    console.error('[Orders API Route] Caught error:', {
+      message: error?.message,
+      stack: error?.stack,
+      name: error?.name,
+    });
     return NextResponse.json(
       { error: 'Internal server error', details: error?.message },
       { status: 500 }

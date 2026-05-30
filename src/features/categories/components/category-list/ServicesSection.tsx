@@ -26,7 +26,7 @@ const services: Service[] = [
     nameAr: "اخدمني",
     description: "Professional services at your doorstep",
     descriptionAr: "خدمات احترافية توصل إلى باب منزلك",
-    image: "/pickorder.png",
+    image: "/serveme-hero.png",
     path: "/serve-me",
     icon: Wrench,
   },
@@ -48,7 +48,7 @@ function ServicesSection() {
   const direction = isArabic ? 'rtl' : 'ltr';
 
   return (
-    <section
+    <section 
       dir={direction}
       className="py-12 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800"
     >
@@ -64,8 +64,8 @@ function ServicesSection() {
             {isArabic ? "خدماتنا" : "Our Services"}
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            {isArabic
-              ? "استكشف خدماتنا المميزة التي تجعل حياتك أسهل"
+            {isArabic 
+              ? "استكشف خدماتنا المميزة التي تجعل حياتك أسهل" 
               : "Explore our premium services that make your life easier"}
           </p>
         </motion.div>
@@ -76,7 +76,7 @@ function ServicesSection() {
             const Icon = service.icon;
             const displayName = isArabic ? service.nameAr : service.name;
             const displayDescription = isArabic ? service.descriptionAr : service.description;
-
+            
             return (
               <motion.div
                 key={service.id}
@@ -96,7 +96,7 @@ function ServicesSection() {
                           src={service.image}
                           alt={displayName}
                           fill
-                          className="object-contain   group-hover:scale-110 transition-transform duration-500"
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
                           sizes={getImageSizes('hero')}
                           quality={getImageQuality('hero')}
                           placeholder="blur"
@@ -105,7 +105,7 @@ function ServicesSection() {
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-500" />
                       )}
-
+                      
                       {/* Gradient Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
 

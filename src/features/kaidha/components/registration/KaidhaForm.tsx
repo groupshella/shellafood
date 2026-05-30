@@ -17,9 +17,9 @@ const DEFAULT_CENTER = KAIDHA_CONSTANTS.DEFAULT_CENTER;
 export default function KaidhaForm() {
 	const { t, language } = useLanguage();
 	const isArabic = language === "ar";
-
+	
 	const { isLoaded, loadError } = useKaidhaMap();
-
+	
 	const {
 		formData,
 		setFormData,
@@ -56,7 +56,7 @@ export default function KaidhaForm() {
 					<form onSubmit={handleSubmit} className="p-4 sm:p-6 md:p-8">
 						{/* Personal Information Section */}
 						<SectionHeader title={t('kaidhaForm.personalInfo')} isArabic={isArabic} />
-
+						
 						<div className="grid grid-cols-1 gap-4 sm:gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-4">
 							<FormInput
 								label={t('kaidhaForm.firstName')}
@@ -235,7 +235,7 @@ export default function KaidhaForm() {
 								required
 								isArabic={isArabic}
 							/>
-
+							
 							{/* Address Details - Full Width in New Row */}
 							<FormInput
 								label={t('kaidhaForm.addressDetails')}
@@ -255,6 +255,8 @@ export default function KaidhaForm() {
 							onLocationChange={(location) => setFormData({ ...formData, locationHouse: location })}
 							isLoaded={isLoaded}
 							loadError={loadError}
+							isArabic={isArabic}
+							t={t}
 							defaultCenter={DEFAULT_CENTER}
 						/>
 
@@ -295,13 +297,13 @@ export default function KaidhaForm() {
 									isArabic={isArabic}
 								/>
 								<FormSelect
-									label={(isArabic ? 'يوم الراتب' : 'Salary Day')}
+									label={ (isArabic ? 'يوم الراتب' : 'Salary Day')}
 									name="salaryDay"
 									options={Array.from({ length: 31 }, (_, i) => (
 										{
-											value: String(i + 1),
-											label: String(i + 1),
-										}))}
+										value: String(i + 1),
+										label: String(i + 1),
+									}))}
 									value={formData.salaryDay || ""}
 									onChange={handleChange}
 									required
@@ -346,14 +348,15 @@ export default function KaidhaForm() {
 							onLocationChange={(location) => setFormData({ ...formData, locationWork: location })}
 							isLoaded={isLoaded}
 							loadError={loadError}
-
+							isArabic={isArabic}
+							t={t}
 							defaultCenter={DEFAULT_CENTER}
 						/>
 
 						{/* Additional Information */}
 						<div className="mt-8 sm:mt-10 md:mt-12">
 							<SectionHeader title={t('kaidhaForm.additionalInfo')} isArabic={isArabic} />
-
+							
 							<div className="space-y-6">
 								{/* Installments Section */}
 								<DynamicListSection

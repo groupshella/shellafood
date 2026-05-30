@@ -158,6 +158,11 @@ export async function getStoreDetails(
 				message: 'Failed to fetch store details',
 			}));
 
+			console.error('[Next.js Fetch Cache] API Error:', {
+				status: response.status,
+				message: errorData.message,
+			});
+
 			return {
 				error: errorData.message || 'Failed to fetch store details',
 				status: response.status,
@@ -165,7 +170,12 @@ export async function getStoreDetails(
 		}
 
 		const data = await response.json() as StoreDetails;
-		console.log('data', data);
+
+		console.log('[Next.js Fetch Cache] Data parsed:', {
+			data: data,
+			hasStore: !!data?.id,
+			storeId: data?.id,
+		});
 
 		return {
 			data,
@@ -173,6 +183,7 @@ export async function getStoreDetails(
 		};
 
 	} catch (error) {
+		console.error('[Next.js Fetch Cache] Network Error:', error);
 
 		return {
 			error: 'Network error',

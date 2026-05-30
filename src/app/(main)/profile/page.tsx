@@ -73,11 +73,12 @@ export default async function ProfilePageRoute() {
 	const cookieStore = await cookies();
 	const authToken = cookieStore.get("auth_token");
 	// Redirect to login if not authenticated
-	if (!authToken?.value.trim()) {
+	console.log("authToken", authToken?.value);
+	if ( !authToken?.value.trim()) {
 		return <LoginForm />;
 	}
-	else {
-
+	else{
+		
 		return <ProfileDashboard />;
 	}
 }

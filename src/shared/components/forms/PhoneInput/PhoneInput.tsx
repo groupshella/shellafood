@@ -83,6 +83,7 @@ export default function PhoneInputField({
   const [isFocused, setIsFocused] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -91,7 +92,24 @@ export default function PhoneInputField({
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left?: number; right?: number } | null>(null);
 
   // Detect dark mode
- 
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark') ||
+                     window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setIsDarkMode(isDark);
+    };
+
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', checkDarkMode);
+
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener('change', checkDarkMode);
+    };
+  }, []);
 
   // Enhanced dropdown positioning with visualViewport support
   useEffect(() => {
@@ -365,11 +383,11 @@ export default function PhoneInputField({
       {label && (
         <label
           htmlFor={name}
-          className={`${compact ? 'text-xs' : 'text-sm'} font-medium text-slate-700  ${isArabic ? 'text-right' : 'text-left'} block`}
+          className={`${compact ? 'text-xs' : 'text-sm'} font-medium text-slate-700 dark:text-slate-300 ${isArabic ? 'text-right' : 'text-left'} block`}
         >
           {label}
           {required && (
-            <span className={`${isArabic ? 'mr-1' : 'ml-1'} text-red-500 `} aria-label="required">
+            <span className={`${isArabic ? 'mr-1' : 'ml-1'} text-red-500 dark:text-red-400`} aria-label="required">
               *
             </span>
           )}
@@ -383,10 +401,10 @@ export default function PhoneInputField({
           ${compact ? 'rounded-lg' : 'rounded-xl'} 
           overflow-hidden border-2 transition-all duration-200 ease-out
           ${error 
-            ? 'border-red-300 sadow-sm shadow-red-100 ' 
+            ? 'border-red-300 dark:border-red-800 shadow-sm shadow-red-100 dark:shadow-red-900/20' 
             : isFocused || isDropdownOpen
-            ? 'border-blue-500  ring-2 ring-blue-500/15  shadow-lg shadow-blue-100 '
-            : 'border-slate-200  hover:border-slate-300  shadow-sm'
+            ? 'border-blue-500 dark:border-blue-400 ring-2 ring-blue-500/15 dark:ring-blue-400/20 shadow-lg shadow-blue-100 dark:shadow-blue-900/20'
+            : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm'
           }
           ${disabled ? 'opacity-60 cursor-not-allowed' : ''}
         `}>
@@ -414,12 +432,12 @@ export default function PhoneInputField({
                 ${selectorPadding} ${selectorWidth} ${inputHeight}
                 ${isArabic ? (compact ? 'rounded-r-lg' : 'rounded-r-xl') : (compact ? 'rounded-l-lg' : 'rounded-l-xl')}
                 ${isArabic ? 'border-l-0' : 'border-r-0'}
-                bg-slate-50  border-slate-200 
+                bg-slate-50 dark:bg-slate-900 border-r-2 border-slate-200 dark:border-slate-700
                 transition-all duration-200 ease-out
-                hover:bg-slate-100  active:bg-slate-200 
+                hover:bg-slate-100 dark:hover:bg-slate-800 active:bg-slate-200 dark:active:bg-slate-700
                 active:scale-[0.98]
                 disabled:opacity-50 disabled:cursor-not-allowed
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30  focus-visible:ring-offset-2
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:focus-visible:ring-blue-400/30 focus-visible:ring-offset-2
                 touch-manipulation
               `}
               aria-label={isArabic ? `اختر الدولة، المحددة حاليًا ${selectedCountry.nameAr} ${selectedCountry.dialCode}` : `Select country, currently ${selectedCountry.name} ${selectedCountry.dialCode}`}
@@ -430,11 +448,11 @@ export default function PhoneInputField({
                 {selectedCountry.flag}
               </span>
               {!compact && (
-                <span className={`hidden sm:inline text-xs font-semibold text-slate-700 `}>
+                <span className={`hidden sm:inline text-xs font-semibold text-slate-700 dark:text-slate-300`}>
                   {selectedCountry.dialCode}
                 </span>
               )}
-              <ChevronDown className={`w-4 h-4 text-slate-500  transition-transform duration-200 ease-out ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-slate-500 dark:text-slate-400 transition-transform duration-200 ease-out ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Dropdown */}
@@ -442,15 +460,15 @@ export default function PhoneInputField({
               <div 
                 ref={dropdownRef}
                 className={`
-                  fixed z-[999999] rounded-xl border-2 bg-white  border-slate-200 
-                  shadow-xl 
+                  fixed z-[999999] rounded-xl border-2 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700
+                  shadow-xl dark:shadow-2xl
                   ${compact 
                     ? 'w-[calc(100vw-1rem)] sm:w-[280px]' 
                     : 'w-[calc(100vw-2rem)] sm:w-[340px]'
                   }
                   max-w-[calc(100vw-1rem)]
                   animate-in fade-in slide-in-from-top-1 duration-200
-                  backdrop-blur-sm bg-white/95 
+                  backdrop-blur-sm bg-white/95 dark:bg-slate-800/95
                 `}
                 role="listbox"
                 aria-label={isArabic ? "قائمة الدول" : "Country list"}
@@ -464,9 +482,9 @@ export default function PhoneInputField({
                 }}
               >
                 {/* Search Box */}
-                <div className="p-3 sm:p-4 border-b-2 border-slate-200  bg-gradient-to-br from-slate-50 to-white  sticky top-0 z-10">
+                <div className="p-3 sm:p-4 border-b-2 border-slate-200 dark:border-slate-700 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/50 sticky top-0 z-10">
                   <div className="relative">
-                    <Search className={`absolute ${isArabic ? 'right-3 sm:right-4' : 'left-3 sm:left-4'} top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400  pointer-events-none`} />
+                    <Search className={`absolute ${isArabic ? 'right-3 sm:right-4' : 'left-3 sm:left-4'} top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 dark:text-slate-500 pointer-events-none`} />
                     <input
                       ref={searchInputRef}
                       type="text"
@@ -477,11 +495,11 @@ export default function PhoneInputField({
                       }}
                       placeholder={isArabic ? "ابحث عن دولة..." : "Search country..."}
                       className={`
-                        w-full h-11 sm:h-12 text-sm sm:text-base rounded-lg border-2 border-slate-200 
-                        bg-white  text-slate-900 
-                        placeholder:text-slate-400 
+                        w-full h-11 sm:h-12 text-sm sm:text-base rounded-lg border-2 border-slate-200 dark:border-slate-700
+                        bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100
+                        placeholder:text-slate-400 dark:placeholder:text-slate-500
                         ${isArabic ? 'pr-11 sm:pr-12 pl-11 sm:pl-12' : 'pl-11 sm:pl-12 pr-11 sm:pr-12'}
-                        focus:outline-none focus:ring-2 focus:ring-blue-500/20  focus:border-blue-500 
+                        focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 focus:border-blue-500 dark:focus:border-blue-400
                         transition-all duration-200
                       `}
                       dir={isArabic ? "rtl" : "ltr"}
@@ -496,8 +514,8 @@ export default function PhoneInputField({
                         }}
                         className={`
                           absolute ${isArabic ? 'left-2.5 sm:left-3' : 'right-2.5 sm:right-3'} top-1/2 -translate-y-1/2 
-                          p-1.5 rounded-lg text-slate-400 hover:text-slate-600 
-                          hover:bg-slate-100  transition-all duration-200
+                          p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                          hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200
                           touch-manipulation min-w-[32px] min-h-[32px] flex items-center justify-center
                         `}
                         aria-label={isArabic ? "مسح البحث" : "Clear search"}
@@ -530,12 +548,12 @@ export default function PhoneInputField({
                             transition-all duration-150 ease-out
                             ${compact ? 'min-h-[48px]' : 'min-h-[56px]'}
                             ${isSelected
-                              ? 'bg-blue-50  border-l-4 border-blue-500 '
+                              ? 'bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 dark:border-blue-400'
                               : isHighlighted
-                              ? 'bg-slate-50  border-l-4 border-transparent'
-                              : 'bg-transparent border-l-4 border-transparent hover:bg-slate-50 '
+                              ? 'bg-slate-50 dark:bg-slate-700/50 border-l-4 border-transparent'
+                              : 'bg-transparent border-l-4 border-transparent hover:bg-slate-50 dark:hover:bg-slate-700/30'
                             }
-                            active:bg-slate-100  active:scale-[0.98]
+                            active:bg-slate-100 dark:active:bg-slate-700 active:scale-[0.98]
                             focus:outline-none
                             touch-manipulation
                           `}
@@ -546,15 +564,15 @@ export default function PhoneInputField({
                             {country.flag}
                           </span>
                           <div className="flex-1 min-w-0 text-left">
-                            <div className="text-sm sm:text-base font-medium truncate text-slate-900 ">
+                            <div className="text-sm sm:text-base font-medium truncate text-slate-900 dark:text-slate-100">
                               {isArabic ? country.nameAr : country.name}
                             </div>
-                            <div className="text-xs sm:text-sm text-slate-500 0 mt-0.5">
+                            <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                               {country.dialCode}
                             </div>
                           </div>
                           {isSelected && (
-                            <Check className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500  flex-shrink-0" aria-hidden="true" />
+                            <Check className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 dark:text-blue-400 flex-shrink-0" aria-hidden="true" />
                           )}
                         </button>
                       );
@@ -562,7 +580,7 @@ export default function PhoneInputField({
                   ) : (
                     <div className="p-8 sm:p-10 text-center">
                       <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 opacity-50">🔍</div>
-                      <p className="text-sm sm:text-base text-slate-500  font-medium">
+                      <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-medium">
                         {isArabic ? "لا توجد نتائج" : "No results found"}
                       </p>
                     </div>
@@ -589,8 +607,8 @@ export default function PhoneInputField({
               autoComplete="tel"
               placeholder={placeholder || (isArabic ? "أدخل رقم الهاتف" : "Enter phone number")}
               className={`
-                w-full bg-white  text-slate-900 
-                placeholder:text-slate-400 
+                w-full bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100
+                placeholder:text-slate-400 dark:placeholder:text-slate-500
                 transition-all duration-200 ease-out
                 ${inputHeight} ${inputPadding} ${inputTextSize}
                 ${isArabic 
@@ -610,15 +628,15 @@ export default function PhoneInputField({
             {/* Validation Icons */}
             {showSuccess && (
               <div className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isArabic ? 'left-3 sm:left-4' : 'right-3 sm:right-4'}`}>
-                <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-green-100 to-green-200shadow-sm ring-2 ring-green-200  animate-in zoom-in duration-300">
-                  <Check className={`${compact ? 'w-3.5 h-3.5 sm:w-4 sm:h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} text-green-600`} />
+                <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/40 dark:to-green-800/30 shadow-sm ring-2 ring-green-200 dark:ring-green-800 animate-in zoom-in duration-300">
+                  <Check className={`${compact ? 'w-3.5 h-3.5 sm:w-4 sm:h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} text-green-600 dark:text-green-400`} />
                 </div>
               </div>
             )}
             {showError && (
               <div className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isArabic ? 'left-3 sm:left-4' : 'right-3 sm:right-4'}`}>
-                <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-red-100 to-red-200 shadow-sm ring-2 ring-red-200 animate-in zoom-in duration-300">
-                  <AlertCircle className={`${compact ? 'w-3.5 h-3.5 sm:w-4 sm:h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} text-red-600 `} />
+                <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/40 dark:to-red-800/30 shadow-sm ring-2 ring-red-200 dark:ring-red-800 animate-in zoom-in duration-300">
+                  <AlertCircle className={`${compact ? 'w-3.5 h-3.5 sm:w-4 sm:h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} text-red-600 dark:text-red-400`} />
                 </div>
               </div>
             )}
@@ -628,10 +646,10 @@ export default function PhoneInputField({
                 <span className={`
                   text-xs sm:text-sm font-semibold px-1.5 py-0.5 rounded-md
                   ${remainingDigits < 3 && remainingDigits > 0
-                    ? 'text-amber-700  bg-amber-50 ' 
+                    ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20' 
                     : remainingDigits === 0
-                    ? 'text-red-7000 bg-red-50 '
-                    : 'text-slate-500  bg-slate-50 '
+                    ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20'
+                    : 'text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50'
                   }
                 `}>
                   {remainingDigits >= 0 ? remainingDigits : 0}
@@ -649,11 +667,11 @@ export default function PhoneInputField({
           role="alert"
           aria-live="polite"
           className={`
-            flex items-start gap-2 sm:gap-2.5 text-xs sm:text-sm text-red-600 
+            flex items-start gap-2 sm:gap-2.5 text-xs sm:text-sm text-red-600 dark:text-red-400
             ${isArabic ? 'flex-row-reverse text-right' : 'text-left'}
             animate-in fade-in slide-in-from-top-1 duration-200
-            bg-red-50  px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl
-            border border-red-200 
+            bg-red-50 dark:bg-red-900/10 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl
+            border border-red-200 dark:border-red-800/50
           `}
         >
           <span className="font-medium leading-relaxed">
@@ -680,18 +698,18 @@ export default function PhoneInputField({
         }
 
         .custom-scrollbar::-webkit-scrollbar-track {
-          background: 'rgba(248, 250, 252, 0.5)';
+          background: ${isDarkMode ? 'rgba(15, 23, 42, 0.3)' : 'rgba(248, 250, 252, 0.5)'};
           border-radius: 3px;
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: 'rgba(100, 116, 139, 0.4)' : 'rgba(148, 163, 184, 0.4);
+          background: ${isDarkMode ? 'rgba(100, 116, 139, 0.4)' : 'rgba(148, 163, 184, 0.4)'};
           border-radius: 3px;
           transition: background 0.2s;
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background:  : 'rgba(148, 163, 184, 0.6)'
+          background: ${isDarkMode ? 'rgba(100, 116, 139, 0.6)' : 'rgba(148, 163, 184, 0.6)'};
         }
 
         /* Animations */

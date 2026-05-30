@@ -25,7 +25,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { category, store, department } = await params;
 
-  const categoryName = "المتاجر";
+    const categoryName = "المتاجر";
   const storeName = "المتجر ";
   const departmentName = "القسم ";
 
@@ -96,20 +96,20 @@ export default async function DepartmentPageRoute({
   const page = Math.max(1, Number(search.page) || 1);
   const zoneId = 2; // zone_id
 
-
-  const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/api/department-details?storeId=${storeId}&departmentId=${departmentId}&moduleId=${moduleId}&limit=${limit}&offset=${page}&zoneId=${zoneId}`;
-
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-    },
-
-  });
-  const data = await response.json();
-
-  return <DepartmentPage departmentResponse={data as DepartmentResponse} storeId={storeId} departmentId={departmentId} initialPage={page} initialLimit={limit} moduleId={moduleId} zoneId={zoneId} />
-
-
+ 
+    const baseUrl = getBaseUrl();
+    const url = `${baseUrl}/api/department-details?storeId=${storeId}&departmentId=${departmentId}&moduleId=${moduleId}&limit=${limit}&offset=${page}&zoneId=${zoneId}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    
+    });
+const data = await response.json();
+console.log("data", data);
+    return <DepartmentPage departmentResponse={data as DepartmentResponse} storeId={storeId} departmentId={departmentId} initialPage={page} initialLimit={limit} moduleId={moduleId} zoneId={zoneId} />
+    
+   
 }

@@ -1,2 +1,0 @@
-export { TranslationProvider } from './TranslationProvider';
-

@@ -13,7 +13,6 @@ export interface FormSelectProps {
 	placeholder?: string;
 	className?: string;
 	error?: string;
-	ref?: React.RefObject<HTMLSelectElement>;
 	disabled?: boolean;
 	helperText?: string;
 }
@@ -35,7 +34,6 @@ export const FormSelect: React.FC<FormSelectProps> = ({
 	error,
 	disabled = false,
 	helperText,
-	ref,
 }) => {
 	const defaultPlaceholder = placeholder || (isArabic ? "-- اختر --" : "-- Choose --");
 
@@ -43,20 +41,19 @@ export const FormSelect: React.FC<FormSelectProps> = ({
 		<div className={`flex flex-col space-y-2 ${className}`}>
 			<label
 				htmlFor={name}
-				className={`text-sm font-semibold text-gray-700  md:text-base ${isArabic ? "text-right" : "text-left"}`}
+				className={`text-sm font-semibold text-gray-700 dark:text-gray-300 md:text-base ${isArabic ? "text-right" : "text-left"}`}
 			>
 				{label}
-				{required && <span className="text-red-500  mr-1">*</span>}
+				{required && <span className="text-red-500 dark:text-red-400 mr-1">*</span>}
 			</label>
 			<select
-				ref={ref}
 				id={name}
 				name={name}
 				value={value}
 				onChange={onChange}
 				required={required}
 				disabled={disabled}
-				className={`rounded-lg border border-gray-300  bg-white p-3 text-gray-900  shadow-sm transition-all duration-200 focus:border-green-500  focus:ring-2 focus:ring-green-500/20 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100  ${
+				className={`rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-3 text-gray-900 dark:text-gray-100 shadow-sm transition-all duration-200 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-800 ${
 					isArabic ? "text-right" : "text-left"
 				}`}
 			>
@@ -68,12 +65,12 @@ export const FormSelect: React.FC<FormSelectProps> = ({
 				))}
 			</select>
 			{error && (
-				<p className={`text-sm text-red-500 ${isArabic ? "text-right" : "text-left"}`}>
+				<p className={`text-sm text-red-500 dark:text-red-400 ${isArabic ? "text-right" : "text-left"}`}>
 					{error}
 				</p>
 			)}
 			{helperText && !error && (
-				<p className={`text-xs text-gray-500  ${isArabic ? "text-right" : "text-left"}`}>
+				<p className={`text-xs text-gray-500 dark:text-gray-400 ${isArabic ? "text-right" : "text-left"}`}>
 					{helperText}
 				</p>
 			)}

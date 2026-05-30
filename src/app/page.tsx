@@ -106,6 +106,7 @@ export default async function HomePageRoute() {
 	}
 
 	const modules = await getZoneModules(latitude, longitude);
+	console.log("modules", modules);
 
 	return <>
 		<script

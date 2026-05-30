@@ -1,2 +1,0 @@
-export { TranslationPrompt } from './TranslationPrompt';
-

@@ -17,7 +17,7 @@ import {
 	Wrench,
 	Eye,
 } from "lucide-react";
-// import { RatingModal } from "@/features/serve-me";
+import { RatingModal } from "@/features/serve-me";
 
 import type { ServiceRequest } from "../types";
 
@@ -93,8 +93,9 @@ export default function ServiceRequestCard({
 							)}
 							<div className="flex-1 min-w-0">
 								<h3
-									className={`font-bold text-base sm:text-lg text-gray-900 dark:text-gray-100 truncate cursor-pointer hover:text-green-600 dark:hover:text-green-400 transition-colors ${isArabic ? "text-right" : "text-left"
-										}`}
+									className={`font-bold text-base sm:text-lg text-gray-900 dark:text-gray-100 truncate cursor-pointer hover:text-green-600 dark:hover:text-green-400 transition-colors ${
+										isArabic ? "text-right" : "text-left"
+									}`}
 									onClick={() => onServiceClick?.(request.id)}
 								>
 									{isArabic ? request.serviceNameAr || request.serviceName : request.serviceName}
@@ -117,8 +118,9 @@ export default function ServiceRequestCard({
 							</div>
 							{/* Urgency Badge */}
 							<div
-								className={`px-2 py-1 rounded-lg text-xs font-semibold ${urgency.color} ${isArabic ? "text-right" : "text-left"
-									}`}
+								className={`px-2 py-1 rounded-lg text-xs font-semibold ${urgency.color} ${
+									isArabic ? "text-right" : "text-left"
+								}`}
 							>
 								{isArabic ? urgency.labelAr : urgency.labelEn}
 							</div>
@@ -201,12 +203,13 @@ export default function ServiceRequestCard({
 							</div>
 							{request.paymentStatus && (
 								<span
-									className={`text-xs sm:text-sm font-semibold ${request.paymentStatus === "paid"
+									className={`text-xs sm:text-sm font-semibold ${
+										request.paymentStatus === "paid"
 											? "text-green-600 dark:text-green-400"
 											: request.paymentStatus === "pending"
 												? "text-yellow-600 dark:text-yellow-400"
 												: "text-red-600 dark:text-red-400"
-										}`}
+									}`}
 								>
 									{isArabic
 										? request.paymentStatus === "paid"
@@ -240,8 +243,9 @@ export default function ServiceRequestCard({
 							onClick={() => {
 								window.location.href = `/my-orders/${request.requestNumber}/track`;
 							}}
-							className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg font-semibold text-sm transition-all shadow-md hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 touch-manipulation ${isArabic ? "flex-row-reverse" : ""
-								}`}
+							className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg font-semibold text-sm transition-all shadow-md hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 touch-manipulation ${
+								isArabic ? "flex-row-reverse" : ""
+							}`}
 						>
 							<Eye className="w-4 h-4" />
 							<span>{isArabic ? "تتبع الحالة" : "Track Status"}</span>
@@ -251,8 +255,9 @@ export default function ServiceRequestCard({
 								onClick={() => {
 									window.location.href = `/worker/${request.workerId}/chat`;
 								}}
-								className={`flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-semibold text-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-all active:scale-95 ${isArabic ? "flex-row-reverse" : ""
-									}`}
+								className={`flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-semibold text-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-all active:scale-95 ${
+									isArabic ? "flex-row-reverse" : ""
+								}`}
 							>
 								<MessageCircle className="w-4 h-4" />
 								<span className="hidden sm:inline">{isArabic ? "محادثة" : "Chat"}</span>
@@ -261,8 +266,9 @@ export default function ServiceRequestCard({
 						{canRate && (
 							<button
 								onClick={() => setShowRating(true)}
-								className={`flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-700 border-2 border-green-600 dark:border-green-500 text-green-600 dark:text-green-400 rounded-lg font-semibold text-sm hover:bg-green-50 dark:hover:bg-green-900/20 transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 touch-manipulation ${isArabic ? "flex-row-reverse" : ""
-									}`}
+								className={`flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-700 border-2 border-green-600 dark:border-green-500 text-green-600 dark:text-green-400 rounded-lg font-semibold text-sm hover:bg-green-50 dark:hover:bg-green-900/20 transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 touch-manipulation ${
+									isArabic ? "flex-row-reverse" : ""
+								}`}
 							>
 								<Star className="w-4 h-4" />
 								<span>{isArabic ? "قيم الفني" : "Rate Worker"}</span>
@@ -273,7 +279,7 @@ export default function ServiceRequestCard({
 			</motion.div>
 
 			{/* Rating Modal */}
-			{/* {showRating && (
+			{showRating && (
 				<RatingModal
 					isOpen={showRating}
 					onClose={() => setShowRating(false)}
@@ -283,7 +289,7 @@ export default function ServiceRequestCard({
 					driverName={request.workerName}
 					driverPhoto={request.workerPhoto}
 				/>
-			)} */}
+			)}
 		</>
 	);
 }

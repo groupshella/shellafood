@@ -106,13 +106,21 @@ export default async function StorePageRoute(
     );
 
     if (!storeDetailsResponse?.data) {
-      return notFound();
+      console.error('[Store Page] Failed to fetch store:', {
+        error: storeDetailsResponse?.error,
+        status: storeDetailsResponse?.status,
+        storeId,
+        moduleId,
+      });
+      notFound();
     }
 
     const storeDetails = storeDetailsResponse.data;
+    console.log('storeDetails', storeDetails);
 
     // Validate response structure
     if (!storeDetails || !storeDetails.id) {
+      console.error('[Store Page] Invalid response structure:', storeDetails);
       notFound();
     }
 
@@ -128,6 +136,11 @@ export default async function StorePageRoute(
       />
     );
   } catch (error: any) {
+    console.error('[Store Page] Error fetching store details:', {
+      message: error?.message || 'Unknown error',
+      name: error?.name,
+    });
+
     notFound();
   }
 }

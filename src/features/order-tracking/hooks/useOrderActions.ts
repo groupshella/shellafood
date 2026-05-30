@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { OrderData, TimelineStep } from "../types";
+import { RatingModal } from "@/features/serve-me";
 
 interface UseOrderActionsProps {
 	orderId: string;
@@ -34,12 +35,12 @@ export function useOrderActions({
 				//   method: 'POST',
 				//   body: JSON.stringify({ rating, feedback }),
 				// });
-
+				
 				console.log("Rating submitted:", { orderId, rating, feedback });
-
+				
 				// Simulate API call
 				await new Promise((resolve) => setTimeout(resolve, 1000));
-
+				
 				showNotification?.({
 					message: isArabic
 						? "شكراً لك! تم حفظ تقييمك بنجاح"
@@ -48,7 +49,7 @@ export function useOrderActions({
 					type: "success",
 					duration: 3000,
 				});
-
+				
 				setShowRating(false);
 			} catch (error) {
 				console.error("Error submitting rating:", error);
@@ -83,16 +84,16 @@ export function useOrderActions({
 			const data = await response.json();
 			if (!response.ok || !data.success) {
 				// Handle error response
-				const errorMessage = (isArabic
+				const errorMessage =  (isArabic 
 					? 'حدث خطأ أثناء إلغاء الطلب'
 					: 'An error occurred while cancelling the order');
-
+				
 				throw new Error(errorMessage);
 			}
 
-
+			
 			setShowCancelConfirm(false);
-
+			
 			showNotification?.({
 				message: data.message || (isArabic
 					? "تم إلغاء الطلب بنجاح"
@@ -103,11 +104,11 @@ export function useOrderActions({
 			});
 		} catch (error) {
 			// Extract error message safely
-			const errorMessage =
-				(isArabic
+			const errorMessage = 
+				 (isArabic
 					? "حدث خطأ أثناء إلغاء الطلب"
 					: "An error occurred while cancelling the order");
-
+			
 			console.error("Error cancelling order:", errorMessage);
 			showNotification?.({
 				message: errorMessage,
@@ -138,10 +139,10 @@ export function useOrderActions({
 			// a.click();
 			// document.body.removeChild(a);
 			// window.URL.revokeObjectURL(url);
-
+			
 			// Simulate download
 			await new Promise((resolve) => setTimeout(resolve, 1000));
-
+			
 			showNotification?.({
 				message: isArabic
 					? "جاري تحميل الفاتورة..."
@@ -150,7 +151,7 @@ export function useOrderActions({
 				type: "info",
 				duration: 2000,
 			});
-
+			
 			// For now, just log
 			console.log("Download invoice for:", orderId);
 		} catch (error) {
@@ -170,7 +171,7 @@ export function useOrderActions({
 
 	const handleReorder = useCallback(() => {
 		if (!orderData?.items) return;
-
+		
 		// TODO: Implement reorder logic
 		// This could add items to cart or redirect to a reorder page
 		router.push("/");
@@ -203,13 +204,13 @@ export function useOrderActions({
 			router.push(chatPath);
 		} else {
 			// Log for debugging
-			console.warn("Chat not available - missing information:", {
-				service,
-				serviceType,
+			console.warn("Chat not available - missing information:", { 
+				service, 
+				serviceType, 
 				workerId,
-				orderType: orderData?.type
+				orderType: orderData?.type 
 			});
-
+			
 			// Show appropriate message based on order type
 			const isServiceOrder = orderData?.type === "service";
 			if (isServiceOrder) {

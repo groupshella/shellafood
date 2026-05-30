@@ -60,15 +60,17 @@ export async function PUT(
       });
 
       return NextResponse.json(
-        {
+        { 
           error: `Failed to update address: ${response.statusText}`,
-          details: errorText
+          details: errorText 
         },
         { status: response.status }
       );
     }
 
     const data = await response.json();
+
+    console.log('[Addresses API Route] Update Success');
 
     return NextResponse.json(data);
   } catch (error: any) {

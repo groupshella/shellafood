@@ -21,11 +21,6 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'images.pexels.com',
-        pathname: '/**'
-      },
-      {
-        protocol: 'https',
         hostname: 'd2sdbeqrqgwwdu.cloudfront.net',
         pathname: '/**',
       },

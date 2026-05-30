@@ -1,132 +1,177 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Icon, icons } from "../../constants/icons";
-import { fadeUp } from "../../lib/animationUtils";
-import { TRANSPORT_DATA, CATEGORIES, CAT_AR, TransportTypeData } from "../../constants/landingData";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/providers";
+import { Bike, Truck, CheckCircle2 } from "lucide-react";
+import { ANIMATION_VARIANTS, VIEWPORT_SETTINGS, ANIMATION_DURATION, TRANSPORT_TYPES_DATA } from "@/features/pick-and-order/constants/pick-and-order.constants";
+import { getTextAlign, getFloatAlign } from "@/features/pick-and-order/lib/utils";
 
-export default function TransportTypeSection() {
-  const [activeCategory, setActiveCategory] = useState("light");
-  const router = useRouter();
-  const filtered = useMemo(
-    () => TRANSPORT_DATA.filter((t) => t.category === activeCategory),
-    [activeCategory]
-  );
+/**
+ * Transport Type Selection Section - Clean & Modern Design
+ * Optimized for performance with memoization and accessibility
+ */
+export const TransportTypeSection: React.FC = React.memo(() => {
+	const router = useRouter();
+	const { language } = useLanguage();
+	const isArabic = language === "ar";
 
-  const handleChoose = useCallback((type: TransportTypeData) => {
-    router.push(`/pickandorder/${type.slug}/order/details?title=${decodeURIComponent(type.title)}`);
-  }, []);
+	// Memoized content
+	const content = useMemo(
+		() => ({
+			title: isArabic ? "الرجاء اختيار نوع النقل المناسب" : "Please Choose Your Transport Type",
+			subtitle: isArabic
+				? "اختر النوع الذي يناسب احتياجاتك"
+				: "Select the type that suits your needs",
+		}),
+		[isArabic]
+	);
 
-  return (
-    <section id="transport-section" dir="rtl" className="bg-gray-50 py-14 sm:py-20 lg:py-24" aria-labelledby="transport-heading">
-      <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24">
+	// Color theme configurations - memoized for performance
+	const colorThemes = useMemo(
+		() => ({
+			green: {
+				borderHover: "hover:border-green-500 dark:hover:border-green-500",
+				bgHover: "hover:bg-green-50 dark:hover:bg-green-900/20",
+				iconBg: "bg-gradient-to-br from-green-500 to-emerald-600",
+				checkIcon: "text-green-500",
+				button: "bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:ring-green-500/50",
+			},
+			orange: {
+				borderHover: "hover:border-[#FA9D2B] dark:hover:border-[#FA9D2B]",
+				bgHover: "hover:bg-orange-50 dark:hover:bg-orange-900/20",
+				iconBg: "bg-[#FA9D2B]",
+				checkIcon: "text-[#FA9D2B]",
+				button: "bg-[#FA9D2B] hover:bg-[#E88D26] focus:ring-[#FA9D2B]/50",
+			},
+		}),
+		[]
+	);
 
-        {/* Header */}
-        <motion.div {...fadeUp() as any} className="text-center mb-10 sm:mb-14">
-          <p className="inline-flex items-center gap-2 text-xs font-semibold text-green-700 bg-green-50 border border-green-100 rounded-full px-4 py-1.5 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            اختر وسيلة الشحن
-          </p>
-          <h2 id="transport-heading" className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 mb-3">
-            ما هي طبيعة شحنتك؟
-          </h2>
-          <p className="text-base sm:text-lg text-gray-500 max-w-xl mx-auto">
-            نظام فلترة متتابع يعرض الوسائل المناسبة بناءً على فئة الشحن التي تختارها
-          </p>
-        </motion.div>
+	// Map icon names to icon components
+	const iconMap = {
+		Bike,
+		Truck,
+	} as const;
 
-        {/* Category tabs */}
-        <motion.div {...fadeUp(0.1) as any} className="flex justify-center gap-2 sm:gap-3 mb-10 flex-wrap">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                activeCategory === cat
-                  ? "bg-green-600 text-white shadow-md shadow-green-200"
-                  : "bg-white text-gray-600 border border-gray-200 hover:border-green-300 hover:text-green-700"
-              }`}
-            >
-              {CAT_AR[cat]}
-            </button>
-          ))}
-        </motion.div>
+	// Memoized transport types
+	const transportTypes = useMemo(
+		() =>
+			TRANSPORT_TYPES_DATA.map((type) => ({
+				icon: iconMap[type.iconName],
+				title: isArabic ? type.title.ar : type.title.en,
+				slug: type.slug,
+				description: isArabic ? type.description.ar : type.description.en,
+				features: isArabic ? type.features.ar : type.features.en,
+				color: type.color,
+			})),
+		[isArabic]
+	);
 
-        {/* Cards grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 max-w-6xl mx-auto">
-          {filtered.map((type, index) => (
-            <motion.div
-              key={type.slug}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.38, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -4 }}
-              className="group"
-            >
-              <div className="relative h-full bg-white rounded-2xl border border-gray-150 hover:border-green-200 hover:shadow-xl shadow-sm transition-all duration-250 overflow-hidden">
+	// Memoized handler
+	const handleChoose = useCallback(
+		(slug: string) => {
+			router.push(`/pickandorder/${slug}`);
+		},
+		[router]
+	);
 
-                {/* Top accent bar */}
-                <div className="h-1 bg-gradient-to-l from-green-500 to-emerald-400" />
+	return (
+		<section id="transport-section" className="bg-gray-50 dark:bg-gray-900 py-12 sm:py-16 lg:py-20" aria-labelledby="transport-type-heading">
+			<div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24">
+				{/* Section Header */}
+				<motion.div
+					initial={ANIMATION_VARIANTS.slideUp.hidden}
+					whileInView={ANIMATION_VARIANTS.slideUp.visible}
+					viewport={VIEWPORT_SETTINGS}
+					transition={{ duration: ANIMATION_DURATION.normal }}
+					className="text-center mb-8 sm:mb-12"
+				>
+					<h2 id="transport-type-heading" className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+						{content.title}
+					</h2>
+					<p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
+						{content.subtitle}
+					</p>
+				</motion.div>
 
-                <div className="p-6 sm:p-7">
-                  {/* Header row */}
-                  <div className="flex items-start justify-between mb-5">
-                    <div className="flex flex-col items-end gap-1">
-                      {type.badge && (
-                        <span className="text-[11px] font-bold text-green-700 bg-green-50 border border-green-100 px-2.5 py-0.5 rounded-full">
-                          {type.badge}
-                        </span>
-                      )}
-                      <span className="text-xs text-gray-400 font-medium">{type.weight}</span>
-                    </div>
-                    <div className="w-14 h-14 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center flex-shrink-0">
-                      <Icon name={type.iconName as keyof typeof icons} className="w-7 h-7 text-green-600" />
-                    </div>
-                  </div>
+				{/* Transport Cards */}
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto" role="list">
+					{transportTypes.map((type, index) => {
+						const Icon = type.icon;
+						const theme = colorThemes[type.color];
+						const textAlign = getTextAlign(isArabic);
+						const floatAlign = getFloatAlign(isArabic);
 
-                  {/* Title & description */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 text-right">{type.title}</h3>
-                  <p className="text-sm text-gray-500 leading-relaxed text-right mb-5">{type.description}</p>
+						return (
+							<motion.div
+								key={type.slug}
+								initial={ANIMATION_VARIANTS.item.hidden}
+								whileInView={ANIMATION_VARIANTS.item.visible}
+								viewport={VIEWPORT_SETTINGS}
+								transition={{ duration: ANIMATION_DURATION.normal, delay: index * 0.1 }}
+								whileHover={{ y: -4 }}
+								whileTap={{ scale: 0.98 }}
+								className="group"
+								role="listitem"
+							>
+								{/* Card Container */}
+								<div
+									className={`relative h-full bg-white dark:bg-gray-800 rounded-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 ${theme.borderHover} ${theme.bgHover} transition-all duration-200 shadow-sm hover:shadow-lg focus-within:ring-2 focus-within:ring-${type.color === "green" ? "green" : "orange"}-500`}
+									tabIndex={0}
+								>
+									{/* Content */}
+									<div className={`space-y-5 ${textAlign}`}>
+										{/* Icon */}
+										<div className={`inline-flex p-4 rounded-xl ${theme.iconBg} text-white shadow-lg ${floatAlign}`} aria-hidden="true">
+											<Icon className="h-6 w-6 sm:h-8 sm:w-8" />
+										</div>
 
-                  {/* Features */}
-                  <ul className="space-y-2 mb-6">
-                    {type.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2.5  text-sm text-gray-600">
-                        <Icon name="Check" className="w-4 h-4 text-green-500 flex-shrink-0" />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
+										{/* Title & Description */}
+										<div className="clear-both">
+											<h3 className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2 ${textAlign}`}>
+												{type.title}
+											</h3>
+											<p className={`text-base text-gray-600 dark:text-gray-300 ${textAlign}`}>
+												{type.description}
+											</p>
+										</div>
 
-                  {/* CTA */}
-                  <button
-                    onClick={() => handleChoose(type)}
-                    className="w-full py-3 px-5 bg-gray-900 hover:bg-green-600 text-white text-sm font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/40 group-hover:bg-green-600"
-                    aria-label={`اختيار ${type.title}`}
-                  >
-                    اختيار هذه الوسيلة
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+										{/* Features List */}
+										<ul className={`space-y-2 ${textAlign}`} role="list">
+											{type.features.map((feature, idx) => (
+												<li key={`${type.slug}-feature-${idx}`} className={`flex items-center gap-2 text-sm sm:text-base text-gray-700 dark:text-gray-300 `}>
+													<CheckCircle2 className={`h-4 w-4 ${theme.checkIcon} flex-shrink-0`} aria-hidden="true" />
+													<span>{feature}</span>
+												</li>
+											))}
+										</ul>
 
-        {/* Addon note */}
-        <motion.div {...fadeUp(0.2) as any} className="max-w-6xl mx-auto mt-8">
-          <div className="bg-white border border-gray-100 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 text-right">
-            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center">
-              <Icon name="Package" className="w-6 h-6 text-gray-500" />
-            </div>
-            <div className="flex-1">
-              <p className="font-bold text-gray-800 mb-1">وحدات مساندة إضافية</p>
-              <p className="text-sm text-gray-500">يمكنك إضافة رافعة هيدروليكية، طاقم عمالة مدربة، أو مواد تغليف متخصصة — خلال تأكيد طلبك لتجربة نقل متكاملة.</p>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
+										{/* CTA Button */}
+										<button
+											onClick={() => handleChoose(type.slug)}
+											onKeyDown={(e) => {
+												if (e.key === "Enter" || e.key === " ") {
+													e.preventDefault();
+													handleChoose(type.slug);
+												}
+											}}
+											className={`w-full mt-4 px-6 py-3 ${theme.button} text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 text-sm sm:text-base`}
+											aria-label={`${isArabic ? "اختيار" : "Choose"} ${type.title}`}
+										>
+											{isArabic ? "اختيار" : "Choose"}
+										</button>
+									</div>
+								</div>
+							</motion.div>
+						);
+					})}
+				</div>
+			</div>
+		</section>
+	);
+});
+
+TransportTypeSection.displayName = "TransportTypeSection";
+

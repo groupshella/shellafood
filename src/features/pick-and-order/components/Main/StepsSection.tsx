@@ -1,70 +1,150 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
-import { fadeUp } from "../../lib/animationUtils";
-import { STEPS } from "../../constants/landingData";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { useLanguage } from "@/providers";
+import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { STEPS_DATA } from "@/features/pick-and-order/constants/pick-and-order.constants";
 
-export default function StepsSection() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+/**
+ * Steps Section - Clean & Modern Design
+ * Simple step indicators matching the app's design system
+ */
+export const StepsSection: React.FC = () => {
+	const { language } = useLanguage();
+	const isArabic = language === "ar";
 
-  return (
-    <section ref={ref} dir="rtl" className="bg-gray-50 py-14 sm:py-20 lg:py-24">
-      <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24">
-        <motion.div {...fadeUp() as any} className="text-center mb-12 sm:mb-16">
-          <p className="inline-flex items-center gap-2 text-xs font-semibold text-green-700 bg-green-50 border border-green-100 rounded-full px-4 py-1.5 mb-4">
-            كيف يعمل؟
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 mb-3">أسهل طريقة للشحن</h2>
-          <p className="text-base sm:text-lg text-gray-500 max-w-xl mx-auto">أربع خطوات بسيطة وشحنتك في الطريق</p>
-        </motion.div>
+	const title = isArabic ? "اسهل طريقة للحصول على الخدمات" : "The Easiest Way to Get Services";
+	const subtitle = isArabic
+		? "خطوات بسيطة للحصول على الخدمة في دقائق"
+		: "Simple steps to get the service in minutes";
 
-        <div className="relative max-w-4xl mx-auto">
-          {/* Connecting line (desktop) */}
-          <div className="hidden lg:block absolute top-10 right-[10%] left-[10%] h-px bg-gray-200 z-0" />
+	// Food delivery logistics image - matching app theme
+	const imageUrl = "/pickandorder.jpg";
+	// Image loading and error states
+	const [imageLoading, setImageLoading] = useState(true);
+	const [imageError, setImageError] = useState(false);
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
-            {STEPS.map(({ n, title, desc }, i) => (
-              <motion.div
-                key={n}
-                initial={{ opacity: 0, y: 24 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.45, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className="relative z-10 text-right flex flex-col items-start"
-              >
-                {/* Step number bubble */}
-                <div className="w-20 h-20 rounded-2xl bg-white border-2 border-green-500 flex items-center justify-center mb-5 shadow-md shadow-green-100">
-                  <span className="text-2xl font-black text-green-600">{n}</span>
-                </div>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">{title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+	const handleImageLoad = () => {
+		setImageLoading(false);
+	};
 
-        {/* CTA block */}
-        <motion.div {...fadeUp(0.3) as any} className="mt-14 sm:mt-16">
-          <div
-            className="max-w-4xl mx-auto rounded-3xl p-8 sm:p-12 text-right"
-            style={{ background: "linear-gradient(135deg, #166534 0%, #15803d 50%, #16a34a 100%)" }}
-          >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-              <div>
-                <h3 className="text-2xl sm:text-3xl font-black text-white mb-2">جاهز للبدء؟</h3>
-                <p className="text-green-100 text-sm sm:text-base">أنشئ طلبك الآن واستمتع بتجربة شحن لا مثيل لها</p>
-              </div>
-              <button
-                onClick={() => document.getElementById("transport-section")?.scrollIntoView({ behavior: "smooth" })}
-                className="flex-shrink-0 bg-white text-green-700 font-bold text-sm sm:text-base px-7 py-3.5 rounded-2xl hover:bg-green-50 transition-all duration-200 active:scale-95 shadow-lg"
-              >
-                ابدأ الشحن الآن ←
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
+	const handleImageError = () => {
+		setImageLoading(false);
+		setImageError(true);
+	};
+
+	// Transform steps data with localized text
+	const steps = STEPS_DATA.map((step) => ({
+		number: step.number,
+		title: isArabic ? step.title.ar : step.title.en,
+		description: isArabic ? step.description.ar : step.description.en,
+	}));
+
+	return (
+		<section className="bg-gray-50 dark:bg-gray-900 py-12 sm:py-16 lg:py-20">
+			<div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24">
+				{/* Section Header */}
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true }}
+					transition={{ duration: 0.4 }}
+					className="text-center mb-8 sm:mb-12"
+				>
+					<h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+						{title}
+					</h2>
+					<p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
+						{subtitle}
+					</p>
+				</motion.div>
+
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center flex-row-reverse">
+					{/* Steps List */}
+					<motion.div
+						initial={{ opacity: 0, x: isArabic ? 20 : -20 }}
+						whileInView={{ opacity: 1, x: 0 }}
+						viewport={{ once: true }}
+						transition={{ duration: 0.4 }}
+						className={`space-y-6 sm:space-y-8 ${isArabic ? "lg:order-2" : "lg:order-1"}`}
+					>
+						{steps.map((step, index) => (
+							<motion.div
+								key={index}
+								initial={{ opacity: 0, y: 20 }}
+								whileInView={{ opacity: 1, y: 0 }}
+								viewport={{ once: true }}
+								transition={{ duration: 0.4, delay: index * 0.1 }}
+								className={`flex gap-4 sm:gap-6 items-start ${isArabic ? "flex-row-reverse text-right" : "flex-row text-left"}`}
+							>
+								{/* Step Number */}
+								<div className={`flex-shrink-0 ${isArabic ? "order-3" : "order-1"}`}>
+									<div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white flex items-center justify-center font-bold text-base sm:text-lg md:text-xl shadow-lg">
+										{step.number}
+									</div>
+								</div>
+
+								{/* Step Content */}
+								<div className={`flex-1 pt-1 ${isArabic ? "order-2 text-right" : "order-2 text-left"}`}>
+									<h3 className={`text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1 ${isArabic ? "text-right" : "text-left"}`}>
+										{step.title}
+									</h3>
+									<p className={`text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 ${isArabic ? "text-right" : "text-left"}`}>
+										{step.description}
+									</p>
+								</div>
+
+								{/* Check Icon */}
+								<div className={`flex-shrink-0 pt-1 hidden sm:block ${isArabic ? "order-1" : "order-3"}`}>
+									<CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
+								</div>
+							</motion.div>
+						))}
+					</motion.div>
+
+					{/* Image */}
+					<motion.div
+						initial={{ opacity: 0, x: isArabic ? -20 : 20 }}
+						whileInView={{ opacity: 1, x: 0 }}
+						viewport={{ once: true }}
+						transition={{ duration: 0.4, delay: 0.2 }}
+						className={`relative ${isArabic ? "lg:order-1" : "lg:order-2"}`}
+					>
+						<div className="relative w-full h-[350px] sm:h-[450px] md:h-[550px] lg:h-[650px] rounded-2xl overflow-hidden shadow-lg bg-gray-200 dark:bg-gray-700">
+							{/* Loading State */}
+							{imageLoading && !imageError && (
+								<div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+									<Loader2 className="h-8 w-8 text-green-500 animate-spin" />
+								</div>
+							)}
+
+							{/* Error State */}
+							{imageError && (
+								<div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-200 dark:bg-gray-700 p-4">
+									<AlertCircle className="h-12 w-12 text-gray-400 dark:text-gray-500 mb-2" />
+									<p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+										{isArabic ? "فشل تحميل الصورة" : "Failed to load image"}
+									</p>
+								</div>
+							)}
+
+							{/* Image */}
+							{!imageError && (
+								<img
+									src={imageUrl}
+									alt={isArabic ? "خطوات الحصول على الخدمة" : "Steps to get service"}
+									className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoading ? "opacity-0" : "opacity-100"}`}
+									loading="lazy"
+									onLoad={handleImageLoad}
+									onError={handleImageError}
+								/>
+							)}
+						</div>
+					</motion.div>
+				</div>
+			</div>
+		</section>
+	);
+};
+

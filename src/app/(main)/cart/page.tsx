@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import CartPage from '@/features/cart/components/CartPage';
+import { RegisterForm } from '@/features/auth';
 import { cookies } from 'next/headers';
-import { STORAGE_KEYS, getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { BASE_URL, STORAGE_KEYS, getBaseUrl } from '@/features/auth/constants/auth.constants';
 
 export const metadata: Metadata = {
   title: 'سلة التسوق | شلة فود',
@@ -18,7 +19,14 @@ export const metadata: Metadata = {
     siteName: 'شلة فود',
     locale: 'ar_SA',
     alternateLocale: ['en_US'],
-    images: [{ url: '/og-cart.jpg', width: 1200, height: 630, alt: 'سلة التسوق - شلة فود' }],
+    images: [
+      {
+        url: '/og-cart.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'سلة التسوق - شلة فود',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
@@ -40,24 +48,40 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: 'https://shellafood.com/cart',
-    languages: { 'ar-SA': 'https://shellafood.com/cart', 'en-US': 'https://shellafood.com/cart' },
+    languages: {
+      'ar-SA': 'https://shellafood.com/cart',
+      'en-US': 'https://shellafood.com/cart',
+    },
   },
   metadataBase: new URL('https://shellafood.com'),
 };
 
 async function getCartData(guestId: string | null) {
-  if (!guestId) return null;
   try {
+    if (!guestId) {
+      return null;
+    }
+
+    // ✅ Use API route as proxy
     const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/cart?guest_id=${guestId}`, {
+    const apiUrl = `${baseUrl}/api/cart/list?guest_id=${guestId}`;
+
+    const headers: HeadersInit = {
+      'Accept': 'application/json',
+      'x-localization': 'ar',
+    };
+
+    const response = await fetch(apiUrl, {
       method: 'GET',
-      headers: { Accept: 'application/json', 'x-localization': 'ar' },
-      cache: 'no-store',
+      headers,
+      cache: 'no-store', // Don't cache this data
     });
+
     if (!response.ok) {
       console.error('[Cart] API route error:', response.status);
       return null;
     }
+
     const data = await response.json();
     return data.cart_items;
   } catch (error) {
@@ -67,9 +91,16 @@ async function getCartData(guestId: string | null) {
 }
 
 export default async function CartPageRoute() {
+  // Check authentication on server side using the same cookie key as layout
   const cookieStore = await cookies();
-  const guestId = cookieStore.get('guest_id');
+  const guestId = cookieStore.get("guest_id");
   const authToken = cookieStore.get(STORAGE_KEYS.TOKEN)?.value || '';
-  const cartData = await getCartData(guestId?.value || null);
+  console.log("guestId", guestId?.value);
+
+  // Fetch cart data
+  const cartData = await getCartData(
+    guestId?.value || null
+  );
+
   return <CartPage initialCartData={cartData} token={authToken} />;
 }

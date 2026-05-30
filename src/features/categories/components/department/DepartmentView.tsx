@@ -43,7 +43,9 @@ const ITEMS_PER_PAGE_OPTIONS = [12, 24, 48] as const;
 // ============================================================================
 
 const fetcher = async (url: string) => {
+  console.log(url);
   const res = await fetch(url);
+  console.log(res);
   if (!res.ok) throw new Error('Failed to fetch products');
   return res.json();
 };
@@ -379,8 +381,8 @@ function DepartmentView({
                   key={filter.key}
                   onClick={() => setFilterBy(filter.key)}
                   className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap ${filterBy === filter.key
-                    ? 'bg-green-600 dark:bg-green-500 text-white shadow-md dark:shadow-green-900/50'
-                    : 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'bg-green-600 dark:bg-green-500 text-white shadow-md dark:shadow-green-900/50'
+                      : 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                 >
                   {filter.label}

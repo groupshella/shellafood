@@ -36,7 +36,7 @@ export function useStores(
 
 			//const result = await getAllStores(limit, offset, language, moduleId);
 			//console.log(result);
-
+			
 			//if (result.data) {
 			//	setStoreList(result.data);
 			//} else {
@@ -48,6 +48,7 @@ export function useStores(
 			//	});
 			//}
 		} catch (error) {
+			console.log(error);
 			setNotification({
 				message: isArabic ? "خطأ في تحميل المتاجر" : "Error loading stores",
 				type: "error",

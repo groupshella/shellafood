@@ -64,6 +64,13 @@ export async function getDepartments(
 
 		const url = `https://shellafood.com/api/v1/stores/${storeId}/categories?limit=${limit}&offset=${offset}`;
 
+		console.log(`[Departments API] Requesting: ${url}`, {
+			moduleId,
+			zoneIdHeader: zoneIdHeaderValue(zoneId),
+		});
+
+		const fetchStartTime = Date.now();
+
 		const response = await fetch(url, {
 			method: 'GET',
 			headers: {
@@ -76,9 +83,21 @@ export async function getDepartments(
 			cache: 'no-store',
 		});
 
+		const fetchDuration = Date.now() - fetchStartTime;
+
+		console.log(`[Departments API] Response received in ${fetchDuration}ms:`, {
+			status: response.status,
+			statusText: response.statusText,
+		});
+
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
 			const message = laravelErrorMessage(errorData);
+			console.error('[Departments API] API Error:', {
+				status: response.status,
+				message,
+				body: errorData,
+			});
 			return {
 				error: message,
 				status: response.status,
@@ -86,6 +105,13 @@ export async function getDepartments(
 		}
 
 		const data = await response.json();
+
+		console.log(`[Departments API] Data parsed:`, {
+			storeId: data.store_id,
+			categoriesCount: data.categories?.length || 0,
+			totalCategories: data.total_categories,
+			hasMore: data.has_more,
+		});
 
 		return {
 			data: {
@@ -99,6 +125,7 @@ export async function getDepartments(
 			},
 		};
 	} catch (error) {
+		console.error('[Departments API] Network Error:', error);
 		return {
 			error: 'Network error',
 			status: 500,

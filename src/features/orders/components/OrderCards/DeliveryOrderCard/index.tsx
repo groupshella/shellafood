@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CreditCard, Star, MapPin, Truck, Bike, Package, Navigation, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/providers";
-// import { RatingModal } from ".";	
+import { RatingModal } from "@/features/serve-me";
 import { OrderStatusBadge } from "../../shared/OrderStatusBadge";
 import { PaymentStatusBadge } from "../../shared/PaymentStatusBadge";
 import { cn } from "@/shared/utils";
@@ -259,7 +259,7 @@ export function DeliveryOrderCard({
 							<div className="mb-5 sm:mb-6">
 								<h4 className={cn("text-sm sm:text-base font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 flex items-center gap-2", isArabic ? "text-right flex-row-reverse" : "text-left")}>
 									<Package className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-									{isArabic
+									{isArabic 
 										? (order.allPickupPoints.length > 1 ? `نقاط الالتقاط (${order.allPickupPoints.length})` : "نقطة الالتقاط")
 										: (order.allPickupPoints.length > 1 ? `Pickup Points (${order.allPickupPoints.length})` : "Pickup Point")}
 								</h4>
@@ -290,7 +290,7 @@ export function DeliveryOrderCard({
 							<div className="mb-5 sm:mb-6">
 								<h4 className={cn("text-sm sm:text-base font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 flex items-center gap-2", isArabic ? "text-right flex-row-reverse" : "text-left")}>
 									<Navigation className="w-5 h-5 text-green-600 dark:text-green-400" />
-									{isArabic
+									{isArabic 
 										? (order.allDropoffPoints.length > 1 ? `نقاط التوصيل (${order.allDropoffPoints.length})` : "نقطة التوصيل")
 										: (order.allDropoffPoints.length > 1 ? `Dropoff Points (${order.allDropoffPoints.length})` : "Dropoff Point")}
 								</h4>
@@ -490,7 +490,7 @@ export function DeliveryOrderCard({
 			</motion.div>
 
 			{/* Rating Modal */}
-			{/* {showRating && (
+			{showRating && (
 				<RatingModal
 					isOpen={showRating}
 					onClose={() => setShowRating(false)}
@@ -504,7 +504,7 @@ export function DeliveryOrderCard({
 					driverName={order.driverName}
 					driverPhoto={order.driverPhoto}
 				/>
-			)} */}
+			)}
 		</>
 	);
 }
