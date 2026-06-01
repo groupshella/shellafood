@@ -82,11 +82,10 @@ export default function CategoryView({
                 <button
                   type="button"
                   onClick={() => setMobileViewMode("single")}
-                  className={`rounded p-1.5 transition-colors ${
-                    mobileViewMode === "single"
+                  className={`rounded p-1.5 transition-colors ${mobileViewMode === "single"
                       ? "bg-green-600 text-white"
                       : "text-gray-600 dark:text-gray-400"
-                  }`}
+                    }`}
                   aria-label={isArabic ? "عرض واحد" : "Single view"}
                 >
                   <Grid3x3 className="h-4 w-4" />
@@ -94,11 +93,10 @@ export default function CategoryView({
                 <button
                   type="button"
                   onClick={() => setMobileViewMode("double")}
-                  className={`rounded p-1.5 transition-colors ${
-                    mobileViewMode === "double"
+                  className={`rounded p-1.5 transition-colors ${mobileViewMode === "double"
                       ? "bg-green-600 text-white"
                       : "text-gray-600 dark:text-gray-400"
-                  }`}
+                    }`}
                   aria-label={isArabic ? "عرض مزدوج" : "Double view"}
                 >
                   <Grid2x2 className="h-4 w-4" />
@@ -113,9 +111,8 @@ export default function CategoryView({
         </div>
 
         <div
-          className={`mb-6 grid gap-6 sm:mb-8 lg:gap-8 ${
-            showFilters ? "lg:grid-cols-[280px_1fr]" : "grid-cols-1"
-          }`}
+          className={`mb-6 grid gap-6 sm:mb-8 lg:gap-8 ${showFilters ? "lg:grid-cols-[280px_1fr]" : "grid-cols-1"
+            }`}
         >
           <aside className={`${showFilters ? "block" : "hidden"} lg:block`}>
             <FiltersSidebar

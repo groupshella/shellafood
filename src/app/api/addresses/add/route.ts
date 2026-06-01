@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { DEFAULT_LANG } from '@/features/(actors)/auth/constants/auth.constants';
 
 export async function POST(request: NextRequest) {
   try {

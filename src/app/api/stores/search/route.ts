@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { BASE_URL } from "@/features/auth/constants/auth.constants";
+import { BASE_URL } from "@/features/(actors)/auth/constants/auth.constants";
 
 const API_ROOT = `${BASE_URL}/api/v1`;
 
-/** Proxies Laravel `GET .../stores/search` (forwards `name`, pagination, etc.). */
+/** Proxies Laravel `GET .../stores/search` for the search feature. */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
+
+  const name = searchParams.get("name")?.trim();
+  if (!name) {
+    return NextResponse.json({ error: "Search name is required" }, { status: 400 });
+  }
+
   const forward = new URLSearchParams(searchParams);
-  for (const key of [
-    "moduleId",
-    "zoneId",
-    "latitude",
-    "longitude",
-    "lat",
-    "lng",
-    "locale",
-  ]) {
+  for (const key of ["zoneId", "moduleId", "longitude", "latitude", "lang", "locale"]) {
     forward.delete(key);
   }
 
@@ -29,33 +27,30 @@ export async function GET(req: NextRequest) {
           ? JSON.stringify([Number(zoneRaw)])
           : "[2]";
 
-  const moduleHeader = searchParams.get("moduleId")?.trim() || "3";
-  const locale = searchParams.get("locale") ?? "ar";
+  const locale = searchParams.get("lang") ?? searchParams.get("locale") ?? "ar";
 
   const headers: Record<string, string> = {
     Accept: "application/json",
     "Content-Type": "application/json",
     zoneId,
-    moduleId: moduleHeader,
+    ...(searchParams.get("moduleId")?.trim() && { moduleId: searchParams.get("moduleId")!.trim() }),
+    ...(searchParams.get("longitude")?.trim() && { longitude: searchParams.get("longitude")!.trim() }),
+    ...(searchParams.get("latitude")?.trim() && { latitude: searchParams.get("latitude")!.trim() }),
     "X-localization": locale,
+    "Accept-Language": locale,
   };
-
-  const lat = searchParams.get("latitude") ?? searchParams.get("lat");
-  const lng = searchParams.get("longitude") ?? searchParams.get("lng");
-  if (lat != null && lat !== "") headers.latitude = String(lat);
-  if (lng != null && lng !== "") headers.longitude = String(lng);
 
   const targetUrl = `${API_ROOT}/stores/search?${forward.toString()}`;
 
   try {
-    const response = await fetch(targetUrl, { headers, cache: "no-store" });
+    const response = await fetch(targetUrl, { method: "GET", headers, cache: "no-store" });
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
       return NextResponse.json(err, { status: response.status });
     }
     return NextResponse.json(await response.json());
   } catch (err) {
-    console.error("[api/stores/search]", err);
+    console.error("[api/search/stores]", err);
     return NextResponse.json({ error: "Failed to reach backend" }, { status: 502 });
   }
 }

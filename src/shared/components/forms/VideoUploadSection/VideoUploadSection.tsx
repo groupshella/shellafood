@@ -1,5 +1,5 @@
 "use client";
-import { MEDIA_LIMITS } from "@/features/serve-me";
+import { MEDIA_LIMITS } from "@/features/(services)/serve-me";
 import { Video, X } from "lucide-react";
 
 export default function VideoUploadSection({

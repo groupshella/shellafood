@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { DriverPage } from "@/features/driver";
+import { DriverPage } from "@/features/(actors)/driver";
 export const metadata: Metadata = {
 	title: "التسجيل كسائق | شلة فود",
 	description:

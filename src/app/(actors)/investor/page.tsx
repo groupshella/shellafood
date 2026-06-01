@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { InvestorPage } from "@/features/investor";
+import { InvestorPage } from "@/features/(actors)/investor";
 
 // Metadata for SEO - Arabic
 export const metadata: Metadata = {

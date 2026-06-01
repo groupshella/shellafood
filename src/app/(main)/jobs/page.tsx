@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { LandingPage } from "@/features/landing-page";
+import LandingPage from "@/features/landing-page/page";
 
 export const metadata: Metadata = {
 	title: "الوظائف والفرص المهنية | شلة فود",

@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { DriverProfilePage } from "@/features/driver";
+import { DriverProfilePage } from "@/features/(actors)/driver";
 
 export async function generateMetadata({
 	params,
@@ -67,8 +67,8 @@ export default async function DriverProfilePageRoute({
 	const { driverId } = await params;
 
 	return (
-		<DriverProfilePage 
-			driverId={driverId} 
+		<DriverProfilePage
+			driverId={driverId}
 		/>
 	);
 }

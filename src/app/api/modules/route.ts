@@ -1,104 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const DEFAULT_LANG = 'ar';
-const REQUEST_TIMEOUT = 10_000;
-
-function isValidLatLng(lat: number, lng: number) {
-  return (
-    Number.isFinite(lat) &&
-    Number.isFinite(lng) &&
-    lat >= -90 &&
-    lat <= 90 &&
-    lng >= -180 &&
-    lng <= 180
-  );
-}
+import { cookies } from 'next/headers';
+import { getModules } from '@/features/(modules)/modules/api/modules.api';
+import { MODULES_CONFIG } from '@/features/(modules)/modules/constants/modules.constants';
 
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const latRaw = searchParams.get('lat') ?? searchParams.get('latitude');
-  const lngRaw = searchParams.get('lng') ?? searchParams.get('longitude');
-  const lang = searchParams.get('lang') || DEFAULT_LANG;
-
-  if (!latRaw || !lngRaw) {
-    return NextResponse.json(
-      { errors: [{ code: 'validation', message: 'lat and lng are required' }] },
-      { status: 403 }
-    );
-  }
-
-  const lat = parseFloat(latRaw);
-  const lng = parseFloat(lngRaw);
-
-  if (!isValidLatLng(lat, lng)) {
-    return NextResponse.json(
-      { errors: [{ code: 'validation', message: 'Invalid coordinates' }] },
-      { status: 403 }
-    );
-  }
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
-
   try {
-    const url = `https://shellafood.com/api/v1/config/get-zone-id?lat=${lat}&lng=${lng}`;
+    const { searchParams } = request.nextUrl;
+    let lat = searchParams.get('lat');
+    let lng = searchParams.get('lng');
 
-    // Forward the real browser headers so Cloudflare sees a legitimate browser request
-    const forwardHeaders: Record<string, string> = {
-      Accept: 'application/json',
-      'X-localization': lang,
-    };
+    const latitude = lat ? parseFloat(lat) : MODULES_CONFIG.DEFAULT_LAT;
+    const longitude = lng ? parseFloat(lng) : MODULES_CONFIG.DEFAULT_LNG;
 
-    // Forward key browser headers from the original request
-    const headersToForward = [
-      'user-agent',
-      'accept-language',
-      'accept-encoding',
-      'cf-connecting-ip',
-      'x-forwarded-for',
-      'x-real-ip',
-    ];
-    for (const header of headersToForward) {
-      const value = request.headers.get(header);
-      if (value) forwardHeaders[header] = value;
-    }
+    const modules = await getModules(latitude, longitude);
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: forwardHeaders,
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    // 404 = outside zone — return empty success so client can handle gracefully
-    if (response.status === 404) {
-      return NextResponse.json(
-        { zone_id: null, zone_data: [], metadata: { is_in_zone: false } },
-        { status: 200, headers: { 'Cache-Control': 'no-store' } }
-      );
-    }
-
-    if (!response.ok) {
-      const body = await response.text().catch(() => '');
-      console.error(`[Zone Proxy] External API error ${response.status}:`, body.slice(0, 200));
-      return NextResponse.json(
-        { error: 'External API request failed', status: response.status },
-        { status: response.status }
-      );
-    }
-
-    const data = await response.json();
-
-    return NextResponse.json(data, {
-      headers: { 'Cache-Control': 'no-store' },
-    });
+    return NextResponse.json({ success: true, data: modules });
   } catch (error: any) {
-    clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      return NextResponse.json({ error: 'Request timeout' }, { status: 504 });
-    }
-    console.error('[Zone Proxy] Error:', error?.message);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[Modules API Route] Error:', error);
+    return NextResponse.json(
+      { success: false, error: error?.message || 'Failed to fetch modules' },
+      { status: 500 }
+    );
   }
 }

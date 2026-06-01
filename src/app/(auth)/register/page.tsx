@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { RegisterForm } from "@/features/auth";
+import { RegisterForm } from "@/features/(actors)/auth";
 
 export const metadata: Metadata = {
 	title: "التسجيل | شلة فود - إنشاء حساب جديد",

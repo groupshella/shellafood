@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { getBaseUrl } from '@/features/(actors)/auth/constants/auth.constants';
 import { CategoriesPage } from '@/features/categories/components/category-list';
 import { getZoneModules } from '@/features/categories/api/modules.api';
 

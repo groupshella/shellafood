@@ -5,6 +5,7 @@
 
 export { default as ShellaFooter } from './ShellaFooter';
 
+export * from './Breadcrumbs';
 // Navigation Components
 export * from './navigation';
 

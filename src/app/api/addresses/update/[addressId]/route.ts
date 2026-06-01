@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { DEFAULT_LANG } from '@/features/(actors)/auth/constants/auth.constants';
 
 export async function PUT(
   request: NextRequest,
@@ -60,9 +60,9 @@ export async function PUT(
       });
 
       return NextResponse.json(
-        { 
+        {
           error: `Failed to update address: ${response.statusText}`,
-          details: errorText 
+          details: errorText
         },
         { status: response.status }
       );

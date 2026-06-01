@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { DEFAULT_LANG } from '@/features/(actors)/auth/constants/auth.constants';
 import { DepartmentResponse } from '@/features/categories/types/department.types';
 
 export async function GET(request: NextRequest) {

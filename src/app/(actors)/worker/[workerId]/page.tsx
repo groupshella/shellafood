@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { WorkerDetails } from "@/features/worker";
+import { WorkerDetails } from "@/features/(actors)/worker";
 
 
 

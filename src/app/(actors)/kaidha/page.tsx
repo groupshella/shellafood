@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { KaidhaPage } from "@/features/kaidha";
+import { KaidhaPage } from "@/features/(actors)/kaidha";
 
 // Metadata for SEO - Arabic
 export const metadata: Metadata = {

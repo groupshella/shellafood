@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { LoginForm } from "@/features/auth";
+import { LoginForm } from "@/features/(actors)/auth";
 
 export const metadata: Metadata = {
 	title: "تسجيل الدخول | شلة فود - تسجيل الدخول الآمن",

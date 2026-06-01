@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { WorkerPage } from "@/features/worker";
+import { WorkerPage } from "@/features/(actors)/worker";
 export const metadata: Metadata = {
 	title: "التسجيل كعامل | شلة فود - انضم إلى فريق العمل",
 	description:

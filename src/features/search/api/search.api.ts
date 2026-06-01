@@ -18,7 +18,7 @@ export async function searchStores(
 	if (ctx.lang) qs.set("lang", ctx.lang);
 
 	try {
-		const res = await fetch(`/api/search/stores?${qs}`, {
+		const res = await fetch(`/api/stores/search?${qs}`, {
 			method: "GET",
 			headers: { Accept: "application/json" },
 			cache: "no-store",

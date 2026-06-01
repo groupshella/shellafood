@@ -1,8 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/providers";
-import CategoriesSection from "./CategoriesSection";
-import DeliveryAddressHero from "./DeliveryAddressHero";
+import ModuleSection from "./ModulesSection";
 import LatestStores from "./LatestStores";
 import PopularStores from "./PopularStores";
 import RecommendedStores from "./RecommendedStores";
@@ -12,41 +11,20 @@ import DiscountedStores from "./DiscountedStores";
 import HeroSection from "./HeroSection";
 import { ArrowUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useHomePage } from "../hooks/useHomePage";
-import { ZoneDataModule } from "@/features/categories/types/module.types";
-import { useEffect } from "react";
+import { Module } from "@/features/(modules)/modules/types/module.types";
+import { HOME_CONSTANTS } from "../constants/home.constants";
+import { useHome } from "../hooks/useHome";
 
 export default function HomePage({
 	modules,
 	guestId,
-	token,
 }: {
-	modules: ZoneDataModule[];
+	modules: Module[];
 	guestId: string;
-	token: string;
 }) {
 	const { language } = useLanguage();
 	const isArabic = language === "ar";
-	const { showScrollToTop, handleDeliveryAddressChange, scrollToTop } = useHomePage();
-	const getGuestId = async () => {
-		const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-		const response = await fetch(`${baseUrl}/api/auth/guest/request`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"X-LANG": "ar",
-			},
-		});
-		const data = await response.json();
-		console.log("data", data);
-	};
-
-	// Remove the bare if(!guestId) call and replace with:
-	useEffect(() => {
-		if (!guestId) {
-			getGuestId();
-		}
-	}, [guestId]);
+	const { scrollToTop } = useHome(guestId);
 	return (
 		<div
 			className="min-h-screen bg-gray-50 dark:bg-[#0d1117] font-sans antialiased"
@@ -65,21 +43,9 @@ export default function HomePage({
 				}}
 			>
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-					<CategoriesSection modules={modules} />
+					<ModuleSection modules={modules} />
 				</div>
 			</div>
-
-			{/* ─── 3. DELIVERY ADDRESS ─────────────────────────────────────────── */}
-			{/* Pulled into the page flow with elevation, right after hero */}
-			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 -mt-2 relative z-20">
-				<DeliveryAddressHero
-					onAddressChange={handleDeliveryAddressChange}
-					token={token as string}
-				/>
-			</div>
-
-
-
 			{/* ─── 4. STORE LISTINGS ────────────────────────────────────────────── */}
 			{/* Stacked sections, unified container */}
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-28 space-y-2">
@@ -105,7 +71,7 @@ export default function HomePage({
 
 			{/* ─── SCROLL TO TOP ────────────────────────────────────────────────── */}
 			<AnimatePresence>
-				{showScrollToTop && (
+				{window.scrollY > HOME_CONSTANTS.SCROLL_TO_TOP_THRESHOLD && (
 					<motion.button
 						initial={{ scale: 0, opacity: 0 }}
 						animate={{ scale: 1, opacity: 1 }}

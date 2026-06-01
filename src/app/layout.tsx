@@ -31,7 +31,7 @@ export default async function RootLayout({
 				<ThemeProvider>
 					<LanguageProvider>
 						{/* Navigation - Unified for all routes */}
-				<NavBarCondition islogin={islogin ? true : false} />
+						<NavBarCondition islogin={islogin ? true : false} />
 						{/* Main Content */}
 						<main className="min-h-screen bg-white dark:bg-gray-900">
 							{children}

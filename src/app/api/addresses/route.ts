@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { DEFAULT_LANG } from '@/features/(actors)/auth/constants/auth.constants';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -49,9 +49,9 @@ export async function GET(request: NextRequest) {
       });
 
       return NextResponse.json(
-        { 
+        {
           error: `Failed to fetch addresses: ${response.statusText}`,
-          details: errorText 
+          details: errorText
         },
         { status: response.status }
       );

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
+import { DEFAULT_LANG } from "@/features/(actors)/auth/constants/auth.constants";
 
 const DEFAULT_LAT = "24.7136";
 const DEFAULT_LNG = "46.6753";

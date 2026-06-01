@@ -21,8 +21,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import useSWR from "swr";
 import Pagination from "@/features/categories/components/category-details/Pagination";
-import { getBaseUrl } from "@/features/auth/constants/auth.constants";
-import { getCookie } from "@/features/auth/lib/utils/cookie.utils";
+import { getBaseUrl } from "@/features/(actors)/auth/constants/auth.constants";
+import { getCookie } from "@/features/(actors)/auth/lib/utils/cookie.utils";
 
 interface WalletTransaction {
 	id: number;
@@ -143,7 +143,7 @@ const TransactionItem = memo(({ transaction }: { transaction: WalletTransaction 
 		...DEFAULT_TYPE_CONFIG,
 		label: transaction.transaction_type,
 	};
-	
+
 	const TypeIcon = typeConfig.icon;
 	const credit = parseFloat(transaction.credit || '0');
 	const debit = parseFloat(transaction.debit || '0');
@@ -174,11 +174,10 @@ const TransactionItem = memo(({ transaction }: { transaction: WalletTransaction 
 					</div>
 				</div>
 				<div className="text-left flex-shrink-0">
-					<p className={`text-lg sm:text-xl font-bold ${
-						isCredit
+					<p className={`text-lg sm:text-xl font-bold ${isCredit
 							? 'text-green-600 dark:text-green-400'
 							: 'text-red-600 dark:text-red-400'
-					}`}>
+						}`}>
 						{isCredit ? '+' : '-'}
 						{formatCurrency(amount)} ريال
 					</p>
@@ -255,10 +254,10 @@ export default function WalletTransactions({
 	const handlePageChange = useCallback((page: number) => {
 		const params = new URLSearchParams(searchParams.toString());
 		params.set('page', page.toString());
-		
+
 		// Smooth scroll to top immediately for better UX
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-		
+
 		startTransition(() => {
 			router.push(`${pathname}?${params.toString()}`, { scroll: false });
 		});
@@ -269,7 +268,7 @@ export default function WalletTransactions({
 		const params = new URLSearchParams(searchParams.toString());
 		params.set('type', type);
 		params.set('page', '1'); // Reset to first page
-		
+
 		startTransition(() => {
 			router.push(`${pathname}?${params.toString()}`, { scroll: false });
 		});
@@ -363,11 +362,10 @@ export default function WalletTransactions({
 								key={option.value}
 								onClick={() => handleTypeChange(option.value)}
 								disabled={isPending}
-								className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all touch-manipulation active:scale-95 disabled:opacity-50 ${
-									currentType === option.value
+								className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all touch-manipulation active:scale-95 disabled:opacity-50 ${currentType === option.value
 										? 'bg-green-600 text-white shadow-lg'
 										: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-								}`}
+									}`}
 							>
 								{option.label}
 							</button>
@@ -422,7 +420,7 @@ export default function WalletTransactions({
 							</motion.div>
 						)}
 					</AnimatePresence>
-					
+
 					{/* Loading overlay for pagination changes */}
 					{isPending && transactions.length > 0 && (
 						<div className="absolute inset-0 bg-white/60 dark:bg-gray-800/60 backdrop-blur-[2px] flex items-center justify-center z-10 rounded-xl sm:rounded-2xl">

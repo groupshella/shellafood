@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { KaidhaWallet } from "@/features/profile";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { STORAGE_KEYS, AUTH_ROUTES, BASE_URL } from "@/features/auth/constants/auth.constants";
+import { STORAGE_KEYS, AUTH_ROUTES, BASE_URL } from "@/features/(actors)/auth/constants/auth.constants";
 
 export const metadata: Metadata = {
 	title: "محفظة قيدها | شلة فود",
@@ -69,7 +69,7 @@ async function getWalletData(token: string) {
 	try {
 		const apiUrl = `${BASE_URL}/api/qidha-wallet/get-wallet`;
 		const hostHeader = new URL(BASE_URL).hostname;
-		
+
 		const response = await fetch(apiUrl, {
 			method: 'GET',
 			headers: {
@@ -85,11 +85,11 @@ async function getWalletData(token: string) {
 		}
 
 		const result = await response.json();
-		
+
 		if (result.success && result.data) {
 			return result;
 		}
-		
+
 		return null;
 	} catch (error) {
 		console.error('[Kaidha Wallet] Fetch Error:', error);

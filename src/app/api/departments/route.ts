@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDepartments } from '@/features/categories/api/departments.api';
-import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { DEFAULT_LANG } from '@/features/(actors)/auth/constants/auth.constants';
 
 export async function GET(request: NextRequest) {
 	const searchParams = request.nextUrl.searchParams;

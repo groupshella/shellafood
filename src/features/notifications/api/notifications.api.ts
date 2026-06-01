@@ -1,4 +1,4 @@
-import { BASE_URL, DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
+import { BASE_URL, DEFAULT_LANG } from "@/features/(actors)/auth/constants/auth.constants";
 import { cache } from 'react';
 import { Notification, NotificationsResponse, ApiResponse } from '../types/notifications.types';
 
@@ -26,11 +26,11 @@ export async function getNotifications(
 ): Promise<ApiResponse<Notification[]>> {
 	try {
 		const url = `${BASE_URL}/api/v1/customer/notifications`;
-		
+
 		console.log(`[Notifications API] Requesting: ${url}`);
-		
+
 		const fetchStartTime = Date.now();
-		
+
 		const headers: HeadersInit = {
 			'Accept': 'application/json',
 			'Host': 'shellafood.com',
@@ -41,20 +41,20 @@ export async function getNotifications(
 		if (authToken) {
 			headers['Authorization'] = `Bearer ${authToken}`;
 		}
-		
+
 		const response = await fetch(url, {
 			method: 'GET',
 			headers,
 			cache: 'no-store',
 		});
-		
+
 		const fetchDuration = Date.now() - fetchStartTime;
-		
+
 		console.log(`[Notifications API] Response received in ${fetchDuration}ms:`, {
 			status: response.status,
 			statusText: response.statusText,
 		});
-		
+
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({
 				message: 'Failed to fetch notifications',
@@ -68,14 +68,14 @@ export async function getNotifications(
 				status: response.status,
 			};
 		}
-		
+
 		const data = await response.json();
-		
+
 		// Handle both array and object responses
-		const notifications = Array.isArray(data) 
-			? data 
+		const notifications = Array.isArray(data)
+			? data
 			: (data.notifications || []);
-		
+
 		console.log(`[Notifications API] Data parsed:`, {
 			notificationsCount: notifications.length,
 		});

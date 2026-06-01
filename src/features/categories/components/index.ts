@@ -4,7 +4,7 @@ export * from './store';
 export * from './product';
 export * from './department';
 // Export from shared, but exclude ProductCard to avoid conflict with product/ProductCard
-export { 
+export {
 	UnifiedProductCard,
 	MobileProductCard,
 	FilterSection,

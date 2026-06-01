@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ProfileDashboard } from "@/features/profile";
-import { STORAGE_KEYS, AUTH_ROUTES } from "@/features/auth/constants/auth.constants";
-import { LoginForm } from "@/features/auth";
+import { STORAGE_KEYS, AUTH_ROUTES } from "@/features/(actors)/auth/constants/auth.constants";
+import { LoginForm } from "@/features/(actors)/auth";
 
 export const metadata: Metadata = {
 	title: "الملف الشخصي | شلة فود",
@@ -74,11 +74,11 @@ export default async function ProfilePageRoute() {
 	const authToken = cookieStore.get("auth_token");
 	// Redirect to login if not authenticated
 	console.log("authToken", authToken?.value);
-	if ( !authToken?.value.trim()) {
+	if (!authToken?.value.trim()) {
 		return <LoginForm />;
 	}
-	else{
-		
+	else {
+
 		return <ProfileDashboard />;
 	}
 }

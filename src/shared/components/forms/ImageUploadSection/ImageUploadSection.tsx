@@ -1,5 +1,5 @@
 "use client";
-import { MEDIA_LIMITS } from "@/features/serve-me";
+import { MEDIA_LIMITS } from "@/features/(services)/serve-me";
 import { ImageIcon, Upload, X } from "lucide-react";
 import Image from "next/image";
 

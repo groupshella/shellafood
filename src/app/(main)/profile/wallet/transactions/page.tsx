@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { STORAGE_KEYS, AUTH_ROUTES, BASE_URL } from "@/features/auth/constants/auth.constants";
+import { STORAGE_KEYS, AUTH_ROUTES, BASE_URL } from "@/features/(actors)/auth/constants/auth.constants";
 import WalletTransactions from "@/features/profile/components/Wallet/Transactions";
 
 export const metadata: Metadata = {
@@ -65,9 +65,9 @@ export const metadata: Metadata = {
 
 async function getTransactionsData(token: string, limit: number, offset: number, type: string) {
 	try {
-		const apiUrl = 
-		`https://shellafood.com/api/v1/customer/wallet/transactions?limit=${limit}&offset=${offset}&type=${type}`;
-		
+		const apiUrl =
+			`https://shellafood.com/api/v1/customer/wallet/transactions?limit=${limit}&offset=${offset}&type=${type}`;
+
 		const response = await fetch(apiUrl, {
 			method: 'GET',
 			headers: {
@@ -78,7 +78,7 @@ async function getTransactionsData(token: string, limit: number, offset: number,
 		});
 
 		const data = await response.json();
-        console.log('data', data);
+		console.log('data', data);
 		return data;
 	} catch (error) {
 		console.log('[Wallet Transactions] Fetch Error:', error);
@@ -87,7 +87,7 @@ async function getTransactionsData(token: string, limit: number, offset: number,
 }
 
 interface PageProps {
-	searchParams: Promise<{ 
+	searchParams: Promise<{
 		page?: string;
 		type?: string;
 	}>;
@@ -106,16 +106,16 @@ export default async function WalletTransactionsPageRoute({ searchParams }: Page
 	const search = await searchParams;
 	const limit = 10;
 	const page = Math.max(1, Number(search.page) || 1);
-;
-	const type = search.type || 'all';  
+	;
+	const type = search.type || 'all';
 	// Fetch transactions data
 	const transactionsData = await getTransactionsData(authToken.value, limit, page, type);
-	
-	return <WalletTransactions 
-		initialTransactionsData={transactionsData} 
-		initialPage={page} 
-		initialLimit={limit} 
-		initialType={type} 
+
+	return <WalletTransactions
+		initialTransactionsData={transactionsData}
+		initialPage={page}
+		initialLimit={limit}
+		initialType={type}
 	/>;
 }
 

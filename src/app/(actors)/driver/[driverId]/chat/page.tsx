@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { DriverChatPage } from "@/features/driver";
+import { DriverChatPage } from "@/features/(actors)/driver";
 
 export async function generateMetadata({
 	params,

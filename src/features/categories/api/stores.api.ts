@@ -1,4 +1,4 @@
-import { DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
+import { DEFAULT_LANG } from "@/features/(actors)/auth/constants/auth.constants";
 import { Store, StoreList } from "../types/store.types";
 import { sessionCache } from "@/lib/cache/session-cache";
 import type { StoreDetails } from "../types/store.details.types";

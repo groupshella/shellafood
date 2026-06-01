@@ -23,9 +23,8 @@ import { useLanguage } from "@/providers";
 import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
 import { useToast } from "@/shared/components/ui";
 import HelpAndSupport from "./Support/HelpAndSupport";
-import { removeAuthToken, removeUser } from "@/features/auth/lib/utils/auth.utils";
+import { removeAuthToken, removeUser } from "@/features/(actors)/auth/lib/utils/auth.utils";
 import { useCartCount } from "@/shared/hooks/useCartCount";
-import FloatingCart from "@/features/home/components/FloatingCart";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -595,7 +594,6 @@ export default function NavBarCondition({ islogin }: { islogin: boolean }) {
 				)}
 			</AnimatePresence>
 
-			<FloatingCart cartCount={pathname.startsWith("/cart") ? 0 : cartCount} />
 		</>
 	);
 }

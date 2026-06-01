@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { STORAGE_KEYS, AUTH_ROUTES, BASE_URL } from "@/features/auth/constants/auth.constants";
-    import Transactions from "@/features/profile/components/KaidhaWallet/Transactions";  
+import { STORAGE_KEYS, AUTH_ROUTES, BASE_URL } from "@/features/(actors)/auth/constants/auth.constants";
+import Transactions from "@/features/profile/components/KaidhaWallet/Transactions";
 
 export const metadata: Metadata = {
 	title: "سجل المعاملات | محفظة قيدها | شلة فود",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
 async function getTransactionsData(token: string, limit: number, offset: number, type: string) {
 	try {
 		const apiUrl = `https://shellafood.com/api/qidha-wallet/transactions?limit=${limit}&offset=${offset}&type=${type}`;
-		
+
 		const response = await fetch(apiUrl, {
 			method: 'GET',
 			headers: {
@@ -79,7 +79,7 @@ async function getTransactionsData(token: string, limit: number, offset: number,
 		});
 
 		console.log('response', response);
-	
+
 
 		const data = await response.json();
 		console.log('data', data);
@@ -91,7 +91,7 @@ async function getTransactionsData(token: string, limit: number, offset: number,
 }
 
 interface PageProps {
-	searchParams: Promise<{ 
+	searchParams: Promise<{
 		page?: string;
 		type?: string;
 	}>;

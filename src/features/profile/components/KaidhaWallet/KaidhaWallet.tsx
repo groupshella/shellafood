@@ -18,8 +18,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { ContractModal } from "@/features/investor";
-import { BASE_URL, getBaseUrl } from "@/features/auth/constants/auth.constants";
+import { ContractModal } from "@/features/(actors)/investor";
+import { BASE_URL, getBaseUrl } from "@/features/(actors)/auth/constants/auth.constants";
 
 interface PersonalInfo {
 	first_name: string;
@@ -165,7 +165,7 @@ export default function KaidhaWallet({ walletData }: KaidhaWalletProps) {
 	};
 
 	const getSignatureStatus = (status: boolean) => {
-		return status 
+		return status
 			? { text: 'تم التوقيع', color: 'text-green-600 dark:text-green-400', icon: CheckCircle2 }
 			: { text: 'لم يتم التوقيع', color: 'text-yellow-600 dark:text-yellow-400', icon: Clock };
 	};
@@ -291,21 +291,20 @@ export default function KaidhaWallet({ walletData }: KaidhaWalletProps) {
 							initial={{ width: 0 }}
 							animate={{ width: `${Math.min(usedPercentage, 100)}%` }}
 							transition={{ duration: 1, ease: "easeOut" }}
-							className={`absolute top-0 right-0 h-full rounded-full ${
-								usedPercentage >= 90 
-									? 'bg-gradient-to-l from-red-500 to-red-600'
-									: usedPercentage >= 75
+							className={`absolute top-0 right-0 h-full rounded-full ${usedPercentage >= 90
+								? 'bg-gradient-to-l from-red-500 to-red-600'
+								: usedPercentage >= 75
 									? 'bg-gradient-to-l from-yellow-500 to-yellow-600'
 									: 'bg-gradient-to-l from-green-500 to-emerald-600'
-							}`}
+								}`}
 						></motion.div>
 					</div>
 					<p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-						{usedPercentage >= 90 
+						{usedPercentage >= 90
 							? '⚠️ استهلاك عالي - يرجى مراجعة استخدامك'
 							: usedPercentage >= 75
-							? '⚡ قريب من الحد الأقصى'
-							: '✅ استخدام طبيعي'
+								? '⚡ قريب من الحد الأقصى'
+								: '✅ استخدام طبيعي'
 						}
 					</p>
 				</motion.div>

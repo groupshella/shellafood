@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useLanguage } from '@/providers';
-import { getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { getBaseUrl } from '@/features/(actors)/auth/constants/auth.constants';
 
 interface AddToCartParams {
 	productId: string;
@@ -76,7 +76,7 @@ export function useCart() {
 			}
 
 			// ✅ Use API route as proxy
-			const response = await fetch(`${baseUrl}/api/cart`, {
+			const response = await fetch(`${baseUrl}/api/cart/add`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -141,8 +141,8 @@ export function useCart() {
 			}
 
 			// ✅ Use API route as proxy
-			const response = await fetch(`${baseUrl}/api/cart`, {
-				method: 'PT',
+			const response = await fetch(`${baseUrl}/api/cart/update`, {
+				method: 'Post',
 				headers: {
 					'Content-Type': 'application/json',
 					'Accept': 'application/json',
@@ -199,7 +199,7 @@ export function useCart() {
 
 			// ✅ Use API route as proxy
 			const response = await fetch(
-				`${baseUrl}/api/cart?cart_id=${cartId}&guest_id=${guestId}`,
+				`${baseUrl}/api/cart/remove-item?cart_id=${cartId}&guest_id=${guestId}`,
 				{
 					method: 'DELETE',
 					headers: {
@@ -253,7 +253,7 @@ export function useCart() {
 
 			// ✅ Use API route as proxy
 			const response = await fetch(
-				`${baseUrl}/api/cart/clear?guest_id=${guestId}`,
+				`${baseUrl}/api/cart/remove?guest_id=${guestId}`,
 				{
 					method: 'DELETE',
 					headers: {

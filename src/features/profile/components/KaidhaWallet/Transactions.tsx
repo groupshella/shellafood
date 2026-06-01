@@ -18,8 +18,8 @@ import { motion } from "framer-motion";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import useSWR from "swr";
 import Pagination from "@/features/categories/components/category-details/Pagination";
-import { getBaseUrl } from "@/features/auth/constants/auth.constants";
-import { getCookie } from "@/features/auth/lib/utils/cookie.utils";
+import { getBaseUrl } from "@/features/(actors)/auth/constants/auth.constants";
+import { getCookie } from "@/features/(actors)/auth/lib/utils/cookie.utils";
 
 interface TransactionMetadata {
 	store_name?: string;
@@ -108,7 +108,7 @@ export default function Transactions({
 
 	// Construct SWR key
 	const baseUrl = getBaseUrl();
-		const swrKey = `${baseUrl}/api/qidha-wallet/transactions?limit=${currentLimit}&offset=${currentOffset}&type=${currentType}`;
+	const swrKey = `${baseUrl}/api/qidha-wallet/transactions?limit=${currentLimit}&offset=${currentOffset}&type=${currentType}`;
 
 	// Use SWR for data fetching with initial data
 	const { data: transactionsData, error, isLoading, mutate } = useSWR<TransactionsData>(
@@ -205,7 +205,7 @@ export default function Transactions({
 		{ value: 'refund', label: 'مرتجع' },
 	];
 
-	if ( !transactionsData) {
+	if (!transactionsData) {
 		return (
 			<div className="min-h-screen bg-gradient-to-br from-gray-50 dark:from-gray-900 via-red-50/20 dark:via-red-900/10 to-white dark:to-gray-900 p-4 md:p-6 lg:p-8 flex items-center justify-center" dir="rtl">
 				<div className="text-center">
@@ -346,11 +346,10 @@ export default function Transactions({
 							<button
 								key={option.value}
 								onClick={() => handleTypeChange(option.value)}
-								className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all touch-manipulation ${
-									currentType === option.value
+								className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all touch-manipulation ${currentType === option.value
 										? 'bg-green-600 text-white shadow-lg'
 										: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-								}`}
+									}`}
 							>
 								{option.label}
 							</button>
@@ -399,11 +398,10 @@ export default function Transactions({
 														<h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-gray-100">
 															{typeConfig.label}
 														</h3>
-														<span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-															transaction.status === 'completed'
+														<span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${transaction.status === 'completed'
 																? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
 																: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-														}`}>
+															}`}>
 															{transaction.status === 'completed' ? 'مكتمل' : transaction.status}
 														</span>
 													</div>
@@ -427,11 +425,10 @@ export default function Transactions({
 												</div>
 											</div>
 											<div className="text-left flex-shrink-0">
-												<p className={`text-lg sm:text-xl font-bold ${
-													transaction.type === 'credit' || transaction.type === 'refund'
+												<p className={`text-lg sm:text-xl font-bold ${transaction.type === 'credit' || transaction.type === 'refund'
 														? 'text-green-600 dark:text-green-400'
 														: 'text-red-600 dark:text-red-400'
-												}`}>
+													}`}>
 													{transaction.type === 'credit' || transaction.type === 'refund' ? '+' : '-'}
 													{formatCurrency(transaction.amount)} ريال
 												</p>

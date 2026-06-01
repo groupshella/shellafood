@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { PartnerPage } from "@/features/partner";
+import { PartnerPage } from "@/features/(actors)/partner";
 
 // Metadata for SEO - Arabic
 export const metadata: Metadata = {
@@ -69,6 +69,6 @@ export const metadata: Metadata = {
 };
 
 export default function PartnerPageRoute() {
-	return <PartnerPage  />;
+	return <PartnerPage />;
 }
 

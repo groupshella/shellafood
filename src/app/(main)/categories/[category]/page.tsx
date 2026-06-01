@@ -1,7 +1,7 @@
 import CategoryView from '@/features/categories/components/category-details/CategoryView';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { DEFAULT_LANG, getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { DEFAULT_LANG, getBaseUrl } from '@/features/(actors)/auth/constants/auth.constants';
 import type { ApiCategory } from '@/features/categories/types/api-category.types';
 import type { StoreList } from '@/features/categories/types/store.types';
 import { cookies } from 'next/headers';

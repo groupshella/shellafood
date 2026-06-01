@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { AddressesPage } from "@/features/profile";
 import { cookies } from "next/headers";
-import { STORAGE_KEYS } from "@/features/auth/constants/auth.constants";
+import { STORAGE_KEYS } from "@/features/(actors)/auth/constants/auth.constants";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
 async function getAddressesData(token: string, limit: number, offset: number) {
 	try {
 		const apiUrl = `https://shellafood.com/api/v1/customer/address/list?limit=${limit}&offset=${offset}`;
-		
+
 		const response = await fetch(apiUrl, {
 			method: 'GET',
 			headers: {
@@ -93,15 +93,15 @@ async function getAddressesData(token: string, limit: number, offset: number) {
 
 
 export default async function AddressesPageRoute() {
-		// Check authentication
-		const cookieStore = await cookies();
-		const authToken = cookieStore.get(STORAGE_KEYS.TOKEN);
-	
-		if (!authToken || !authToken.value || authToken.value.trim() === '') {
-			redirect('/login');
-		}
-	
-		// Fetch wallet data
-		const addressesData = await getAddressesData(authToken.value, 10, 1);
-		return <AddressesPage initialAddressesData={addressesData} initialPage={1} initialLimit={10} token={authToken.value} /> 
+	// Check authentication
+	const cookieStore = await cookies();
+	const authToken = cookieStore.get(STORAGE_KEYS.TOKEN);
+
+	if (!authToken || !authToken.value || authToken.value.trim() === '') {
+		redirect('/login');
+	}
+
+	// Fetch wallet data
+	const addressesData = await getAddressesData(authToken.value, 10, 1);
+	return <AddressesPage initialAddressesData={addressesData} initialPage={1} initialLimit={10} token={authToken.value} />
 }

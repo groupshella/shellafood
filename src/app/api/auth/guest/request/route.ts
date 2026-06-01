@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { BASE_URL, DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { BASE_URL, DEFAULT_LANG } from '@/features/(actors)/auth/constants/auth.constants';
 
 export async function POST(request: NextRequest) {
 	try {

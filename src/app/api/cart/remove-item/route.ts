@@ -1,82 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { removeCartItem } from '@/features/cart';
 
 export async function DELETE(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const cartId = searchParams.get('cart_id');
-  const guestId = searchParams.get('guest_id');
-
-  if (!cartId || !guestId) {
-    return NextResponse.json(
-      { error: 'Cart ID and Guest ID required' },
-      { status: 400 }
-    );
-  }
-
   try {
-    // Get cookies
-    const cookieStore = await cookies();
-    const authToken = cookieStore.get('auth_token')?.value;
-    const moduleId = cookieStore.get('moduleId')?.value || searchParams.get('moduleId') || '3';
-    const zoneId = cookieStore.get('zoneId')?.value || searchParams.get('zoneId') || '2';
-    const locale = request.headers.get('x-localization') || DEFAULT_LANG;
-
-    const url = `https://shellafood.com/api/v1/customer/cart/remove-item?cart_id=${cartId}&guest_id=${guestId}`;
-
-    console.log('[Cart API Route] Removing item:', {
-      url,
-      cartId,
-      guestId,
-      moduleId,
-      zoneId,
-      locale,
-    });
-
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: {
-        'Accept': 'application/json',
-        'Host': 'shellafood.com',
-        'X-localization': locale,
-        'moduleId': moduleId,
-        'zoneId': `[${zoneId}]`, // Format as array string
-        ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[Cart API Route] Remove Error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText,
-      });
-
-      return NextResponse.json(
-        { 
-          error: `Failed to remove item: ${response.statusText}`,
-          details: errorText 
-        },
-        { status: response.status }
-      );
+    const cartId = request.nextUrl.searchParams.get('cart_id');
+    const guestId = request.nextUrl.searchParams.get('guest_id');
+    if (!cartId || !guestId) {
+      return NextResponse.json({ error: 'Cart ID and Guest ID required' }, { status: 400 });
     }
-
-    const data = await response.json().catch(() => ({ success: true }));
-
-    console.log('[Cart API Route] Remove Success');
-
+    const locale = request.headers.get('x-localization') || 'ar';
+    const data = await removeCartItem(cartId, guestId, locale);
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error('[Cart API Route] Caught error:', {
-      message: error?.message,
-      stack: error?.stack,
-      name: error?.name,
-    });
+    console.error('[Cart API Route] Remove Item Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error?.message },
+      { error: error?.message || 'Failed to remove item' },
       { status: 500 }
     );
   }
 }
-

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { BASE_URL, DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
-const API_URL =  'https://shellafood.com';
+import { BASE_URL, DEFAULT_LANG } from '@/features/(actors)/auth/constants/auth.constants';
+const API_URL = 'https://shellafood.com';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
     // Call external API
     const externalApiUrl = `https://shellafood.com/api/v1/auth/sign-up`;
-    
+
     const externalResponse = await fetch(externalApiUrl, {
       method: 'POST',
       headers: {
@@ -28,9 +28,11 @@ export async function POST(request: NextRequest) {
 
     const data = await externalResponse.json();
     if (!externalResponse.ok) {
-      return NextResponse.json({ success: false,
-        message: 
-        data.errors[0].code=="email" ? "البريد الإلكتروني مستخدم بالفعل" : data.errors[0].code=="phone" ? "رقم الهاتف مستخدم بالفعل" : data.errors[0].message }, 
+      return NextResponse.json({
+        success: false,
+        message:
+          data.errors[0].code == "email" ? "البريد الإلكتروني مستخدم بالفعل" : data.errors[0].code == "phone" ? "رقم الهاتف مستخدم بالفعل" : data.errors[0].message
+      },
         { status: externalResponse.status });
     }
     return NextResponse.json({ success: true, message: data.message || 'Registration successful', data: data }, { status: externalResponse.status });

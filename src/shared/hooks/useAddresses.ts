@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { getBaseUrl } from "@/features/auth/constants/auth.constants";
+import { getBaseUrl } from "@/features/(actors)/auth/constants/auth.constants";
 
 export interface Address {
 	id: number;

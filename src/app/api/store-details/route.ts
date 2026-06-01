@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCachedStoreDetails } from '@/features/categories/api/stores.api';
-import { DEFAULT_LANG } from '@/features/auth/constants/auth.constants';
+import { DEFAULT_LANG } from '@/features/(actors)/auth/constants/auth.constants';
 import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {

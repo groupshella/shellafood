@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { ChatInterface } from "@/features/worker";
+import { ChatInterface } from "@/features/(actors)/worker";
 
 
 

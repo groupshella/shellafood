@@ -1,5 +1,5 @@
 import CategoryStoresView from "@/features/categories/components/category-details/CategoryStoresView";
-import { getBaseUrl } from "@/features/auth/constants/auth.constants";
+import { getBaseUrl } from "@/features/(actors)/auth/constants/auth.constants";
 import type { ApiCategory } from "@/features/categories/types/api-category.types";
 import type { StoreList } from "@/features/categories/types/store.types";
 import { Metadata } from "next";

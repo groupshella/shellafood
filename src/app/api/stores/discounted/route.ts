@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { BASE_URL } from "@/features/auth/constants/auth.constants";
+import { BASE_URL } from "@/features/(actors)/auth/constants/auth.constants";
 
 const API_ROOT = `${BASE_URL}/api/v1`;
 

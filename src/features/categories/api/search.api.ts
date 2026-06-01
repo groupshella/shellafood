@@ -1,4 +1,4 @@
-import { BASE_URL, DEFAULT_LANG } from "@/features/auth/constants/auth.constants";
+import { BASE_URL, DEFAULT_LANG } from "@/features/(actors)/auth/constants/auth.constants";
 import { cache } from 'react';
 import { Item } from '../types/department.types';
 
@@ -69,34 +69,34 @@ export async function searchProducts(
 	try {
 		const cacheTag = `search-${name}-${limit}-${offset}-${moduleId}-${zoneId}-${lang}`;
 		const url = `${BASE_URL}/api/v1/items/search?name=${encodeURIComponent(name)}&limit=${limit}&offset=${offset}`;
-		
+
 		console.log(`[Search API] Requesting: ${url}`);
 		console.log(`[Search API] Cache config:`, {
 			revalidate: 300,
 			tags: [cacheTag],
 			lang,
 		});
-		
+
 		const fetchStartTime = Date.now();
-		
+
 		const response = await fetch(url, {
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json',
 				'X-localization': lang,
 				'moduleId': moduleId.toString(),
-				'zoneId':"[2]",
+				'zoneId': "[2]",
 				'X-Response-Mode': 'minimal',
 			},
 			cache: 'no-store',
 		});
-		
+
 		const fetchDuration = Date.now() - fetchStartTime;
-		
-		const cacheStatus = response.headers.get('x-vercel-cache') || 
-		                   response.headers.get('cache-control') || 
-		                   'unknown';
-		
+
+		const cacheStatus = response.headers.get('x-vercel-cache') ||
+			response.headers.get('cache-control') ||
+			'unknown';
+
 		console.log(`[Search API] Response received in ${fetchDuration}ms:`, {
 			status: response.status,
 			statusText: response.statusText,
@@ -115,9 +115,9 @@ export async function searchProducts(
 				status: response.status,
 			};
 		}
-		
+
 		const data = await response.json();
-		
+
 		console.log(`[Search API] Data parsed:`, {
 			totalSize: data.total_size,
 			productsCount: data.products?.length || 0,

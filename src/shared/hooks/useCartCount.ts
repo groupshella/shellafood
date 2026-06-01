@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getBaseUrl } from '@/features/auth/constants/auth.constants';
+import { getBaseUrl } from '@/features/(actors)/auth/constants/auth.constants';
 import { extractCartRowsForCount, sumCartLineQuantities } from '@/shared/lib/cartCountFromResponse';
 
 // Helper function to get cookie value
@@ -20,7 +20,7 @@ export function useCartCount() {
 	const fetchCartCount = useCallback(async () => {
 		try {
 			const guestId = getCookie('guest_id');
-			
+
 			if (!guestId) {
 				setCount(0);
 				setIsLoading(false);
@@ -62,7 +62,7 @@ export function useCartCount() {
 		};
 
 		window.addEventListener('cartUpdated', handleCartUpdate);
-		
+
 		return () => {
 			window.removeEventListener('cartUpdated', handleCartUpdate);
 		};

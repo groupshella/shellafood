@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { FavoritesPage } from "@/features/profile";
 import { cookies } from "next/headers";
-import { BASE_URL } from "@/features/auth/constants/auth.constants";
+import { BASE_URL } from "@/features/(actors)/auth/constants/auth.constants";
 
 export const metadata: Metadata = {
 	title: "المفضلة | شلة فود",
@@ -83,7 +83,7 @@ async function getWishListData(token: string) {
 			cache: 'no-store',
 		});
 
-	
+
 
 		const data = await response.json();
 		console.log(data);
@@ -97,13 +97,13 @@ async function getWishListData(token: string) {
 export default async function FavoritesPageRoute() {
 	const cookieStore = await cookies();
 	const authToken = cookieStore.get("auth_token");
-	
+
 	if (!authToken?.value) {
 		return <FavoritesPage initialProducts={[]} initialStores={[]} />;
 	}
 
 	const wishListData = await getWishListData(authToken.value);
-	
+
 	// Map API response to FavoriteProduct and FavoriteStore format
 	const items = wishListData?.item || wishListData?.data?.item || [];
 	const stores = wishListData?.store || wishListData?.data?.store || [];
