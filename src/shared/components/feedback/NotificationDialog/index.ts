@@ -1,2 +1,0 @@
-export { NotificationDialog } from "./NotificationDialog";
-
