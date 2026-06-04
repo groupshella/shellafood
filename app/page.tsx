@@ -1,9 +1,5 @@
-import OnboardingScreen from "../features/onboarding/components/OnboradingFirst";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-    return (
-        <div>
-            <OnboardingScreen />
-        </div>
-    );
+	redirect("/onboarding");
 }

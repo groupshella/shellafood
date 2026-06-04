@@ -21,9 +21,7 @@ export default async function RootLayout({
 			<body
 				className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
 			>
-				<main className="min-h-screen bg-white dark:bg-gray-900">
-					{children}
-				</main>
+				<main className="min-h-dvh">{children}</main>
 			</body>
 		</html>
 	);
