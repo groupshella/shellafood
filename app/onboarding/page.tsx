@@ -8,11 +8,11 @@ export default function OnboardingPage() {
 	const router = useRouter();
 
 	const handleComplete = useCallback(() => {
-		router.push("/login");
+		router.push("/auth");
 	}, [router]);
 
 	const handleSkip = useCallback(() => {
-		router.push("/login");
+		router.push("/auth");
 	}, [router]);
 
 	return <OnboardingScreens onComplete={handleComplete} onSkip={handleSkip} />;

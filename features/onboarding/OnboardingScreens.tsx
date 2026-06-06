@@ -15,7 +15,6 @@ import {
 	ChevronRight,
 	Pill,
 	Salad,
-	Settings2,
 	UtensilsCrossed,
 	type LucideIcon,
 } from "lucide-react";
@@ -77,10 +76,17 @@ const SHOPPING_CIRCLES: {
 // ─── Discount badges ──────────────────────────────────────────────────────────
 // Discount image is 240px wide, bottom-anchored → image top ≈ y=170.
 // Badges float above the image.
-const DISCOUNT_BADGES: { id: string; value: number; top: number; left: number; size: number }[] = [
-	{ id: "b50", value: 50, top: 14, left: 113, size: 72 },   // largest, top center
-	{ id: "b20", value: 20, top: 96, left: 4, size: 60 },     // left
-	{ id: "b30", value: 30, top: 82, left: 218, size: 60 },   // right
+const DISCOUNT_BADGES: {
+	id: string;
+	value: number;
+	top: number;
+	left: number;
+	size: number;
+	reversed?: boolean;
+}[] = [
+	{ id: "b50", value: 50, top: 14, left: 113, size: 72, reversed: true },
+	{ id: "b20", value: 20, top: 96, left: 4, size: 60 },
+	{ id: "b30", value: 30, top: 82, left: 218, size: 60 },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -108,20 +114,55 @@ function FadeIn({
 	);
 }
 
-// ─── Shared stage background gradient ────────────────────────────────────────
-function StageGradient() {
+// ─── Full-page background (gradient + blur) ───────────────────────────────────
+function OnboardingPageBackground() {
 	return (
 		<div
 			aria-hidden
-			className="pointer-events-none absolute inset-0"
-			style={{
-				background: `
-					radial-gradient(ellipse 65% 55% at 12% 0%,  rgba(147,197,253,0.70) 0%, transparent 65%),
-					radial-gradient(ellipse 55% 50% at 88% 2%,  rgba(216,180,254,0.60) 0%, transparent 65%),
-					radial-gradient(ellipse 55% 52% at 50% 32%, rgba(134,239,172,0.42) 0%, transparent 65%)
-				`,
-			}}
-		/>
+			className="pointer-events-none absolute inset-0 overflow-hidden"
+		>
+			{/* Base: white fade from mid-screen down */}
+			<div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/40 to-white" />
+
+			{/* Color mesh – top half of screen */}
+			<div
+				className="absolute inset-0"
+				style={{
+					background: `
+						radial-gradient(ellipse 80% 60% at 8% 0%,   rgba(147,197,253,0.75) 0%, transparent 70%),
+						radial-gradient(ellipse 70% 55% at 92% 0%,  rgba(216,180,254,0.65) 0%, transparent 70%),
+						radial-gradient(ellipse 75% 58% at 50% 18%, rgba(134,239,172,0.50) 0%, transparent 72%),
+						radial-gradient(ellipse 60% 45% at 20% 55%, rgba(254,215,170,0.35) 0%, transparent 70%)
+					`,
+				}}
+			/>
+
+			{/* Soft blur washes */}
+			<div
+				className="absolute -left-16 top-0 h-80 w-80 opacity-70"
+				style={{
+					background:
+						"linear-gradient(145deg, rgba(147,197,253,0.65) 0%, rgba(186,230,253,0.2) 55%, transparent 100%)",
+					filter: "blur(72px)",
+				}}
+			/>
+			<div
+				className="absolute -right-12 top-4 h-72 w-72 opacity-65"
+				style={{
+					background:
+						"linear-gradient(215deg, rgba(216,180,254,0.60) 0%, rgba(233,213,255,0.15) 55%, transparent 100%)",
+					filter: "blur(68px)",
+				}}
+			/>
+			<div
+				className="absolute left-1/4 top-24 h-64 w-96 opacity-55"
+				style={{
+					background:
+						"linear-gradient(180deg, rgba(134,239,172,0.45) 0%, rgba(187,247,208,0.12) 60%, transparent 100%)",
+					filter: "blur(80px)",
+				}}
+			/>
+		</div>
 	);
 }
 
@@ -133,7 +174,6 @@ function Stage({ children }: { children: ReactNode }) {
 				className="relative"
 				style={{ width: STAGE_W, height: STAGE_H, overflow: "visible" }}
 			>
-				<StageGradient />
 				{children}
 			</div>
 			{/* Figma divider: width 306, border 0.81px #213134 */}
@@ -233,26 +273,30 @@ function DiscountIllustration() {
 			{/* Discount badges – rendered above image */}
 			<div className="pointer-events-none absolute inset-0 z-20" aria-hidden>
 				{DISCOUNT_BADGES.map((b, i) => {
-					const iconSize = Math.round(b.size * 0.26);
+					const percentSize = Math.round(b.size * 0.22);
+					const valueSize = Math.round(b.size * 0.32);
+
 					return (
 						<FadeIn
 							key={b.id}
 							delay={0.3 + i * 0.1}
-							className="absolute flex flex-col items-center justify-center gap-0.5 rounded-full bg-[#47AF57] shadow-lg"
+							className={`absolute flex flex-col items-center justify-center gap-0.5 rounded-full shadow-lg ${
+								b.reversed ? "bg-white" : "bg-[#47AF57]"
+							}`}
 							style={{ width: b.size, height: b.size, top: b.top, left: b.left }}
 						>
-							<Settings2
-								size={iconSize}
-								className="text-white opacity-90"
-								strokeWidth={2}
-							/>
 							<span
-								className="font-bold leading-none text-white"
-								style={{ fontSize: Math.round(b.size * 0.28) }}
+								className={`font-bold leading-none ${b.reversed ? "text-[#47AF57]" : "text-white"}`}
+								style={{ fontSize: percentSize }}
+							>
+								%
+							</span>
+							<span
+								className={`font-bold leading-none ${b.reversed ? "text-[#47AF57]" : "text-white"}`}
+								style={{ fontSize: valueSize }}
 							>
 								{b.value}
 							</span>
-							<span className="text-[9px] font-semibold leading-none text-green-100">%</span>
 						</FadeIn>
 					);
 				})}
@@ -334,16 +378,18 @@ const OnboardingScreens = memo(function OnboardingScreens({
 
 	return (
 		<div
-			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col bg-white pb-10 pt-16`}
+			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col overflow-hidden pb-10 pt-16`}
 			dir="rtl"
 			lang="ar"
 		>
+			<OnboardingPageBackground />
+
 			{/* Skip – top RIGHT (visual right on any RTL/LTR screen) */}
 			{!isLast && (
 				<motion.button
 					type="button"
 					onClick={onSkip}
-					className="absolute top-6 right-6 z-20 rounded-full border border-gray-200 bg-white px-5 py-2 text-sm font-medium text-gray-600 shadow-sm"
+					className="absolute top-6 right-6 z-20 rounded-full border border-white/60 bg-white/70 px-5 py-2 text-sm font-medium text-gray-600 shadow-sm backdrop-blur-md"
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.15 }}
@@ -353,7 +399,7 @@ const OnboardingScreens = memo(function OnboardingScreens({
 				</motion.button>
 			)}
 
-			<div className="relative mx-auto flex w-full max-w-[390px] flex-1 flex-col px-6">
+			<div className="relative z-10 mx-auto flex w-full max-w-[390px] flex-1 flex-col px-6">
 				<AnimatePresence mode="wait" initial={false}>
 					<motion.div
 						key={current.id}
