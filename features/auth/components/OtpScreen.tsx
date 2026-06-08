@@ -2,39 +2,86 @@
 
 import { memo, useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import NumericKeypad from "./NumericKeypad";
+import type { SendOtpResponse } from "@/features/auth/types/auth.types";
 
 interface OtpScreenProps {
 	phone: string;
+	cooldownSeconds: number;
+	isLoading?: boolean;
+	error?: string | null;
 	onBack: () => void;
 	onVerify: (code: string) => void;
-	onResend: () => void;
+	onResend: () => Promise<SendOtpResponse | undefined>;
+	clearError: () => void;
 }
 
 function formatPhone(phone: string) {
-	let digits = phone.replace(/\D/g, "");
+	const digits = phone.replace(/\D/g, "");
 	const local = digits.slice(0, 9);
 	return `+966 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 9)}`;
 }
 
-const OtpScreen = memo(function OtpScreen({ phone, onBack, onVerify, onResend }: OtpScreenProps) {
+function formatTime(seconds: number) {
+	const minutes = Math.floor(seconds / 60);
+	const remainingSeconds = seconds % 60;
+	return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+}
+
+const OtpScreen = memo(function OtpScreen({
+	phone,
+	cooldownSeconds,
+	isLoading = false,
+	error,
+	clearError,
+	onBack,
+	onVerify,
+	onResend,
+}: OtpScreenProps) {
 	const [code, setCode] = useState("");
-	const [timer, setTimer] = useState(20);
+	const [timer, setTimer] = useState(cooldownSeconds);
+	const [isResending, setIsResending] = useState(false);
 
 	useEffect(() => {
 		if (timer <= 0) return;
 		const t = setInterval(() => setTimer((s) => s - 1), 1000);
 		return () => clearInterval(t);
 	}, [timer]);
+	useEffect(() => {
+		if (error) {
+			setCode("********");
+		}
+	}, [error]);
+	const handleClear = useCallback(() => {
+		if (error) {
+			clearError();
+			setCode("");
+		}
+
+	}, [error, clearError]);
 
 	const handleKeyPress = useCallback((key: string) => {
+		if (error) {
+			handleClear();
+			return;
+		}
 		setCode((prev) => (prev.length < 6 ? prev + key : prev));
 	}, []);
 
 	const handleBackspace = useCallback(() => {
 		setCode((prev) => prev.slice(0, -1));
 	}, []);
+
+	const handleResend = useCallback(async () => {
+		setIsResending(true);
+		try {
+			const data = await onResend() ?? { cooldown_seconds: 0 };
+			setTimer(data.cooldown_seconds);
+		} finally {
+			setIsResending(false);
+		}
+	}, [onResend]);
 
 	const formattedPhone = formatPhone(phone);
 
@@ -46,7 +93,8 @@ const OtpScreen = memo(function OtpScreen({ phone, onBack, onVerify, onResend }:
 					initial={{ opacity: 0, x: 10 }}
 					animate={{ opacity: 1, x: 0 }}
 					onClick={onBack}
-					className="absolute top-6 left-3 rounded-full p-2 transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+					disabled={isLoading}
+					className="absolute top-6 left-3 rounded-full p-2 transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-50"
 					aria-label="رجوع"
 				>
 					<ChevronLeft className="h-6 w-6 text-gray-700" />
@@ -73,6 +121,8 @@ const OtpScreen = memo(function OtpScreen({ phone, onBack, onVerify, onResend }:
 					</span>
 				</motion.p>
 
+
+
 				<motion.div
 					initial={{ y: 10, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
@@ -87,11 +137,14 @@ const OtpScreen = memo(function OtpScreen({ phone, onBack, onVerify, onResend }:
 							return (
 								<div
 									key={i}
+									onClick={() => handleClear()}
 									className={`flex h-14 w-12 items-center justify-center rounded-xl border-2 text-xl font-semibold transition-all duration-200 ${isActive
 										? "border-[#30913F] text-gray-900"
-										: isFilled
-											? "border-gray-400 text-gray-900"
-											: "border-gray-200 text-gray-900"
+										: error
+											? "border-red-500 text-red-500"
+											: isFilled
+												? "border-gray-400 text-gray-900"
+												: "border-gray-200 text-gray-900"
 										}`}
 								>
 									<AnimatePresence mode="popLayout">
@@ -119,10 +172,10 @@ const OtpScreen = memo(function OtpScreen({ phone, onBack, onVerify, onResend }:
 					transition={{ delay: 0.3 }}
 					whileTap={{ scale: 0.98 }}
 					onClick={() => onVerify(code)}
-					disabled={code.length !== 6}
-					className="mt-8 w-full disabled:cursor-not-allowed disabled:bg-gray-400 rounded-2xl bg-[#30913F] py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+					disabled={code.length !== 6 || isLoading}
+					className="mt-8 w-full rounded-2xl bg-[#30913F] py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
 				>
-					المتابعة
+					{isLoading ? "جاري التحقق..." : "المتابعة"}
 				</motion.button>
 
 				<motion.div
@@ -136,21 +189,19 @@ const OtpScreen = memo(function OtpScreen({ phone, onBack, onVerify, onResend }:
 							<span className="text-sm font-semibold text-gray-500">أرسل الرمز مرة أخرى</span>
 							{"  "}
 							<span className="font-medium text-gray-700">
-								00:{timer.toString().padStart(2, "0")}
+								{formatTime(timer)}
 							</span>
 						</p>
 					) : (
 						<button
 							type="button"
-							onClick={() => {
-								onResend();
-								setTimer(20);
-							}}
-							className="text-sm font-semibold text-[#30913F] transition-colors hover:text-[#2a8036]"
+							onClick={handleResend}
+							disabled={isResending}
+							className="text-sm font-semibold text-[#30913F] transition-colors hover:text-[#2a8036] disabled:opacity-50"
 						>
 							<span className="text-sm font-semibold text-gray-500">لم تستلم رمزاً؟</span>
 							{"  "}
-							إعادة الإرسال
+							{isResending ? "جاري الإرسال..." : "إعادة الإرسال"}
 						</button>
 					)}
 				</motion.div>

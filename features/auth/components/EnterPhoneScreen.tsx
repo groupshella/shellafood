@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 
 interface EnterPhoneScreenProps {
+	isLoading?: boolean;
+	error?: string | null;
 	onBack: () => void;
 	onContinue: (phone: string) => void;
 	onApple?: () => void;
@@ -43,6 +45,7 @@ const GoogleIcon = memo(function GoogleIcon() {
 });
 
 const EnterPhoneScreen = memo(function EnterPhoneScreen({
+	isLoading = false,
 	onBack,
 	onContinue,
 	onApple,
@@ -97,7 +100,7 @@ const EnterPhoneScreen = memo(function EnterPhoneScreen({
 								inputMode="numeric"
 								value={phone}
 								onChange={(e) =>
-									setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
+									setPhone(e.target.value.replace(/\D/g, "").slice(0, 9))
 								}
 								placeholder="00 000 0000"
 								className="flex-1 bg-transparent text-left text-lg text-gray-800 outline-none placeholder:text-gray-400"
@@ -109,6 +112,7 @@ const EnterPhoneScreen = memo(function EnterPhoneScreen({
 						<p className="mt-3 text-right text-sm leading-relaxed text-gray-500">
 							سوف نصلك رسالة نصية قصيرة تحتوي على رمز التفعيل إلى هاتفك
 						</p>
+
 					</div>
 				</motion.div>
 			</div>
@@ -121,10 +125,10 @@ const EnterPhoneScreen = memo(function EnterPhoneScreen({
 					transition={{ delay: 0.25 }}
 					whileTap={{ scale: 0.98 }}
 					onClick={handleSubmit}
-					disabled={phone.length < 9}
-					className="w-full rounded-2xl bg-[#30913F] py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+					disabled={phone.length !== 9 || isLoading}
+					className="w-full rounded-2xl bg-[#30913F] disabled:bg-[#30913F]/50 py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 				>
-					المتابعة
+					{isLoading ? "جاري الإرسال..." : "المتابعة"}
 				</motion.button>
 
 				<motion.div

@@ -33,9 +33,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "next.config.mgs",
+    "next.config.mjs",
     ".next/dev/types/**/*.ts"
-, "src/app/nafath-test/page.js", "src/features/categories/hooks"  ],
+  ],
   "exclude": [
     "node_modules"
   ]

@@ -6,6 +6,7 @@ import { Globe } from "lucide-react";
 import Image from "next/image";
 
 interface WelcomeScreenProps {
+	isLoading?: boolean;
 	onPhone: () => void;
 	onApple: () => void;
 	onGoogle: () => void;
@@ -58,6 +59,7 @@ const Logo = memo(function Logo() {
 });
 
 const WelcomeScreen = memo(function WelcomeScreen({
+	isLoading = false,
 	onPhone,
 	onApple,
 	onGoogle,
@@ -112,7 +114,8 @@ const WelcomeScreen = memo(function WelcomeScreen({
 					transition={{ delay: 0.35, duration: 0.4 }}
 					whileTap={{ scale: 0.98 }}
 					onClick={onPhone}
-					className="w-full rounded-2xl bg-[#30913F] py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+					disabled={isLoading}
+					className="w-full rounded-2xl bg-[#30913F] py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 				>
 					المتابعة برقم الهاتف
 				</motion.button>
@@ -159,7 +162,8 @@ const WelcomeScreen = memo(function WelcomeScreen({
 					transition={{ delay: 0.6, duration: 0.4 }}
 					whileTap={{ scale: 0.98 }}
 					onClick={onGuest}
-					className="w-full rounded-2xl bg-gray-100 py-4 text-base font-semibold text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2"
+					disabled={isLoading}
+					className="w-full rounded-2xl bg-gray-100 py-4 text-base font-semibold text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 				>
 					المتابعة كزائر
 				</motion.button>

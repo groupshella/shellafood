@@ -1,19 +1,11 @@
-"use client";
-
-import { useCallback } from "react";
-import { useRouter } from "next/navigation";
 import OnboardingScreens from "@/features/onboarding/OnboardingScreens";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "مرحباً بك | شلة فود",
+	description: "تعرّف على شلة فود واكتشف خدمات التوصيل والطلبات المتنوعة",
+};
 
 export default function OnboardingPage() {
-	const router = useRouter();
-
-	const handleComplete = useCallback(() => {
-		router.push("/auth");
-	}, [router]);
-
-	const handleSkip = useCallback(() => {
-		router.push("/auth");
-	}, [router]);
-
-	return <OnboardingScreens onComplete={handleComplete} onSkip={handleSkip} />;
+	return <OnboardingScreens />;
 }

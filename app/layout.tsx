@@ -1,4 +1,3 @@
-import { GeistMono, GeistSans } from "geist/font";
 import type { Metadata } from "next";
 import "./global.css";
 
@@ -19,7 +18,6 @@ export default async function RootLayout({
 	return (
 		<html lang="ar" dir="rtl" suppressHydrationWarning>
 			<body
-				className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
 			>
 				<main className="min-h-dvh">{children}</main>
 			</body>

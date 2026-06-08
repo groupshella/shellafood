@@ -9,6 +9,7 @@ import {
 	type ReactNode,
 } from "react";
 import Image from "next/image";
+
 import { AnimatePresence, motion } from "framer-motion";
 import {
 	Check,
@@ -19,6 +20,7 @@ import {
 	type LucideIcon,
 } from "lucide-react";
 import { Tajawal } from "next/font/google";
+import { useRouter } from "next/navigation";
 
 const tajawal = Tajawal({ subsets: ["arabic", "latin"], weight: ["500", "700"] });
 
@@ -65,13 +67,13 @@ const SHOPPING_CIRCLES: {
 	Icon: LucideIcon;
 	iconClass: string;
 }[] = [
-	// Medicine – white, top center, above bag handles
-	{ id: "medicine", top: 52, left: 118, size: 70, bg: "#FFFFFF", Icon: Pill, iconClass: "text-[#47AF57]" },
-	// Burger – green, left side
-	{ id: "burger", top: 170, left: 6, size: 58, bg: "#47AF57", Icon: UtensilsCrossed, iconClass: "text-white" },
-	// Salad – green, right side, slightly higher than burger
-	{ id: "salad", top: 142, left: 214, size: 62, bg: "#47AF57", Icon: Salad, iconClass: "text-white" },
-];
+		// Medicine – white, top center, above bag handles
+		{ id: "medicine", top: 52, left: 118, size: 70, bg: "#FFFFFF", Icon: Pill, iconClass: "text-[#47AF57]" },
+		// Burger – green, left side
+		{ id: "burger", top: 170, left: 6, size: 58, bg: "#47AF57", Icon: UtensilsCrossed, iconClass: "text-white" },
+		// Salad – green, right side, slightly higher than burger
+		{ id: "salad", top: 142, left: 214, size: 62, bg: "#47AF57", Icon: Salad, iconClass: "text-white" },
+	];
 
 // ─── Discount badges ──────────────────────────────────────────────────────────
 // Discount image is 240px wide, bottom-anchored → image top ≈ y=170.
@@ -84,10 +86,10 @@ const DISCOUNT_BADGES: {
 	size: number;
 	reversed?: boolean;
 }[] = [
-	{ id: "b50", value: 50, top: 14, left: 113, size: 72, reversed: true },
-	{ id: "b20", value: 20, top: 96, left: 4, size: 60 },
-	{ id: "b30", value: 30, top: 82, left: 218, size: 60 },
-];
+		{ id: "b50", value: 50, top: 14, left: 113, size: 72, reversed: true },
+		{ id: "b20", value: 20, top: 96, left: 4, size: 60 },
+		{ id: "b30", value: 30, top: 82, left: 218, size: 60 },
+	];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function FadeIn({
@@ -280,9 +282,8 @@ function DiscountIllustration() {
 						<FadeIn
 							key={b.id}
 							delay={0.3 + i * 0.1}
-							className={`absolute flex flex-col items-center justify-center gap-0.5 rounded-full shadow-lg ${
-								b.reversed ? "bg-white" : "bg-[#47AF57]"
-							}`}
+							className={`absolute flex flex-col items-center justify-center gap-0.5 rounded-full shadow-lg ${b.reversed ? "bg-white" : "bg-[#47AF57]"
+								}`}
 							style={{ width: b.size, height: b.size, top: b.top, left: b.left }}
 						>
 							<span
@@ -350,19 +351,11 @@ function StepIllustration({ stepId }: { stepId: StepId }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-interface OnboardingScreensProps {
-	onComplete: () => void;
-	onSkip: () => void;
-}
-
-const OnboardingScreens = memo(function OnboardingScreens({
-	onComplete,
-	onSkip,
-}: OnboardingScreensProps) {
+const OnboardingScreens = memo(function OnboardingScreens() {
 	const [step, setStep] = useState(0);
 	const isLast = step === STEPS.length - 1;
 	const current = STEPS[step];
-
+	const router = useRouter();
 	const progressOffset = useMemo(
 		() => CIRCUMFERENCE - ((step + 1) / STEPS.length) * CIRCUMFERENCE,
 		[step],
@@ -370,11 +363,11 @@ const OnboardingScreens = memo(function OnboardingScreens({
 
 	const handleAction = useCallback(() => {
 		if (isLast) {
-			onComplete();
+			router.replace("/auth");
 		} else {
 			setStep((prev) => prev + 1);
 		}
-	}, [isLast, onComplete]);
+	}, [isLast]);
 
 	return (
 		<div
@@ -388,7 +381,7 @@ const OnboardingScreens = memo(function OnboardingScreens({
 			{!isLast && (
 				<motion.button
 					type="button"
-					onClick={onSkip}
+					onClick={() => router.replace("/auth")}
 					className="absolute top-6 right-6 z-20 rounded-full border border-white/60 bg-white/70 px-5 py-2 text-sm font-medium text-gray-600 shadow-sm backdrop-blur-md"
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
@@ -485,9 +478,8 @@ const OnboardingScreens = memo(function OnboardingScreens({
 						{STEPS.map((s, idx) => (
 							<div
 								key={s.id}
-								className={`h-1.5 rounded-full transition-all duration-300 ${
-									idx === step ? "w-6 bg-[#30913F]" : "w-1.5 bg-gray-300"
-								}`}
+								className={`h-1.5 rounded-full transition-all duration-300 ${idx === step ? "w-6 bg-[#30913F]" : "w-1.5 bg-gray-300"
+									}`}
 							/>
 						))}
 					</div>

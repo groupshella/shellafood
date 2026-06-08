@@ -2,34 +2,45 @@
 
 import { memo, useCallback, useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 interface CreateAccountScreenProps {
+	phone: string;
+	isLoading?: boolean;
+	error?: string | null;
 	onBack: () => void;
 	onCreate: (data: {
-		username: string;
-		email: string;
-		phone: string;
-		agreed: boolean;
+		name: string;
+		email?: string;
 	}) => void;
 }
 
+function formatPhone(phone: string) {
+	const digits = phone.replace(/\D/g, "");
+	const local = digits.slice(0, 9);
+	return `${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 9)}`;
+}
+
 const CreateAccountScreen = memo(function CreateAccountScreen({
+	phone,
+	isLoading = false,
+	error,
 	onBack,
 	onCreate,
 }: CreateAccountScreenProps) {
-	const [username, setUsername] = useState("");
+	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
-	const [phone, setPhone] = useState("");
 	const [agreed, setAgreed] = useState(false);
 
 	const handleSubmit = useCallback(() => {
-		if (!username.trim() || !email.trim() || phone.length < 9 || !agreed) return;
-		onCreate({ username, email, phone, agreed });
-	}, [username, email, phone, agreed, onCreate]);
+		if (!name.trim() || !agreed) return;
+		onCreate({
+			name: name.trim(),
+			...(email.trim() && { email: email.trim() }),
+		});
+	}, [name, email, agreed, onCreate]);
 
-	const isValid =
-		username.trim().length > 0 && email.trim().length > 0 && phone.length >= 9 && agreed;
+	const isValid = name.trim().length > 0 && agreed;
 
 	return (
 		<div
@@ -42,7 +53,8 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 				initial={{ opacity: 0, x: 10 }}
 				animate={{ opacity: 1, x: 0 }}
 				onClick={onBack}
-				className="absolute top-6 left-3 rounded-full p-2 transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+				disabled={isLoading}
+				className="absolute top-6 left-3 rounded-full p-2 transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-50"
 				aria-label="رجوع"
 			>
 				<ChevronLeft className="h-6 w-6 text-gray-700" />
@@ -66,29 +78,32 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 				>
 					<div>
 						<label className="mb-2 block text-sm font-semibold text-gray-900">
-							اسم المستخدم
+							اسم المستخدم <span className="text-red-500">*</span>
 						</label>
 						<input
 							type="text"
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
+							value={name}
+							onChange={(e) => setName(e.target.value)}
 							placeholder="ادخل اسم المستخدم"
-							className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-right text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500"
+							disabled={isLoading}
+							className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-right text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-[#30913F] focus:ring-1 focus:ring-[#30913F] disabled:opacity-50"
 							aria-label="اسم المستخدم"
 						/>
 					</div>
 
 					<div>
 						<label className="mb-2 block text-sm font-semibold text-gray-900">
-							البريد الالكتروني
+							البريد الالكتروني <span className="text-gray-400">(اختياري)</span>
 						</label>
+
 						<input
 							type="email"
 							inputMode="email"
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 							placeholder="اكتب البريد الالكتروني"
-							className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-right text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500"
+							disabled={isLoading}
+							className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-right text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-[#30913F] focus:ring-1 focus:ring-[#30913F] disabled:opacity-50"
 							aria-label="البريد الالكتروني"
 						/>
 					</div>
@@ -97,22 +112,16 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 						<label className="mb-2 block text-sm font-semibold text-gray-900">
 							رقم الهاتف
 						</label>
-						<div className="flex items-center rounded-xl border border-gray-200 bg-white px-4 py-3.5 transition-all focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500">
-							<input
-								type="tel"
-								inputMode="numeric"
-								value={phone}
-								onChange={(e) =>
-									setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
-								}
-								placeholder="00 000 0000"
-								className="flex-1 bg-transparent text-left text-lg text-gray-900 outline-none placeholder:text-gray-400"
-								aria-label="رقم الهاتف"
-							/>
+						<div className="flex items-center rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5">
+							<span dir="ltr" className="flex-1 text-left text-lg text-gray-400">
+								{formatPhone(phone)}
+							</span>
 							<div className="mx-3 h-6 w-px bg-gray-300" />
 							<span className="text-lg font-medium text-gray-500">966+</span>
 						</div>
 					</div>
+
+
 
 					<motion.label
 						initial={{ opacity: 0 }}
@@ -124,7 +133,8 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 							type="checkbox"
 							checked={agreed}
 							onChange={(e) => setAgreed(e.target.checked)}
-							className="h-5 w-5 cursor-pointer rounded border-2 border-gray-300 bg-white text-[#30913F] transition-all focus:ring-2 focus:ring-green-500 focus:ring-offset-0"
+							disabled={isLoading}
+							className="h-5 w-5 cursor-pointer rounded border-2 border-gray-300 bg-white text-[#30913F] transition-all focus:ring-2 focus:ring-[#30913F] focus:ring-offset-0 disabled:opacity-50"
 						/>
 						<span className="text-sm text-gray-600">أوافق على الشروط وسياسة الخصوصية</span>
 					</motion.label>
@@ -139,10 +149,10 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 					transition={{ delay: 0.35 }}
 					whileTap={{ scale: 0.98 }}
 					onClick={handleSubmit}
-					disabled={!isValid}
+					disabled={!isValid || isLoading}
 					className="w-full rounded-2xl bg-[#30913F] disabled:bg-[#30913F]/50 py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 				>
-					إنشاء حساب
+					{isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
 				</motion.button>
 			</div>
 		</div>
