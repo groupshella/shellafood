@@ -16,5 +16,5 @@ export default async function MainPage() {
 	// 	redirect("/auth");
 	// }
 
-	redirect("/home");
+	redirect("/onboarding");
 }
