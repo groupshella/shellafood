@@ -165,7 +165,7 @@ const WelcomeScreen = memo(function WelcomeScreen({
 					disabled={isLoading}
 					className="w-full rounded-2xl bg-gray-100 py-4 text-base font-semibold text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 				>
-					المتابعة كزائر
+					{isLoading ? "جاري المتابعة..." : "المتابعة كزائر"}
 				</motion.button>
 			</div>
 		</div>
