@@ -3,6 +3,7 @@ import Topbar from "./Topbar";
 import Banners from "./Banners";
 import Modules from "./Modules";
 import DiscountedStores from "./DiscountedStores";
+import RecentOrders from "./RecentOrders";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
@@ -17,6 +18,7 @@ export default function HomePage() {
             <Banners />
             <Modules />
             <DiscountedStores />
+            <RecentOrders />
         </div>
     )
 }
