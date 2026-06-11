@@ -71,7 +71,7 @@ function ModuleCard({
 
     return (
         <Link
-            href={`/module/${module.id}`}
+            href={`/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`}
             className={[
                 "relative flex w-full overflow-hidden rounded-2xl outline-none",
                 "transition-transform duration-150 active:scale-[0.98]",
@@ -155,7 +155,7 @@ function ModuleRow({
     startIndex: number;
 }) {
     return (
-        <div className="grid grid-cols-2 gap-2.5" dir="ltr">
+        <div className="grid grid-cols-2 gap-2.5" >
             {modules.map((module, i) => (
                 <ModuleCard
                     key={module.id}
@@ -190,13 +190,10 @@ export default function Modules() {
 
     if (isLoading) return <ModulesSkeleton />;
     if (error) return null;
-
-    const active = modules.filter((m) => m.status === "1");
-    if (active.length === 0) return null;
-
-    const heroLeft = active.slice(0, 2);
-    const heroRight = active[2] ?? null;
-    const rows = chunkByTwo(active.slice(3));
+    if (modules.length === 0) return null;
+    const heroLeft = modules.slice(0, 2);
+    const heroRight = modules[2] ?? null;
+    const rows = chunkByTwo(modules.slice(3));
 
     return (
         <motion.section

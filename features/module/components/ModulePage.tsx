@@ -1,16 +1,22 @@
 "use client";
-import Topbar from "./Topbar";
-import Banners from "./Banners";
-import Modules from "./Modules";
-import DiscountedStores from "./DiscountedStores";
-import RecentOrders from "./RecentOrders";
+
+import ModuleTopbar from "./topbar";
+import Offers from "./Offers";
+import Categories from "./Categories";
+import Stores from "./Stores";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-export default function HomePage({ isAuthenticated }: { isAuthenticated: boolean }) {
+interface ModulePageProps {
+    moduleId: string;
+    moduleName: string;
+    isAuthenticated: boolean;
+}
+
+export default function ModulePage({ moduleId, moduleName, isAuthenticated }: ModulePageProps) {
     return (
-        <div className="flex flex-col min-h-screen gap-4">
-            <Topbar />
+        <div className="flex min-h-screen flex-col gap-4 pb-6">
+            <ModuleTopbar moduleId={moduleId} moduleName={moduleName} />
             {!isAuthenticated ? (
                 <Link href="/auth" className="flex items-center gap-2 px-2 py-1 font-bold bg-gray-100 rounded-lg w-fit ">
                     <p className="text-sm text-gray-700">انضم إلينا ، واستمتع بخدمات شلة</p>
@@ -22,10 +28,9 @@ export default function HomePage({ isAuthenticated }: { isAuthenticated: boolean
                     <ArrowLeft className="w-5 h-5 text-gray-700" strokeWidth={1.8} />
                 </Link>
             )}
-            <Banners />
-            <Modules />
-            <DiscountedStores />
-            <RecentOrders />
+            <Offers moduleId={moduleId} moduleName={moduleName} />
+            <Categories moduleId={moduleId} moduleName={moduleName} />
+            <Stores moduleId={moduleId} moduleName={moduleName} />
         </div>
-    )
+    );
 }

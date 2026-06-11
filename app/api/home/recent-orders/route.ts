@@ -4,9 +4,8 @@ import {
     GetRecentOrdersResponse,
 } from "@/features/home/types/recent-orders.types";
 import { apiError, apiSuccess } from "@/shared/lib/api-response";
-
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
-
+const REVALIDATE_TIME = Number(process.env.REVALIDATE_TIME);
 export async function GET() {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
@@ -23,7 +22,9 @@ export async function GET() {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
             },
-            cache: "no-store",
+            next: {
+                revalidate: REVALIDATE_TIME
+            },
         });
 
 
