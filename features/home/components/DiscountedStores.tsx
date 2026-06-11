@@ -145,8 +145,7 @@ export default function DiscountedStores() {
             aria-label="متاجر بخصومات"
             className="w-full space-y-3 px-1"
         >
-            <h2 className="text-2xl font-bold">عروض المتاجر</h2>
-
+            <h2 className="text-2xl font-bold">متاجر بخصومات</h2>
             <div
                 className={[
                     "flex gap-3 overflow-x-auto pb-1",
