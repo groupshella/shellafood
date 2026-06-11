@@ -1,0 +1,565 @@
+{
+  "info": {
+    "_postman_id": "6c1c5153-eb78-4eda-8a52-1fb9babd4d2f",
+    "name": "Shellafood API",
+    "description": "# Shellafood API\n\nDirect backend requests to `{{backend_url}}`, organized **by app screen** — each folder mirrors a page in the Next.js app and lists the APIs that power its UI sections.\n\n---\n\n## Quick start\n\n1. Import `shellafood-environment.json`\n2. Select environment **Shellafood - Backend**\n3. Set `module_id` to the module you are testing (e.g. `6` for restaurants, `3` for hypermarket)\n4. For authenticated endpoints, set `access_token` after login\n\n---\n\n## Screen map\n\n| Screen | Route | APIs in this collection |\n|--------|-------|-------------------------|\n| Home | `/home` | Banners, Modules, Discounted Stores, Recent Orders |\n| Module | `/modules/:id?module_name=…` | Offers, Categories, Stores |\n| Auth | `/auth` | Guest, Send OTP, Verify OTP, Register |\n\n---\n\n## Common headers\n\n| Header | Used by | Example |\n|--------|---------|---------|\n| `zoneId` | Most endpoints | `[2]` |\n| `moduleId` | Module-scoped data | `6` |\n| `latitude` / `longitude` | Stores, categories, discounted stores | `24.567752` / `46.5444937` |\n| `X-Localization` / `X-localization` | Arabic content | `ar` |\n| `Authorization` | Recent orders | `Bearer {{access_token}}` |\n\n---\n\nSee `postman/README.md` in the repo for the full screen → component → API reference.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54305504",
+    "_collection_link": "https://go.postman.co/collection/54305504-6c1c5153-eb78-4eda-8a52-1fb9babd4d2f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01 — Home Page",
+      "item": [
+        {
+          "name": "Banners — Promo carousel",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "description": "Required"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}",
+                "description": "Delivery zone — default [2]"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/banners?featured=1",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "banners"
+              ],
+              "query": [
+                {
+                  "key": "featured",
+                  "value": "1",
+                  "description": "Returns promotional module banners"
+                }
+              ]
+            },
+            "description": "Powers the home page banner carousel."
+          },
+          "response": []
+        },
+        {
+          "name": "Modules — Service grid",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "ar",
+                "description": "Arabic module names"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/module?zone_id={{zone_id}}",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "module"
+              ],
+              "query": [
+                {
+                  "key": "zone_id",
+                  "value": "{{zone_id}}"
+                }
+              ]
+            },
+            "description": "Powers the خدماتنا modules grid on the home page."
+          },
+          "response": []
+        },
+        {
+          "name": "Discounted Stores — Offers row",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "{{module_id}}"
+              },
+              {
+                "key": "latitude",
+                "value": "{{latitude}}"
+              },
+              {
+                "key": "longitude",
+                "value": "{{longitude}}"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/stores/discounted",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stores",
+                "discounted"
+              ]
+            },
+            "description": "Powers the عروض المتاجر section. Requires location headers for distance sorting."
+          },
+          "response": []
+        },
+        {
+          "name": "Recent Orders — Order history",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Required — customer access token"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/customer/order/recent",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customer",
+                "order",
+                "recent"
+              ]
+            },
+            "description": "Powers recent orders on home. Returns 401 without a valid token."
+          },
+          "response": []
+        }
+      ],
+      "description": "2. **Banners** — promotional carousel\n    \n3. **Modules** — service categories grid (خدماتنا)\n    \n4. **Discounted Stores** — horizontal store cards\n    \n5. **Recent Orders** — requires login (`access_token`)"
+    },
+    {
+      "name": "02 — Module Page",
+      "item": [
+        {
+          "name": "Offers — Module banners",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "{{module_id}}",
+                "description": "Must match /modules/:id"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/offers/active",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "offers",
+                "active"
+              ]
+            },
+            "description": "Powers the offers carousel on the module page."
+          },
+          "response": []
+        },
+        {
+          "name": "Categories — Horizontal scroll",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-localization",
+                "value": "ar"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "ar"
+              },
+              {
+                "key": "moduleId",
+                "value": "{{module_id}}"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              },
+              {
+                "key": "latitude",
+                "value": "{{latitude}}"
+              },
+              {
+                "key": "longitude",
+                "value": "{{longitude}}"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/categories",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "categories"
+              ]
+            },
+            "description": "Powers the categories row below offers on the module page."
+          },
+          "response": []
+        },
+        {
+          "name": "Stores — Store grid (paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "ar"
+              },
+              {
+                "key": "moduleId",
+                "value": "{{module_id}}"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              },
+              {
+                "key": "latitude",
+                "value": "{{latitude}}"
+              },
+              {
+                "key": "longitude",
+                "value": "{{longitude}}"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/stores/get-stores?limit={{limit}}&offset={{offset}}",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stores",
+                "get-stores"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "description": "Page size — default 12"
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "description": "Skip count — 0, 12, 24…"
+                }
+              ]
+            },
+            "description": "Powers the store grid at the bottom of the module page."
+          },
+          "response": []
+        }
+      ],
+      "description": "1. **Offers** — banner carousel for active module offers\n    \n2. **Categories** — horizontal category cards\n    \n3. **Stores** — paginated store grid with load more"
+    },
+    {
+      "name": "03 — Auth Flow",
+      "item": [
+        {
+          "name": "1. Guest Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/auth/guest/request",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "guest",
+                "request"
+              ]
+            },
+            "description": "Step 1 (optional) — create guest session."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/auth/send-otp",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "auth",
+                "send-otp"
+              ]
+            },
+            "description": "Step 2 — send OTP to phone."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Verify OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let responseJson;",
+                  "",
+                  "pm.test('Response is valid JSON', function () {",
+                  "    responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.be.an('object');",
+                  "});",
+                  "",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    pm.test('Successful response contains token or registration_token', function () {",
+                  "        pm.expect(responseJson).to.be.an('object');",
+                  "        pm.expect(responseJson.token || responseJson.registration_token).to.exist;",
+                  "    });",
+                  "",
+                  "    if (responseJson && responseJson.token) {",
+                  "        pm.collectionVariables.set('token', responseJson.token);",
+                  "    }",
+                  "",
+                  "    if (responseJson && responseJson.registration_token) {",
+                  "        pm.collectionVariables.set('registration_token', responseJson.registration_token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"otp\": \"{{otp}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/auth/verify-otp",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "auth",
+                "verify-otp"
+              ]
+            },
+            "description": "Step 3 — verify OTP and get token."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"phone\": \"{{phone}}\",\n  \"registration_token\": \"{{registration_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/auth/register",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Step 4 — register new user (skip if existing user got token in step 3)."
+          },
+          "response": []
+        }
+      ],
+      "description": "1. **Guest Request** — optional anonymous session\n    \n2. **Send OTP** — sends code to `{{phone}}`\n    \n3. **Verify OTP** — returns token or `registration_token` for new users\n    \n4. **Register** — completes sign-up for new users"
+    }
+  ],
+  "variable": [
+    {
+      "key": "backend_url",
+      "value": "https://shellafood.com"
+    },
+    {
+      "key": "zone_id",
+      "value": "[2]"
+    },
+    {
+      "key": "module_id",
+      "value": "6"
+    },
+    {
+      "key": "latitude",
+      "value": "24.567752"
+    },
+    {
+      "key": "longitude",
+      "value": "46.5444937"
+    },
+    {
+      "key": "limit",
+      "value": "12"
+    },
+    {
+      "key": "offset",
+      "value": "0"
+    },
+    {
+      "key": "phone",
+      "value": "966512345678"
+    },
+    {
+      "key": "otp",
+      "value": "000000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
