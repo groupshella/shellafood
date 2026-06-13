@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "bdee566b-4c5f-4442-91a5-cccfa83b2ed8",
     "name": "Shellafood API",
-    "description": "# Shellafood API\n\nDirect backend requests to `{{backend_url}}`, organized **by app screen** — each folder mirrors a page in the Next.js app and lists the APIs that power its UI sections.\n\n---\n\n## Quick start\n\n1. Import `shellafood-environment.json`\n2. Select environment **Shellafood - Backend**\n3. Set `module_id` to the module you are testing (e.g. `6` for restaurants, `3` for hypermarket)\n4. For authenticated endpoints, set `access_token` after login\n\n---\n\n## Screen map\n\n| Screen | Route | APIs in this collection |\n|--------|-------|-------------------------|\n| Home | `/home` | Banners, Modules, Discounted Stores, Recent Orders |\n| Module | `/modules/:id?module_name=…` | Offers, Categories, Stores |\n| Auth | `/auth` | Guest, Send OTP, Verify OTP, Register |\n\n---\n\n## Common headers\n\n| Header | Used by | Example |\n|--------|---------|---------|\n| `zoneId` | Most endpoints | `[2]` |\n| `moduleId` | Module-scoped data | `6` |\n| `latitude` / `longitude` | Stores, categories, discounted stores | `24.567752` / `46.5444937` |\n| `X-Localization` / `X-localization` | Arabic content | `ar` |\n| `Authorization` | Recent orders | `Bearer {{access_token}}` |\n\n---\n\nSee `postman/README.md` in the repo for the full screen → component → API reference.",
+    "description": "# Shellafood API\n\nDirect backend requests to `{{backend_url}}`, organized **by app screen** — each folder mirrors a page in the Next.js app and lists the APIs that power its UI sections.\n\n---\n\n## Quick start\n\n1. Import `shellafood-environment.json`\n2. Select environment **Shellafood - Backend**\n3. Set `module_id` to the module you are testing (e.g. `6` for restaurants, `3` for hypermarket)\n4. For authenticated endpoints, set `access_token` after login\n\n---\n\n## Screen map\n\n| Screen | Route | APIs in this collection |\n|--------|-------|-------------------------|\n| Home | `/home` | Banners, Modules, Discounted Stores, Recent Orders |\n| Module | `/modules/:id?module_name=…` | Offers, Categories, Brands, Stores |\n| Auth | `/auth` | Guest, Send OTP, Verify OTP, Register |\n\n---\n\n## Common headers\n\n| Header | Used by | Example |\n|--------|---------|---------|\n| `zoneId` | Most endpoints | `[2]` |\n| `moduleId` | Module-scoped data | `6` |\n| `latitude` / `longitude` | Stores, categories, discounted stores | `24.567752` / `46.5444937` |\n| `X-Localization` / `X-localization` | Arabic content | `ar` |\n| `Authorization` | Recent orders | `Bearer {{access_token}}` |\n\n---\n\nSee `postman/README.md` in the repo for the full screen → component → API reference.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "54305504",
     "_collection_link": "https://go.postman.co/collection/54305504-bdee566b-4c5f-4442-91a5-cccfa83b2ed8?source=collection_link"
@@ -268,6 +268,41 @@
           "response": []
         },
         {
+          "name": "Brands — Popular brands grid",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "ar",
+                "description": "Arabic brand names"
+              },
+              {
+                "key": "moduleId",
+                "value": "{{module_id}}",
+                "description": "Must match /modules/:id"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/brand",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "brand"
+              ]
+            },
+            "description": "Powers the أشهر العلامات التجارية section — horizontal scroll with 2 brands per column."
+          },
+          "response": []
+        },
+        {
           "name": "Stores — Store grid (paginated)",
           "request": {
             "method": "GET",
@@ -326,7 +361,7 @@
           "response": []
         }
       ],
-      "description": "1. **Offers** — banner carousel for active module offers\n    \n2. **Categories** — horizontal category cards\n    \n3. **Stores** — paginated store grid with load more"
+      "description": "1. **Offers** — banner carousel for active module offers\n    \n2. **Categories** — horizontal category cards\n    \n3. **Brands** — popular brands grid (أشهر العلامات التجارية)\n    \n4. **Stores** — paginated store grid with load more"
     },
     {
       "name": "03 — Auth Flow",
