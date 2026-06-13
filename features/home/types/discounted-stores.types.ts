@@ -1,17 +1,3 @@
-// ── Get Discounted Stores ─────────────────────────────────────────────────────
-
-export interface Discount {
-    id: number;
-    start_date: string;
-    end_date: string;
-    start_time: string;
-    end_time: string;
-    min_purchase: number;
-    max_discount: number;
-    discount: number;
-    discount_type: "percent" | "amount" | string;
-    store_id: number;
-}
 
 export interface DiscountedStore {
     id: number;
@@ -22,12 +8,9 @@ export interface DiscountedStore {
     avg_rating: number;
     rating_count: number;
     delivery_time: string;
-    minimum_order: number;
     free_delivery: boolean;
     discount_status: boolean;
-    discount: Discount | null;
-    open: number | boolean;
-    distance?: number;
+    is_open: boolean;
 }
 
 export interface GetDiscountedStoresResponse {

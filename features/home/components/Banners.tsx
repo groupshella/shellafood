@@ -123,7 +123,6 @@ export default function Banners() {
             // KEY FIX: overflow-hidden on the section clips the swiper correctly so
             // swiping never scrolls the whole page or bleeds outside this container.
             className="mx-auto w-full max-w-5xl overflow-hidden "
-            aria-label="العروض الترويجية"
         >
             {canLoop ? (
                 <Swiper

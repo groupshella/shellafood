@@ -10,22 +10,14 @@ import { DiscountedStore } from "@/features/home/types/discounted-stores.types";
 
 function formatDiscount(store: DiscountedStore): string | null {
     if (!store.discount_status) return null;
-
-    const { discount } = store;
-    if (!discount) return "عرض خاص";
-
-    if (discount.discount_type === "percent") {
-        return `خصم ${discount.discount}%`;
-    }
-
-    return `خصم ${discount.discount} ر.س`;
+    return "عرض خاص";
 }
 
 function StoreCard({ store }: { store: DiscountedStore }) {
     const [coverError, setCoverError] = useState(false);
     const [logoError, setLogoError] = useState(false);
     const discountLabel = formatDiscount(store);
-    const isOpen = store.open === 1 || store.open === true;
+    const isOpen = store.is_open;
 
     return (
         <Link
@@ -145,7 +137,7 @@ export default function DiscountedStores() {
             aria-label="متاجر بخصومات"
             className="w-full space-y-3 px-1"
         >
-            <h2 className="text-2xl font-bold">متاجر بخصومات</h2>
+            <h2 className="text-xl font-bold">متاجر بخصومات</h2>
             <div
                 className={[
                     "flex gap-3 overflow-x-auto pb-1",

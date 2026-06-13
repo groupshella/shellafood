@@ -171,7 +171,7 @@ function ModuleRow({
 
 function ModulesSkeleton() {
     return (
-        <div className=" w-fullspace-y-2.5 ">
+        <div className="w-full space-y-2.5">
             <div className="grid h-[168px] grid-cols-2 grid-rows-2 gap-2.5" dir="ltr">
                 <div className="animate-pulse rounded-2xl bg-gray-100" />
                 <div className="animate-pulse rounded-2xl bg-gray-100" />
@@ -203,7 +203,7 @@ export default function Modules() {
             aria-label="الأقسام"
             className=" w-full  space-y-2.5 px-1 "
         >
-            <h2 className="text-2xl font-bold">خدماتنا</h2>
+            <h2 className="text-xl  font-bold">خدماتنا</h2>
             <HeroGrid left={heroLeft} right={heroRight} startIndex={0} />
 
             {rows.map((row, rowIndex) => (
