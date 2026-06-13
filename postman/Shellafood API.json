@@ -1,11 +1,11 @@
 {
   "info": {
-    "_postman_id": "6c1c5153-eb78-4eda-8a52-1fb9babd4d2f",
+    "_postman_id": "bdee566b-4c5f-4442-91a5-cccfa83b2ed8",
     "name": "Shellafood API",
     "description": "# Shellafood API\n\nDirect backend requests to `{{backend_url}}`, organized **by app screen** — each folder mirrors a page in the Next.js app and lists the APIs that power its UI sections.\n\n---\n\n## Quick start\n\n1. Import `shellafood-environment.json`\n2. Select environment **Shellafood - Backend**\n3. Set `module_id` to the module you are testing (e.g. `6` for restaurants, `3` for hypermarket)\n4. For authenticated endpoints, set `access_token` after login\n\n---\n\n## Screen map\n\n| Screen | Route | APIs in this collection |\n|--------|-------|-------------------------|\n| Home | `/home` | Banners, Modules, Discounted Stores, Recent Orders |\n| Module | `/modules/:id?module_name=…` | Offers, Categories, Stores |\n| Auth | `/auth` | Guest, Send OTP, Verify OTP, Register |\n\n---\n\n## Common headers\n\n| Header | Used by | Example |\n|--------|---------|---------|\n| `zoneId` | Most endpoints | `[2]` |\n| `moduleId` | Module-scoped data | `6` |\n| `latitude` / `longitude` | Stores, categories, discounted stores | `24.567752` / `46.5444937` |\n| `X-Localization` / `X-localization` | Arabic content | `ar` |\n| `Authorization` | Recent orders | `Bearer {{access_token}}` |\n\n---\n\nSee `postman/README.md` in the repo for the full screen → component → API reference.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "54305504",
-    "_collection_link": "https://go.postman.co/collection/54305504-6c1c5153-eb78-4eda-8a52-1fb9babd4d2f?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/54305504-bdee566b-4c5f-4442-91a5-cccfa83b2ed8?source=collection_link"
   },
   "item": [
     {
@@ -65,14 +65,14 @@
               }
             ],
             "url": {
-              "raw": "{{backend_url}}/api/v1/module?zone_id={{zone_id}}",
+              "raw": "{{backend_url}}/api/v2/modules?zone_id={{zone_id}}",
               "host": [
                 "{{backend_url}}"
               ],
               "path": [
                 "api",
-                "v1",
-                "module"
+                "v2",
+                "modules"
               ],
               "query": [
                 {
@@ -103,10 +103,6 @@
                 "value": "{{zone_id}}"
               },
               {
-                "key": "moduleId",
-                "value": "{{module_id}}"
-              },
-              {
                 "key": "latitude",
                 "value": "{{latitude}}"
               },
@@ -116,13 +112,13 @@
               }
             ],
             "url": {
-              "raw": "{{backend_url}}/api/v1/stores/discounted",
+              "raw": "{{backend_url}}/api/v2/stores/discounted",
               "host": [
                 "{{backend_url}}"
               ],
               "path": [
                 "api",
-                "v1",
+                "v2",
                 "stores",
                 "discounted"
               ]
@@ -531,7 +527,7 @@
     },
     {
       "key": "module_id",
-      "value": "3"
+      "value": "6"
     },
     {
       "key": "latitude",
@@ -551,11 +547,11 @@
     },
     {
       "key": "phone",
-      "value": "966512345678"
+      "value": ""
     },
     {
       "key": "otp",
-      "value": "000000"
+      "value": ""
     },
     {
       "key": "token",
