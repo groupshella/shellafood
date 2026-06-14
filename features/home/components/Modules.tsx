@@ -201,9 +201,9 @@ export default function Modules() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.1 }}
             aria-label="الأقسام"
-            className=" w-full  space-y-2.5 px-1 "
+            className="mx-auto w-full max-w-5xl space-y-3 px-4"
         >
-            <h2 className="text-xl  font-bold">خدماتنا</h2>
+            <h2 className="text-lg font-bold text-gray-800">خدماتنا</h2>
             <HeroGrid left={heroLeft} right={heroRight} startIndex={0} />
 
             {rows.map((row, rowIndex) => (
