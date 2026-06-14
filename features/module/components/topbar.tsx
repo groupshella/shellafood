@@ -6,9 +6,10 @@ import { ArrowRight, Search } from "lucide-react";
 
 interface ModuleTopbarProps {
     moduleName: string;
+    moduleId: string;
 }
 
-export default function ModuleTopbar({ moduleName }: ModuleTopbarProps) {
+export default function ModuleTopbar({ moduleName, moduleId }: ModuleTopbarProps) {
     return (
         <motion.header
             initial={{ opacity: 0, y: -12 }}
@@ -34,11 +35,13 @@ export default function ModuleTopbar({ moduleName }: ModuleTopbarProps) {
                     <h1 className="max-w-[70%] truncate px-12 text-center text-base font-bold text-gray-900 sm:max-w-[60%] sm:text-lg">
                         {moduleName}
                     </h1>
-                    <Search
-                        className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-400"
-                        strokeWidth={2}
-                        aria-hidden
-                    />
+                    <Link
+                        href={`/search?module_id=${moduleId}`}
+                        className="absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-400"
+                    >
+                        <Search className="h-5 w-5" strokeWidth={2} />
+                    </Link>
+
                 </div>
 
 

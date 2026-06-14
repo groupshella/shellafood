@@ -169,9 +169,9 @@ export default function Stores({ moduleId, moduleName }: StoresProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.15 }}
             aria-label="المتاجر"
-            className="mx-auto w-full max-w-5xl space-y-4 px-4 sm:px-6"
+            className="mx-auto w-full max-w-5xl space-y-3 px-4"
         >
-            <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
+            <h2 className="text-lg font-bold text-gray-800">
                 المتاجر القريبة منك
             </h2>
 
