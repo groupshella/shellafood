@@ -1,4 +1,4 @@
-
+// /api/home/banners
 import {
     GetBannersResponse,
 } from "@/features/home/types/banners.types";
@@ -13,7 +13,7 @@ export async function GET() {
             method: "GET",
             headers: {
                 Accept: "application/json",
-                zoneId: JSON.stringify(ZONE_ID),
+                zoneId: ZONE_ID!,
             },
             next: { revalidate: Number(REVALIDATE_TIME) }
         });

@@ -135,9 +135,9 @@ export default function DiscountedStores() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.15 }}
             aria-label="متاجر بخصومات"
-            className="w-full space-y-3 px-1"
+            className="mx-auto w-full max-w-5xl space-y-3 px-4"
         >
-            <h2 className="text-xl font-bold">متاجر بخصومات</h2>
+            <h2 className="text-lg font-bold text-gray-800">متاجر بخصومات</h2>
             <div
                 className={[
                     "flex gap-3 overflow-x-auto pb-1",
