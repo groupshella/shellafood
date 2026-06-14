@@ -485,7 +485,7 @@
     },
     {
       "name": "02 — Module Page",
-      "description": "All API calls that power a Module screen (`/modules/:id`).\n\n**Sections on this screen:**\n- Offers banner carousel\n- Categories horizontal scroll\n- Popular brands grid (أشهر العلامات التجارية)\n- Paginated store grid\n\n**Important:** All requests in this folder require the `moduleId` header. Set `{{module_id}}` in your environment before running.\n\n**Module IDs:**\n- `3` — Hypermarket\n- `6` — Restaurants\n- `8` — Pharmacy",
+      "description": "All API calls that power a Module screen (`/modules/:id`).\n\n**Sections on this screen:**\n- Offers banner carousel\n- Current offers row (العروض الحالية)\n- Recent orders (الطلبات السابقة — requires login)\n- Popular brands grid (أشهر العلامات التجارية)\n- Categories horizontal scroll\n- Paginated store grid\n\n**Important:** All requests in this folder require the `moduleId` header. Set `{{module_id}}` in your environment before running.\n\n**Module IDs:**\n- `3` — Hypermarket\n- `6` — Restaurants\n- `8` — Pharmacy",
       "item": [
         {
           "name": "Offers — Module Banner Carousel",
@@ -538,6 +538,199 @@
                   "    const json = pm.response.json();",
                   "    pm.expect(json).to.be.an('array');",
                   "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Current Offers — Module Offers Row",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}",
+                "description": "Required"
+              },
+              {
+                "key": "latitude",
+                "value": "{{latitude}}",
+                "description": "Required for distance sorting"
+              },
+              {
+                "key": "longitude",
+                "value": "{{longitude}}",
+                "description": "Required for distance sorting"
+              },
+              {
+                "key": "moduleId",
+                "value": "{{module_id}}",
+                "description": "Required — scopes offers to this module"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/stores/offers?limit=10&offset=0",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "stores",
+                "offers"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of offers to return"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Pagination offset (0-based)"
+                }
+              ]
+            },
+            "description": "Powers the **العروض الحالية** (Current Offers) horizontal row on the Module screen.\n\n**Scope:** Results are filtered to the module specified in the `moduleId` header.\n\n**Returns:** Paginated list of stores with active offers. Each item includes:\n- `store_id` — store ID\n- `store_name` — localized store name\n- `store_logo_full_url` — full logo URL\n- `offer_title` — offer title\n- `image_full_url` — offer image full URL\n- `original_price` — original price (float)\n- `discounted_price` — price after discount (float)\n- `discount_amount` — discount value (float)\n- `discount_type` — `percent` or `amount`\n- `module_id` — which module this offer belongs to\n\n**Difference from Home:** Same endpoint as Home → Current Offers, but `moduleId` header is **required** here to scope results to the active module page."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has offers array and total_size', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('offers');",
+                  "    pm.expect(json).to.have.property('total_size');",
+                  "    pm.expect(json.offers).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each offer has required fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.offers && json.offers.length > 0) {",
+                  "        const offer = json.offers[0];",
+                  "        pm.expect(offer).to.have.property('store_name');",
+                  "        pm.expect(offer).to.have.property('store_logo_full_url');",
+                  "        pm.expect(offer).to.have.property('image_full_url');",
+                  "        pm.expect(offer).to.have.property('original_price');",
+                  "        pm.expect(offer).to.have.property('discounted_price');",
+                  "        pm.expect(offer).to.have.property('discount_type');",
+                  "        pm.expect(offer).to.have.property('module_id');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('All offers belong to requested module', function () {",
+                  "    const json = pm.response.json();",
+                  "    const requestedModuleId = parseInt(pm.collectionVariables.get('module_id'));",
+                  "    if (json.offers && json.offers.length > 0 && json.offers[0].module_id) {",
+                  "        json.offers.forEach(function(offer) {",
+                  "            pm.expect(offer.module_id).to.equal(requestedModuleId);",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Recent Orders — Module Order History",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Required — run Auth Flow first to get token"
+              },
+              {
+                "key": "moduleId",
+                "value": "{{module_id}}",
+                "description": "Required — scopes recent orders to this module"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/customer/order/recent",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customer",
+                "order",
+                "recent"
+              ]
+            },
+            "description": "Powers the **الطلبات السابقة** (Recent Orders) horizontal row on the Module screen.\n\n**Authentication:** Requires a valid Bearer token. Run the Auth Flow folder first to obtain one — the token is auto-saved to `{{token}}`.\n\n**Scope:** Pass `moduleId` header to return only orders from stores in the active module.\n\n**Returns:**\n```json\n{\n  \"status\": true,\n  \"message\": \"Recent orders retrieved successfully\",\n  \"orders\": [\n    {\n      \"id\": 123,\n      \"store_name\": \"أسواق التميمي\",\n      \"store_logo\": \"https://...\",\n      \"order_type\": \"delivery\",\n      \"order_status\": \"delivered\",\n      \"order_date\": \"2026-06-10T12:00:00.000000Z\",\n      \"module_name\": \"هايبرماركت\",\n      \"module_logo\": \"https://...\"\n    }\n  ]\n}\n```\n\n**Returns:** `401 Unauthorized` if no valid token is provided.\n\n**Difference from Home:** Same endpoint as Home → Recent Orders, but `moduleId` header is **required** here to scope results to the active module page."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Response has status and orders array', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.have.property('status', true);",
+                  "        pm.expect(json).to.have.property('orders');",
+                  "        pm.expect(json.orders).to.be.an('array');",
+                  "    });",
+                  "",
+                  "    pm.test('Each order has required display fields', function () {",
+                  "        const json = pm.response.json();",
+                  "        if (json.orders && json.orders.length > 0) {",
+                  "            const order = json.orders[0];",
+                  "            pm.expect(order).to.have.property('id');",
+                  "            pm.expect(order).to.have.property('store_name');",
+                  "            pm.expect(order).to.have.property('store_logo');",
+                  "            pm.expect(order).to.have.property('order_date');",
+                  "        }",
+                  "    });",
+                  "}",
+                  "",
+                  "if (pm.response.code === 401) {",
+                  "    pm.test('Unauthorized — run Auth Flow to get token', function () {",
+                  "        pm.expect(pm.response.code).to.equal(401);",
+                  "        console.warn('Token missing or expired. Run 03 — Auth Flow to authenticate.');",
+                  "    });",
+                  "}"
                 ],
                 "type": "text/javascript"
               }
