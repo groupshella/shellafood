@@ -2,35 +2,27 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { Package } from "lucide-react";
-import { useBrands } from "@/features/module/hooks/useBrands";
-import { Brand } from "@/features/module/types/brands.types";
+import { usePopularBrands } from "../hooks/usePopularBrands";
+import { PopularBrand } from "../types/popular-brands.types";
 
-function brandDisplayName(brand: Brand): string {
-    return brand.name_ar?.trim() || brand.name?.trim() || brand.name_en?.trim() || "";
-}
-
-function chunkByTwo(items: Brand[]): Brand[][] {
-    const columns: Brand[][] = [];
+function chunkByTwo(items: PopularBrand[]): PopularBrand[][] {
+    const columns: PopularBrand[][] = [];
     for (let i = 0; i < items.length; i += 2) {
         columns.push(items.slice(i, i + 2));
     }
     return columns;
 }
 
-function BrandCard({ brand, moduleId }: { brand: Brand; moduleId: string }) {
+function BrandCard({ brand }: { brand: PopularBrand }) {
     const [logoError, setLogoError] = useState(false);
-    const name = brandDisplayName(brand);
+    const name = brand.name?.trim() || "";
 
     return (
-        <Link
-            href={`/modules/${moduleId}?brand=${brand.slug}`}
+        <div
             className={[
-                "group flex items-center gap-3 rounded-2xl bg-white p-3 outline-none",
-                "ring-1 ring-black/[0.06] transition-transform duration-150 active:scale-[0.98]",
-                "focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+                "flex items-center gap-3 rounded-2xl bg-white p-3",
+                "ring-1 ring-black/[0.06]",
             ].join(" ")}
             aria-label={name}
         >
@@ -52,25 +44,14 @@ function BrandCard({ brand, moduleId }: { brand: Brand; moduleId: string }) {
                 )}
             </div>
 
-            <div className="min-w-0 flex-1 space-y-1.5">
-                <h3 className="line-clamp-1 text-sm font-bold text-gray-900 sm:text-[15px]">
-                    {name}
-                </h3>
-
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
-                    {brand.products_count > 0 && (
-                        <span className="inline-flex items-center gap-1 font-medium text-gray-600">
-                            <Package className="h-3.5 w-3.5 shrink-0" />
-                            {brand.products_count} منتج
-                        </span>
-                    )}
-                </div>
-            </div>
-        </Link>
+            <h3 className="line-clamp-2 min-w-0 flex-1 text-sm font-bold text-gray-900 sm:text-[15px]">
+                {name}
+            </h3>
+        </div>
     );
 }
 
-function BrandsSkeleton() {
+function PopularBrandsSkeleton() {
     return (
         <div className="mx-auto w-full max-w-5xl space-y-3 px-4">
             <div className="h-7 w-48 animate-pulse rounded-lg bg-gray-100" />
@@ -86,15 +67,10 @@ function BrandsSkeleton() {
     );
 }
 
-interface BrandsProps {
-    moduleId: string;
-    moduleName: string;
-}
+export default function PopularBrands({ moduleId, moduleName }: { moduleId: string; moduleName: string }) {
+    const { brands, isLoading, error } = usePopularBrands(moduleId);
 
-export default function Brands({ moduleId }: BrandsProps) {
-    const { brands, isLoading, error } = useBrands(moduleId);
-
-    if (isLoading) return <BrandsSkeleton />;
+    if (isLoading) return <PopularBrandsSkeleton />;
     if (error || brands.length === 0) return null;
 
     return (
@@ -105,7 +81,7 @@ export default function Brands({ moduleId }: BrandsProps) {
             aria-label="أشهر العلامات التجارية"
             className="mx-auto w-full max-w-5xl space-y-3 px-4"
         >
-            <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
+            <h2 className="text-lg font-bold text-gray-800">
                 أشهر العلامات التجارية
             </h2>
 
@@ -122,7 +98,7 @@ export default function Brands({ moduleId }: BrandsProps) {
                         className="flex w-[calc(50%-0.375rem)] shrink-0 snap-start flex-col gap-3"
                     >
                         {column.map((brand) => (
-                            <BrandCard key={brand.id} brand={brand} moduleId={moduleId} />
+                            <BrandCard key={brand.id} brand={brand} />
                         ))}
                     </div>
                 ))}
