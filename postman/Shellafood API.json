@@ -1,30 +1,108 @@
 {
   "info": {
     "_postman_id": "bdee566b-4c5f-4442-91a5-cccfa83b2ed8",
-    "name": "Shellafood API",
-    "description": "# Shellafood API\n\nDirect backend requests to `{{backend_url}}`, organized **by app screen** — each folder mirrors a page in the Next.js app and lists the APIs that power its UI sections.\n\n---\n\n## Quick start\n\n1. Import `shellafood-environment.json`\n2. Select environment **Shellafood - Backend**\n3. Set `module_id` to the module you are testing (e.g. `6` for restaurants, `3` for hypermarket)\n4. For authenticated endpoints, set `access_token` after login\n\n---\n\n## Screen map\n\n| Screen | Route | APIs in this collection |\n|--------|-------|-------------------------|\n| Home | `/home` | Banners, Modules, Discounted Stores, Recent Orders |\n| Module | `/modules/:id?module_name=…` | Offers, Categories, Brands, Stores |\n| Auth | `/auth` | Guest, Send OTP, Verify OTP, Register |\n\n---\n\n## Common headers\n\n| Header | Used by | Example |\n|--------|---------|---------|\n| `zoneId` | Most endpoints | `[2]` |\n| `moduleId` | Module-scoped data | `6` |\n| `latitude` / `longitude` | Stores, categories, discounted stores | `24.567752` / `46.5444937` |\n| `X-Localization` / `X-localization` | Arabic content | `ar` |\n| `Authorization` | Recent orders | `Bearer {{access_token}}` |\n\n---\n\nSee `postman/README.md` in the repo for the full screen → component → API reference.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "54305504",
-    "_collection_link": "https://go.postman.co/collection/54305504-bdee566b-4c5f-4442-91a5-cccfa83b2ed8?source=collection_link"
+    "name": "Shellafood API — Official Collection",
+    "description": "# Shellafood API — Official Collection\n\n## Overview\nThis collection covers all backend endpoints powering the Shellafood app, organized by screen. Each folder maps to a page in the app and lists every API that drives it.\n\n---\n\n## Setup Instructions\n1. Import this file into Postman\n2. Import `shellafood-environment.json` (or create environment manually)\n3. Set `backend_url` to your target environment (staging or production)\n4. Set `zone_id` — default is `[2]`\n5. Set `module_id` to the module you are testing (e.g. `6` for Restaurants, `3` for Hypermarket)\n6. For authenticated endpoints, run **Auth Flow → Send OTP → Verify OTP** first — the `token` variable is auto-saved by the test script\n\n---\n\n## Environment Variables\n\n| Variable | Description | Example |\n|---|---|---|\n| `backend_url` | Base URL for the backend | `https://shellafood.com` |\n| `zone_id` | Delivery zone (JSON array) | `[2]` |\n| `module_id` | Active module for scoped requests | `6` |\n| `latitude` | User latitude for distance sorting | `24.567752` |\n| `longitude` | User longitude for distance sorting | `46.5444937` |\n| `limit` | Default page size | `12` |\n| `offset` | Default page offset | `0` |\n| `token` | Bearer token — auto-set after Verify OTP | |\n| `registration_token` | Temp token for new user registration — auto-set | |\n| `phone` | Phone number for OTP auth | |\n| `otp` | OTP code received by SMS | |\n\n---\n\n## Common Headers\n\n| Header | Required By | Example |\n|---|---|---|\n| `zoneId` | Most endpoints | `[2]` |\n| `moduleId` | Module-scoped endpoints | `6` |\n| `latitude` | Store/distance endpoints | `24.567752` |\n| `longitude` | Store/distance endpoints | `46.5444937` |\n| `X-Localization` | All endpoints (Arabic support) | `ar` or `en` |\n| `Authorization` | Authenticated endpoints | `Bearer {{token}}` |\n\n---\n\n## Screen Map\n\n| # | Screen | Route | Folder |\n|---|---|---|---|\n| 01 | Home | `/home` | 01 — Home Page |\n| 02 | Module | `/modules/:id` | 02 — Module Page |\n| 03 | Auth | `/auth` | 03 — Auth Flow |\n| 04 | Search | `/search` | 04 — Search Page |",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "backend_url",
+      "value": "https://shellafood.com",
+      "description": "Base URL — change to staging URL when testing against staging environment",
+      "type": "string"
+    },
+    {
+      "key": "zone_id",
+      "value": "[2]",
+      "description": "Delivery zone ID as JSON array — used in zoneId header",
+      "type": "string"
+    },
+    {
+      "key": "module_id",
+      "value": "6",
+      "description": "Active module — 6 = Restaurants, 3 = Hypermarket, 8 = Pharmacy. Change when switching modules.",
+      "type": "string"
+    },
+    {
+      "key": "latitude",
+      "value": "24.567752",
+      "description": "User latitude — used for distance sorting on store endpoints",
+      "type": "string"
+    },
+    {
+      "key": "longitude",
+      "value": "46.5444937",
+      "description": "User longitude — used for distance sorting on store endpoints",
+      "type": "string"
+    },
+    {
+      "key": "limit",
+      "value": "12",
+      "description": "Default page size for paginated endpoints",
+      "type": "string"
+    },
+    {
+      "key": "offset",
+      "value": "0",
+      "description": "Default page offset for paginated endpoints (0-based)",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "description": "Bearer token — auto-populated after Verify OTP succeeds. Use in Authorization header.",
+      "type": "string"
+    },
+    {
+      "key": "registration_token",
+      "value": "",
+      "description": "Temporary token for new user registration — auto-populated after Verify OTP when user is new.",
+      "type": "string"
+    },
+    {
+      "key": "phone",
+      "value": "",
+      "description": "Phone number used for OTP authentication (e.g. +966512345678)",
+      "type": "string"
+    },
+    {
+      "key": "otp",
+      "value": "",
+      "description": "OTP code received by SMS — fill in after Send OTP",
+      "type": "string"
+    },
+    {
+      "key": "store_id",
+      "value": "1",
+      "description": "Store ID — used in store detail, menu, and category endpoints",
+      "type": "string"
+    },
+    {
+      "key": "localization",
+      "value": "ar",
+      "description": "Language for localized content — ar or en",
+      "type": "string"
+    }
+  ],
   "item": [
     {
       "name": "01 — Home Page",
+      "description": "All API calls that power the Home screen (`/home`).\n\n**Sections on this screen:**\n- Promo banner carousel\n- Service modules grid (خدماتنا)\n- Discounted stores row (عروض المتاجر)\n- Current offers section (العروض الحالية)\n- Recent orders (requires login)\n\n**Note:** Banners, Modules, and Discounted Stores can be called in parallel on page load. Recent Orders requires a valid `token`.",
       "item": [
         {
-          "name": "Banners — Promo carousel",
+          "name": "Banners — Promo Carousel",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Accept",
-                "value": "application/json",
-                "description": "Required"
+                "value": "application/json"
               },
               {
                 "key": "zoneId",
                 "value": "{{zone_id}}",
-                "description": "Delivery zone — default [2]"
+                "description": "Delivery zone — required"
               }
             ],
             "url": {
@@ -41,16 +119,43 @@
                 {
                   "key": "featured",
                   "value": "1",
-                  "description": "Returns promotional module banners"
+                  "description": "Filter to featured/promotional banners only"
                 }
               ]
             },
-            "description": "Powers the home page banner carousel."
+            "description": "Powers the promo banner carousel at the top of the Home screen.\n\n**Returns:** Array of active banner objects with image URLs, target links, and module associations.\n\n**Query params:**\n- `featured=1` — returns only featured banners (used on Home). Omit for all banners."
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each banner has required fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.length > 0) {",
+                  "        const banner = json[0];",
+                  "        pm.expect(banner).to.have.property('id');",
+                  "        pm.expect(banner).to.have.property('image_full_url');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         },
         {
-          "name": "Modules — Service grid",
+          "name": "Modules — Service Grid",
           "request": {
             "method": "GET",
             "header": [
@@ -60,8 +165,8 @@
               },
               {
                 "key": "X-Localization",
-                "value": "ar",
-                "description": "Arabic module names"
+                "value": "{{localization}}",
+                "description": "ar or en — controls module name language"
               }
             ],
             "url": {
@@ -77,16 +182,44 @@
               "query": [
                 {
                   "key": "zone_id",
-                  "value": "{{zone_id}}"
+                  "value": "{{zone_id}}",
+                  "description": "Filter modules available in this zone"
                 }
               ]
             },
-            "description": "Powers the خدماتنا modules grid on the home page."
+            "description": "Powers the خدماتنا (Our Services) grid on the Home screen.\n\n**Returns:** Array of module objects (Restaurants, Hypermarket, Pharmacy, etc.) available in the given zone.\n\n**Headers:**\n- `X-Localization: ar` — returns Arabic module names\n- `X-Localization: en` — returns English module names"
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each module has id, name and icon', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.length > 0) {",
+                  "        pm.expect(json[0]).to.have.property('id');",
+                  "        pm.expect(json[0]).to.have.property('module_name');",
+                  "        pm.expect(json[0]).to.have.property('icon_full_url');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         },
         {
-          "name": "Discounted Stores — Offers row",
+          "name": "Discounted Stores — Offers Row",
           "request": {
             "method": "GET",
             "header": [
@@ -95,24 +228,27 @@
                 "value": "application/json"
               },
               {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
                 "key": "zoneId",
-                "value": "{{zone_id}}"
+                "value": "{{zone_id}}",
+                "description": "Required"
               },
               {
                 "key": "latitude",
-                "value": "{{latitude}}"
+                "value": "{{latitude}}",
+                "description": "Required for distance sorting"
               },
               {
                 "key": "longitude",
-                "value": "{{longitude}}"
+                "value": "{{longitude}}",
+                "description": "Required for distance sorting"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
               }
             ],
             "url": {
-              "raw": "{{backend_url}}/api/v2/stores/discounted",
+              "raw": "{{backend_url}}/api/v2/stores/discounted?limit=10&offset=0",
               "host": [
                 "{{backend_url}}"
               ],
@@ -121,14 +257,163 @@
                 "v2",
                 "stores",
                 "discounted"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
               ]
             },
-            "description": "Powers the عروض المتاجر section. Requires location headers for distance sorting."
+            "description": "Powers the عروض المتاجر (Store Offers) horizontal row on the Home screen.\n\n**Returns:** Paginated list of stores that currently have active discounts, sorted by distance.\n\n**Important:** `latitude` and `longitude` headers are required for distance-based sorting. Without them, results fall back to ID-based ordering."
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has stores array and total_size', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('stores');",
+                  "    pm.expect(json).to.have.property('total_size');",
+                  "    pm.expect(json.stores).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each store has required display fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.stores && json.stores.length > 0) {",
+                  "        const store = json.stores[0];",
+                  "        pm.expect(store).to.have.property('id');",
+                  "        pm.expect(store).to.have.property('name');",
+                  "        pm.expect(store).to.have.property('logo_full_url');",
+                  "        pm.expect(store).to.have.property('avg_rating');",
+                  "        pm.expect(store).to.have.property('delivery_time');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         },
         {
-          "name": "Recent Orders — Order history",
+          "name": "Current Offers — Active Offers Section",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}",
+                "description": "Required"
+              },
+              {
+                "key": "latitude",
+                "value": "{{latitude}}",
+                "description": "Required for distance sorting"
+              },
+              {
+                "key": "longitude",
+                "value": "{{longitude}}",
+                "description": "Required for distance sorting"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/stores/offers?limit=10&offset=0",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "stores",
+                "offers"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of offers to return"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Pagination offset (0-based)"
+                },
+                {
+                  "key": "module_id",
+                  "value": "",
+                  "description": "Optional — filter by module ID (comma-separated for multiple: 1,2,3)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Powers the العروض الحالية (Current Offers) section on the Home screen.\n\n**Returns:** Paginated list of stores with active offers. Each item includes:\n- `store_name` — localized store name\n- `store_logo_full_url` — full logo URL\n- `image_full_url` — offer image full URL\n- `description` — offer description (nullable)\n- `original_price` — original price (float)\n- `discounted_price` — price after discount (float)\n- `discount_amount` — discount value (float)\n- `discount_type` — `percent` or `amount`\n- `module_id` — which module this offer belongs to\n\n**Optional filter:** Add `?module_id=6` to scope to a specific module, or `?module_id=1,2,6` for multiple modules."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has offers array and total_size', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('offers');",
+                  "    pm.expect(json).to.have.property('total_size');",
+                  "    pm.expect(json.offers).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each offer has required fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.offers && json.offers.length > 0) {",
+                  "        const offer = json.offers[0];",
+                  "        pm.expect(offer).to.have.property('store_name');",
+                  "        pm.expect(offer).to.have.property('store_logo_full_url');",
+                  "        pm.expect(offer).to.have.property('image_full_url');",
+                  "        pm.expect(offer).to.have.property('original_price');",
+                  "        pm.expect(offer).to.have.property('discounted_price');",
+                  "        pm.expect(offer).to.have.property('discount_type');",
+                  "        pm.expect(offer).to.have.property('module_id');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('Price fields are numbers', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.offers && json.offers.length > 0) {",
+                  "        const offer = json.offers[0];",
+                  "        pm.expect(offer.original_price).to.be.a('number');",
+                  "        pm.expect(offer.discounted_price).to.be.a('number');",
+                  "        pm.expect(offer.discount_amount).to.be.a('number');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Recent Orders — Order History",
           "request": {
             "auth": {
               "type": "bearer",
@@ -147,13 +432,9 @@
                 "value": "application/json"
               },
               {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
-                "description": "Required — customer access token"
+                "description": "Required — run Auth Flow first to get token"
               }
             ],
             "url": {
@@ -169,18 +450,45 @@
                 "recent"
               ]
             },
-            "description": "Powers recent orders on home. Returns 401 without a valid token."
+            "description": "Powers the recent orders section on the Home screen.\n\n**Authentication:** Requires a valid Bearer token. Run the Auth Flow folder first to obtain one — the token is auto-saved to `{{token}}`.\n\n**Returns:** `401 Unauthorized` if no valid token is provided."
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Response is an array', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.be.an('array');",
+                  "    });",
+                  "}",
+                  "",
+                  "if (pm.response.code === 401) {",
+                  "    pm.test('Unauthorized — run Auth Flow to get token', function () {",
+                  "        pm.expect(pm.response.code).to.equal(401);",
+                  "        console.warn('Token missing or expired. Run 03 — Auth Flow to authenticate.');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         }
-      ],
-      "description": "2. **Banners** — promotional carousel\n    \n3. **Modules** — service categories grid (خدماتنا)\n    \n4. **Discounted Stores** — horizontal store cards\n    \n5. **Recent Orders** — requires login (`access_token`)"
+      ]
     },
     {
       "name": "02 — Module Page",
+      "description": "All API calls that power a Module screen (`/modules/:id`).\n\n**Sections on this screen:**\n- Offers banner carousel\n- Categories horizontal scroll\n- Popular brands grid (أشهر العلامات التجارية)\n- Paginated store grid\n\n**Important:** All requests in this folder require the `moduleId` header. Set `{{module_id}}` in your environment before running.\n\n**Module IDs:**\n- `3` — Hypermarket\n- `6` — Restaurants\n- `8` — Pharmacy",
       "item": [
         {
-          "name": "Offers — Module banners",
+          "name": "Offers — Module Banner Carousel",
           "request": {
             "method": "GET",
             "header": [
@@ -190,12 +498,17 @@
               },
               {
                 "key": "zoneId",
-                "value": "{{zone_id}}"
+                "value": "{{zone_id}}",
+                "description": "Required"
               },
               {
                 "key": "moduleId",
                 "value": "{{module_id}}",
-                "description": "Must match /modules/:id"
+                "description": "Required — must match the module page being viewed"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
               }
             ],
             "url": {
@@ -210,12 +523,30 @@
                 "active"
               ]
             },
-            "description": "Powers the offers carousel on the module page."
+            "description": "Powers the offers carousel at the top of the Module screen.\n\n**Returns:** Array of active promotional offers scoped to the given `moduleId`.\n\n**Scope:** Results are filtered to the module specified in `moduleId` header."
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         },
         {
-          "name": "Categories — Horizontal scroll",
+          "name": "Categories — Horizontal Scroll",
           "request": {
             "method": "GET",
             "header": [
@@ -224,24 +555,14 @@
                 "value": "application/json"
               },
               {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "X-localization",
-                "value": "ar"
-              },
-              {
-                "key": "Accept-Language",
-                "value": "ar"
-              },
-              {
                 "key": "moduleId",
-                "value": "{{module_id}}"
+                "value": "{{module_id}}",
+                "description": "Required — scopes categories to this module"
               },
               {
                 "key": "zoneId",
-                "value": "{{zone_id}}"
+                "value": "{{zone_id}}",
+                "description": "Required"
               },
               {
                 "key": "latitude",
@@ -250,6 +571,15 @@
               {
                 "key": "longitude",
                 "value": "{{longitude}}"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{localization}}"
               }
             ],
             "url": {
@@ -263,12 +593,39 @@
                 "categories"
               ]
             },
-            "description": "Powers the categories row below offers on the module page."
+            "description": "Powers the horizontal categories row below the offers carousel on the Module screen.\n\n**Returns:** Array of category objects scoped to the given module, including `id`, `name`, and `image_full_url`.\n\n**Localization:** Pass `X-Localization: ar` for Arabic category names."
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each category has id, name and image', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.length > 0) {",
+                  "        pm.expect(json[0]).to.have.property('id');",
+                  "        pm.expect(json[0]).to.have.property('name');",
+                  "        pm.expect(json[0]).to.have.property('image_full_url');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         },
         {
-          "name": "Brands — Popular brands grid",
+          "name": "Brands — Popular Brands Grid",
           "request": {
             "method": "GET",
             "header": [
@@ -277,33 +634,61 @@
                 "value": "application/json"
               },
               {
-                "key": "X-Localization",
-                "value": "ar",
-                "description": "Arabic brand names"
-              },
-              {
                 "key": "moduleId",
                 "value": "{{module_id}}",
-                "description": "Must match /modules/:id"
+                "description": "Optional — omit to get brands across all modules"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en"
               }
             ],
             "url": {
-              "raw": "{{backend_url}}/api/v1/brand",
+              "raw": "{{backend_url}}/api/v2/brands",
               "host": [
                 "{{backend_url}}"
               ],
               "path": [
                 "api",
-                "v1",
-                "brand"
+                "v2",
+                "brands"
               ]
             },
-            "description": "Powers the أشهر العلامات التجارية section — horizontal scroll with 2 brands per column."
+            "description": "Powers the أشهر العلامات التجارية (Popular Brands) grid on the Module screen.\n\n**Two modes:**\n- **With `moduleId` header** — returns brands scoped to that module only\n- **Without `moduleId` header** — returns brands across all modules (also used on Search page)\n\n**Returns:** Array of brand objects with `id`, `name`, and `image_full_url`."
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has data array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each brand has id, name and image', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.data && json.data.length > 0) {",
+                  "        pm.expect(json.data[0]).to.have.property('id');",
+                  "        pm.expect(json.data[0]).to.have.property('name');",
+                  "        pm.expect(json.data[0]).to.have.property('image_full_url');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         },
         {
-          "name": "Stores — Store grid (paginated)",
+          "name": "Stores — Store Grid (Paginated)",
           "request": {
             "method": "GET",
             "header": [
@@ -312,24 +697,28 @@
                 "value": "application/json"
               },
               {
-                "key": "X-Localization",
-                "value": "ar"
-              },
-              {
                 "key": "moduleId",
-                "value": "{{module_id}}"
+                "value": "{{module_id}}",
+                "description": "Required — scopes stores to this module"
               },
               {
                 "key": "zoneId",
-                "value": "{{zone_id}}"
+                "value": "{{zone_id}}",
+                "description": "Required"
               },
               {
                 "key": "latitude",
-                "value": "{{latitude}}"
+                "value": "{{latitude}}",
+                "description": "For distance sorting"
               },
               {
                 "key": "longitude",
-                "value": "{{longitude}}"
+                "value": "{{longitude}}",
+                "description": "For distance sorting"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
               }
             ],
             "url": {
@@ -353,21 +742,70 @@
                   "key": "offset",
                   "value": "{{offset}}",
                   "description": "Skip count — 0, 12, 24…"
+                },
+                {
+                  "key": "type",
+                  "value": "all",
+                  "description": "Filter by item type: all | veg | non_veg",
+                  "disabled": true
+                },
+                {
+                  "key": "sort_by",
+                  "value": "recommended",
+                  "description": "Sort: recommended | distance | ratings_desc | delivery_time_asc",
+                  "disabled": true
+                },
+                {
+                  "key": "featured",
+                  "value": "1",
+                  "description": "Filter to featured stores only",
+                  "disabled": true
                 }
               ]
             },
-            "description": "Powers the store grid at the bottom of the module page."
+            "description": "Powers the paginated store grid at the bottom of the Module screen.\n\n**Returns:** Paginated stores scoped to the given module and zone, with `total_size`, `limit`, and `offset`.\n\n**Pagination:** Use `offset` as skip count — for page 2 with `limit=12`, send `offset=12`. For page 3, `offset=24`.\n\n**Optional filters (disabled by default — enable in Params tab):**\n- `type` — `all`, `veg`, or `non_veg`\n- `sort_by` — `recommended`, `distance`, `ratings_desc`, `delivery_time_asc`\n- `featured` — `1` to show featured stores only"
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has stores, total_size, limit, offset', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('stores');",
+                  "    pm.expect(json).to.have.property('total_size');",
+                  "    pm.expect(json).to.have.property('limit');",
+                  "    pm.expect(json).to.have.property('offset');",
+                  "});",
+                  "",
+                  "pm.test('All stores belong to requested module', function () {",
+                  "    const json = pm.response.json();",
+                  "    const requestedModuleId = parseInt(pm.collectionVariables.get('module_id'));",
+                  "    if (json.stores && json.stores.length > 0 && json.stores[0].module_id) {",
+                  "        json.stores.forEach(function(store) {",
+                  "            pm.expect(store.module_id).to.equal(requestedModuleId);",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         }
-      ],
-      "description": "1. **Offers** — banner carousel for active module offers\n    \n2. **Categories** — horizontal category cards\n    \n3. **Brands** — popular brands grid (أشهر العلامات التجارية)\n    \n4. **Stores** — paginated store grid with load more"
+      ]
     },
     {
       "name": "03 — Auth Flow",
+      "description": "Authentication flow — run these requests **in order** (steps 1 → 4).\n\n**Flow summary:**\n1. (Optional) Guest Request — anonymous session\n2. Send OTP — sends SMS code to phone\n3. Verify OTP — returns `token` (existing user) or `registration_token` (new user)\n4. Register — only for new users who got `registration_token` in step 3\n\n**Tokens are auto-saved** by test scripts:\n- `{{token}}` — saved automatically after Verify OTP succeeds for existing users\n- `{{registration_token}}` — saved automatically for new users, used in Register step\n\n**After completing this flow**, all authenticated endpoints (e.g. Recent Orders) will work automatically using `{{token}}`.",
       "item": [
         {
-          "name": "1. Guest Request",
+          "name": "Step 1 — Guest Request (Optional)",
           "request": {
             "method": "POST",
             "header": [
@@ -393,12 +831,25 @@
                 "request"
               ]
             },
-            "description": "Step 1 (optional) — create guest session."
+            "description": "Creates an anonymous guest session. This step is **optional** — skip if the user proceeds directly to phone login.\n\n**Returns:** Guest token for tracking anonymous activity before sign-in."
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 201', function () {",
+                  "    pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         },
         {
-          "name": "2. Send OTP",
+          "name": "Step 2 — Send OTP",
           "request": {
             "method": "POST",
             "header": [
@@ -432,45 +883,33 @@
                 "send-otp"
               ]
             },
-            "description": "Step 2 — send OTP to phone."
+            "description": "Sends a one-time password (OTP) via SMS to the provided phone number.\n\n**Before running:** Set `{{phone}}` in your environment or collection variables (e.g. `+966512345678`).\n\n**Returns:** Success confirmation. The OTP will arrive by SMS — paste it into `{{otp}}` then run Step 3."
           },
-          "response": []
-        },
-        {
-          "name": "3. Verify OTP",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "let responseJson;",
-                  "",
-                  "pm.test('Response is valid JSON', function () {",
-                  "    responseJson = pm.response.json();",
-                  "    pm.expect(responseJson).to.be.an('object');",
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
-                  "    pm.test('Successful response contains token or registration_token', function () {",
-                  "        pm.expect(responseJson).to.be.an('object');",
-                  "        pm.expect(responseJson.token || responseJson.registration_token).to.exist;",
+                  "pm.test('OTP sent successfully', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.satisfy(function(r) {",
+                  "        return r.success === true || r.message !== undefined;",
                   "    });",
-                  "",
-                  "    if (responseJson && responseJson.token) {",
-                  "        pm.collectionVariables.set('token', responseJson.token);",
-                  "    }",
-                  "",
-                  "    if (responseJson && responseJson.registration_token) {",
-                  "        pm.collectionVariables.set('registration_token', responseJson.registration_token);",
-                  "    }",
-                  "}"
+                  "    console.log('OTP sent to ' + pm.collectionVariables.get('phone') + '. Set {{otp}} then run Verify OTP.');",
+                  "});"
                 ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                "type": "text/javascript"
               }
             }
           ],
+          "response": []
+        },
+        {
+          "name": "Step 3 — Verify OTP",
           "request": {
             "method": "POST",
             "header": [
@@ -504,12 +943,42 @@
                 "verify-otp"
               ]
             },
-            "description": "Step 3 — verify OTP and get token."
+            "description": "Verifies the OTP code received in Step 2.\n\n**Before running:** Fill in `{{otp}}` with the code received by SMS.\n\n**Two possible responses:**\n- **Existing user** → returns `token` — saved automatically to `{{token}}`\n- **New user** → returns `registration_token` — saved automatically to `{{registration_token}}`, proceed to Step 4\n\n**After this step:** `{{token}}` or `{{registration_token}}` will be auto-populated by the test script."
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response contains token or registration_token', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.token || json.registration_token).to.exist;",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "if (json && json.token) {",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "    console.log('Existing user — token saved to {{token}}. Auth complete.');",
+                  "}",
+                  "",
+                  "if (json && json.registration_token) {",
+                  "    pm.collectionVariables.set('registration_token', json.registration_token);",
+                  "    console.log('New user — registration_token saved. Run Step 4 — Register to complete sign-up.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         },
         {
-          "name": "4. Register",
+          "name": "Step 4 — Register (New Users Only)",
           "request": {
             "method": "POST",
             "header": [
@@ -543,54 +1012,246 @@
                 "register"
               ]
             },
-            "description": "Step 4 — register new user (skip if existing user got token in step 3)."
+            "description": "Completes registration for new users.\n\n**Only run this step if Step 3 returned a `registration_token`** — existing users who got a `token` in Step 3 are already authenticated and can skip this.\n\n**Requires:** `{{registration_token}}` (auto-set by Step 3) and `{{phone}}`.\n\n**Returns:** `token` — saved automatically to `{{token}}`."
           },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 201', function () {",
+                  "    pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "if (json && json.token) {",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "    console.log('Registration complete — token saved to {{token}}.');",
+                  "}",
+                  "",
+                  "pm.test('Token received after registration', function () {",
+                  "    pm.expect(json.token).to.exist;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "response": []
         }
-      ],
-      "description": "1. **Guest Request** — optional anonymous session\n    \n2. **Send OTP** — sends code to `{{phone}}`\n    \n3. **Verify OTP** — returns token or `registration_token` for new users\n    \n4. **Register** — completes sign-up for new users"
-    }
-  ],
-  "variable": [
-    {
-      "key": "backend_url",
-      "value": "https://shellafood.com"
+      ]
     },
     {
-      "key": "zone_id",
-      "value": "[2]"
-    },
-    {
-      "key": "module_id",
-      "value": "6"
-    },
-    {
-      "key": "latitude",
-      "value": "24.567752"
-    },
-    {
-      "key": "longitude",
-      "value": "46.5444937"
-    },
-    {
-      "key": "limit",
-      "value": "12"
-    },
-    {
-      "key": "offset",
-      "value": "0"
-    },
-    {
-      "key": "phone",
-      "value": ""
-    },
-    {
-      "key": "otp",
-      "value": ""
-    },
-    {
-      "key": "token",
-      "value": ""
+      "name": "04 — Search Page",
+      "description": "All API calls that power the Search screen (`/search`).\n\n**Sections on this screen:**\n- Search bar (user types query)\n- Popular searches — الأكثر بحثًا (trending keywords)\n- Popular brands — أشهر العلامات التجارية\n\n**Note:** Popular Searches and Popular Brands load when the search page opens, before the user types anything. The search bar query itself uses a separate endpoint (TBD).\n\n**Popular Brands** uses the same endpoint as the Module page — with or without `moduleId` header.",
+      "item": [
+        {
+          "name": "Popular Searches — Trending Keywords",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}",
+                "description": "Required — scopes results to user's zone"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en — controls keyword language"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/search/popular?limit=10",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "search",
+                "popular"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of keywords to return — app uses 10, max 20"
+                },
+                {
+                  "key": "module_id",
+                  "value": "",
+                  "description": "Optional — filter popular searches by module (e.g. 6 for Restaurants)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Powers the **الأكثر بحثًا** (Most Searched) section on the Search screen.\n\n**How it works:** Returns store names ranked by how frequently users have searched for them. Results are derived from a search log that tracks every search query.\n\n**Returns:**\n```json\n{\n  \"success\": true,\n  \"data\": [\n    { \"keyword\": \"ماكدونالدز\", \"count\": 142 },\n    { \"keyword\": \"شاورما\",     \"count\": 98  }\n  ]\n}\n```\n\n**Fallback:** If search log has insufficient data, returns top stores by `order_count` instead.\n\n**Cache:** Results are cached for 30 minutes. `zoneId` and `module_id` are included in the cache key."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has success flag and data array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each keyword has keyword and count fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.data && json.data.length > 0) {",
+                  "        pm.expect(json.data[0]).to.have.property('keyword');",
+                  "        pm.expect(json.data[0]).to.have.property('count');",
+                  "        pm.expect(json.data[0].keyword).to.be.a('string');",
+                  "        pm.expect(json.data[0].count).to.be.a('number');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('Results are within requested limit', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.length).to.be.at.most(10);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Popular Brands — With moduleId (Scoped)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "moduleId",
+                "value": "{{module_id}}",
+                "description": "Scopes brands to this module only"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/brands",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "brands"
+              ]
+            },
+            "description": "Powers the **أشهر العلامات التجارية** (Popular Brands) section on the Search screen — module-scoped variant.\n\n**Use this when:** The user is coming from a specific module page and you want to show brands relevant to that module only.\n\n**Difference from global variant:** The `moduleId` header scopes results to that module. Without it, all brands across all modules are returned.\n\nSee also: **Popular Brands — Without moduleId** for the global variant."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has data array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each brand has id, name and image_full_url', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.data && json.data.length > 0) {",
+                  "        pm.expect(json.data[0]).to.have.property('id');",
+                  "        pm.expect(json.data[0]).to.have.property('name');",
+                  "        pm.expect(json.data[0]).to.have.property('image_full_url');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Popular Brands — Without moduleId (Global)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/brands",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "brands"
+              ]
+            },
+            "description": "Powers the **أشهر العلامات التجارية** (Popular Brands) section — global variant (no module filter).\n\n**Use this when:** Showing brands on the general Search screen without any module context.\n\n**Same endpoint as the module-scoped variant** — only the `moduleId` header differs. Without it, all brands across all modules are returned.\n\n**Sample response:**\n```json\n{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": 15,\n      \"name\": \"ماكدونالدز\",\n      \"image_full_url\": \"https://shellafood.com/storage/brand/logo.png\"\n    }\n  ]\n}\n```"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has data array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Brands have required fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.data && json.data.length > 0) {",
+                  "        pm.expect(json.data[0]).to.have.property('id');",
+                  "        pm.expect(json.data[0]).to.have.property('name');",
+                  "        pm.expect(json.data[0]).to.have.property('image_full_url');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
     }
   ]
 }
