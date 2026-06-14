@@ -10,6 +10,8 @@ export interface RecentOrder {
     order_type: OrderType;
     order_status: OrderStatus;
     order_date: string;
+    module_name: string;
+    module_logo: string;
 }
 
 /** Raw Laravel `GET .../customer/order/recent` response. */

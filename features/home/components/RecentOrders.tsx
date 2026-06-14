@@ -8,18 +8,6 @@ import { ChevronLeft } from "lucide-react";
 import { useRecentOrders } from "@/features/home/hooks/useRecentOrders";
 import { RecentOrder } from "@/features/home/types/recent-orders.types";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-const ORDER_TYPE_LABELS: Record<string, string> = {
-    delivery: "توصيل",
-    take_away: "استلام",
-    parcel: "طرود",
-};
-
-function getOrderTypeLabel(type: string): string {
-    return ORDER_TYPE_LABELS[type] ?? type;
-}
-
 function timeAgo(dateStr: string): string {
     const date = new Date(dateStr);
     if (Number.isNaN(date.getTime())) return dateStr;
@@ -75,12 +63,18 @@ function OrderCard({ order }: { order: RecentOrder }) {
                 <h3 className="line-clamp-1 text-[15px] font-bold text-gray-900">
                     {order.store_name}
                 </h3>
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
+                    {order.module_name ? (
+                        <span className="rounded-full bg-[#E0F7FA] px-2.5 py-0.5 text-xs font-medium text-[#00796B]">
+                            {order.module_name}
+                        </span>
+                    ) : null}
+                    {order.module_name ? (
+                        <span className="text-gray-300" aria-hidden>
+                            •
+                        </span>
+                    ) : null}
                     <span className="text-xs text-gray-400">{timeAgo(order.order_date)}</span>
-                    <span className="text-gray-300">•</span>
-                    <span className="rounded-full bg-[#FFF0E6] px-2 py-0.5 text-xs font-medium text-[#EA580C]">
-                        {getOrderTypeLabel(order.order_type)}
-                    </span>
                 </div>
             </div>
 
@@ -102,7 +96,10 @@ function RecentOrdersSkeleton() {
                         <div className="h-[52px] w-[52px] shrink-0 animate-pulse rounded-xl bg-gray-100" />
                         <div className="flex-1 space-y-2">
                             <div className="h-3.5 w-2/3 animate-pulse rounded bg-gray-100" />
-                            <div className="h-3 w-1/3 animate-pulse rounded bg-gray-100" />
+                            <div className="flex items-center gap-1.5">
+                                <div className="h-5 w-16 animate-pulse rounded-full bg-gray-100" />
+                                <div className="h-3 w-20 animate-pulse rounded bg-gray-100" />
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -125,9 +122,9 @@ export default function RecentOrders() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.2 }}
             aria-label="أعد طلبك"
-            className="w-full space-y-3 px-1"
+            className="mx-auto w-full max-w-5xl space-y-3 px-4"
         >
-            <h2 className="text-2xl font-bold">أعد طلبك</h2>
+            <h2 className="text-lg font-bold text-gray-800">أعد طلبك</h2>
 
             <div className="space-y-2.5">
                 {orders.map((order) => (
