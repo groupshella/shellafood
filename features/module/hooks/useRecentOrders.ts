@@ -24,7 +24,7 @@ export function useRecentOrders(moduleId: string): UseRecentOrdersReturn {
         setError(null);
 
         try {
-            const res = await fetch(`/api/module/recent-orders?moduleId=${moduleId}`);
+            const res = await fetch(`/api/module/recent-orders?module_id=${moduleId}`);
             const json = (await res.json()) as ApiResponse<GetRecentOrdersResponse>;
             const data = unwrap(json);
             setOrders(data.orders ?? []);

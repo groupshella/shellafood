@@ -31,11 +31,11 @@ export default function ModulePage({ moduleId, moduleName, isAuthenticated }: Mo
                     <ArrowLeft className="w-5 h-5 text-gray-700" strokeWidth={1.8} />
                 </Link>
             )}
+            <Categories moduleId={moduleId} moduleName={moduleName} />
             <Offers moduleId={moduleId} moduleName={moduleName} />
             <CurrentOffers moduleId={moduleId} moduleName={moduleName} />
             <RecentOrders moduleId={moduleId} moduleName={moduleName} />
             <PopularBrands moduleId={moduleId} moduleName={moduleName} />
-            <Categories moduleId={moduleId} moduleName={moduleName} />
             <Stores moduleId={moduleId} moduleName={moduleName} />
         </div>
     );

@@ -1,7 +1,8 @@
+
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { GetStoresResponse, Store } from "@/features/module/types/stores.types";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { GetStoresResponse, Store, StoreFilters, DEFAULT_FILTERS } from "@/features/module/types/stores.types";
 import { ApiResponse, unwrap } from "@/shared/lib/api-response";
 
 const PAGE_SIZE = 12;
@@ -13,8 +14,32 @@ interface UseStoresReturn {
     isLoadingMore: boolean;
     error: string | null;
     hasMore: boolean;
+    filters: StoreFilters;
+    setFilters: (f: StoreFilters) => void;
     refetch: () => void;
     loadMore: () => void;
+}
+
+function buildParams(
+    moduleId: string,
+    filters: StoreFilters,
+    limit: number,
+    offset: number,
+): URLSearchParams {
+    const params = new URLSearchParams({
+        module_id: moduleId,
+        limit: String(limit),
+        offset: String(offset),
+    });
+
+    if (filters.categoryId !== null) params.set("category_id", String(filters.categoryId));
+    if (filters.hasOffer) params.set("has_offer", "1");
+    if (filters.freeDelivery) params.set("free_delivery", "1");
+    if (filters.topRated) params.set("top_rated", "1");
+    if (filters.openNow) params.set("open_now", "1");
+    if (filters.under30Min) params.set("under_30_min", "1");
+
+    return params;
 }
 
 export function useStores(moduleId: string | undefined): UseStoresReturn {
@@ -23,9 +48,18 @@ export function useStores(moduleId: string | undefined): UseStoresReturn {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [filters, setFiltersState] = useState<StoreFilters>(DEFAULT_FILTERS);
+
+    // Track current loaded count separately so loadMore always knows how many are loaded
+    const loadedCountRef = useRef(0);
 
     const fetchStores = useCallback(
-        async (nextOffset: number, append: boolean, signal?: AbortSignal) => {
+        async (
+            nextOffset: number,
+            append: boolean,
+            activeFilters: StoreFilters,
+            signal?: AbortSignal,
+        ) => {
             if (!moduleId) {
                 setStores([]);
                 setTotalSize(0);
@@ -37,23 +71,26 @@ export function useStores(moduleId: string | undefined): UseStoresReturn {
             setError(null);
 
             try {
-                const params = new URLSearchParams({
-                    moduleId,
-                    limit: String(PAGE_SIZE),
-                    offset: String(nextOffset),
-                });
+                const params = buildParams(moduleId, activeFilters, PAGE_SIZE, nextOffset);
                 const res = await fetch(`/api/module/stores?${params}`, { signal });
                 const json = (await res.json()) as ApiResponse<GetStoresResponse>;
                 const data = unwrap(json);
 
-                setStores((prev) =>
-                    append ? [...prev, ...(data.stores ?? [])] : (data.stores ?? []),
-                );
+                setStores((prev) => {
+                    const next = append
+                        ? [...prev, ...(data.stores ?? [])]
+                        : (data.stores ?? []);
+                    loadedCountRef.current = next.length;
+                    return next;
+                });
                 setTotalSize(data.total_size ?? 0);
             } catch (err) {
                 if ((err as Error).name === "AbortError") return;
                 setError(err instanceof Error ? err.message : "Failed to load stores");
-                if (!append) setStores([]);
+                if (!append) {
+                    setStores([]);
+                    loadedCountRef.current = 0;
+                }
             } finally {
                 setIsLoading(false);
                 setIsLoadingMore(false);
@@ -62,16 +99,27 @@ export function useStores(moduleId: string | undefined): UseStoresReturn {
         [moduleId],
     );
 
+    // Re-fetch from scratch whenever moduleId or filters change
     useEffect(() => {
         const controller = new AbortController();
-        fetchStores(0, false, controller.signal);
+        loadedCountRef.current = 0;
+        fetchStores(0, false, filters, controller.signal);
         return () => controller.abort();
-    }, [fetchStores]);
+    }, [fetchStores, filters]);
 
-    const refetch = useCallback(() => fetchStores(0, false), [fetchStores]);
+    const setFilters = useCallback((f: StoreFilters) => {
+        setFiltersState(f);
+        // fetchStores will be triggered by the effect above
+    }, []);
+
+    const refetch = useCallback(
+        () => fetchStores(0, false, filters),
+        [fetchStores, filters],
+    );
+
     const loadMore = useCallback(
-        () => fetchStores(stores.length, true),
-        [fetchStores, stores.length],
+        () => fetchStores(loadedCountRef.current, true, filters),
+        [fetchStores, filters],
     );
 
     return {
@@ -81,6 +129,8 @@ export function useStores(moduleId: string | undefined): UseStoresReturn {
         isLoadingMore,
         error,
         hasMore: totalSize > 0 && stores.length < totalSize,
+        filters,
+        setFilters,
         refetch,
         loadMore,
     };
