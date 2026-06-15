@@ -117,3 +117,4 @@ export default function Offers({ moduleId, moduleName }: OffersProps) {
         </motion.section>
     );
 }
+

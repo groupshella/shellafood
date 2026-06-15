@@ -33,4 +33,27 @@
 		border-radius: 9999px;
 		background: #30913f;
 	}
+
+	/* Module offers carousel — 373×125 design */
+	.offers-swiper {
+		padding-bottom: 1.75rem !important;
+	}
+
+	.offers-swiper .swiper-pagination {
+		bottom: 0 !important;
+	}
+
+	.offers-swiper .swiper-pagination-bullet {
+		width: 6px;
+		height: 6px;
+		opacity: 1;
+		background: #d1d5db;
+		transition: width 0.3s ease, background-color 0.3s ease;
+	}
+
+	.offers-swiper .swiper-pagination-bullet-active {
+		width: 20px;
+		border-radius: 9999px;
+		background: #30913f;
+	}
 }

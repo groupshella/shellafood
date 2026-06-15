@@ -8,7 +8,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 const REVALIDATE_TIME = Number(process.env.REVALIDATE_TIME);
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const moduleId = searchParams.get("moduleId");
+    const moduleId = searchParams.get("module_id");
     if (!moduleId || Number.isNaN(Number(moduleId))) {
         return apiError("Module ID is required", 400);
     }

@@ -88,7 +88,7 @@
   "item": [
     {
       "name": "01 — Home Page",
-      "description": "All API calls that power the Home screen (`/home`).\n\n**Sections on this screen:**\n- Promo banner carousel\n- Service modules grid (خدماتنا)\n- Discounted stores row (عروض المتاجر)\n- Current offers section (العروض الحالية)\n- Recent orders (requires login)\n\n**Note:** Banners, Modules, and Discounted Stores can be called in parallel on page load. Recent Orders requires a valid `token`.",
+      "description": "All API calls that power the Home screen (`/home`).\n\n**Sections on this screen:**\n- Promo banner carousel\n- Service modules grid (خدماتنا)\n- Discounted stores row (عروض المتاجر)\n- Current offers section (العروض الحالية) — all modules, no `moduleId`\n- Recent orders (أعد طلبك — requires login) — all modules, no `moduleId`\n\n**Note:** Banners, Modules, and Discounted Stores can be called in parallel on page load. Recent Orders requires a valid `token`. For module-scoped Current Offers or Recent Orders, use **02 — Module Page**.",
       "item": [
         {
           "name": "Banners — Promo Carousel",
@@ -355,16 +355,10 @@
                   "key": "offset",
                   "value": "0",
                   "description": "Pagination offset (0-based)"
-                },
-                {
-                  "key": "module_id",
-                  "value": "",
-                  "description": "Optional — filter by module ID (comma-separated for multiple: 1,2,3)",
-                  "disabled": true
                 }
               ]
             },
-            "description": "Powers the العروض الحالية (Current Offers) section on the Home screen.\n\n**Returns:** Paginated list of stores with active offers. Each item includes:\n- `store_name` — localized store name\n- `store_logo_full_url` — full logo URL\n- `image_full_url` — offer image full URL\n- `description` — offer description (nullable)\n- `original_price` — original price (float)\n- `discounted_price` — price after discount (float)\n- `discount_amount` — discount value (float)\n- `discount_type` — `percent` or `amount`\n- `module_id` — which module this offer belongs to\n\n**Optional filter:** Add `?module_id=6` to scope to a specific module, or `?module_id=1,2,6` for multiple modules."
+            "description": "Powers the العروض الحالية (Current Offers) section on the Home screen.\n\n**Scope:** Returns offers across **all modules** in the zone. Do **not** pass `moduleId` header or `module_id` query param on Home.\n\n**App proxy:** `GET /api/home/current-offers`\n\n**Returns:** Paginated list of stores with active offers. Each item includes:\n- `store_name` — localized store name\n- `store_logo_full_url` — full logo URL\n- `image_full_url` — offer image full URL\n- `description` — offer description (nullable)\n- `original_price` — original price (float)\n- `discounted_price` — price after discount (float)\n- `discount_amount` — discount value (float)\n- `discount_type` — `percent` or `amount`\n- `module_id` — which module this offer belongs to\n\n**Module-scoped variant:** Use **02 — Module Page → Current Offers** with `moduleId` header when viewing a specific module."
           },
           "event": [
             {
@@ -450,7 +444,7 @@
                 "recent"
               ]
             },
-            "description": "Powers the recent orders section on the Home screen.\n\n**Authentication:** Requires a valid Bearer token. Run the Auth Flow folder first to obtain one — the token is auto-saved to `{{token}}`.\n\n**Returns:** `401 Unauthorized` if no valid token is provided."
+            "description": "Powers the **أعد طلبك** (Recent Orders) section on the Home screen.\n\n**Authentication:** Requires a valid Bearer token. Run the Auth Flow folder first to obtain one — the token is auto-saved to `{{token}}`.\n\n**Scope:** Returns recent orders across **all modules**. Do **not** pass `moduleId` header on Home.\n\n**App proxy:** `GET /api/home/recent-orders`\n\n**Returns:** `401 Unauthorized` if no valid token is provided.\n\n**Module-scoped variant:** Use **02 — Module Page → Recent Orders** with `moduleId` header when viewing a specific module."
           },
           "event": [
             {
@@ -462,9 +456,22 @@
                   "});",
                   "",
                   "if (pm.response.code === 200) {",
-                  "    pm.test('Response is an array', function () {",
+                  "    pm.test('Response has status and orders array', function () {",
                   "        const json = pm.response.json();",
-                  "        pm.expect(json).to.be.an('array');",
+                  "        pm.expect(json).to.have.property('status', true);",
+                  "        pm.expect(json).to.have.property('orders');",
+                  "        pm.expect(json.orders).to.be.an('array');",
+                  "    });",
+                  "",
+                  "    pm.test('Each order has required display fields', function () {",
+                  "        const json = pm.response.json();",
+                  "        if (json.orders && json.orders.length > 0) {",
+                  "            const order = json.orders[0];",
+                  "            pm.expect(order).to.have.property('id');",
+                  "            pm.expect(order).to.have.property('store_name');",
+                  "            pm.expect(order).to.have.property('store_logo');",
+                  "            pm.expect(order).to.have.property('order_date');",
+                  "        }",
                   "    });",
                   "}",
                   "",
@@ -485,7 +492,7 @@
     },
     {
       "name": "02 — Module Page",
-      "description": "All API calls that power a Module screen (`/modules/:id`).\n\n**Sections on this screen:**\n- Offers banner carousel\n- Current offers row (العروض الحالية)\n- Recent orders (الطلبات السابقة — requires login)\n- Popular brands grid (أشهر العلامات التجارية)\n- Categories horizontal scroll\n- Paginated store grid\n\n**Important:** All requests in this folder require the `moduleId` header. Set `{{module_id}}` in your environment before running.\n\n**Module IDs:**\n- `3` — Hypermarket\n- `6` — Restaurants\n- `8` — Pharmacy",
+      "description": "All API calls that power a Module screen (`/modules/:id`).\n\n**Sections on this screen:**\n- Offers banner carousel\n- Current offers row (العروض الحالية) — requires `moduleId` header\n- Recent orders (أعد طلبك — requires login + `moduleId` header)\n- Popular brands grid (أشهر العلامات التجارية)\n- Categories horizontal scroll\n- Paginated store grid with optional filters (`GET /api/v2/stores`)\n\n**Important:** Current Offers and Recent Orders require the `moduleId` header set to `{{module_id}}`. The store grid uses `module_id` as a query param plus optional filter params (`category_id`, `free_delivery`, `top_rated`, `under_30_min`, `open_now`, `has_offer`). Set `{{module_id}}` in your environment before running.\n\n**Module IDs:**\n- `3` — Hypermarket\n- `6` — Restaurants\n- `8` — Pharmacy",
       "item": [
         {
           "name": "Offers — Module Banner Carousel",
@@ -603,7 +610,7 @@
                 }
               ]
             },
-            "description": "Powers the **العروض الحالية** (Current Offers) horizontal row on the Module screen.\n\n**Scope:** Results are filtered to the module specified in the `moduleId` header.\n\n**Returns:** Paginated list of stores with active offers. Each item includes:\n- `store_id` — store ID\n- `store_name` — localized store name\n- `store_logo_full_url` — full logo URL\n- `offer_title` — offer title\n- `image_full_url` — offer image full URL\n- `original_price` — original price (float)\n- `discounted_price` — price after discount (float)\n- `discount_amount` — discount value (float)\n- `discount_type` — `percent` or `amount`\n- `module_id` — which module this offer belongs to\n\n**Difference from Home:** Same endpoint as Home → Current Offers, but `moduleId` header is **required** here to scope results to the active module page."
+            "description": "Powers the **العروض الحالية** (Current Offers) horizontal row on the Module screen (`/modules/:id`).\n\n**Scope:** `moduleId` header is **required** — set to `{{module_id}}` matching the module page being viewed (e.g. `3` for Hypermarket, `6` for Restaurants).\n\n**App proxy:** `GET /api/module/current-offers?moduleId={{module_id}}`\n\n**Returns:** Paginated list of stores with active offers. Each item includes:\n- `store_id` — store ID\n- `store_name` — localized store name\n- `store_logo_full_url` — full logo URL\n- `offer_title` — offer title\n- `description` — offer description (nullable)\n- `image_full_url` — offer image full URL\n- `original_price` — original price (float)\n- `discounted_price` — price after discount (float)\n- `discount_amount` — discount value (float)\n- `discount_type` — `percent` or `amount`\n- `module_id` — which module this offer belongs to\n\n**Difference from Home:** Home → Current Offers returns offers across all modules with **no** `moduleId` header."
           },
           "event": [
             {
@@ -694,7 +701,7 @@
                 "recent"
               ]
             },
-            "description": "Powers the **الطلبات السابقة** (Recent Orders) horizontal row on the Module screen.\n\n**Authentication:** Requires a valid Bearer token. Run the Auth Flow folder first to obtain one — the token is auto-saved to `{{token}}`.\n\n**Scope:** Pass `moduleId` header to return only orders from stores in the active module.\n\n**Returns:**\n```json\n{\n  \"status\": true,\n  \"message\": \"Recent orders retrieved successfully\",\n  \"orders\": [\n    {\n      \"id\": 123,\n      \"store_name\": \"أسواق التميمي\",\n      \"store_logo\": \"https://...\",\n      \"order_type\": \"delivery\",\n      \"order_status\": \"delivered\",\n      \"order_date\": \"2026-06-10T12:00:00.000000Z\",\n      \"module_name\": \"هايبرماركت\",\n      \"module_logo\": \"https://...\"\n    }\n  ]\n}\n```\n\n**Returns:** `401 Unauthorized` if no valid token is provided.\n\n**Difference from Home:** Same endpoint as Home → Recent Orders, but `moduleId` header is **required** here to scope results to the active module page."
+            "description": "Powers the **أعد طلبك** (Recent Orders) section on the Module screen (`/modules/:id`).\n\n**Authentication:** Requires a valid Bearer token. Run the Auth Flow folder first to obtain one — the token is auto-saved to `{{token}}`.\n\n**Scope:** `moduleId` header is **required** — set to `{{module_id}}` matching the module page being viewed. Returns only orders from stores in that module.\n\n**App proxy:** `GET /api/module/recent-orders?module_id={{module_id}}`\n\n**Returns:**\n```json\n{\n  \"status\": true,\n  \"message\": \"Recent orders retrieved successfully\",\n  \"orders\": [\n    {\n      \"id\": 123,\n      \"store_name\": \"أسواق التميمي\",\n      \"store_logo\": \"https://...\",\n      \"order_type\": \"delivery\",\n      \"order_status\": \"delivered\",\n      \"order_date\": \"2026-06-10T12:00:00.000000Z\",\n      \"module_name\": \"هايبرماركت\",\n      \"module_logo\": \"https://...\"\n    }\n  ]\n}\n```\n\n**Returns:** `401 Unauthorized` if no valid token is provided.\n\n**Difference from Home:** Home → Recent Orders returns orders across all modules with **no** `moduleId` header."
           },
           "event": [
             {
@@ -915,17 +922,21 @@
               }
             ],
             "url": {
-              "raw": "{{backend_url}}/api/v1/stores/get-stores?limit={{limit}}&offset={{offset}}",
+              "raw": "{{backend_url}}/api/v2/stores?module_id={{module_id}}&limit={{limit}}&offset={{offset}}",
               "host": [
                 "{{backend_url}}"
               ],
               "path": [
                 "api",
-                "v1",
-                "stores",
-                "get-stores"
+                "v2",
+                "stores"
               ],
               "query": [
+                {
+                  "key": "module_id",
+                  "value": "{{module_id}}",
+                  "description": "Required on Module page — scopes stores to this module (e.g. 6 for Restaurants)"
+                },
                 {
                   "key": "limit",
                   "value": "{{limit}}",
@@ -937,26 +948,44 @@
                   "description": "Skip count — 0, 12, 24…"
                 },
                 {
-                  "key": "type",
-                  "value": "all",
-                  "description": "Filter by item type: all | veg | non_veg",
+                  "key": "category_id",
+                  "value": "12",
+                  "description": "Optional — filter by category ID",
                   "disabled": true
                 },
                 {
-                  "key": "sort_by",
-                  "value": "recommended",
-                  "description": "Sort: recommended | distance | ratings_desc | delivery_time_asc",
-                  "disabled": true
-                },
-                {
-                  "key": "featured",
+                  "key": "free_delivery",
                   "value": "1",
-                  "description": "Filter to featured stores only",
+                  "description": "Optional — only stores with free delivery",
+                  "disabled": true
+                },
+                {
+                  "key": "top_rated",
+                  "value": "1",
+                  "description": "Optional — only top-rated stores",
+                  "disabled": true
+                },
+                {
+                  "key": "under_30_min",
+                  "value": "1",
+                  "description": "Optional — only stores delivering within 30 minutes",
+                  "disabled": true
+                },
+                {
+                  "key": "open_now",
+                  "value": "1",
+                  "description": "Optional — only stores currently open",
+                  "disabled": true
+                },
+                {
+                  "key": "has_offer",
+                  "value": "1",
+                  "description": "Optional — only stores with active offers",
                   "disabled": true
                 }
               ]
             },
-            "description": "Powers the paginated store grid at the bottom of the Module screen.\n\n**Returns:** Paginated stores scoped to the given module and zone, with `total_size`, `limit`, and `offset`.\n\n**Pagination:** Use `offset` as skip count — for page 2 with `limit=12`, send `offset=12`. For page 3, `offset=24`.\n\n**Optional filters (disabled by default — enable in Params tab):**\n- `type` — `all`, `veg`, or `non_veg`\n- `sort_by` — `recommended`, `distance`, `ratings_desc`, `delivery_time_asc`\n- `featured` — `1` to show featured stores only"
+            "description": "Powers the paginated store grid and filter chips at the bottom of the Module screen.\n\n**Endpoint:** `GET /api/v2/stores`\n\n**App proxy:** `GET /api/module/stores?module_id={{module_id}}&limit=12&offset=0`\n\n**Returns:** Paginated stores scoped to the given module and zone, with `total_size`, `limit`, and `offset`.\n\n**Pagination:** Use `offset` as skip count — for page 2 with `limit=12`, send `offset=12`. For page 3, `offset=24`.\n\n**Query params (filters are all optional and combinable):**\n\n| Param | Example | Description |\n|---|---|---|\n| `module_id` | `6` | Scope to module (Restaurants) |\n| `limit` | `12` | Page size |\n| `offset` | `0` | Skip count |\n| `category_id` | `12` | Specific category |\n| `free_delivery` | `1` | Free delivery only |\n| `top_rated` | `1` | Top rated only |\n| `under_30_min` | `1` | Delivery within 30 min |\n| `open_now` | `1` | Open now only |\n| `has_offer` | `1` | Stores with offers |\n\n**Examples:**\n- No filters: `/api/v2/stores?module_id=6&limit=12&offset=0`\n- Category: `/api/v2/stores?module_id=6&category_id=12`\n- Combined: `/api/v2/stores?module_id=6&top_rated=1&has_offer=1`\n\nEnable optional query params in Postman to test individual filters."
           },
           "event": [
             {
