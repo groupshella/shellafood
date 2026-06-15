@@ -942,28 +942,10 @@
                   "key": "offset",
                   "value": "{{offset}}",
                   "description": "Skip count — 0, 12, 24…"
-                },
-                {
-                  "key": "type",
-                  "value": "all",
-                  "description": "Filter by item type: all | veg | non_veg",
-                  "disabled": true
-                },
-                {
-                  "key": "sort_by",
-                  "value": "recommended",
-                  "description": "Sort: recommended | distance | ratings_desc | delivery_time_asc",
-                  "disabled": true
-                },
-                {
-                  "key": "featured",
-                  "value": "1",
-                  "description": "Filter to featured stores only",
-                  "disabled": true
                 }
               ]
             },
-            "description": "Powers the paginated store grid at the bottom of the Module screen.\n\n**Returns:** Paginated stores scoped to the given module and zone, with `total_size`, `limit`, and `offset`.\n\n**Pagination:** Use `offset` as skip count — for page 2 with `limit=12`, send `offset=12`. For page 3, `offset=24`.\n\n**Optional filters (disabled by default — enable in Params tab):**\n- `type` — `all`, `veg`, or `non_veg`\n- `sort_by` — `recommended`, `distance`, `ratings_desc`, `delivery_time_asc`\n- `featured` — `1` to show featured stores only"
+            "description": "Powers the paginated store grid at the bottom of the Module screen.\n\n**Returns:** Paginated stores scoped to the given module and zone, with `total_size`, `limit`, and `offset`.\n\n**Pagination:** Use `offset` as skip count — for page 2 with `limit=12`, send `offset=12`. For page 3, `offset=24`"
           },
           "event": [
             {
