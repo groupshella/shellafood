@@ -1477,7 +1477,7 @@
     },
     {
       "name": "05 — Store Details Page",
-      "description": "All API calls that power the Store Details screen (`/stores/:id`).\n\n**Sections on this screen:**\n- Store header (name, description, rating, delivery time, free delivery badge)\n- Categories grid (تصنيفات المتجر)\n- Category products row (from first category)\n- Featured discounted store section (عروض مختارة لك)\n- Featured products from another store section\n\n**Before running:** Set `{{store_id}}` to the store you want to inspect (default `1`).\n\n**App proxy:** `GET /api/store?id={{store_id}}`",
+      "description": "All API calls that power the Store Details screen (`/stores/:id`).\n\n**Sections on this screen:**\n- Store header (name, description, rating, delivery time, free delivery badge)\n- Categories grid (تصنيفات المتجر) — `GET /api/v2/stores/{store_id}/categories`\n- Category products row (from first category)\n- Featured discounted store section (عروض مختارة لك)\n- Featured products from another store section\n\n**Before running:** Set `{{store_id}}` to the store you want to inspect (default `1`).\n\n**App proxies:**\n- Full page: `GET /api/store?id={{store_id}}`\n- Categories only: TBD",
       "item": [
         {
           "name": "Store Details — Full Page Payload",
@@ -1577,6 +1577,79 @@
                   "            pm.expect(json[key].products).to.be.an('array');",
                   "        }",
                   "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Store Categories — Categories Grid",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}",
+                "description": "Required — delivery zone"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en — localized category names"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/stores/{{store_id}}/categories",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "stores",
+                "{{store_id}}",
+                "categories"
+              ]
+            },
+            "description": "Returns only the category fields needed for the store categories grid on the Store Details screen.\n\n**Endpoint:** `GET /api/v2/stores/{store_id}/categories`\n\n**Headers:** `zoneId`, `X-Localization`, and `Accept-Language` are required. No `moduleId` header is needed.\n\n**Returns:** A flat array of category objects — no wrapper object.\n```json\n[\n  {\n    \"id\": 2,\n    \"name\": \"الألبان والبيض\",\n    \"full_image_url\": \"https://images.todoorstep.com/app-assets/categoryicons/subcategory/dairy_eggs.png\"\n  },\n  {\n    \"id\": 3,\n    \"name\": \"الأسماك والمأكولات البحرية\",\n    \"full_image_url\": \"https://images.todoorstep.com/app-assets/categoryicons/subcategory/fish_seafood.png\"\n  }\n]\n```\n\n**Use when:** You only need to load or refresh the categories grid without fetching the full store details payload."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each category has id, name and full_image_url only', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.length > 0) {",
+                  "        const category = json[0];",
+                  "        pm.expect(category).to.have.property('id');",
+                  "        pm.expect(category).to.have.property('name');",
+                  "        pm.expect(category).to.have.property('full_image_url');",
+                  "        pm.expect(category.id).to.be.a('number');",
+                  "        pm.expect(category.name).to.be.a('string');",
+                  "        pm.expect(category.full_image_url).to.be.a('string');",
+                  "    }",
                   "});"
                 ],
                 "type": "text/javascript"
