@@ -9,13 +9,13 @@ const REVALIDATE_TIME = process.env.REVALIDATE_TIME;
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const moduleId = searchParams.get("moduleId");
-    if (!moduleId || Number.isNaN(Number(moduleId))) {
+    const module_id = searchParams.get("module_id");
+    if (!module_id || Number.isNaN(Number(module_id))) {
         return apiError("Module ID is required", 400);
     }
     try {
         const backendRes = await fetch(
-            `${BACKEND_URL}/api/v2/stores/offers?limit=10&offset=2`,
+            `${BACKEND_URL}/api/v2/stores/offers?limit=10&offset=0`,
             {
                 method: "GET",
                 headers: {
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
                     zoneId: ZONE_ID!,
                     latitude: LATITUDE!,
                     longitude: LONGITUDE!,
-                    moduleId: moduleId,
+                    moduleId: module_id,
                 },
                 next: { revalidate: Number(REVALIDATE_TIME) },
             },

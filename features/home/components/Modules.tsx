@@ -68,10 +68,10 @@ function ModuleCard({
 }) {
     const { bg, text } = getColor(colorIndex);
     const isTall = variant === "tall";
-
+    const href = module.id === 3 ? `/stores/1?module_id=3` : `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
     return (
         <Link
-            href={`/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`}
+            href={href}
             className={[
                 "relative flex w-full overflow-hidden rounded-2xl outline-none",
                 "transition-transform duration-150 active:scale-[0.98]",

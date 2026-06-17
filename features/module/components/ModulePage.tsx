@@ -32,6 +32,7 @@ export default function ModulePage({ moduleId, moduleName, isAuthenticated }: Mo
                 </Link>
             )}
             <Categories moduleId={moduleId} moduleName={moduleName} />
+
             <Offers moduleId={moduleId} moduleName={moduleName} />
             <CurrentOffers moduleId={moduleId} moduleName={moduleName} />
             <RecentOrders moduleId={moduleId} moduleName={moduleName} />

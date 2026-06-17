@@ -11,13 +11,13 @@ interface UseCategoriesReturn {
     refetch: () => Promise<void>;
 }
 
-export function useCategories(moduleId: string | undefined): UseCategoriesReturn {
+export function useCategories(module_id: string | undefined): UseCategoriesReturn {
     const [categories, setCategories] = useState<Category[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const fetchCategories = useCallback(async () => {
-        if (!moduleId) {
+        if (!module_id) {
             setCategories([]);
             setIsLoading(false);
             return;
@@ -27,7 +27,7 @@ export function useCategories(moduleId: string | undefined): UseCategoriesReturn
         setError(null);
 
         try {
-            const res = await fetch(`/api/module/categories?moduleId=${moduleId}`);
+            const res = await fetch(`/api/module/categories?module_id=${module_id}`);
             const json = (await res.json()) as ApiResponse<GetCategoriesResponse>;
             const data = unwrap(json);
             setCategories(data ?? []);
@@ -37,7 +37,7 @@ export function useCategories(moduleId: string | undefined): UseCategoriesReturn
         } finally {
             setIsLoading(false);
         }
-    }, [moduleId]);
+    }, [module_id]);
 
     useEffect(() => {
         fetchCategories();

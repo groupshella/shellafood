@@ -11,13 +11,14 @@ interface UseOffersReturn {
     refetch: () => Promise<void>;
 }
 
-export function useOffers(moduleId: string | undefined): UseOffersReturn {
+export function useOffers(module_id: string | undefined): UseOffersReturn {
     const [offers, setOffers] = useState<Offer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const fetchOffers = useCallback(async () => {
-        if (!moduleId) {
+
+        if (!module_id) {
             setOffers([]);
             setIsLoading(false);
             return;
@@ -27,7 +28,7 @@ export function useOffers(moduleId: string | undefined): UseOffersReturn {
         setError(null);
 
         try {
-            const res = await fetch(`/api/module/offers?moduleId=${moduleId}`);
+            const res = await fetch(`/api/module/offers?module_id=${module_id}`);
             const json = (await res.json()) as ApiResponse<GetOffersResponse>;
             const data = unwrap(json);
             setOffers(data.data ?? []);
@@ -37,7 +38,7 @@ export function useOffers(moduleId: string | undefined): UseOffersReturn {
         } finally {
             setIsLoading(false);
         }
-    }, [moduleId]);
+    }, [module_id]);
 
     useEffect(() => {
         fetchOffers();

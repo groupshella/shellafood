@@ -14,7 +14,7 @@ interface UseRecentOrdersReturn {
     refetch: () => Promise<void>;
 }
 
-export function useRecentOrders(moduleId: string): UseRecentOrdersReturn {
+export function useRecentOrders(module_id: string): UseRecentOrdersReturn {
     const [orders, setOrders] = useState<RecentOrder[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export function useRecentOrders(moduleId: string): UseRecentOrdersReturn {
         setError(null);
 
         try {
-            const res = await fetch(`/api/module/recent-orders?module_id=${moduleId}`);
+            const res = await fetch(`/api/module/recent-orders?module_id=${module_id}`);
             const json = (await res.json()) as ApiResponse<GetRecentOrdersResponse>;
             const data = unwrap(json);
             setOrders(data.orders ?? []);
@@ -34,7 +34,7 @@ export function useRecentOrders(moduleId: string): UseRecentOrdersReturn {
         } finally {
             setIsLoading(false);
         }
-    }, [moduleId]);
+    }, [module_id]);
 
     useEffect(() => {
         fetchOrders();

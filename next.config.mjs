@@ -30,6 +30,26 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'hybrisproduction.blob.core.windows.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'portal.jahez.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'alsadhanimages.blob.core.windows.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'uploads-prod.tryblend.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'd1c124wpoew66.cloudfront.net',
         pathname: '/**',
       },

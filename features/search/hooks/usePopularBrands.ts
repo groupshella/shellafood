@@ -14,7 +14,7 @@ interface UsePopularBrandsReturn {
     refetch: () => Promise<void>;
 }
 
-export function usePopularBrands(moduleId: string | undefined): UsePopularBrandsReturn {
+export function usePopularBrands(module_id: string | undefined): UsePopularBrandsReturn {
     const [brands, setBrands] = useState<PopularBrand[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export function usePopularBrands(moduleId: string | undefined): UsePopularBrands
         setError(null);
 
         try {
-            const res = await fetch(`/api/search/popular-brands?moduleId=${moduleId}`);
+            const res = await fetch(`/api/search/popular-brands?module_id=${module_id}`);
             const json = (await res.json()) as ApiResponse<GetPopularBrandsResponse>;
             const data = unwrap(json);
             setBrands(data ?? []);
@@ -34,7 +34,7 @@ export function usePopularBrands(moduleId: string | undefined): UsePopularBrands
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [module_id]);
 
     useEffect(() => {
         fetchPopularBrands();

@@ -13,11 +13,11 @@ const REVALIDATE_TIME = process.env.REVALIDATE_TIME;
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const moduleId = searchParams.get("moduleId");
+    const module_id = searchParams.get("module_id");
     const latitude = searchParams.get("latitude") ?? LATITUDE!;
     const longitude = searchParams.get("longitude") ?? LONGITUDE!;
 
-    if (!moduleId || Number.isNaN(Number(moduleId))) {
+    if (!module_id || Number.isNaN(Number(module_id))) {
         return apiError("Module ID is required", 400);
     }
 
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
                 "Content-Type": "application/json",
                 "X-localization": "ar",
                 "Accept-Language": "ar",
-                moduleId,
+                moduleId: module_id,
                 zoneId: ZONE_ID!,
                 latitude,
                 longitude,

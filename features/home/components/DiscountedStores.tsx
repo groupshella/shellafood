@@ -21,7 +21,7 @@ function StoreCard({ store }: { store: DiscountedStore }) {
 
     return (
         <Link
-            href={`/store/${store.id}`}
+            href={`/stores/${store.id}`}
             className={[
                 "group flex w-[260px] shrink-0 flex-col overflow-hidden rounded-2xl bg-white",
                 "shadow-sm ring-1 ring-black/[0.04] outline-none",
