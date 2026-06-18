@@ -9,7 +9,8 @@ const MODULE_ID = process.env.MODULE_ID;
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id") ?? "";
-    const moduleId = searchParams.get("module_id") ?? MODULE_ID;
+    // const moduleId = searchParams.get("module_id") ?? MODULE_ID;
+    const moduleId = MODULE_ID;
     if (!id || Number.isNaN(Number(id))) {
         return apiError("Item ID is required", 400);
     }
