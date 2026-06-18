@@ -29,7 +29,7 @@ function StoreCard({ store }: { store: Store }) {
 
     return (
         <Link
-            href={`/store/${store.id}?module_id=${store.module_id}`}
+            href={`/stores/${store.id}?module_id=${store.module_id}`}
             className={[
                 "group flex items-center gap-3 rounded-2xl bg-white p-3",
                 "shadow-[0_2px_12px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04]",

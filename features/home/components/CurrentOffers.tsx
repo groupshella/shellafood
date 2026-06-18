@@ -60,7 +60,7 @@ function OfferCard({ offer }: { offer: CurrentOffer }) {
 
     return (
         <Link
-            href={`/store/${offer.store_id}`}
+            href={`/stores/${offer.store_id}`}
             className={[
                 "group flex w-[172px] shrink-0 flex-col overflow-hidden rounded-2xl bg-white",
                 "shadow-[0_2px_12px_rgba(0,0,0,0.06)] outline-none",
@@ -69,17 +69,16 @@ function OfferCard({ offer }: { offer: CurrentOffer }) {
             ].join(" ")}
             aria-label={`${offer.store_name} — ${offer.offer_title}`}
         >
-            <div className="relative h-[148px] w-full shrink-0 overflow-hidden bg-[#FFF5F0]">
+            <div className="relative h-full w-full shrink-0 overflow-hidden bg-[#FFF5F0]">
                 <OfferWavePattern patternId={wavePatternId} />
-                <div className="relative flex h-full items-center justify-center px-3 py-4">
+                <div className="relative flex h-full  ">
                     {!imageError && offer.image_full_url ? (
                         <Image
                             src={offer.image_full_url}
                             alt={offer.offer_title}
                             width={140}
                             height={120}
-                            className="max-h-[120px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.04]"
-                            sizes="172px"
+                            className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
                             onError={() => setImageError(true)}
                         />
                     ) : (
@@ -90,23 +89,20 @@ function OfferCard({ offer }: { offer: CurrentOffer }) {
 
             <div className="flex flex-1 flex-col gap-2 bg-white px-3 pb-3 pt-2.5">
                 <div className="flex items-center justify-start gap-2.5">
-                    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                    <div className="relative h-full w-full shrink-0 overflow-hidden rounded-lg bg-gray-100">
                         {!logoError && offer.store_logo_full_url ? (
                             <Image
                                 src={offer.store_logo_full_url}
                                 alt={offer.store_name}
                                 fill
                                 className="object-cover"
-                                sizes="44px"
                                 onError={() => setLogoError(true)}
                             />
                         ) : (
                             <div className="h-full w-full bg-[#30913F]/15" />
                         )}
                     </div>
-                    <h3 className="line-clamp-1 min-w-0 flex-1 text-[15px] font-bold leading-snug text-gray-900">
-                        {offer.store_name}
-                    </h3>
+
                 </div>
 
                 <p className="line-clamp-1 text-[13px] leading-snug text-gray-500">

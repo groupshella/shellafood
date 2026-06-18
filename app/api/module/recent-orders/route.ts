@@ -8,8 +8,8 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 const REVALIDATE_TIME = Number(process.env.REVALIDATE_TIME);
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const moduleId = searchParams.get("module_id");
-    if (!moduleId || Number.isNaN(Number(moduleId))) {
+    const module_id = searchParams.get("module_id");
+    if (!module_id || Number.isNaN(Number(module_id))) {
         return apiError("Module ID is required", 400);
     }
     const cookieStore = await cookies();
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
                 Accept: "application/json",
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
-                moduleId: moduleId,
+                moduleId: module_id,
             },
             next: {
                 revalidate: REVALIDATE_TIME

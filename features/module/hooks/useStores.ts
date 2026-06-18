@@ -21,13 +21,13 @@ interface UseStoresReturn {
 }
 
 function buildParams(
-    moduleId: string,
+    module_id: string,
     filters: StoreFilters,
     limit: number,
     offset: number,
 ): URLSearchParams {
     const params = new URLSearchParams({
-        module_id: moduleId,
+        module_id: module_id,
         limit: String(limit),
         offset: String(offset),
     });
@@ -42,7 +42,7 @@ function buildParams(
     return params;
 }
 
-export function useStores(moduleId: string | undefined): UseStoresReturn {
+export function useStores(module_id: string | undefined): UseStoresReturn {
     const [stores, setStores] = useState<Store[]>([]);
     const [totalSize, setTotalSize] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +60,7 @@ export function useStores(moduleId: string | undefined): UseStoresReturn {
             activeFilters: StoreFilters,
             signal?: AbortSignal,
         ) => {
-            if (!moduleId) {
+            if (!module_id) {
                 setStores([]);
                 setTotalSize(0);
                 setIsLoading(false);
@@ -71,7 +71,7 @@ export function useStores(moduleId: string | undefined): UseStoresReturn {
             setError(null);
 
             try {
-                const params = buildParams(moduleId, activeFilters, PAGE_SIZE, nextOffset);
+                const params = buildParams(module_id, activeFilters, PAGE_SIZE, nextOffset);
                 const res = await fetch(`/api/module/stores?${params}`, { signal });
                 const json = (await res.json()) as ApiResponse<GetStoresResponse>;
                 const data = unwrap(json);
@@ -96,7 +96,7 @@ export function useStores(moduleId: string | undefined): UseStoresReturn {
                 setIsLoadingMore(false);
             }
         },
-        [moduleId],
+        [module_id],
     );
 
     // Re-fetch from scratch whenever moduleId or filters change

@@ -3,12 +3,11 @@ import { apiError, apiSuccess } from "@/shared/lib/api-response";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 const REVALIDATE_TIME = process.env.REVALIDATE_TIME;
-const MODULE_ID = process.env.MODULE_ID;
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const moduleId = searchParams.get("moduleId");
-    if (!moduleId || Number.isNaN(Number(moduleId))) {
+    const module_id = searchParams.get("module_id");
+    if (!module_id || Number.isNaN(Number(module_id))) {
         return apiError("Module ID is required", 400);
     }
 
@@ -18,7 +17,7 @@ export async function GET(request: Request) {
             headers: {
                 Accept: "application/json",
                 "X-Localization": "ar",
-                moduleId: MODULE_ID!,
+                moduleId: module_id,
             },
             next: { revalidate: Number(REVALIDATE_TIME) },
         });

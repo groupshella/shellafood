@@ -10,9 +10,8 @@ const REVALIDATE_TIME = process.env.REVALIDATE_TIME;
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    // const moduleId = searchParams.get("moduleId");
-    const moduleId = process.env.MODULE_ID;
-    if (!moduleId) {
+    const module_id = searchParams.get("module_id");
+    if (!module_id || Number.isNaN(Number(module_id))) {
         return apiError("Module ID is required", 400);
     }
     try {
@@ -21,7 +20,7 @@ export async function GET(request: Request) {
             headers: {
                 Accept: "application/json",
                 zoneId: ZONE_ID!,
-                moduleId,
+                moduleId: module_id,
             },
             next: { revalidate: Number(REVALIDATE_TIME) }
         });

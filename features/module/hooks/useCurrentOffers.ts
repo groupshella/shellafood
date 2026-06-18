@@ -14,7 +14,7 @@ interface UseCurrentOffersReturn {
     refetch: () => Promise<void>;
 }
 
-export function useCurrentOffers(moduleId: string): UseCurrentOffersReturn {
+export function useCurrentOffers(module_id: string): UseCurrentOffersReturn {
     const [offers, setOffers] = useState<CurrentOffer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export function useCurrentOffers(moduleId: string): UseCurrentOffersReturn {
         setError(null);
 
         try {
-            const res = await fetch(`/api/module/current-offers?moduleId=${moduleId}`);
+            const res = await fetch(`/api/module/current-offers?module_id=${module_id}`);
             const json = (await res.json()) as ApiResponse<GetCurrentOffersResponse>;
             const data = unwrap(json);
             setOffers(data.offers ?? []);
@@ -34,7 +34,7 @@ export function useCurrentOffers(moduleId: string): UseCurrentOffersReturn {
         } finally {
             setIsLoading(false);
         }
-    }, [moduleId]);
+    }, [module_id]);
 
     useEffect(() => {
         fetchOffers();
