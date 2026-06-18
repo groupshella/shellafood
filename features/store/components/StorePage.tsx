@@ -8,13 +8,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Clock, Heart, Search, Star, Truck, Plus } from "lucide-react";
 import { useStoreDetails } from "@/features/store/hooks/useStoreDetails";
 import {
-    Category,
     Product,
     DiscountedProduct,
     FeaturedStoreDiscounted,
     FeaturedStoreProducts,
     StoreDetails,
 } from "@/features/store/types/store-details.types";
+import { StoreCategory } from "../types/store-categories.types";
 
 // ─── Style tokens ─────────────────────────────────────────────────────────────
 
@@ -322,7 +322,7 @@ function CategoryCard({
     category,
     storeId,
 }: {
-    category: Category;
+    category: StoreCategory;
     storeId: string;
 }) {
     const [imageError, setImageError] = useState(false);
@@ -388,7 +388,7 @@ function CategoriesSection({
     onShowAll,
     loadingAll,
 }: {
-    categories: Category[];
+    categories: StoreCategory[];
     storeId: string;
     onShowAll: () => void;
     loadingAll: boolean;
@@ -431,7 +431,7 @@ function AllCategoriesOverlay({
     storeId,
     onClose,
 }: {
-    categories: Category[];
+    categories: StoreCategory[];
     store: StoreDetails;
     storeId: string;
     onClose: () => void;
