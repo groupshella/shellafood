@@ -33,7 +33,7 @@ function OfferSlide({ offer, priority = false }: { offer: Offer; priority?: bool
             fill
             priority={priority}
             quality={85}
-            className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            className=" object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) calc(100vw - 48px), 960px"
             onError={() => setHasError(true)}
         />

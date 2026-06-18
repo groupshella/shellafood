@@ -128,9 +128,15 @@ export default function Banners() {
                 <Swiper
                     dir="rtl"
                     modules={[Autoplay, Pagination, A11y]}
-                    // KEY FIX: remove !overflow-visible — that was what caused page-level
-                    // scroll when swiping. Keep overflow clipped inside the section above.
-                    className="w-full"
+                    className="banner-swiper w-full"
+                    style={
+                        {
+                            "--swiper-theme-color": "#30913f",
+                            "--swiper-pagination-color": "#30913f",
+                            "--swiper-pagination-bullet-inactive-color": "#d1d5db",
+                            "--swiper-pagination-bullet-inactive-opacity": "1",
+                        } as React.CSSProperties
+                    }
                     loop
                     speed={650}
                     autoplay={{
@@ -138,10 +144,7 @@ export default function Banners() {
                         disableOnInteraction: false,
                         pauseOnMouseEnter: true,
                     }}
-                    pagination={{
-                        clickable: true,
-                        dynamicBullets: true,
-                    }}
+                    pagination={{ clickable: true }}
                     // KEY FIX: touchStartPreventDefault stops touch events from bubbling
                     // to the page scroll handler while the user is swiping a banner.
                     touchStartPreventDefault={false}
