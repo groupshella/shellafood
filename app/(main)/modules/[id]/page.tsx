@@ -1,95 +1,69 @@
-import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
-import ModulePage from "@/features/module/components/ModulePage";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
+import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
+import { MarketsShell } from "@/features/markets/components/MarketsShell";
+import { Categories } from "@/features/markets/components/sections/Categories";
+import { Offers } from "@/features/markets/components/sections/Offers";
+import { CurrentOffers } from "@/features/markets/components/sections/CurrentOffers";
+import { RecentOrders } from "@/features/markets/components/sections/RecentOrders";
+import { PopularBrands } from "@/features/markets/components/sections/PopularBrands";
+import { Stores } from "@/features/markets/components/sections/Stores";
 
 interface ModulePageRouteProps {
-	params: Promise<{ id: string }>;
-	searchParams: Promise<{ module_name?: string }>;
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{ module_name?: string }>;
 }
 
 export async function generateMetadata({
-	params,
-	searchParams,
+    params,
+    searchParams,
 }: ModulePageRouteProps): Promise<Metadata> {
-	const { id } = await params;
-	const { module_name } = await searchParams;
+    const { id } = await params;
+    const { module_name } = await searchParams;
+    const name = module_name || "القسم";
 
-	const name = module_name || "القسم";
-
-	return {
-		title: `${name} | شلة فود`,
-		description: `تصفّح المتاجر والعروض والمنتجات المتوفرة ضمن ${name} عبر شلة فود.`,
-
-		keywords: [
-			"شلة فود",
-			"Shella Food",
-			name,
-			"متاجر",
-			"توصيل",
-			"عروض",
-			"تسوق إلكتروني",
-			"سوبر ماركت",
-			"توصيل سريع",
-		],
-
-		alternates: {
-			canonical: `/module/${id}`,
-		},
-
-		openGraph: {
-			type: "website",
-			locale: "ar_SA",
-			url: `https://shellafood.com/module/${id}`,
-			siteName: "شلة فود",
-			title: `${name} | شلة فود`,
-			description: `تصفّح المتاجر والعروض والمنتجات المتوفرة ضمن ${name} عبر شلة فود.`,
-			images: [
-				{
-					url: "/images/og-image.png",
-					width: 1200,
-					height: 630,
-					alt: name,
-				},
-			],
-		},
-
-		twitter: {
-			card: "summary_large_image",
-			title: `${name} | شلة فود`,
-			description: `تصفّح المتاجر والعروض والمنتجات المتوفرة ضمن ${name} عبر شلة فود.`,
-			images: ["/images/og-image.png"],
-		},
-
-		robots: {
-			index: true,
-			follow: true,
-			googleBot: {
-				index: true,
-				follow: true,
-				"max-video-preview": -1,
-				"max-image-preview": "large",
-				"max-snippet": -1,
-			},
-		},
-	};
+    return {
+        title: `${name} | شلة فود`,
+        description: `تصفّح المتاجر والعروض والمنتجات المتوفرة ضمن ${name} عبر شلة فود.`,
+        alternates: { canonical: `/modules/${id}` },
+    };
 }
 
-export default async function ModulePageRoute({
-	params,
-	searchParams,
-}: ModulePageRouteProps) {
-	const { id } = await params;
-	const { module_name } = await searchParams;
+export default async function ModulePageRoute({ params, searchParams }: ModulePageRouteProps) {
+    const { id } = await params;
+    const { module_name } = await searchParams;
+    const moduleName = module_name || "";
 
-	const cookieStore = await cookies();
-	const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
+    const isAuthenticated = !!token;
 
-	return (
-		<ModulePage
-			moduleId={id}
-			moduleName={module_name || ""}
-			isAuthenticated={!!token}
-		/>
-	);
+    return (
+        <MarketsShell moduleId={id} moduleName={moduleName} isAuthenticated={isAuthenticated}>
+            <Suspense fallback={<Categories.skeleton />}>
+                <Categories moduleId={id} />
+            </Suspense>
+
+            <Suspense fallback={<Offers.skeleton />}>
+                <Offers moduleId={id} />
+            </Suspense>
+
+            <Suspense fallback={<CurrentOffers.skeleton />}>
+                <CurrentOffers moduleId={id} />
+            </Suspense>
+
+            <Suspense fallback={<RecentOrders.skeleton />}>
+                <RecentOrders moduleId={id} />
+            </Suspense>
+
+            <Suspense fallback={<PopularBrands.skeleton />}>
+                <PopularBrands moduleId={id} />
+            </Suspense>
+
+            <Suspense fallback={<Stores.skeleton />}>
+                <Stores moduleId={id} />
+            </Suspense>
+        </MarketsShell>
+    );
 }

@@ -1,7 +1,7 @@
 
 import {
     GetOffersResponse,
-} from "@/features/module/types/offers.types";
+} from "@/features/markets/types/offers.types";
 import { apiError, apiSuccess } from "@/shared/lib/api-response";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;

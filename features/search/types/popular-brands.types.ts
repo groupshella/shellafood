@@ -1,5 +1,3 @@
-// ── Get Popular Brands ────────────────────────────────────────────────────────
-
 export interface PopularBrand {
     id: number;
     name: string;

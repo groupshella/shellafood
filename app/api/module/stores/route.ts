@@ -1,4 +1,4 @@
-import { GetStoresResponse } from "@/features/module/types/stores.types";
+import { GetStoresResponse } from "@/features/markets/types/stores.types";
 
 import { apiError, apiSuccess } from "@/shared/lib/api-response";
 
