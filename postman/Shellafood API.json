@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "bdee566b-4c5f-4442-91a5-cccfa83b2ed8",
     "name": "Shellafood API — Official Collection",
-    "description": "# Shellafood API — Official Collection\n\n## Overview\nThis collection covers all backend endpoints powering the Shellafood app, organized by screen. Each folder maps to a page in the app and lists every API that drives it.\n\n---\n\n## Setup Instructions\n1. Import this file into Postman\n2. Import `shellafood-environment.json` (or create environment manually)\n3. Set `backend_url` to your target environment (staging or production)\n4. Set `zone_id` — default is `[2]`\n5. Set `module_id` to the module you are testing (e.g. `6` for Restaurants, `3` for Hypermarket)\n6. For authenticated endpoints, run **Auth Flow → Send OTP → Verify OTP** first — the `token` variable is auto-saved by the test script\n\n---\n\n## Environment Variables\n\n| Variable | Description | Example |\n|---|---|---|\n| `backend_url` | Base URL for the backend | `https://shellafood.com` |\n| `zone_id` | Delivery zone (JSON array) | `[2]` |\n| `module_id` | Active module for scoped requests | `6` |\n| `latitude` | User latitude for distance sorting | `24.567752` |\n| `longitude` | User longitude for distance sorting | `46.5444937` |\n| `limit` | Default page size | `12` |\n| `offset` | Default page offset | `0` |\n| `token` | Bearer token — auto-set after Verify OTP | |\n| `registration_token` | Temp token for new user registration — auto-set | |\n| `phone` | Phone number for OTP auth | |\n| `otp` | OTP code received by SMS | |\n\n---\n\n## Common Headers\n\n| Header | Required By | Example |\n|---|---|---|\n| `zoneId` | Most endpoints | `[2]` |\n| `moduleId` | Module-scoped endpoints | `6` |\n| `latitude` | Store/distance endpoints | `24.567752` |\n| `longitude` | Store/distance endpoints | `46.5444937` |\n| `X-Localization` | All endpoints (Arabic support) | `ar` or `en` |\n| `Authorization` | Authenticated endpoints | `Bearer {{token}}` |\n\n---\n\n## Screen Map\n\n| # | Screen | Route | Folder |\n|---|---|---|---|\n| 01 | Home | `/home` | 01 — Home Page |\n| 02 | Module | `/modules/:id` | 02 — Module Page |\n| 03 | Auth | `/auth` | 03 — Auth Flow |\n| 04 | Search | `/search` | 04 — Search Page |\n| 05 | Store Details | `/stores/:id` | 05 — Store Details Page |",
+    "description": "# Shellafood API — Official Collection\n\n## Overview\nThis collection covers all backend endpoints powering the Shellafood app, organized by screen. Each folder maps to a page in the app and lists every API that drives it.\n\n---\n\n## Setup Instructions\n1. Import this file into Postman\n2. Set `backend_url` to your target environment (staging or production)\n3. Edit collection variables as needed — defaults: `store_id=62`, `module_id=6`, `category_id=772`, `item_id=240708`\n4. Set `zone_id` — default is `[2]`\n5. For authenticated endpoints, run **Auth Flow → Send OTP → Verify OTP** first — the `token` variable is auto-saved by the test script\n\n---\n\n## Collection Variables\n\n| Variable | Description | Default |\n|---|---|---|\n| `backend_url` | Base URL for the backend | `https://shellafood.com` |\n| `zone_id` | Delivery zone (JSON array) | `[2]` |\n| `module_id` | Active module for scoped requests | `6` |\n| `store_id` | Store ID for store/category endpoints | `62` |\n| `category_id` | Store category ID for category detail | `772` |\n| `item_id` | Product/item ID for item detail endpoints | `240708` |\n| `latitude` | User latitude for distance sorting | `24.567752` |\n| `longitude` | User longitude for distance sorting | `46.5444937` |\n| `limit` | Default page size | `12` |\n| `offset` | Default page offset | `0` |\n| `token` | Bearer token — auto-set after Verify OTP | |\n| `registration_token` | Temp token for new user registration — auto-set | |\n| `phone` | Phone number for OTP auth | |\n| `otp` | OTP code received by SMS | |\n\n---\n\n## Common Headers\n\n| Header | Required By | Example |\n|---|---|---|\n| `zoneId` | Most endpoints | `[2]` |\n| `moduleId` | Module-scoped endpoints | `6` |\n| `latitude` | Store/distance endpoints | `24.567752` |\n| `longitude` | Store/distance endpoints | `46.5444937` |\n| `X-Localization` | All endpoints (Arabic support) | `ar` or `en` |\n| `Authorization` | Authenticated endpoints | `Bearer {{token}}` |\n\n---\n\n## Screen Map\n\n| # | Screen | Route | Folder |\n|---|---|---|---|\n| 01 | Home | `/home` | 01 — Home Page |\n| 02 | Module | `/modules/:id` | 02 — Module Page |\n| 03 | Auth | `/auth` | 03 — Auth Flow |\n| 04 | Search | `/search` | 04 — Search Page |\n| 05 | Store Details | `/stores/:id` | 05 — Store Details Page |\n| 06 | Categories | `/stores/:id/categories` | 06 — Categories Page |\n| 07 | Item Details | `/items/:id` | 07 — Item Details Page |",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -74,7 +74,7 @@
     },
     {
       "key": "store_id",
-      "value": "1",
+      "value": "62",
       "description": "Store ID — used in store detail, menu, and category endpoints",
       "type": "string"
     },
@@ -82,6 +82,18 @@
       "key": "localization",
       "value": "ar",
       "description": "Language for localized content — ar or en",
+      "type": "string"
+    },
+    {
+      "key": "item_id",
+      "value": "240708",
+      "description": "Item/product ID — used in item detail and related items endpoints",
+      "type": "string"
+    },
+    {
+      "key": "category_id",
+      "value": "772",
+      "description": "Store category ID — used in category detail endpoint",
       "type": "string"
     }
   ],
@@ -793,7 +805,7 @@
                 "categories"
               ]
             },
-            "description": "Powers the horizontal categories row below the offers carousel on the Module screen.\n\n**Returns:** Array of category objects scoped to the given module, including `id`, `name`, and `image_full_url`.\n\n**Localization:** Pass `X-Localization: ar` for Arabic category names."
+            "description": "Powers the horizontal categories row below the offers carousel on the Module screen.\n\n**App proxy:** `GET /api/module/categories?module_id={{module_id}}`\n\n**Returns:** Wrapped response with category objects scoped to the given module:\n```json\n{\n  \"success\": true,\n  \"data\": [\n    { \"id\": 12, \"name\": \"مطاعم\", \"slug\": \"restaurants\", \"image_full_url\": \"https://...\" }\n  ]\n}\n```\n\n**Localization:** Pass `X-Localization: ar` for Arabic category names."
           },
           "event": [
             {
@@ -804,17 +816,20 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Response is an array', function () {",
+                  "pm.test('Response has success and data array', function () {",
                   "    const json = pm.response.json();",
-                  "    pm.expect(json).to.be.an('array');",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json.data).to.be.an('array');",
                   "});",
                   "",
-                  "pm.test('Each category has id, name and image', function () {",
+                  "pm.test('Each category has id, name, slug and image', function () {",
                   "    const json = pm.response.json();",
-                  "    if (json.length > 0) {",
-                  "        pm.expect(json[0]).to.have.property('id');",
-                  "        pm.expect(json[0]).to.have.property('name');",
-                  "        pm.expect(json[0]).to.have.property('image_full_url');",
+                  "    if (json.data && json.data.length > 0) {",
+                  "        pm.expect(json.data[0]).to.have.property('id');",
+                  "        pm.expect(json.data[0]).to.have.property('name');",
+                  "        pm.expect(json.data[0]).to.have.property('slug');",
+                  "        pm.expect(json.data[0]).to.have.property('image_full_url');",
                   "    }",
                   "});"
                 ],
@@ -1477,7 +1492,7 @@
     },
     {
       "name": "05 — Store Details Page",
-      "description": "All API calls that power the Store Details screen (`/stores/:id`).\n\n**Sections on this screen:**\n- Store header (name, description, rating, delivery time, free delivery badge)\n- Categories grid (تصنيفات المتجر) — `GET /api/v2/stores/{store_id}/categories`\n- Category products row (from first category)\n- Featured discounted store section (عروض مختارة لك)\n- Featured products from another store section\n\n**Before running:** Set `{{store_id}}` to the store you want to inspect (default `1`).\n\n**App proxies:**\n- Full page: `GET /api/store?id={{store_id}}`\n- Categories only: TBD",
+      "description": "All API calls that power the Store Details screen (`/stores/:id`).\n\n**Sections on this screen:**\n- Store header (name, description, rating, delivery time, free delivery badge)\n- Categories grid (تصنيفات المتجر) — `GET /api/v2/stores/{store_id}/categories`\n- Category products row (from first category)\n- Featured discounted store section (عروض مختارة لك)\n- Featured products from another store section\n\n**Before running:** Set `{{store_id}}` to the store you want to inspect (default `1`).\n\n**App proxies:**\n- Full page: `GET /api/store/details?id={{store_id}}`\n- Categories only: `GET /api/store/categories/details?id={{store_id}}`\n\n**Note:** For the full category browsing experience (tabs + sub-categories + products), see **06 — Categories Page**.",
       "item": [
         {
           "name": "Store Details — Full Page Payload",
@@ -1516,7 +1531,7 @@
                 "{{store_id}}"
               ]
             },
-            "description": "Powers the Store Details screen when a user opens a store (`/stores/:id`).\n\n**Endpoint:** `GET /api/v2/stores/{store_id}`\n\n**App proxy:** `GET /api/store?id={{store_id}}`\n\n**Headers:** `zoneId`, `X-Localization`, and `Accept-Language` are required. No `moduleId` header is needed for this endpoint.\n\n**Returns:**\n```json\n{\n  \"store_name\": \"هايبر شلة\",\n  \"store_description\": \"شله ستور\",\n  \"rating\": 0,\n  \"free_delivery\": true,\n  \"delivery_time\": \"30-40 min\",\n  \"categories\": [\n    { \"id\": 2, \"name\": \"الألبان والبيض\", \"full_image_url\": \"https://...\" }\n  ],\n  \"category_products\": [\n    { \"id\": 956, \"name\": \"برايد ...\", \"full_image_url\": \"https://...\", \"price\": 11 }\n  ],\n  \"featured_store_discounted\": {\n    \"store_id\": 22,\n    \"logo_url\": \"https://...\",\n    \"slogan\": \"عروض مختارة لك\",\n    \"products\": [\n      {\n        \"id\": 193058,\n        \"name\": \"لقيمات عادية - صغيرة\",\n        \"full_image_url\": \"https://...\",\n        \"original_price\": 14,\n        \"discounted_price\": 13.61\n      }\n    ]\n  },\n  \"featured_store_products\": {\n    \"store_id\": 18,\n    \"logo_url\": \"https://...\",\n    \"slogan\": \"منتجات من متجر آخر\",\n    \"products\": [\n      { \"id\": 240694, \"name\": \"ماك شيكر فرايز آسيوي\", \"full_image_url\": \"https://...\", \"price\": 2 }\n    ]\n  }\n}\n```\n\n**Notes:**\n- `categories` powers the category grid on the store page\n- `category_products` is a sample product list (typically from the first category)\n- `featured_store_discounted` and `featured_store_products` may be `null` when no cross-store recommendations exist"
+            "description": "Powers the Store Details screen when a user opens a store (`/stores/:id`).\n\n**Endpoint:** `GET /api/v2/stores/{store_id}`\n\n**App proxy:** `GET /api/store/details?id={{store_id}}`\n\n**Headers:** `zoneId`, `X-Localization`, and `Accept-Language` are required. No `moduleId` header is needed for this endpoint.\n\n**Returns:**\n```json\n{\n  \"store_name\": \"هايبر شلة\",\n  \"store_description\": \"شله ستور\",\n  \"rating\": 0,\n  \"free_delivery\": true,\n  \"delivery_time\": \"30-40 min\",\n  \"categories\": [\n    { \"id\": 2, \"name\": \"الألبان والبيض\", \"full_image_url\": \"https://...\" }\n  ],\n  \"category_products\": [\n    { \"id\": 956, \"name\": \"برايد ...\", \"full_image_url\": \"https://...\", \"price\": 11 }\n  ],\n  \"featured_store_discounted\": {\n    \"store_id\": 22,\n    \"logo_url\": \"https://...\",\n    \"slogan\": \"عروض مختارة لك\",\n    \"products\": [\n      {\n        \"id\": 193058,\n        \"name\": \"لقيمات عادية - صغيرة\",\n        \"full_image_url\": \"https://...\",\n        \"original_price\": 14,\n        \"discounted_price\": 13.61\n      }\n    ]\n  },\n  \"featured_store_products\": {\n    \"store_id\": 18,\n    \"logo_url\": \"https://...\",\n    \"slogan\": \"منتجات من متجر آخر\",\n    \"products\": [\n      { \"id\": 240694, \"name\": \"ماك شيكر فرايز آسيوي\", \"full_image_url\": \"https://...\", \"price\": 2 }\n    ]\n  }\n}\n```\n\n**Notes:**\n- `categories` powers the category grid on the store page\n- `category_products` is a sample product list (typically from the first category)\n- `featured_store_discounted` and `featured_store_products` may be `null` when no cross-store recommendations exist"
           },
           "event": [
             {
@@ -1623,7 +1638,7 @@
                 "categories"
               ]
             },
-            "description": "Returns only the category fields needed for the store categories grid on the Store Details screen.\n\n**Endpoint:** `GET /api/v2/stores/{store_id}/categories`\n\n**Headers:** `zoneId`, `X-Localization`, and `Accept-Language` are required. No `moduleId` header is needed.\n\n**Returns:** A flat array of category objects — no wrapper object.\n```json\n[\n  {\n    \"id\": 2,\n    \"name\": \"الألبان والبيض\",\n    \"full_image_url\": \"https://images.todoorstep.com/app-assets/categoryicons/subcategory/dairy_eggs.png\"\n  },\n  {\n    \"id\": 3,\n    \"name\": \"الأسماك والمأكولات البحرية\",\n    \"full_image_url\": \"https://images.todoorstep.com/app-assets/categoryicons/subcategory/fish_seafood.png\"\n  }\n]\n```\n\n**Use when:** You only need to load or refresh the categories grid without fetching the full store details payload."
+            "description": "Returns only the category fields needed for the store categories grid on the Store Details screen.\n\n**Endpoint:** `GET /api/v2/stores/{store_id}/categories`\n\n**App proxy:** `GET /api/store/categories/details?id={{store_id}}`\n\n**Headers:** `zoneId`, `X-Localization`, and `Accept-Language` are required. No `moduleId` header is needed.\n\n**Returns:** A flat array of category objects — no wrapper object.\n```json\n[\n  {\n    \"id\": 2,\n    \"name\": \"الألبان والبيض\",\n    \"full_image_url\": \"https://images.todoorstep.com/app-assets/categoryicons/subcategory/dairy_eggs.png\",\n    \"is_discount_category\": false\n  },\n  {\n    \"id\": 3,\n    \"name\": \"الأسماك والمأكولات البحرية\",\n    \"full_image_url\": \"https://images.todoorstep.com/app-assets/categoryicons/subcategory/fish_seafood.png\",\n    \"is_discount_category\": false\n  }\n]\n```\n\n**Use when:** You only need to load or refresh the categories grid without fetching the full store details payload."
           },
           "event": [
             {
@@ -1639,16 +1654,357 @@
                   "    pm.expect(json).to.be.an('array');",
                   "});",
                   "",
-                  "pm.test('Each category has id, name and full_image_url only', function () {",
+                  "pm.test('Each category has id, name, full_image_url and is_discount_category', function () {",
                   "    const json = pm.response.json();",
                   "    if (json.length > 0) {",
                   "        const category = json[0];",
                   "        pm.expect(category).to.have.property('id');",
                   "        pm.expect(category).to.have.property('name');",
                   "        pm.expect(category).to.have.property('full_image_url');",
-                  "        pm.expect(category.id).to.be.a('number');",
+                  "        pm.expect(category).to.have.property('is_discount_category');",
                   "        pm.expect(category.name).to.be.a('string');",
-                  "        pm.expect(category.full_image_url).to.be.a('string');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 — Categories Page",
+      "description": "All API calls that power the Categories screen (`/stores/:id/categories`).\n\n**Sections on this screen:**\n- Category tabs (top horizontal bar)\n- Sub-categories with product grids per selected category\n- Load-more pagination within sub-categories\n\n**Before running:** Set `{{store_id}}` and `{{category_id}}` to valid IDs from the store you are testing.\n\n**App proxies:**\n- Category tabs: `GET /api/store/categories/details?id={{store_id}}`\n- Category detail: `GET /api/store/categories/{{category_id}}?storeId={{store_id}}&limit=20`",
+      "item": [
+        {
+          "name": "Store Categories — Category Tabs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}",
+                "description": "Required — delivery zone"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en — localized category names"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/stores/{{store_id}}/categories",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "stores",
+                "{{store_id}}",
+                "categories"
+              ]
+            },
+            "description": "Powers the category tabs at the top of the Categories screen.\n\n**Endpoint:** `GET /api/v2/stores/{store_id}/categories`\n\n**App proxy:** `GET /api/store/categories/details?id={{store_id}}`\n\n**Returns:** Flat array of category tab objects with `id`, `name`, `full_image_url`, and `is_discount_category`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each category tab has required fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.length > 0) {",
+                  "        const category = json[0];",
+                  "        pm.expect(category).to.have.property('id');",
+                  "        pm.expect(category).to.have.property('name');",
+                  "        pm.expect(category).to.have.property('full_image_url');",
+                  "        pm.expect(category).to.have.property('is_discount_category');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Category Detail — Sub-categories & Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}",
+                "description": "Required — delivery zone"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en — localized names"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/stores/{{store_id}}/categories/{{category_id}}?limit=20",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "stores",
+                "{{store_id}}",
+                "categories",
+                "{{category_id}}"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Number of products per sub-category page"
+                }
+              ]
+            },
+            "description": "Powers the sub-categories and product grids when a category tab is selected on the Categories screen.\n\n**Endpoint:** `GET /api/v2/stores/{store_id}/categories/{category_id}`\n\n**App proxy:** `GET /api/store/categories/{{category_id}}?storeId={{store_id}}&limit=20`\n\n**Headers:** `zoneId`, `X-Localization`, and `Accept-Language` are required. No `moduleId` header is needed.\n\n**Returns:**\n```json\n{\n  \"category_id\": 2,\n  \"category_name\": \"الألبان والبيض\",\n  \"is_discount_category\": false,\n  \"sub_categories\": [\n    {\n      \"id\": 5,\n      \"name\": \"حليب\",\n      \"products\": [\n        {\n          \"id\": 956,\n          \"name\": \"برايد ...\",\n          \"full_image_url\": \"https://...\",\n          \"price\": 11,\n          \"discounted_price\": null,\n          \"discount_percentage\": null\n        }\n      ],\n      \"total_products\": 24,\n      \"has_more\": true\n    }\n  ]\n}\n```\n\n**Pagination:** Use `limit` query param (default `20`). For load-more within a sub-category, pass `offset` and `subCategoryId` via the app proxy."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has category detail fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('category_id');",
+                  "    pm.expect(json).to.have.property('category_name');",
+                  "    pm.expect(json).to.have.property('is_discount_category');",
+                  "    pm.expect(json).to.have.property('sub_categories');",
+                  "    pm.expect(json.sub_categories).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each sub-category has products and pagination fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.sub_categories && json.sub_categories.length > 0) {",
+                  "        const sub = json.sub_categories[0];",
+                  "        pm.expect(sub).to.have.property('id');",
+                  "        pm.expect(sub).to.have.property('name');",
+                  "        pm.expect(sub).to.have.property('products');",
+                  "        pm.expect(sub).to.have.property('total_products');",
+                  "        pm.expect(sub).to.have.property('has_more');",
+                  "        pm.expect(sub.products).to.be.an('array');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('Each product has required display fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.sub_categories && json.sub_categories.length > 0 && json.sub_categories[0].products.length > 0) {",
+                  "        const product = json.sub_categories[0].products[0];",
+                  "        pm.expect(product).to.have.property('id');",
+                  "        pm.expect(product).to.have.property('name');",
+                  "        pm.expect(product).to.have.property('full_image_url');",
+                  "        pm.expect(product).to.have.property('price');",
+                  "        pm.expect(product.price).to.be.a('number');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 — Item Details Page",
+      "description": "All API calls that power the Item Details screen (`/items/:id`).\n\n**Sections on this screen:**\n- Product images, name, description, price, discount, rating\n- Related / similar products row\n\n**Before running:** Set `{{item_id}}` to a valid product ID and `{{module_id}}` to the module that product belongs to.\n\n**App proxies:**\n- Item details: `GET /api/item/details?id={{item_id}}&module_id={{module_id}}`\n- Related items: `GET /api/item/related?id={{item_id}}&module_id={{module_id}}`",
+      "item": [
+        {
+          "name": "Item Details — Product Page",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}",
+                "description": "Required — delivery zone"
+              },
+              {
+                "key": "moduleId",
+                "value": "{{module_id}}",
+                "description": "Required — module context for the item"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en — localized product name and description"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/items/details/{{item_id}}",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "items",
+                "details",
+                "{{item_id}}"
+              ]
+            },
+            "description": "Powers the Item Details screen when a user opens a product (`/items/:id`).\n\n**Endpoint:** `GET /api/v1/items/details/{item_id}`\n\n**App proxy:** `GET /api/item/details?id={{item_id}}&module_id={{module_id}}`\n\n**Headers:** `zoneId`, `moduleId`, `X-Localization`, and `Accept-Language` are required.\n\n**Returns:**\n```json\n{\n  \"id\": 956,\n  \"name\": \"برايد حليب كامل الدسم\",\n  \"description\": \"...\",\n  \"image_full_url\": \"https://...\",\n  \"price\": 11,\n  \"discount\": 0,\n  \"discount_type\": \"percent\",\n  \"avg_rating\": 4.5,\n  \"rating_count\": 12,\n  \"stock\": 50,\n  \"store_name\": \"هايبر شلة\"\n}\n```"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has item detail fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json).to.have.property('name');",
+                  "    pm.expect(json).to.have.property('description');",
+                  "    pm.expect(json).to.have.property('image_full_url');",
+                  "    pm.expect(json).to.have.property('price');",
+                  "    pm.expect(json).to.have.property('discount');",
+                  "    pm.expect(json).to.have.property('avg_rating');",
+                  "    pm.expect(json).to.have.property('rating_count');",
+                  "    pm.expect(json).to.have.property('stock');",
+                  "});",
+                  "",
+                  "pm.test('Price and rating fields are numbers', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.price).to.be.a('number');",
+                  "    pm.expect(json.discount).to.be.a('number');",
+                  "    pm.expect(json.avg_rating).to.be.a('number');",
+                  "    pm.expect(json.rating_count).to.be.a('number');",
+                  "    pm.expect(json.stock).to.be.a('number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Related Items — Similar Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}",
+                "description": "Required — delivery zone"
+              },
+              {
+                "key": "moduleId",
+                "value": "{{module_id}}",
+                "description": "Required — module context for the item"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en — localized product names"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v1/items/related-items/{{item_id}}",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "items",
+                "related-items",
+                "{{item_id}}"
+              ]
+            },
+            "description": "Powers the related / similar products row on the Item Details screen.\n\n**Endpoint:** `GET /api/v1/items/related-items/{item_id}`\n\n**App proxy:** `GET /api/item/related?id={{item_id}}&module_id={{module_id}}`\n\n**Headers:** `zoneId`, `moduleId`, `X-Localization`, and `Accept-Language` are required.\n\n**Returns:** Array of related product objects:\n```json\n[\n  {\n    \"id\": 957,\n    \"name\": \"حليب نادك كامل الدسم\",\n    \"image_full_url\": \"https://...\",\n    \"price\": 10,\n    \"discount\": 5,\n    \"discount_type\": \"percent\",\n    \"store_name\": \"هايبر شلة\"\n  }\n]\n```"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each related item has required fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.length > 0) {",
+                  "        const item = json[0];",
+                  "        pm.expect(item).to.have.property('id');",
+                  "        pm.expect(item).to.have.property('name');",
+                  "        pm.expect(item).to.have.property('image_full_url');",
+                  "        pm.expect(item).to.have.property('price');",
+                  "        pm.expect(item).to.have.property('discount');",
+                  "        pm.expect(item).to.have.property('store_name');",
+                  "        pm.expect(item.price).to.be.a('number');",
+                  "        pm.expect(item.discount).to.be.a('number');",
                   "    }",
                   "});"
                 ],
