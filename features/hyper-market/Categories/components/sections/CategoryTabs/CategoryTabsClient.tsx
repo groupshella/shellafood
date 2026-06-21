@@ -4,49 +4,53 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { StoreCategory } from "@/features/hyper-market/Categories/types/categories.types";
 
-const SCROLL_ROW =
-    "flex gap-4 overflow-x-auto scroll-smooth snap-x scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
-
-interface CategoryTabsClientProps {
+interface Props {
     categories: StoreCategory[];
     activeCategoryId: string;
 }
 
-export function CategoryTabsClient({ categories, activeCategoryId }: CategoryTabsClientProps) {
-    const scrollRef = useRef<HTMLElement>(null);
+/**
+ * Main category bar — sticky at top (below any app header if present).
+ * Text tabs with a mint-green underline on the active item.
+ * Fixed height 44px so SubCategoryTabs can offset correctly below it.
+ */
+export function CategoryTabsClient({ categories, activeCategoryId }: Props) {
+    const navRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
-        const activeEl = scrollRef.current?.querySelector<HTMLElement>(
-            `[data-tab-id="${activeCategoryId}"]`
-        );
-        activeEl?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        navRef.current
+            ?.querySelector<HTMLElement>(`[data-id="${activeCategoryId}"]`)
+            ?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
     }, [activeCategoryId]);
 
     return (
         <nav
-            ref={scrollRef}
-            aria-label="تصنيفات المتجر"
-            className={`sticky top-[57px] z-30 border-b border-white/15 bg-[#30913F] px-4 py-2.5 sm:px-5 ${SCROLL_ROW}`}
+            ref={navRef}
             dir="rtl"
+            aria-label="تصنيفات المتجر"
+            className="sticky top-0 z-50 flex h-[44px] items-center gap-5 overflow-x-auto border-b border-white/15 bg-[#30913F] px-4 sm:px-5
+                       scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-            {categories.map((category) => {
-                const id = String(category.id);
-                const isActive = id === activeCategoryId;
-
+            {categories.map((cat) => {
+                const id = String(cat.id);
+                const active = id === activeCategoryId;
                 return (
                     <Link
-                        key={category.id}
-                        href={`/hyper-market/categories?categoryId=${category.id}`}
-                        data-tab-id={id}
+                        key={cat.id}
+                        href={`/hyper-market/categories?categoryId=${cat.id}`}
+                        data-id={id}
+                        aria-current={active ? "page" : undefined}
                         className={[
-                            "relative shrink-0 snap-start pb-2 pt-1 text-sm font-semibold transition-colors",
-                            isActive ? "text-white" : "text-white/75",
+                            "relative shrink-0 whitespace-nowrap pb-2 pt-1 text-sm font-semibold transition-colors",
+                            active ? "text-white" : "text-white/70 hover:text-white/90",
                         ].join(" ")}
-                        aria-current={isActive ? "page" : undefined}
                     >
-                        {category.name}
-                        {isActive && (
-                            <span className="absolute bottom-0 start-0 end-0 h-[3px] rounded-full bg-[#9DFCA3]" />
+                        {cat.name}
+                        {active && (
+                            <span
+                                aria-hidden
+                                className="absolute bottom-0 inset-x-0 h-[3px] rounded-full bg-[#9DFCA3]"
+                            />
                         )}
                     </Link>
                 );
