@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     }
     try {
         const backendRes = await fetch(
-            `${BACKEND_URL}/api/v2/stores/offers?limit=10&offset=0`,
+            `${BACKEND_URL}/api/v2/stores/offers?limit=10&offset=2`,
             {
                 method: "GET",
                 headers: {

@@ -1,4 +1,8 @@
-import SearchPage from "@/features/search/components/SearchPage";
+import { Suspense } from "react";
+import { SearchShell } from "@/features/search/components/SearchShell";
+import { PopularBrands } from "@/features/search/components/sections/PopularBrands";
+import { PopularSearch } from "@/features/search/components/sections/PopularSearch";
+import { RecentSearches } from "@/features/search/components/sections/RecentSearches";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -65,9 +69,23 @@ export const metadata: Metadata = {
 export default async function SearchRoute({
 	searchParams,
 }: {
-	searchParams: Promise<{ module_id: string }>;
+	searchParams: Promise<{ module_id?: string }>;
 }) {
 	const { module_id } = await searchParams;
 
-	return <SearchPage moduleId={module_id} />;
+	return (
+		<SearchShell>
+			<div className="mt-8 flex flex-col gap-8">
+				<RecentSearches />
+
+				<Suspense fallback={<PopularSearch.skeleton />}>
+					<PopularSearch />
+				</Suspense>
+
+				<Suspense fallback={<PopularBrands.skeleton />}>
+					<PopularBrands moduleId={module_id} />
+				</Suspense>
+			</div>
+		</SearchShell>
+	);
 }

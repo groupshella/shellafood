@@ -2,7 +2,7 @@
 import {
     BackendCategoriesResponse,
     GetCategoriesResponse,
-} from "@/features/module/types/categories.types";
+} from "@/features/markets/types/categories.types";
 import { apiError, apiSuccess } from "@/shared/lib/api-response";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;

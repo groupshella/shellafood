@@ -10,50 +10,50 @@
 	body {
 		@apply antialiased;
 	}
+}
 
-	/* Home banners carousel */
-	.banner-swiper {
-		padding-bottom: 2rem !important;
-	}
+/* Home banners carousel — outside @layer so Swiper's CSS doesn't override */
+.banner-swiper {
+	padding-bottom: 2rem !important;
+}
 
-	.banner-swiper .swiper-pagination {
-		bottom: 0 !important;
-	}
+.banner-swiper .swiper-pagination {
+	bottom: 0 !important;
+}
 
-	.banner-swiper .swiper-pagination-bullet {
-		width: 6px;
-		height: 6px;
-		opacity: 1;
-		background: #d1d5db;
-		transition: width 0.3s ease, background-color 0.3s ease;
-	}
+.banner-swiper .swiper-pagination-bullet {
+	width: 6px !important;
+	height: 6px !important;
+	opacity: 1 !important;
+	background: #d1d5db !important;
+	transition: width 0.3s ease, background-color 0.3s ease;
+}
 
-	.banner-swiper .swiper-pagination-bullet-active {
-		width: 20px;
-		border-radius: 9999px;
-		background: #30913f;
-	}
+.banner-swiper .swiper-pagination-bullet-active {
+	width: 20px !important;
+	border-radius: 9999px !important;
+	background: #30913f !important;
+}
 
-	/* Module offers carousel — 373×125 design */
-	.offers-swiper {
-		padding-bottom: 1.75rem !important;
-	}
+/* Module offers carousel — 373×125 design */
+.offers-swiper {
+	padding-bottom: 1.75rem !important;
+}
 
-	.offers-swiper .swiper-pagination {
-		bottom: 0 !important;
-	}
+.offers-swiper .swiper-pagination {
+	bottom: 0 !important;
+}
 
-	.offers-swiper .swiper-pagination-bullet {
-		width: 6px;
-		height: 6px;
-		opacity: 1;
-		background: #d1d5db;
-		transition: width 0.3s ease, background-color 0.3s ease;
-	}
+.offers-swiper .swiper-pagination-bullet {
+	width: 6px !important;
+	height: 6px !important;
+	opacity: 1 !important;
+	background: #d1d5db !important;
+	transition: width 0.3s ease, background-color 0.3s ease;
+}
 
-	.offers-swiper .swiper-pagination-bullet-active {
-		width: 20px;
-		border-radius: 9999px;
-		background: #30913f;
-	}
+.offers-swiper .swiper-pagination-bullet-active {
+	width: 20px !important;
+	border-radius: 9999px !important;
+	background: #30913f !important;
 }

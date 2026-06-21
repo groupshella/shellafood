@@ -10,7 +10,7 @@ interface SearchBarProps {
     onSubmit: (value: string) => void;
 }
 
-export default function SearchBar({ value, onChange, onSubmit }: SearchBarProps) {
+export function SearchBar({ value, onChange, onSubmit }: SearchBarProps) {
     const router = useRouter();
 
     const handleSubmit = (event: FormEvent) => {

@@ -1,21 +1,21 @@
-import ItemPage from "@/features/item/components/ItemPage";
+import { Suspense } from "react";
 import type { Metadata } from "next";
+import { ItemShell } from "@/features/item/components/ItemShell";
+import { ItemInfo } from "@/features/item/components/sections/ItemInfo";
+import { RelatedItems } from "@/features/item/components/sections/RelatedItems";
 
 interface PageProps {
     params: Promise<{ id: string }>;
-    searchParams: Promise<{ module_id: string }>;
+    searchParams: Promise<{ module_id?: string }>;
 }
 
-export async function generateMetadata({
-    params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { id } = await params;
 
     return {
         title: "تفاصيل المنتج | شلة فود",
         description:
             "تعرّف على تفاصيل المنتج، الأسعار، العروض، والمزيد من المنتجات المشابهة عبر شلة فود.",
-
         keywords: [
             "شلة فود",
             "Shella Food",
@@ -27,18 +27,16 @@ export async function generateMetadata({
             "خصومات",
             "تفاصيل المنتج",
         ],
-
         alternates: {
-            canonical: `/item/${id}`,
+            canonical: `/items/${id}`,
         },
-
         openGraph: {
             type: "website",
             locale: "ar_SA",
             title: "تفاصيل المنتج | شلة فود",
             description:
                 "استعرض تفاصيل المنتج، الأسعار، والعروض والمنتجات المشابهة عبر شلة فود.",
-            url: `https://shellafood.com/item/${id}`,
+            url: `https://shellafood.com/items/${id}`,
             siteName: "شلة فود",
             images: [
                 {
@@ -49,7 +47,6 @@ export async function generateMetadata({
                 },
             ],
         },
-
         twitter: {
             card: "summary_large_image",
             title: "تفاصيل المنتج | شلة فود",
@@ -57,7 +54,6 @@ export async function generateMetadata({
                 "استعرض تفاصيل المنتج والأسعار والعروض والمنتجات المشابهة عبر شلة فود.",
             images: ["/images/og-image.png"],
         },
-
         robots: {
             index: true,
             follow: true,
@@ -72,12 +68,18 @@ export async function generateMetadata({
     };
 }
 
-export default async function Page({
-    params,
-    searchParams,
-}: PageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
     const { id } = await params;
     const { module_id } = await searchParams;
 
-    return <ItemPage itemId={id} moduleId={module_id} />;
+    return (
+        <ItemShell>
+            <Suspense fallback={<ItemInfo.skeleton />}>
+                <ItemInfo itemId={id} moduleId={module_id} />
+            </Suspense>
+            <Suspense fallback={<RelatedItems.skeleton />}>
+                <RelatedItems itemId={id} moduleId={module_id} />
+            </Suspense>
+        </ItemShell>
+    );
 }
