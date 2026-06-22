@@ -67,7 +67,7 @@ export function useAuth(): UseAuthReturn {
         user: Parameters<typeof saveSession>[1]
     ) => {
         await saveSession(token, user);
-        router.replace("/home");
+        router.replace("/addresses/add");
     }, [router]);
 
     const clearError = useCallback(() => setError(null), []);

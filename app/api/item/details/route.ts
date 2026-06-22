@@ -18,7 +18,7 @@ export async function GET(request: Request) {
         return apiError("Module ID is required", 400);
     }
     try {
-        const backendRes = await fetch(`${BACKEND_URL}/api/v1/items/details/${id}`, {
+        const backendRes = await fetch(`${BACKEND_URL}/api/v2/items/details/${id}`, {
             method: "GET",
             headers: {
                 Accept: "application/json",

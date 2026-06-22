@@ -5,19 +5,16 @@ import Link from "next/link";
 import { useState } from "react";
 import { Plus, ShoppingBag } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
-import { getDiscountedPrice, hasDiscount } from "@/features/item/types/item.types";
 import { RelatedItem } from "@/features/item/types/related-items.types";
 
 interface RelatedProductCardProps {
     product: RelatedItem;
-    moduleId?: string;
 }
 
-export function RelatedProductCard({ product, moduleId }: RelatedProductCardProps) {
+export function RelatedProductCard({ product }: RelatedProductCardProps) {
     const [imgErr, setImgErr] = useState(false);
-    const discounted = hasDiscount(product.discount);
-    const displayPrice = getDiscountedPrice(product.price, product.discount, product.discount_type);
-    const href = moduleId ? `/items/${product.id}?module_id=${moduleId}` : `/items/${product.id}`;
+    const discounted = product.discount > 0;
+    const href = `/items/${product.id}`;
 
     return (
         <Link
@@ -65,9 +62,6 @@ export function RelatedProductCard({ product, moduleId }: RelatedProductCardProp
                 <p className="line-clamp-2 min-h-[2.4em] text-right text-[10px] font-medium leading-[1.2] text-gray-800">
                     {product.name}
                 </p>
-                {product.store_name && (
-                    <p className="truncate text-right text-[9px] text-gray-400">{product.store_name}</p>
-                )}
                 <p
                     className={`h-[11px] text-[9px] leading-none text-gray-400 ${discounted ? "line-through" : "invisible"}`}
                     aria-hidden={!discounted}
@@ -78,7 +72,7 @@ export function RelatedProductCard({ product, moduleId }: RelatedProductCardProp
                         <span>0.00</span>
                     )}
                 </p>
-                <PriceTag amount={displayPrice} size="sm" className="text-[10px] font-bold text-[#2F8F3B]" />
+                <PriceTag amount={product.price} size="sm" className="text-[10px] font-bold text-[#2F8F3B]" />
             </div>
         </Link>
     );

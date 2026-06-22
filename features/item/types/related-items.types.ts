@@ -1,9 +1,11 @@
+// ─── Related item (from GET /api/v2/items/related-items/{item_id}) ─────────────
 export interface RelatedItem {
     id: number;
     name: string;
-    image_full_url: string;
+    description: string;
     price: number;
     discount: number;
-    discount_type?: string;
-    store_name: string;
+    image_full_url: string;
+    stock: number;
+    is_available: boolean;
 }

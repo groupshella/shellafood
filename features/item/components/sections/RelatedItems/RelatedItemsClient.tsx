@@ -6,17 +6,16 @@ import { RelatedProductCard } from "./RelatedProductCard";
 
 interface RelatedItemsClientProps {
     items: RelatedItem[];
-    moduleId?: string;
 }
 
-export function RelatedItemsClient({ items, moduleId }: RelatedItemsClientProps) {
+export function RelatedItemsClient({ items }: RelatedItemsClientProps) {
     return (
         <section className="mt-2 bg-white pb-8 pt-4">
             <h2 className="px-4 pb-3 text-sm font-bold text-gray-900 sm:px-5">منتجات قد تعجبك</h2>
             <div dir="ltr">
                 <ScrollContainer className="gap-2 px-4 sm:px-5 flex flex-wrap">
                     {items.map((product) => (
-                        <RelatedProductCard key={product.id} product={product} moduleId={moduleId} />
+                        <RelatedProductCard key={product.id} product={product} />
                     ))}
                 </ScrollContainer>
             </div>
