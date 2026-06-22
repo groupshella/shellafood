@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     }
 
     try {
-        const backendRes = await fetch(`${BACKEND_URL}/api/v1/items/related-items/${id}`, {
+        const backendRes = await fetch(`${BACKEND_URL}/api/v2/items/related-items/${id}`, {
             method: "GET",
             headers: {
                 Accept: "application/json",

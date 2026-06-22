@@ -1,97 +1,556 @@
-Here is the clean folder structure. Every file name tells you its role instantly — no need to open it.
+# Shellafood — Project Architecture
+
+Next.js App Router project (Arabic RTL). Business logic lives in `features/`, routes in `app/`, BFF API routes in `app/api/`.
 
 ---
 
-## `features/home/components/` — Clean Structure
+## Core Pattern
+
+Every page follows the same composition:
 
 ```
-features/home/components/
+app/.../page.tsx          → Suspense + Shell + Sections only (no fetch, no layout logic)
+features/<domain>/
+  api/                    → Server-side fetch functions (called from section index.tsx)
+  types/                  → TypeScript interfaces
+  components/
+    <Domain>Shell.tsx     → Client page wrapper (layout, topbar, context)
+    sections/<Name>/      → One folder per UI section
+      index.tsx           → Server: fetch + guard + decide
+      *Client.tsx         → Client: layout, state, events
+      *Card.tsx           → Presentational unit
+      skeleton.tsx        → Loading state
+    shared/               → Reusable within the feature
+```
+
+### Naming Convention
+
+| File | Role | Rules |
+|------|------|-------|
+| `index.tsx` | Server section entry | `async`, fetches data, returns `null` if empty, never `"use client"` |
+| `*Client.tsx` | Client section UI | `"use client"`, className, state, Swiper — never fetches |
+| `*Card.tsx` / `*Slide.tsx` | Presentational | Props in, JSX out |
+| `skeleton.tsx` | Loading placeholder | Matches real layout dimensions |
+| `*Shell.tsx` | Page wrapper | Client layout shell for the route |
+| `page.tsx` | Route | Only `Suspense` + imports — no business logic |
+
+---
+
+## `app/` — Routes & API
+
+```
+app/
+├── layout.tsx                          # Root HTML, RTL, global metadata
+├── global.css                          # Tailwind + Swiper overrides
+├── loading.tsx                         # Global loading UI
+├── error.tsx                           # Global error boundary
+├── not-found.tsx                       # 404 entry
+├── NotFoundContent.tsx                 # 404 content component
+├── page.tsx                            # Root redirect
+├── favicon.ico
 │
-├── sections/                    ← One folder per page section
-│   ├── Banners/
-│   │   ├── index.tsx            ← Server: fetch + guard + decide
-│   │   ├── BannersClient.tsx    ← Client: Swiper, layout, className
-│   │   ├── BannerSlide.tsx      ← Shared: pure card, props in JSX out
-│   │   └── skeleton.tsx         ← Shared: loading state
-│   │
-│   ├── Modules/
-│   │   ├── index.tsx            ← Server: fetch + guard
-│   │   ├── ModulesClient.tsx    ← Client: grid, colors, layout
-│   │   ├── ModuleCard.tsx       ← Shared: one module card
-│   │   └── skeleton.tsx
-│   │
-│   ├── DiscountedStores/
-│   │   ├── index.tsx            ← Server: fetch + guard
-│   │   ├── DiscountedStoresClient.tsx
-│   │   ├── StoreCard.tsx
-│   │   └── skeleton.tsx
-│   │
-│   ├── CurrentOffers/
-│   │   ├── index.tsx            ← Server: fetch + guard
-│   │   ├── CurrentOffersClient.tsx
-│   │   ├── OfferCard.tsx
-│   │   └── skeleton.tsx
-│   │
-│   └── RecentOrders/
-│       ├── index.tsx            ← Server: fetch + guard
-│       ├── RecentOrdersClient.tsx
-│       ├── OrderCard.tsx
-│       └── skeleton.tsx
+├── auth/
+│   └── page.tsx                        # Auth flow entry
 │
-├── shared/                        ← Reusable across all sections
-│   ├── PriceTag.tsx             ← Currency SVG + formatting
-│   ├── ImageWithFallback.tsx    ← Image + error state
-│   └── ScrollContainer.tsx      ← Horizontal scroll track
+├── onboarding/
+│   ├── page.tsx                        # Onboarding screens
+│   └── error.tsx
 │
-└── HomeShell.tsx                  ← Client: "use client", layout shell
+├── (main)/                             # Authenticated main app routes
+│   ├── layout.tsx                      # Auth guard (token or guest cookie)
+│   ├── home/
+│   │   └── page.tsx                    # → features/home
+│   ├── modules/[id]/
+│   │   └── page.tsx                    # → features/markets (generic module)
+│   ├── markets/                        # (via redirect or modules route)
+│   ├── search/
+│   │   └── page.tsx                    # → features/search
+│   ├── items/[id]/
+│   │   └── page.tsx                    # → features/item
+│   ├── stores/[id]/
+│   │   ├── page.tsx                    # → features/store (legacy pattern)
+│   │   └── categories/
+│   │       └── page.tsx                # → features/store
+│   ├── notifications/
+│   │   └── page.tsx                    # → features/notifications
+│   ├── cart/page.tsx
+│   ├── profile/page.tsx
+│   ├── my-orders/page.tsx
+│   └── discounts/page.tsx
+│
+├── (modules)/                          # Module-specific experiences
+│   ├── layout.tsx                      # Auth guard
+│   ├── markets/
+│   │   └── page.tsx                    # → features/markets
+│   └── hyper-market/
+│       ├── page.tsx                    # → features/hyper-market/StoreDetails
+│       └── categories/
+│           └── page.tsx                # → features/hyper-market/Categories
+│
+└── api/                                # BFF — proxies to external API
+    ├── auth/
+    │   ├── guest/route.ts
+    │   ├── register/route.ts
+    │   ├── send-otp/route.ts
+    │   ├── session/route.ts
+    │   └── verify-otp/route.ts
+    ├── home/
+    │   ├── banners/route.ts
+    │   ├── modules/route.ts
+    │   ├── current-offers/route.ts
+    │   ├── discounted-stores/route.ts
+    │   └── recent-orders/route.ts
+    ├── module/
+    │   ├── categories/route.ts
+    │   ├── offers/route.ts
+    │   ├── current-offers/route.ts
+    │   ├── stores/route.ts
+    │   ├── popular-brands/route.ts
+    │   └── recent-orders/route.ts
+    ├── store/
+    │   ├── details/route.ts
+    │   └── categories/
+    │       ├── details/route.ts
+    │       └── [id]/route.ts
+    ├── item/
+    │   ├── details/route.ts
+    │   └── related/route.ts
+    └── search/
+        ├── popular-brands/route.ts
+        └── popular-search/route.ts
 ```
 
 ---
 
-## Naming Convention (Never Break This)
+## `features/` — Domain Modules
 
-| Suffix | Meaning | Example |
-|--------|---------|---------|
-| `index.tsx` | Server entry point — always async, never `"use client"` | `Banners/index.tsx` |
-| `*Client.tsx` | Client component — always `"use client"`, never fetches | `BannersClient.tsx` |
-| `*Card.tsx` | Shared presentational — pure props, no directive | `OfferCard.tsx` |
-| `skeleton.tsx` | Loading state — always safe, no directive | `skeleton.tsx` |
-| `HomeShell.tsx` | Page-level client wrapper — layout, context, providers | `HomeShell.tsx` |
+### `features/auth/` — Authentication
+
+```
+features/auth/
+├── api/
+│   ├── guest.ts
+│   ├── register.ts
+│   ├── send-otp.ts
+│   ├── session.ts
+│   └── verify-otp.ts
+├── components/
+│   ├── AuthFlowPage.tsx
+│   ├── WelcomeScreen.tsx
+│   ├── EnterPhoneScreen.tsx
+│   ├── OtpScreen.tsx
+│   ├── CreateAccountScreen.tsx
+│   └── NumericKeypad.tsx
+├── hooks/
+│   └── useAuth.ts
+├── lib/
+│   └── auth.lib.ts
+└── types/
+    └── auth.types.ts
+```
 
 ---
 
-## `app/(main)/home/page.tsx` — Only This
+### `features/home/` — Home Page *(section-based)*
+
+```
+features/home/
+├── api/
+│   ├── banners.ts
+│   ├── modules.ts
+│   ├── current-offers.ts
+│   ├── discounted-stores.ts
+│   └── recent-orders.ts
+├── types/
+│   ├── banners.types.ts
+│   ├── modules.types.ts
+│   ├── current-offers.types.ts
+│   ├── discounted-stores.types.ts
+│   └── recent-orders.types.ts
+└── components/
+    ├── HomeShell.tsx
+    ├── Topbar.tsx
+    ├── shared/
+    │   ├── PriceTag.tsx
+    │   ├── ImageWithFallback.tsx
+    │   └── ScrollContainer.tsx
+    └── sections/
+        ├── Banners/
+        │   ├── index.tsx
+        │   ├── BannersClient.tsx
+        │   ├── BannerSlide.tsx
+        │   └── skeleton.tsx
+        ├── Modules/
+        │   ├── index.tsx
+        │   ├── ModulesClient.tsx
+        │   ├── ModuleCard.tsx
+        │   └── skeleton.tsx
+        ├── DiscountedStores/
+        │   ├── index.tsx
+        │   ├── DiscountedStoresClient.tsx
+        │   ├── StoreCard.tsx
+        │   └── skeleton.tsx
+        ├── CurrentOffers/
+        │   ├── index.tsx
+        │   ├── CurrentOffersClient.tsx
+        │   ├── OfferCard.tsx
+        │   └── skeleton.tsx
+        ├── RecentOrders/
+        │   ├── index.tsx
+        │   ├── RecentOrdersClient.tsx
+        │   ├── OrderCard.tsx
+        │   └── skeleton.tsx
+        └── PromoBanner/
+            └── index.tsx
+```
+
+**Route:** `app/(main)/home/page.tsx`
+
+---
+
+### `features/markets/` — Markets / Generic Module *(section-based)*
+
+```
+features/markets/
+├── api/
+│   ├── categories.ts
+│   ├── offers.ts
+│   ├── current-offers.ts
+│   ├── stores.ts
+│   ├── popular-brands.ts
+│   └── recent-orders.ts
+├── types/
+│   ├── categories.types.ts
+│   ├── offers.types.ts
+│   ├── current-offers.types.ts
+│   ├── stores.types.ts
+│   ├── popular-brands.types.ts
+│   └── recent-orders.types.ts
+├── hooks/
+│   └── useStores.ts
+└── components/
+    ├── MarketsShell.tsx
+    ├── Topbar.tsx
+    └── sections/
+        ├── Categories/
+        │   ├── index.tsx
+        │   ├── CategoriesClient.tsx
+        │   ├── CategoryCard.tsx
+        │   └── skeleton.tsx
+        ├── Offers/
+        │   ├── index.tsx
+        │   ├── OffersClient.tsx
+        │   ├── OfferSlide.tsx
+        │   └── skeleton.tsx
+        ├── CurrentOffers/
+        │   ├── index.tsx
+        │   ├── CurrentOffersClient.tsx
+        │   ├── CurrentOfferCard.tsx
+        │   └── skeleton.tsx
+        ├── Stores/
+        │   ├── index.tsx
+        │   ├── StoresClient.tsx
+        │   ├── StoreCard.tsx
+        │   └── skeleton.tsx
+        ├── PopularBrands/
+        │   ├── index.tsx
+        │   ├── PopularBrandsClient.tsx
+        │   ├── BrandCard.tsx
+        │   └── skeleton.tsx
+        └── RecentOrders/
+            ├── index.tsx
+            ├── RecentOrdersClient.tsx
+            ├── OrderCard.tsx
+            └── skeleton.tsx
+```
+
+**Routes:** `app/(modules)/markets/page.tsx`, `app/(main)/modules/[id]/page.tsx`
+
+---
+
+### `features/hyper-market/` — Hyper Market *(section-based, nested by screen)*
+
+```
+features/hyper-market/
+│
+├── StoreDetails/                       # /hyper-market
+│   ├── api/
+│   │   └── store-details.ts
+│   ├── types/
+│   │   └── store-details.types.ts
+│   └── components/
+│       ├── HyperMarketShell.tsx
+│       ├── Topbar.tsx
+│       ├── shared/
+│       │   └── ProductCard.tsx
+│       └── sections/
+│           ├── StoreDetails/
+│           │   ├── index.tsx
+│           │   ├── StoreDetailsClient.tsx
+│           │   └── skeleton.tsx
+│           ├── CategoriesGrid/
+│           │   ├── CategoriesGridClient.tsx
+│           │   └── CategoryCard.tsx
+│           └── FeaturedSections/
+│               └── FeaturedSections.tsx
+│
+└── Categories/                         # /hyper-market/categories
+    ├── api/
+    │   ├── categories.ts
+    │   └── category-detail.ts
+    ├── types/
+    │   ├── categories.types.ts
+    │   └── category-detail.types.ts
+    └── components/
+        ├── CategoriesPageShell.tsx
+        └── sections/
+            ├── CategoryTabs/
+            │   ├── index.tsx
+            │   ├── CategoryTabsClient.tsx
+            │   └── skeleton.tsx
+            └── CategoryDetail/
+                ├── index.tsx
+                ├── CategoryDetailClient.tsx
+                ├── CategoryProductCard.tsx
+                └── skeleton.tsx
+```
+
+**Routes:** `app/(modules)/hyper-market/page.tsx`, `app/(modules)/hyper-market/categories/page.tsx`
+
+---
+
+### `features/item/` — Product Detail *(section-based)*
+
+```
+features/item/
+├── api/
+│   ├── item-details.ts
+│   └── related-items.ts
+├── types/
+│   ├── item.types.ts
+│   └── related-items.types.ts
+└── components/
+    ├── ItemShell.tsx
+    └── sections/
+        ├── ItemInfo/
+        │   ├── index.tsx
+        │   ├── ItemInfoClient.tsx
+        │   └── skeleton.tsx
+        ├── ItemGallery/
+        │   ├── ItemGalleryClient.tsx
+        │   └── skeleton.tsx
+        ├── AddToCart/
+        │   └── AddToCartClient.tsx
+        └── RelatedItems/
+            ├── index.tsx
+            ├── RelatedItemsClient.tsx
+            ├── RelatedProductCard.tsx
+            └── skeleton.tsx
+```
+
+**Route:** `app/(main)/items/[id]/page.tsx`
+
+---
+
+### `features/search/` — Search *(section-based)*
+
+```
+features/search/
+├── api/
+│   ├── popular-brands.ts
+│   └── popular-search.ts
+├── types/
+│   ├── popular-brands.types.ts
+│   └── popular-search.types.ts
+├── hooks/
+│   └── useRecentSearches.ts
+└── components/
+    ├── SearchShell.tsx
+    ├── SearchBar.tsx
+    ├── SearchContext.tsx
+    ├── shared/
+    │   └── SearchChip.tsx
+    └── sections/
+        ├── PopularBrands/
+        │   ├── index.tsx
+        │   ├── PopularBrandsClient.tsx
+        │   ├── BrandCard.tsx
+        │   └── skeleton.tsx
+        ├── PopularSearch/
+        │   ├── index.tsx
+        │   ├── PopularSearchClient.tsx
+        │   └── skeleton.tsx
+        └── RecentSearches/
+            ├── index.tsx
+            └── RecentSearchesClient.tsx
+```
+
+**Route:** `app/(main)/search/page.tsx`
+
+---
+
+### `features/notifications/` — Notifications *(section-based)*
+
+```
+features/notifications/
+├── api/
+│   └── notifications.ts
+├── types/
+│   └── notifications.types.ts
+└── components/
+    ├── NotificationsShell.tsx
+    └── sections/
+        └── Notifications/
+            ├── index.tsx
+            ├── NotificationsClient.tsx
+            ├── NotificationCard.tsx
+            ├── NotificationsEmpty.tsx
+            └── skeleton.tsx
+```
+
+**Route:** `app/(main)/notifications/page.tsx`
+
+---
+
+### `features/store/` — Store Detail *(legacy — pre-refactor)*
+
+```
+features/store/
+├── components/
+│   └── StorePage.tsx                   # Monolithic page component
+├── hooks/
+│   ├── useStoreDetails.ts
+│   └── useStoreCategories.ts
+└── types/
+    ├── store-details.types.ts
+    └── store-categories.types.ts
+```
+
+**Routes:** `app/(main)/stores/[id]/page.tsx`, `app/(main)/stores/[id]/categories/page.tsx`  
+**Note:** Not yet migrated to the section-based pattern used elsewhere.
+
+---
+
+### `features/module/` — Old Module UI *(legacy — superseded by markets/)*
+
+```
+features/module/
+├── components/
+│   ├── ModulePage.tsx
+│   ├── Categories.tsx
+│   ├── Offers.tsx
+│   ├── CurrentOffers.tsx
+│   ├── Stores.tsx
+│   ├── PopularBrands.tsx
+│   ├── RecentOrders.tsx
+│   └── topbar.tsx
+├── hooks/
+│   ├── useCategories.ts
+│   ├── useOffers.ts
+│   ├── useCurrentOffers.ts
+│   ├── useStores.ts
+│   ├── usePopularBrands.ts
+│   └── useRecentOrders.ts
+└── types/
+    ├── categories.types.ts
+    ├── offers.types.ts
+    ├── current-offers.types.ts
+    ├── stores.types.ts
+    ├── popular-brands.types.ts
+    └── recent-orders.types.ts
+```
+
+**Note:** Replaced by `features/markets/`. Safe to remove once confirmed unused.
+
+---
+
+### Other Features
+
+```
+features/layout/
+└── components/
+    └── Navbar.tsx
+
+features/onboarding/
+└── OnboardingScreens.tsx
+```
+
+---
+
+## `shared/` — Cross-Feature Utilities
+
+```
+shared/
+└── lib/
+    └── api-response.ts                 # Shared API response helpers
+```
+
+---
+
+## `public/` — Static Assets
+
+```
+public/
+├── home/
+│   └── banner.png
+├── hyper-market/
+│   └── banner.png
+├── notifications/
+│   └── notifications-empty.png
+└── onboarding/
+    ├── bag.png
+    ├── boxes.png
+    ├── clock.png
+    └── discount.png
+```
+
+---
+
+## Route → Feature Map
+
+| URL | Feature | Pattern |
+|-----|---------|---------|
+| `/home` | `features/home` | Section-based |
+| `/modules/[id]` | `features/markets` | Section-based |
+| `/markets` | `features/markets` | Section-based |
+| `/hyper-market` | `features/hyper-market/StoreDetails` | Section-based |
+| `/hyper-market/categories` | `features/hyper-market/Categories` | Section-based |
+| `/items/[id]` | `features/item` | Section-based |
+| `/search` | `features/search` | Section-based |
+| `/notifications` | `features/notifications` | Section-based |
+| `/stores/[id]` | `features/store` | Legacy (monolithic) |
+| `/auth` | `features/auth` | Screen flow |
+| `/onboarding` | `features/onboarding` | Screen flow |
+
+---
+
+## Data Flow
+
+```
+Browser
+  └── app/.../page.tsx          (composition only)
+        └── Section/index.tsx   (server fetch via features/<domain>/api/)
+              └── *Client.tsx   (interactive UI)
+                    └── *Card.tsx (presentational)
+
+Client hooks (legacy)           → app/api/*/route.ts → External Shellafood API
+Server fetch (new pattern)        → External API directly (with revalidate tags)
+```
+
+---
+
+## Example — Minimal `page.tsx`
 
 ```tsx
 import { Suspense } from "react";
-import { Banners } from "@/features/home/components/sections/Banners";
-import { Modules } from "@/features/home/components/sections/Modules";
-import { DiscountedStores } from "@/features/home/components/sections/DiscountedStores";
-import { CurrentOffers } from "@/features/home/components/sections/CurrentOffers";
-import { RecentOrders } from "@/features/home/components/sections/RecentOrders";
 import { HomeShell } from "@/features/home/components/HomeShell";
+import { Banners } from "@/features/home/components/sections/Banners";
 
 export default async function HomePage() {
   return (
     <HomeShell>
       <Suspense fallback={<Banners.skeleton />}>
         <Banners />
-      </Suspense>
-
-      <Suspense fallback={<Modules.skeleton />}>
-        <Modules />
-      </Suspense>
-
-      <Suspense fallback={<DiscountedStores.skeleton />}>
-        <DiscountedStores />
-      </Suspense>
-
-      <Suspense fallback={<CurrentOffers.skeleton />}>
-        <CurrentOffers />
-      </Suspense>
-
-      <Suspense fallback={<RecentOrders.skeleton />}>
-        <RecentOrders />
       </Suspense>
     </HomeShell>
   );
@@ -100,118 +559,31 @@ export default async function HomePage() {
 
 ---
 
-## One Section Example — `Banners/`
-
-### `Banners/index.tsx` — Server only
+## Example — Section `index.tsx`
 
 ```tsx
-// Server: fetch + guard + decide. No className, no <section>, no layout.
 import { getBanners } from "@/features/home/api/banners";
 import { BannersClient } from "./BannersClient";
-import { BannerSlide } from "./BannerSlide";
 
 export { default as skeleton } from "./skeleton";
 
 export async function Banners() {
   const { banners } = await getBanners();
-
   if (banners.length === 0) return null;
-  if (banners.length === 1) return <BannerSlide banner={banners[0]} priority />;
-
   return <BannersClient banners={banners} />;
-}
-```
-
-### `Banners/BannersClient.tsx` — Client only
-
-```tsx
-"use client";
-
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
-import { Banner } from "@/features/home/types/banners.types";
-import { BannerSlide } from "./BannerSlide";
-
-export function BannersClient({ banners }: { banners: Banner[] }) {
-  return (
-    <section aria-label="العروض المميزة" className="mx-auto w-full max-w-5xl px-4 sm:px-6">
-      <Swiper
-        modules={[Autoplay, Pagination]}
-        autoplay={{ delay: 4000, disableOnInteraction: false }}
-        pagination={{ clickable: true }}
-        loop
-      >
-        {banners.map((banner, i) => (
-          <SwiperSlide key={banner.id}>
-            <BannerSlide banner={banner} priority={i === 0} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </section>
-  );
-}
-```
-
-### `Banners/BannerSlide.tsx` — Shared
-
-```tsx
-// Pure: props in, JSX out. Works in server or client parent.
-import Image from "next/image";
-import Link from "next/link";
-import { Banner } from "@/features/home/types/banners.types";
-
-export function BannerSlide({ banner, priority = false }: { banner: Banner; priority?: boolean }) {
-  const href = banner.link ?? (banner.store?.slug ? `/stores/${banner.store.slug}` : null);
-
-  const image = (
-    <div className="relative w-full aspect-[21/7] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
-      <Image
-        src={banner.image_full_url}
-        alt={banner.title || "عرض ترويجي"}
-        fill
-        priority={priority}
-        className="object-cover"
-        sizes="(max-width: 640px) 100vw, 960px"
-      />
-    </div>
-  );
-
-  if (href) {
-    return (
-      <Link href={href} className="block outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]">
-        {image}
-      </Link>
-    );
-  }
-
-  return image;
-}
-```
-
-### `Banners/skeleton.tsx` — Shared
-
-```tsx
-export default function BannerSkeleton() {
-  return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
-      <div className="aspect-[21/7] sm:aspect-[21/6] w-full animate-pulse rounded-2xl bg-gray-100" />
-    </div>
-  );
 }
 ```
 
 ---
 
-## The Rule
+## The Rule (Summary)
 
 | File | Contains | Never Contains |
 |------|----------|----------------|
-| `index.tsx` | `async function`, `await getX()`, `if (length === 0)`, `return <Client />` | `className`, `<section>`, `"use client"` |
-| `*Client.tsx` | `"use client"`, `className`, `<section>`, event handlers, Swiper, state | `fetch`, `async`, `await` |
-| `*Card.tsx` | Props interface, JSX, `Image`, `Link` | `fetch`, state, effects |
-| `skeleton.tsx` | `animate-pulse`, matching dimensions | Logic, conditions |
-| `page.tsx` | `Suspense`, imports, composition | `fetch`, `async`, logic |
+| `page.tsx` | `Suspense`, shell, section imports | `fetch`, business logic, layout classNames |
+| `index.tsx` | `async`, `await getX()`, empty guard | `"use client"`, className, `<section>` |
+| `*Client.tsx` | `"use client"`, layout, state, events | `fetch`, `async` |
+| `*Card.tsx` | Props + JSX | fetch, state, effects |
+| `skeleton.tsx` | `animate-pulse`, matching size | logic |
 
-A developer should know what a file does by reading its name. Never by opening it.
+A developer should know what a file does from its name — without opening it.

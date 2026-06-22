@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { ItemShell } from "@/features/item/components/ItemShell";
+import { AddToCart } from "@/features/item/components/sections/AddToCart";
 import { ItemInfo } from "@/features/item/components/sections/ItemInfo";
 import { RelatedItems } from "@/features/item/components/sections/RelatedItems";
 
@@ -68,17 +69,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
 }
 
-export default async function Page({ params, searchParams }: PageProps) {
+export default async function Page({ params }: PageProps) {
     const { id } = await params;
-    const { module_id } = await searchParams;
 
     return (
         <ItemShell>
             <Suspense fallback={<ItemInfo.skeleton />}>
-                <ItemInfo itemId={id} moduleId={module_id} />
+                <ItemInfo itemId={id} />
             </Suspense>
             <Suspense fallback={<RelatedItems.skeleton />}>
-                <RelatedItems itemId={id} moduleId={module_id} />
+                <RelatedItems itemId={id} />
+            </Suspense>
+            <Suspense fallback={<AddToCart.skeleton />}>
+                <AddToCart itemId={id} />
             </Suspense>
         </ItemShell>
     );

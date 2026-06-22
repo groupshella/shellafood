@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "bdee566b-4c5f-4442-91a5-cccfa83b2ed8",
     "name": "Shellafood API — Official Collection",
-    "description": "# Shellafood API — Official Collection\n\n## Overview\nThis collection covers all backend endpoints powering the Shellafood app, organized by screen. Each folder maps to a page in the app and lists every API that drives it.\n\n---\n\n## Setup Instructions\n1. Import this file into Postman\n2. Set `backend_url` to your target environment (staging or production)\n3. Edit collection variables as needed — defaults: `store_id=62`, `module_id=6`, `category_id=772`, `item_id=240708`\n4. Set `zone_id` — default is `[2]`\n5. For authenticated endpoints, run **Auth Flow → Send OTP → Verify OTP** first — the `token` variable is auto-saved by the test script\n\n---\n\n## Collection Variables\n\n| Variable | Description | Default |\n|---|---|---|\n| `backend_url` | Base URL for the backend | `https://shellafood.com` |\n| `zone_id` | Delivery zone (JSON array) | `[2]` |\n| `module_id` | Active module for scoped requests | `6` |\n| `store_id` | Store ID for store/category endpoints | `62` |\n| `category_id` | Store category ID for category detail | `772` |\n| `item_id` | Product/item ID for item detail endpoints | `240708` |\n| `latitude` | User latitude for distance sorting | `24.567752` |\n| `longitude` | User longitude for distance sorting | `46.5444937` |\n| `limit` | Default page size | `12` |\n| `offset` | Default page offset | `0` |\n| `token` | Bearer token — auto-set after Verify OTP | |\n| `registration_token` | Temp token for new user registration — auto-set | |\n| `phone` | Phone number for OTP auth | |\n| `otp` | OTP code received by SMS | |\n\n---\n\n## Common Headers\n\n| Header | Required By | Example |\n|---|---|---|\n| `zoneId` | Most endpoints | `[2]` |\n| `moduleId` | Module-scoped endpoints | `6` |\n| `latitude` | Store/distance endpoints | `24.567752` |\n| `longitude` | Store/distance endpoints | `46.5444937` |\n| `X-Localization` | All endpoints (Arabic support) | `ar` or `en` |\n| `Authorization` | Authenticated endpoints | `Bearer {{token}}` |\n\n---\n\n## Screen Map\n\n| # | Screen | Route | Folder |\n|---|---|---|---|\n| 01 | Home | `/home` | 01 — Home Page |\n| 02 | Module | `/modules/:id` | 02 — Module Page |\n| 03 | Auth | `/auth` | 03 — Auth Flow |\n| 04 | Search | `/search` | 04 — Search Page |\n| 05 | Store Details | `/stores/:id` | 05 — Store Details Page |\n| 06 | Categories | `/stores/:id/categories` | 06 — Categories Page |\n| 07 | Item Details | `/items/:id` | 07 — Item Details Page |",
+    "description": "# Shellafood API — Official Collection\n\n## Overview\nThis collection covers all backend endpoints powering the Shellafood app, organized by screen. Each folder maps to a page in the app and lists every API that drives it.\n\n---\n\n## Setup Instructions\n1. Import this file into Postman\n2. Set `backend_url` to your target environment (staging or production)\n3. Edit collection variables as needed — defaults: `store_id=62`, `module_id=6`, `category_id=772`, `item_id=240708`\n4. Set `zone_id` — default is `[2]`\n5. For authenticated endpoints, run **Auth Flow → Send OTP → Verify OTP** first — the `token` variable is auto-saved by the test script\n\n---\n\n## Collection Variables\n\n| Variable | Description | Default |\n|---|---|---|\n| `backend_url` | Base URL for the backend | `https://shellafood.com` |\n| `zone_id` | Delivery zone (JSON array) | `[2]` |\n| `module_id` | Active module for scoped requests | `6` |\n| `store_id` | Store ID for store/category endpoints | `62` |\n| `category_id` | Store category ID for category detail | `772` |\n| `address_id` | Address ID for detail and delete endpoints | |\n| `guest_id` | Guest session ID for guest cart — auto-set after Guest Request | |\n| `cart_id` | Cart row ID for update/delete — auto-set from cart responses | |\n| `cart_item_id` | Product ID for cart add tests | `309073` |\n| `item_id` | Product/item ID for item detail endpoints | `240708` |\n| `latitude` | User latitude for distance sorting | `24.567752` |\n| `longitude` | User longitude for distance sorting | `46.5444937` |\n| `limit` | Default page size | `12` |\n| `offset` | Default page offset | `0` |\n| `token` | Bearer token — auto-set after Verify OTP | |\n| `registration_token` | Temp token for new user registration — auto-set | |\n| `phone` | Phone number for OTP auth | |\n| `otp` | OTP code received by SMS | |\n\n---\n\n## Common Headers\n\n| Header | Required By | Example |\n|---|---|---|\n| `zoneId` | Most endpoints | `[2]` |\n| `moduleId` | Module-scoped endpoints | `6` |\n| `latitude` | Store/distance endpoints | `24.567752` |\n| `longitude` | Store/distance endpoints | `46.5444937` |\n| `X-Localization` | All endpoints (Arabic support) | `ar` or `en` |\n| `Authorization` | Authenticated endpoints | `Bearer {{token}}` |\n\n---\n\n## Screen Map\n\n| # | Screen | Route | Folder |\n|---|---|---|---|\n| 01 | Home | `/home` | 01 — Home Page |\n| 02 | Module | `/modules/:id` | 02 — Module Page |\n| 03 | Auth | `/auth` | 03 — Auth Flow |\n| 04 | Search | `/search` | 04 — Search Page |\n| 05 | Store Details | `/stores/:id` | 05 — Store Details Page |\n| 06 | Categories | `/stores/:id/categories` | 06 — Categories Page |\n| 07 | Item Details | `/items/:id` | 07 — Item Details Page |\n| 08 | Addresses | `/addresses` | 08 — Addresses Page |\n| 09 | Cart | `/cart` | 09 — Cart Page |",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -94,6 +94,30 @@
       "key": "category_id",
       "value": "772",
       "description": "Store category ID — used in category detail endpoint",
+      "type": "string"
+    },
+    {
+      "key": "address_id",
+      "value": "",
+      "description": "Address ID — auto-set from List Addresses, used in detail and delete endpoints",
+      "type": "string"
+    },
+    {
+      "key": "guest_id",
+      "value": "",
+      "description": "Guest session ID — auto-set from Auth Flow Step 1, used for guest cart requests",
+      "type": "string"
+    },
+    {
+      "key": "cart_id",
+      "value": "",
+      "description": "Cart row ID — auto-set from Add to Cart or Get Cart, used in update/delete",
+      "type": "string"
+    },
+    {
+      "key": "cart_item_id",
+      "value": "309073",
+      "description": "Product ID for cart tests — verified module 3 hypermarket item",
       "type": "string"
     }
   ],
@@ -990,7 +1014,17 @@
                 "exec": [
                   "pm.test('Status is 200 or 201', function () {",
                   "    pm.expect([200, 201]).to.include(pm.response.code);",
-                  "});"
+                  "});",
+                  "",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "    pm.test('Save guest_id for cart testing', function () {",
+                  "        const json = pm.response.json();",
+                  "        if (json.guest_id !== undefined && json.guest_id !== null) {",
+                  "            pm.collectionVariables.set('guest_id', String(json.guest_id));",
+                  "            console.log('guest_id saved:', json.guest_id);",
+                  "        }",
+                  "    });",
+                  "}"
                 ],
                 "type": "text/javascript"
               }
@@ -1769,7 +1803,7 @@
     },
     {
       "name": "07 — Item Details Page",
-      "description": "All API calls that power the Item Details screen (`/items/:id`).\n\n**Sections on this screen:**\n- Product images, name, description, price, discount, rating\n- Related / similar products row\n\n**Before running:** Set `{{item_id}}` to a valid product ID and `{{module_id}}` to the module that product belongs to.\n\n**App proxies:**\n- Item details: `GET /api/item/details?id={{item_id}}&module_id={{module_id}}`\n- Related items: `GET /api/item/related?id={{item_id}}&module_id={{module_id}}`",
+      "description": "All API calls that power the Item Details screen (`/items/:id`).\n\n**Sections on this screen:**\n- Product image, name, description, price, discount, availability\n- Related / similar products row\n\n**Before running:** Set `{{item_id}}` to a valid product ID.\n\n**App proxies:**\n- Item details: `GET /api/item/details?id={{item_id}}`\n- Related items: `GET /api/item/related?id={{item_id}}`",
       "item": [
         {
           "name": "Item Details — Product Page",
@@ -1786,11 +1820,6 @@
                 "description": "Required — delivery zone"
               },
               {
-                "key": "moduleId",
-                "value": "{{module_id}}",
-                "description": "Required — module context for the item"
-              },
-              {
                 "key": "X-Localization",
                 "value": "{{localization}}",
                 "description": "ar or en — localized product name and description"
@@ -1802,19 +1831,19 @@
               }
             ],
             "url": {
-              "raw": "{{backend_url}}/api/v1/items/details/{{item_id}}",
+              "raw": "{{backend_url}}/api/v2/items/details/{{item_id}}",
               "host": [
                 "{{backend_url}}"
               ],
               "path": [
                 "api",
-                "v1",
+                "v2",
                 "items",
                 "details",
                 "{{item_id}}"
               ]
             },
-            "description": "Powers the Item Details screen when a user opens a product (`/items/:id`).\n\n**Endpoint:** `GET /api/v1/items/details/{item_id}`\n\n**App proxy:** `GET /api/item/details?id={{item_id}}&module_id={{module_id}}`\n\n**Headers:** `zoneId`, `moduleId`, `X-Localization`, and `Accept-Language` are required.\n\n**Returns:**\n```json\n{\n  \"id\": 956,\n  \"name\": \"برايد حليب كامل الدسم\",\n  \"description\": \"...\",\n  \"image_full_url\": \"https://...\",\n  \"price\": 11,\n  \"discount\": 0,\n  \"discount_type\": \"percent\",\n  \"avg_rating\": 4.5,\n  \"rating_count\": 12,\n  \"stock\": 50,\n  \"store_name\": \"هايبر شلة\"\n}\n```"
+            "description": "Powers the Item Details screen when a user opens a product (`/items/:id`).\n\n**Endpoint:** `GET /api/v2/items/details/{item_id}`\n\n**App proxy:** `GET /api/item/details?id={{item_id}}`\n\n**Headers:** `zoneId`, `X-Localization`, and `Accept-Language` are required. No `moduleId` header is needed.\n\n**Returns (optimized v2 — required fields only):**\n```json\n{\n  \"id\": 309073,\n  \"name\": \"Gggvcc\",\n  \"description\": \"Ffxxx\",\n  \"price\": 300,\n  \"discount\": 15,\n  \"image_full_url\": \"https://shellafood.com/storage/product/B5cDi0OqAg0TJLIqZfsZ.png\",\n  \"stock\": 2000,\n  \"is_available\": true\n}\n```"
           },
           "event": [
             {
@@ -1833,18 +1862,16 @@
                   "    pm.expect(json).to.have.property('image_full_url');",
                   "    pm.expect(json).to.have.property('price');",
                   "    pm.expect(json).to.have.property('discount');",
-                  "    pm.expect(json).to.have.property('avg_rating');",
-                  "    pm.expect(json).to.have.property('rating_count');",
                   "    pm.expect(json).to.have.property('stock');",
+                  "    pm.expect(json).to.have.property('is_available');",
                   "});",
                   "",
-                  "pm.test('Price and rating fields are numbers', function () {",
+                  "pm.test('Price and stock fields are numbers', function () {",
                   "    const json = pm.response.json();",
                   "    pm.expect(json.price).to.be.a('number');",
                   "    pm.expect(json.discount).to.be.a('number');",
-                  "    pm.expect(json.avg_rating).to.be.a('number');",
-                  "    pm.expect(json.rating_count).to.be.a('number');",
                   "    pm.expect(json.stock).to.be.a('number');",
+                  "    pm.expect(json.is_available).to.be.a('boolean');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -1868,11 +1895,6 @@
                 "description": "Required — delivery zone"
               },
               {
-                "key": "moduleId",
-                "value": "{{module_id}}",
-                "description": "Required — module context for the item"
-              },
-              {
                 "key": "X-Localization",
                 "value": "{{localization}}",
                 "description": "ar or en — localized product names"
@@ -1884,19 +1906,19 @@
               }
             ],
             "url": {
-              "raw": "{{backend_url}}/api/v1/items/related-items/{{item_id}}",
+              "raw": "{{backend_url}}/api/v2/items/related-items/{{item_id}}",
               "host": [
                 "{{backend_url}}"
               ],
               "path": [
                 "api",
-                "v1",
+                "v2",
                 "items",
                 "related-items",
                 "{{item_id}}"
               ]
             },
-            "description": "Powers the related / similar products row on the Item Details screen.\n\n**Endpoint:** `GET /api/v1/items/related-items/{item_id}`\n\n**App proxy:** `GET /api/item/related?id={{item_id}}&module_id={{module_id}}`\n\n**Headers:** `zoneId`, `moduleId`, `X-Localization`, and `Accept-Language` are required.\n\n**Returns:** Array of related product objects:\n```json\n[\n  {\n    \"id\": 957,\n    \"name\": \"حليب نادك كامل الدسم\",\n    \"image_full_url\": \"https://...\",\n    \"price\": 10,\n    \"discount\": 5,\n    \"discount_type\": \"percent\",\n    \"store_name\": \"هايبر شلة\"\n  }\n]\n```"
+            "description": "Powers the related / similar products row on the Item Details screen.\n\n**Endpoint:** `GET /api/v2/items/related-items/{item_id}`\n\n**App proxy:** `GET /api/item/related?id={{item_id}}`\n\n**Headers:** `zoneId`, `X-Localization`, and `Accept-Language` are required. No `moduleId` header is needed.\n\n**Returns (optimized v2 — required fields only):** Array of related product objects:\n```json\n[\n  {\n    \"id\": 309072,\n    \"name\": \"Ygffxxx\",\n    \"description\": \"Cfgvgg\",\n    \"price\": 200,\n    \"discount\": 15,\n    \"image_full_url\": \"https://shellafood.com/storage/product/L7Ls8oc6r1LQOKqN1SnW.png\",\n    \"stock\": 2000,\n    \"is_available\": true\n  }\n]\n```"
           },
           "event": [
             {
@@ -1918,14 +1940,1206 @@
                   "        const item = json[0];",
                   "        pm.expect(item).to.have.property('id');",
                   "        pm.expect(item).to.have.property('name');",
+                  "        pm.expect(item).to.have.property('description');",
                   "        pm.expect(item).to.have.property('image_full_url');",
                   "        pm.expect(item).to.have.property('price');",
                   "        pm.expect(item).to.have.property('discount');",
-                  "        pm.expect(item).to.have.property('store_name');",
+                  "        pm.expect(item).to.have.property('stock');",
+                  "        pm.expect(item).to.have.property('is_available');",
                   "        pm.expect(item.price).to.be.a('number');",
                   "        pm.expect(item.discount).to.be.a('number');",
+                  "        pm.expect(item.stock).to.be.a('number');",
+                  "        pm.expect(item.is_available).to.be.a('boolean');",
                   "    }",
                   "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08 — Addresses Page",
+      "description": "All API calls that power the Addresses screen (`/addresses`).\n\n**Sections on this screen:**\n- Saved addresses list\n- Address detail view (`/addresses/:id`)\n- Add address flow with map picker (`/addresses/add`)\n\n**Authentication:** All endpoints require a valid Bearer token. Run **03 — Auth Flow → Send OTP → Verify OTP** first — `{{token}}` is auto-saved.\n\n**Add address flow (run in order):**\n1. **Check Zone** — validate map coordinates before saving\n2. **Add Address** — save the address after zone check passes\n\n**Before running:** Set `{{latitude}}` and `{{longitude}}` for check-zone and add requests. Use coordinates inside Zone 2 (e.g. `24.7136`, `46.6753`) for a successful zone check.",
+      "item": [
+        {
+          "name": "List Addresses — Saved Addresses",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Required — run Auth Flow first to get token"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}",
+                "description": "Required — delivery zone"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/address/list",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "address",
+                "list"
+              ]
+            },
+            "description": "Powers the saved addresses list on `/addresses`.\n\n**Endpoint:** `GET /api/v2/address/list`\n\n**Authentication:** Bearer token required.\n\n**Returns:**\n```json\n{\n  \"addresses\": [\n    {\n      \"id\": 1,\n      \"address_label\": \"المنزل\",\n      \"city\": \"الرياض\",\n      \"region\": \"حي العوالي\",\n      \"street_name\": \"جنادة بن مالك\",\n      \"latitude\": 24.7136,\n      \"longitude\": 46.6753\n    }\n  ]\n}\n```"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Response has addresses array', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.have.property('addresses');",
+                  "        pm.expect(json.addresses).to.be.an('array');",
+                  "    });",
+                  "",
+                  "    pm.test('Save first address_id if available', function () {",
+                  "        const json = pm.response.json();",
+                  "        if (json.addresses && json.addresses.length > 0) {",
+                  "            pm.collectionVariables.set('address_id', json.addresses[0].id);",
+                  "            console.log('address_id saved:', json.addresses[0].id);",
+                  "        }",
+                  "    });",
+                  "}",
+                  "",
+                  "if (pm.response.code === 401) {",
+                  "    console.warn('Token missing or expired. Run 03 — Auth Flow to authenticate.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Address Details — Single Address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Required — run Auth Flow first to get token"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/address/details/{{address_id}}",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "address",
+                "details",
+                "{{address_id}}"
+              ]
+            },
+            "description": "Powers the address detail screen (`/addresses/:id`).\n\n**Endpoint:** `GET /api/v2/address/details/{address_id}`\n\n**Authentication:** Bearer token required.\n\n**Before running:** Set `{{address_id}}` or run **List Addresses** first to auto-save it.\n\n**Returns:**\n```json\n{\n  \"id\": 1,\n  \"latitude\": 24.7136,\n  \"longitude\": 46.6753,\n  \"city\": \"الرياض\",\n  \"region\": \"حي العوالي\",\n  \"street_name\": \"جنادة بن مالك\",\n  \"address_label\": \"المنزل\",\n  \"building_type\": \"apartment\",\n  \"building_number\": \"12\",\n  \"floor_number\": \"3\",\n  \"apartment_number\": \"5\",\n  \"additional_info\": \"بجانب المسجد\"\n}\n```"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Response has address detail fields', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.have.property('id');",
+                  "        pm.expect(json).to.have.property('city');",
+                  "        pm.expect(json).to.have.property('region');",
+                  "        pm.expect(json).to.have.property('street_name');",
+                  "        pm.expect(json).to.have.property('address_label');",
+                  "        pm.expect(json).to.have.property('latitude');",
+                  "        pm.expect(json).to.have.property('longitude');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Check Zone — Map Location Validation",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Required — run Auth Flow first to get token"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": {{latitude}},\n  \"longitude\": {{longitude}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/address/check-zone",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "address",
+                "check-zone"
+              ]
+            },
+            "description": "Validates whether map coordinates are inside the active delivery zone before saving an address.\n\n**Endpoint:** `POST /api/v2/address/check-zone`\n\n**Authentication:** Bearer token required.\n\n**Used in:** Map picker on `/addresses/add` — called after the user confirms their location and before `POST /api/v2/address/add`.\n\n**Request body:**\n```json\n{\n  \"latitude\": 24.7136,\n  \"longitude\": 46.6753\n}\n```\n\n**Inside zone (200):**\n```json\n{\n  \"success\": true,\n  \"in_zone\": true,\n  \"zone_id\": 2,\n  \"zone_name\": \"طويق\",\n  \"address\": {\n    \"formatted_address\": \"RKAA2643، 2643 جنادة بن مالك، 7988، حي العوالي، الرياض 14926، السعودية\",\n    \"city\": \"الرياض\",\n    \"region\": \"حي العوالي\",\n    \"street_name\": \"جنادة بن مالك\",\n    \"country\": \"السعودية\"\n  }\n}\n```\n\n**Outside service area (200):**\n```json\n{\n  \"success\": false,\n  \"in_zone\": false,\n  \"message\": \"Sorry, we currently do not deliver to this location.\",\n  \"address\": {\n    \"formatted_address\": \"PM7G+C4M، العليا، الرياض 12251، السعودية\",\n    \"city\": \"الرياض\",\n    \"region\": \"العليا\",\n    \"street_name\": null,\n    \"country\": \"السعودية\"\n  }\n}\n```\n\n**Without token (401):**\n```json\n{\n  \"error\": \"Unauthenticated\",\n  \"message\": \"Authentication token is required\",\n  \"code\": \"auth-001\"\n}\n```"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Response has in_zone boolean', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.have.property('in_zone');",
+                  "        pm.expect(json.in_zone).to.be.a('boolean');",
+                  "    });",
+                  "",
+                  "    pm.test('Response has reverse-geocoded address', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.have.property('address');",
+                  "        pm.expect(json.address).to.have.property('city');",
+                  "        pm.expect(json.address).to.have.property('region');",
+                  "    });",
+                  "}",
+                  "",
+                  "if (pm.response.code === 401) {",
+                  "  pm.test('Unauthorized response shape', function () {",
+                  "      const json = pm.response.json();",
+                  "      pm.expect(json.code).to.eql('auth-001');",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Add Address — Save New Address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Required — run Auth Flow first to get token"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}",
+                "description": "ar or en"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": {{latitude}},\n  \"longitude\": {{longitude}},\n  \"city\": \"الرياض\",\n  \"region\": \"حي العوالي\",\n  \"street_name\": \"جنادة بن مالك\",\n  \"address_label\": \"المنزل\",\n  \"building_type\": \"apartment\",\n  \"building_number\": \"12\",\n  \"floor_number\": \"3\",\n  \"apartment_number\": \"5\",\n  \"additional_info\": \"بجانب المسجد\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/address/add",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "address",
+                "add"
+              ]
+            },
+            "description": "Saves a new delivery address after a successful zone check.\n\n**Endpoint:** `POST /api/v2/address/add`\n\n**Authentication:** Bearer token required.\n\n**Used in:** Address form on `/addresses/add` after map picker confirms location.\n\n**Required fields:** `city`, `region`, `street_name`, `address_label`\n\n**Optional fields:** `latitude`, `longitude`, `building_type`, `building_number`, `floor_number`, `apartment_number`, `additional_info`\n\n**Returns:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Address added successfully\",\n  \"address\": {\n    \"id\": 1,\n    \"latitude\": 24.7136,\n    \"longitude\": 46.6753,\n    \"city\": \"الرياض\",\n    \"region\": \"حي العوالي\",\n    \"street_name\": \"جنادة بن مالك\",\n    \"address_label\": \"المنزل\"\n  }\n}\n```"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Address created successfully', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json.success).to.eql(true);",
+                  "        pm.expect(json).to.have.property('address');",
+                  "    });",
+                  "",
+                  "    pm.test('Save new address_id', function () {",
+                  "        const json = pm.response.json();",
+                  "        if (json.address && json.address.id) {",
+                  "            pm.collectionVariables.set('address_id', json.address.id);",
+                  "            console.log('address_id saved:', json.address.id);",
+                  "        }",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Delete Address — Remove Saved Address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Required — run Auth Flow first to get token"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/address/{{address_id}}",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "address",
+                "{{address_id}}"
+              ]
+            },
+            "description": "Deletes a saved address from the user's account.\n\n**Endpoint:** `DELETE /api/v2/address/{address_id}`\n\n**Authentication:** Bearer token required.\n\n**Before running:** Set `{{address_id}}` or run **List Addresses** / **Add Address** first to auto-save it.\n\n**Returns:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Address deleted successfully\"\n}\n```"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Address deleted successfully', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json.success).to.eql(true);",
+                  "        pm.expect(json).to.have.property('message');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "09 — Cart Page",
+      "description": "All API calls that power the Cart screen (`/cart`).\n\n**Sections on this screen:**\n- Cart items list with quantity controls\n- Total summary bar\n- Clear cart action\n- Pay button (checkout — not yet wired)\n\n**Guest cart test flow (run in order, no login required):**\n1. **03 — Auth Flow → Step 1 Guest Request** — saves `{{guest_id}}`\n2. **Clear Cart — Guest** — start with empty cart\n3. **Add to Cart — Guest** — adds test product `{{cart_item_id}}` (309073, module 3)\n4. **Get Cart — Guest** — verify items returned\n5. **Update Quantity — Guest** — change quantity to 3\n6. **Remove Cart Item — Guest** — remove single item\n\n**Authenticated cart:** Use the `— Authenticated` requests after **Verify OTP** saves `{{token}}`. Omit `guest_id` from body/query.\n\n**Test data defaults:**\n- `cart_item_id`: `309073` (hypermarket product, module 3)\n- `moduleId` header: `3` on all cart requests\n- `zone_id`: `[2]`",
+      "item": [
+        {
+          "name": "Get Cart — Guest",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "3",
+                "description": "Module 3 = Hypermarket — required for cart_item_id 309073"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/cart?guest_id={{guest_id}}",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "cart"
+              ],
+              "query": [
+                {
+                  "key": "guest_id",
+                  "value": "{{guest_id}}",
+                  "description": "Required for guest cart — run Auth Flow Step 1 first"
+                }
+              ]
+            },
+            "description": "Powers the cart list on `/cart` for guest users.\n\n**Endpoint:** `GET /api/v2/cart?guest_id={{guest_id}}`\n\n**Before running:** Run **03 — Auth Flow → Step 1 Guest Request** to auto-save `{{guest_id}}`.\n\n**Returns:** Array of cart items, or `[]` when empty.\n```json\n[\n  {\n    \"id\": 3593,\n    \"name\": \"Gcvvff\",\n    \"description\": \"Cctygg\",\n    \"price\": 255,\n    \"discount\": 15,\n    \"image_full_url\": \"https://shellafood.com/storage/product/B5cDi0OqAg0TJLIqZfsZ.png\",\n    \"quantity\": 1\n  }\n]\n```"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Save cart_id from first item if available', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.length > 0 && json[0].id) {",
+                  "        pm.collectionVariables.set('cart_id', json[0].id);",
+                  "        console.log('cart_id saved:', json[0].id);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Cart — Authenticated",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Required — run Auth Flow Verify OTP first"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "3"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{backend_url}}/api/v2/cart",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "cart"
+              ]
+            },
+            "description": "Powers the cart list on `/cart` for logged-in users.\n\n**Endpoint:** `GET /api/v2/cart`\n\n**Authentication:** Bearer token required. Do not send `guest_id`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Response is an array', function () {",
+                  "        pm.expect(pm.response.json()).to.be.an('array');",
+                  "    });",
+                  "",
+                  "    pm.test('Save cart_id from first item if available', function () {",
+                  "        const json = pm.response.json();",
+                  "        if (json.length > 0 && json[0].id) {",
+                  "            pm.collectionVariables.set('cart_id', json[0].id);",
+                  "            console.log('cart_id saved:', json[0].id);",
+                  "        }",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Add to Cart — Guest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "3"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_id\": {{cart_item_id}},\n  \"quantity\": 1,\n  \"guest_id\": \"{{guest_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/cart/add",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "cart",
+                "add"
+              ]
+            },
+            "description": "Adds a product to the guest cart from the item page.\n\n**Endpoint:** `POST /api/v2/cart/add`\n\n**Test body:**\n```json\n{\n  \"item_id\": 309073,\n  \"quantity\": 1,\n  \"guest_id\": \"4550\"\n}\n```\n\n**Before running:** Run **Guest Request** to set `{{guest_id}}`.\n\n**Possible errors:**\n- `item_not_found` (404)\n- `store_closed` (403)\n- `cart_item_limit` (403)\n- `different_store` (409)"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or error code', function () {",
+                  "    pm.expect([200, 403, 404, 409]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Response is cart items array', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.be.an('array');",
+                  "        pm.expect(json.length).to.be.above(0);",
+                  "    });",
+                  "",
+                  "    pm.test('Save cart_id from first item', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.collectionVariables.set('cart_id', json[0].id);",
+                  "        console.log('cart_id saved:', json[0].id);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Add to Cart — Authenticated",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "3"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_id\": {{cart_item_id}},\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/cart/add",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "cart",
+                "add"
+              ]
+            },
+            "description": "Adds a product to the authenticated user cart.\n\n**Endpoint:** `POST /api/v2/cart/add`\n\n**Authentication:** Bearer token required. Do not send `guest_id`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401, 403, 404, 409]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Save cart_id from first item', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.collectionVariables.set('cart_id', json[0].id);",
+                  "        console.log('cart_id saved:', json[0].id);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Update Quantity — Guest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "3"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": {{cart_id}},\n  \"quantity\": 3,\n  \"guest_id\": \"{{guest_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/cart/update",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "cart",
+                "update"
+              ]
+            },
+            "description": "Updates item quantity from the cart page +/- controls.\n\n**Endpoint:** `POST /api/v2/cart/update`\n\n**Before running:** Run **Add to Cart** or **Get Cart** first to auto-save `{{cart_id}}`.\n\n**Test body:** sets quantity to `3`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', function () {",
+                  "    pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Updated cart returned as array', function () {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.be.an('array');",
+                  "        if (json.length > 0) {",
+                  "            pm.expect(json[0].quantity).to.eql(3);",
+                  "        }",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Update Quantity — Authenticated",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "3"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": {{cart_id}},\n  \"quantity\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/cart/update",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "cart",
+                "update"
+              ]
+            },
+            "description": "Updates item quantity for authenticated users.\n\n**Endpoint:** `POST /api/v2/cart/update`"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401, 404]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Remove Cart Item — Guest",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "3"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": {{cart_id}},\n  \"guest_id\": \"{{guest_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/cart/item",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "cart",
+                "item"
+              ]
+            },
+            "description": "Removes a single item from the guest cart.\n\n**Endpoint:** `DELETE /api/v2/cart/item`\n\n**Before running:** Set `{{cart_id}}` via Add/Get Cart."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', function () {",
+                  "    pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Response is cart array', function () {",
+                  "        pm.expect(pm.response.json()).to.be.an('array');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Remove Cart Item — Authenticated",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "3"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": {{cart_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/cart/item",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "cart",
+                "item"
+              ]
+            },
+            "description": "Removes a single item from the authenticated user cart.\n\n**Endpoint:** `DELETE /api/v2/cart/item`"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401, 404]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Clear Cart — Guest",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "3"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guest_id\": \"{{guest_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/cart/clear",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "cart",
+                "clear"
+              ]
+            },
+            "description": "Clears all items from the guest cart — powers the \"تفريغ السلة\" action on `/cart`.\n\n**Endpoint:** `DELETE /api/v2/cart/clear`\n\n**Returns:** `[]`"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Cart cleared — empty array returned', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "    pm.expect(json.length).to.eql(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Clear Cart — Authenticated",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Localization",
+                "value": "{{localization}}"
+              },
+              {
+                "key": "moduleId",
+                "value": "3"
+              },
+              {
+                "key": "zoneId",
+                "value": "{{zone_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{backend_url}}/api/v2/cart/clear",
+              "host": [
+                "{{backend_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "cart",
+                "clear"
+              ]
+            },
+            "description": "Clears all items from the authenticated user cart.\n\n**Endpoint:** `DELETE /api/v2/cart/clear`\n\n**Returns:** `[]`"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 401', function () {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Cart cleared — empty array returned', function () {",
+                  "        pm.expect(pm.response.json()).to.be.an('array');",
+                  "    });",
+                  "}"
                 ],
                 "type": "text/javascript"
               }
