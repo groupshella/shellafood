@@ -1,6 +1,5 @@
 "use client";
 
-import { ScrollContainer } from "@/features/home/components/shared/ScrollContainer";
 import { RelatedItem } from "@/features/item/types/related-items.types";
 import { RelatedProductCard } from "./RelatedProductCard";
 
@@ -10,14 +9,15 @@ interface RelatedItemsClientProps {
 
 export function RelatedItemsClient({ items }: RelatedItemsClientProps) {
     return (
-        <section className="mt-2 bg-white pb-8 pt-4">
-            <h2 className="px-4 pb-3 text-sm font-bold text-gray-900 sm:px-5">منتجات قد تعجبك</h2>
-            <div dir="ltr">
-                <ScrollContainer className="gap-2 px-4 sm:px-5 flex flex-wrap">
-                    {items.map((product) => (
-                        <RelatedProductCard key={product.id} product={product} />
-                    ))}
-                </ScrollContainer>
+        <section className="bg-white px-4 pb-28 pt-5 sm:px-5" dir="rtl">
+            <h2 className="mb-3 text-right text-base font-bold text-[#111B18] sm:text-lg">
+                يُباع معها أيضاً
+            </h2>
+
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {items.map((product) => (
+                    <RelatedProductCard key={product.id} product={product} />
+                ))}
             </div>
         </section>
     );

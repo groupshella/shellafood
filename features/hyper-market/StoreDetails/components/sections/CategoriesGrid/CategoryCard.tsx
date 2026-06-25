@@ -18,7 +18,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
             className="relative flex aspect-square w-full shrink-0 flex-col overflow-hidden rounded-2xl bg-[#EBFEEB] outline-none transition-transform duration-150 active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
             aria-label={category.name}
         >
-            <h3 className="relative z-10 line-clamp-2 px-2 pt-2 text-center text-[10px] font-bold leading-tight text-[#2F8F3B] sm:text-[11px]">
+            <h3 className="relative z-10 line-clamp-2 px-2 pt-2 text-center text-xs font-bold leading-tight text-[#2F8F3B] sm:text-[11px]">
                 {category.name}
             </h3>
             <div className="absolute inset-x-0 bottom-0 h-[62%]">

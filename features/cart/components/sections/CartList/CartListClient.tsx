@@ -9,6 +9,7 @@ import { removeCartItem } from "@/features/cart/actions/remove-cart-item";
 import { clearCart } from "@/features/cart/actions/clear-cart";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { CartItemCard } from "./CartItemCard";
+import { CartEmpty } from "./CartEmpty";
 import { ClearCartConfirmSheet } from "../../shared/ClearCartConfirmSheet";
 
 interface CartListClientProps {
@@ -76,6 +77,10 @@ export function CartListClient({ items: initialItems }: CartListClientProps) {
         setError(result.message);
       }
     });
+  }
+
+  if (items.length === 0) {
+    return <CartEmpty />;
   }
 
   return (

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { SearchShell } from "@/features/search/components/SearchShell";
+import { Modules } from "@/features/search/components/sections/Modules";
 import { PopularBrands } from "@/features/search/components/sections/PopularBrands";
 import { PopularSearch } from "@/features/search/components/sections/PopularSearch";
 import { RecentSearches } from "@/features/search/components/sections/RecentSearches";
@@ -76,6 +77,10 @@ export default async function SearchRoute({
 	return (
 		<SearchShell>
 			<div className="mt-8 flex flex-col gap-8">
+				<Suspense fallback={<Modules.skeleton />}>
+					<Modules />
+				</Suspense>
+
 				<RecentSearches />
 
 				<Suspense fallback={<PopularSearch.skeleton />}>

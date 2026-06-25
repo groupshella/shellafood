@@ -17,7 +17,11 @@ export function AddAddressClient() {
   }
 
   if (step === "map" || !location) {
-    return <MapPickerClient onConfirm={handleLocationConfirmed} />;
+    return (
+      <div className="flex min-h-0 flex-1 flex-col">
+        <MapPickerClient onConfirm={handleLocationConfirmed} />
+      </div>
+    );
   }
 
   return (

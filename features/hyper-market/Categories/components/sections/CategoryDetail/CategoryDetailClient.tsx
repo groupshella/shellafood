@@ -19,7 +19,7 @@ import { CategoryProductCard } from "./CategoryProductCard";
  * If your app has an additional header above CategoryTabsClient,
  * add its height to both CATEGORY_NAV_H and adjust top-0 → top-[Xpx].
  */
-const CATEGORY_NAV_H = 44; // height of CategoryTabsClient
+const CATEGORY_NAV_H = 44;
 const SUB_NAV_H = 44;      // height of SubCategoryTabs (this file)
 const SCROLL_OFFSET = CATEGORY_NAV_H + SUB_NAV_H + 8; // 8px breathing room
 
@@ -49,7 +49,7 @@ function SubCategoryTabs({
             dir="rtl"
             role="tablist"
             aria-label="أقسام فرعية"
-            className="sticky z-20 flex gap- h-12 overflow-x-auto border-b border-gray-100 bg-white px-4 py-2 sm:px-5
+            className="sticky z-20 flex h-12 gap-2 overflow-x-auto border-b border-gray-100 bg-white px-4 py-2 sm:px-5
                        scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             style={{ top: CATEGORY_NAV_H }}
         >
@@ -195,7 +195,7 @@ export function CategoryDetailClient({ detail }: Props) {
                 />
             )}
 
-            <div className="bg-[#F6F5F8] pb-8">
+            <div className="bg-[#F6F5F8] pb-28">
                 {detail.sub_categories.map((sc) => (
                     <SubCategorySection
                         key={sc.id}

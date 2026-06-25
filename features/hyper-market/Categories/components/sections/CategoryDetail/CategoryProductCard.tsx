@@ -3,93 +3,91 @@
 import Image from "next/image";
 import Link from "next/link";
 import { memo, useState } from "react";
-import { Plus, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
+import { PriceTag } from "@/features/home/components/shared/PriceTag";
+import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
 import { CategoryProduct } from "@/features/hyper-market/Categories/types/category-detail.types";
 
 interface Props {
     product: CategoryProduct;
 }
 
-/**
- * Vertical product card — matches the CategoriesPage spec exactly:
- *
- *  ┌─────────────┐
- *  │  [img 66px] │  ← discount badge top-start, add btn bottom-start
- *  │  name 2-ln  │
- *  │  price  ر.س │  ← original strikethrough above if discounted
- *  └─────────────┘
- */
 export const CategoryProductCard = memo(function CategoryProductCard({ product }: Props) {
     const [imgError, setImgError] = useState(false);
 
     const hasDiscount =
         product.discounted_price != null && product.discounted_price < product.price;
     const displayPrice = hasDiscount ? product.discounted_price! : product.price;
+    const showImage = !imgError && !!product.full_image_url;
+    const discountPercent = product.discount_percentage ?? 0;
 
     return (
         <Link
             href={`/items/${product.id}?module_id=3`}
             dir="rtl"
             aria-label={product.name}
-            className="group relative flex flex-col overflow-hidden rounded-[6px] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-transform active:scale-[0.97]"
+            className={[
+                "group relative flex h-full flex-col overflow-hidden rounded-xl bg-white",
+                "shadow-[0_2px_8px_rgba(0,0,0,0.07)] ring-1 ring-black/[0.05]",
+                "outline-none transition-transform duration-150 active:scale-[0.97]",
+                "focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+            ].join(" ")}
         >
-            {/* ── Image area ── */}
-            <div className="relative mx-auto mt-2 flex h-[66px] w-[66px] items-center justify-center">
-                {/* Discount badge — top-start */}
+            <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-[#F7F9F7]">
                 {hasDiscount && product.discount_percentage != null && (
-                    <span className="absolute start-0 top-0 z-10 rounded bg-[#FFDCDC] px-1.5 py-0.5 text-[10px] font-bold leading-none text-[#DB2626]">
-                        -{product.discount_percentage}%
+                    <span className="absolute start-1.5 top-1.5 z-10 rounded-md bg-[#E53935] px-1.5 py-0.5 text-[9px] font-bold leading-none text-white">
+                        -{Math.round(product.discount_percentage)}%
                     </span>
                 )}
 
-                {/* Add to cart — bottom-start */}
-                <button
-                    type="button"
-                    aria-label="إضافة إلى السلة"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // TODO: cart action
-                    }}
-                    className="absolute bottom-0 start-0 z-10 flex h-[26px] w-[26px] items-center justify-center rounded-[13px] bg-[#D1FDD2] transition-transform active:scale-90"
-                >
-                    <Plus className="h-3.5 w-3.5 text-[#30913F]" strokeWidth={2} />
-                </button>
+                <div className="absolute bottom-1.5 end-1.5 z-10">
+                    <ProductAddControl
+                        product={{
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            discount: discountPercent,
+                        }}
+                        isAvailable={true}
+                        size="sm"
+                    />
+                </div>
 
-                {/* Product image */}
-                {!imgError && product.full_image_url ? (
+                {showImage ? (
                     <Image
                         src={product.full_image_url}
                         alt=""
-                        width={66}
-                        height={66}
-                        className="object-contain transition-transform duration-300 group-hover:scale-105"
+                        fill
+                        className="object-contain p-2 transition-transform duration-300 group-active:scale-95"
+                        sizes="(max-width: 640px) 30vw, 140px"
                         loading="lazy"
                         onError={() => setImgError(true)}
                     />
                 ) : (
-                    <ShoppingBag className="h-8 w-8 text-[#707784] opacity-15" />
+                    <div className="flex h-full items-center justify-center">
+                        <ShoppingBag className="h-8 w-8 text-gray-300" aria-hidden />
+                    </div>
                 )}
             </div>
 
-            {/* ── Body ── */}
-            <div className="flex flex-1 flex-col justify-between px-2 pb-2 pt-1">
-                {/* Name */}
-                <p className="line-clamp-2 min-h-[2.6em] text-right text-[10px] font-medium leading-[1.3] text-[#111B18]">
+            <div className="flex flex-1 flex-col gap-1 px-2 pb-2.5 pt-1.5">
+                <p className="line-clamp-2 min-h-[2.4em] text-right text-[11px] font-semibold leading-snug text-[#111B18] sm:text-xs">
                     {product.name}
                 </p>
 
-                {/* Price */}
-                <div className="mt-1 flex flex-col items-end">
+                <div className="mt-auto flex flex-col items-start gap-0.5">
                     {hasDiscount && (
-                        <span className="text-[9px] text-[#CD1625] line-through">
-                            {product.price.toFixed(2)} ر.س
-                        </span>
+                        <PriceTag
+                            amount={product.price}
+                            size="sm"
+                            className="text-[10px] leading-none text-gray-400 line-through"
+                        />
                     )}
-                    <span className="text-[13px] font-bold text-black">
-                        {displayPrice.toFixed(2)}{" "}
-                        <span className="text-[10px] font-normal text-[#555]">ر.س</span>
-                    </span>
+                    <PriceTag
+                        amount={displayPrice}
+                        size="sm"
+                        className="text-[11px] font-bold leading-none text-[#2F8F3B] sm:text-xs"
+                    />
                 </div>
             </div>
         </Link>

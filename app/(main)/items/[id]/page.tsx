@@ -81,7 +81,7 @@ export default async function Page({ params }: PageProps) {
                 <RelatedItems itemId={id} />
             </Suspense>
             <Suspense fallback={<AddToCart.skeleton />}>
-                <AddToCart itemId={id} />
+                <AddToCart moduleId="3" />
             </Suspense>
         </ItemShell>
     );

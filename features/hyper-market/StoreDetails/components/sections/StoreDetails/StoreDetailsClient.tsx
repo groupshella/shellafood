@@ -17,17 +17,16 @@ export function StoreDetailsClient({ store, moduleId }: StoreDetailsClientProps)
     return (
         <div className="flex flex-col pb-2">
             <CategoriesGridClient categories={store.categories} />
-            <div className="h-3 bg-[#F5F5F5]" />
-
+            {/* 
             {store.featured_store_discounted && <FeaturedDiscounted data={store.featured_store_discounted} />}
-            {store.featured_store_products && <FeaturedProducts data={store.featured_store_products} />}
+            {store.featured_store_products && <FeaturedProducts data={store.featured_store_products} />} */}
 
-            {store.category_products?.products?.length > 0 && (
+            {/* {store.category_products?.products?.length > 0 && (
                 <CategoryProductsRow
                     products={store.category_products.products}
                     title={store.category_products.category_name}
                 />
-            )}
+            )} */}
         </div>
     );
 }

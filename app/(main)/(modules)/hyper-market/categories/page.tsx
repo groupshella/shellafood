@@ -5,6 +5,7 @@ import { getStoreCategories } from "@/features/hyper-market/Categories/api/categ
 import { CategoriesPageShell } from "@/features/hyper-market/Categories/components/CategoriesPageShell";
 import { CategoryTabs } from "@/features/hyper-market/Categories/components/sections/CategoryTabs";
 import { CategoryDetail } from "@/features/hyper-market/Categories/components/sections/CategoryDetail";
+import { AddToCart } from "@/features/hyper-market/Categories/components/sections/AddToCart";
 
 const STORE_ID = "1";
 const MODULE_ID = "3";
@@ -41,6 +42,8 @@ export default async function HyperMarketCategoriesPage({
 			<Suspense key={activeCategoryId} fallback={<CategoryDetail.skeleton />}>
 				<CategoryDetail storeId={STORE_ID} categoryId={activeCategoryId} />
 			</Suspense>
+
+			<AddToCart moduleId={MODULE_ID} />
 		</CategoriesPageShell>
 	);
 }
