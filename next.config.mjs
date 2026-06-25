@@ -8,6 +8,7 @@ const nextConfig = {
   turbopack: {
     root: __dirname,
   },
+  output: 'standalone',
   outputFileTracingRoot: __dirname,
   // Image optimization configuration - Mobile-first
   images: {

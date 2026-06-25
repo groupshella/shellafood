@@ -10,7 +10,7 @@ interface HomeShellProps {
 
 export function HomeShell({ isAuthenticated, children }: HomeShellProps) {
     return (
-        <div className="flex flex-col min-h-screen gap-4">
+        <div className="flex flex-col min-h-screen gap-4 mb-16">
             <Topbar />
             {children}
             <Navbar />
