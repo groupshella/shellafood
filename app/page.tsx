@@ -3,19 +3,19 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function MainPage() {
-	// const cookieStore = await cookies();
+	const cookieStore = await cookies();
 
 
-	// const token =
-	// 	cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
+	const token =
+		cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
 
-	// const guestId =
-	// 	cookieStore.get(COOKIE_KEYS.GUEST_ID)?.value;
+	const guestId =
+		cookieStore.get(COOKIE_KEYS.GUEST_ID)?.value;
 
 
-	// if (token || guestId) {
-	// 	redirect("/home");
-	// }
+	if (token || guestId) {
+		redirect("/home");
+	}
 
 	redirect("/onboarding");
 }

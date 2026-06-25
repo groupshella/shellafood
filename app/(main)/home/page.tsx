@@ -39,18 +39,18 @@ export default async function HomePage() {
 				<Modules />
 			</Suspense>
 
-			<Suspense fallback={<DiscountedStores.skeleton />}>
+			{/* <Suspense fallback={<DiscountedStores.skeleton />}>
 				<DiscountedStores />
-			</Suspense>
+			</Suspense> */}
 
-			<Suspense fallback={<CurrentOffers.skeleton />}>
+			{/* <Suspense fallback={<CurrentOffers.skeleton />}>
 				<CurrentOffers />
-			</Suspense>
+			</Suspense> */}
 			<PromoBanners />
 
-			<Suspense fallback={<RecentOrders.skeleton />}>
+			{/* <Suspense fallback={<RecentOrders.skeleton />}>
 				<RecentOrders />
-			</Suspense>
+			</Suspense> */}
 		</HomeShell>
 	);
 }

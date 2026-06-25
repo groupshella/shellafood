@@ -1,8 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { getStoreCategories } from "@/features/hyper-market/Categories/api/categories";
 import { CategoriesPageShell } from "@/features/hyper-market/Categories/components/CategoriesPageShell";
+import { AllCategories } from "@/features/hyper-market/Categories/components/sections/AllCategories";
 import { CategoryTabs } from "@/features/hyper-market/Categories/components/sections/CategoryTabs";
 import { CategoryDetail } from "@/features/hyper-market/Categories/components/sections/CategoryDetail";
 import { AddToCart } from "@/features/hyper-market/Categories/components/sections/AddToCart";
@@ -24,24 +23,23 @@ export default async function HyperMarketCategoriesPage({
 }: HyperMarketCategoriesPageProps) {
 	const { categoryId } = await searchParams;
 
-	let activeCategoryId = categoryId;
-
-	if (!activeCategoryId) {
-		const categories = await getStoreCategories(STORE_ID);
-		if (categories.length === 0) redirect("/hyper-market");
-		activeCategoryId = String(categories[0].id);
-		redirect(`/hyper-market/categories?categoryId=${activeCategoryId}`);
-	}
-
 	return (
 		<CategoriesPageShell moduleId={MODULE_ID}>
-			<Suspense fallback={<CategoryTabs.skeleton />}>
-				<CategoryTabs storeId={STORE_ID} activeCategoryId={activeCategoryId} />
-			</Suspense>
+			{categoryId ? (
+				<>
+					<Suspense fallback={<CategoryTabs.skeleton />}>
+						<CategoryTabs storeId={STORE_ID} activeCategoryId={categoryId} />
+					</Suspense>
 
-			<Suspense key={activeCategoryId} fallback={<CategoryDetail.skeleton />}>
-				<CategoryDetail storeId={STORE_ID} categoryId={activeCategoryId} />
-			</Suspense>
+					<Suspense key={categoryId} fallback={<CategoryDetail.skeleton />}>
+						<CategoryDetail storeId={STORE_ID} categoryId={categoryId} />
+					</Suspense>
+				</>
+			) : (
+				<Suspense fallback={<AllCategories.skeleton />}>
+					<AllCategories storeId={STORE_ID} />
+				</Suspense>
+			)}
 
 			<AddToCart moduleId={MODULE_ID} />
 		</CategoriesPageShell>

@@ -9,5 +9,5 @@ export const PopularBrands = Object.assign(
 
         return <PopularBrandsClient brands={brands} />;
     },
-    { skeleton: PopularBrandsSkeleton }
+    { skeleton: PopularBrandsSkeleton },
 );

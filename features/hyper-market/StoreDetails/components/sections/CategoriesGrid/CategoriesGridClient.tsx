@@ -35,7 +35,7 @@ export function CategoriesGridClient({ categories }: CategoriesGridClientProps) 
 
     const columns = buildColumns(categories);
     const hasMultipleColumns = columns.length > 3;
-    const viewAllHref = `/hyper-market/categories?categoryId=${categories[0]?.id ?? ""}`;
+    const viewAllHref = "/hyper-market/categories";
 
     const updateScrollHint = useCallback(() => {
         const el = scrollRef.current;

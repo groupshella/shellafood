@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, ChevronLeft } from "lucide-react";
 import { HyperMarketPopularBrand } from "@/features/hyper-market/StoreDetails/types/popular-brands.types";
 import { BrandCard } from "./BrandCard";
 
@@ -28,6 +29,7 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
 
     const columns = chunkByTwo(brands);
     const hasMultipleColumns = columns.length > 3;
+    const viewAllHref = "/hyper-market/brands";
 
     const updateScrollHint = useCallback(() => {
         const el = scrollRef.current;
@@ -65,12 +67,27 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
             <div className="mb-3 flex items-center justify-between gap-3">
                 <h2 className="text-base font-bold text-[#111B18] sm:text-lg">أشهر العلامات التجارية</h2>
 
-                {hasMultipleColumns && canScrollMore && (
-                    <span className="hidden shrink-0 items-center gap-1 text-[11px] font-medium text-gray-400 sm:inline-flex sm:text-xs">
-                        اسحب للمزيد
-                        <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden />
-                    </span>
-                )}
+                <div className="flex shrink-0 items-center gap-2">
+                    {hasMultipleColumns && canScrollMore && (
+                        <span className="hidden items-center gap-1 text-[11px] font-medium text-gray-400 sm:inline-flex sm:text-xs">
+                            اسحب للمزيد
+                            <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden />
+                        </span>
+                    )}
+
+                    <Link
+                        href={viewAllHref}
+                        className={[
+                            "inline-flex items-center gap-1 rounded-lg bg-[#EBFEEB] px-2.5 py-1.5",
+                            "text-xs font-bold text-[#30913F] sm:gap-1.5 sm:px-3 sm:py-2 sm:text-sm",
+                            "transition-colors active:bg-[#DCF5DC]",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+                        ].join(" ")}
+                    >
+                        <span>عرض الكل</span>
+                        <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                    </Link>
+                </div>
             </div>
 
             <div className="relative">
