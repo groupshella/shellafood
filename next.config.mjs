@@ -8,21 +8,25 @@ const nextConfig = {
   turbopack: {
     root: __dirname,
   },
-  output: 'standalone',
-  outputFileTracingRoot: __dirname,
-  // Image optimization configuration - Mobile-first
+
   images: {
     unoptimized: false,
-    // Optimize for mobile devices first
     formats: ['image/avif', 'image/webp'],
-    // Mobile-first device sizes (smaller sizes first for faster mobile loading)
+    // Mobile-first device sizes
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    // Smaller image sizes for mobile thumbnails and icons
+    // Smaller image sizes for thumbnails and icons
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // Cache images for 60 seconds (good balance for mobile data usage)
+    // Cache optimized images for 60 seconds
     minimumCacheTTL: 60,
-    // Image quality levels
-    qualities: [60, 75, 85],
+    qualities: [60, 75, 80, 85, 90],
+
+    // ✅ ADDED: explicitly allow all local public/ subfolders
+    localPatterns: [
+      { pathname: '/home/**' },
+      { pathname: '/hyper-market/**' },
+      { pathname: '/**' }, // catches any other public/ assets
+    ],
+
     remotePatterns: [
       {
         protocol: 'https',
@@ -60,14 +64,14 @@ const nextConfig = {
         pathname: '/**',
       },
       {
-        protocol: "https",
-        hostname: "shellafood.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'shellafood.com',
+        pathname: '/**',
       },
       {
-        protocol: "https",
-        hostname: "dev.shelafood.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'dev.shelafood.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -111,11 +115,6 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'portal.jahez.net',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'hungerstation.dhmedia.io',
         pathname: '/**',
       },
@@ -124,12 +123,10 @@ const nextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+
   // Performance optimizations
   compress: true,
-  // Optimize production builds
   productionBrowserSourceMaps: false,
-}
+};
 
-
-export default nextConfig
-
+export default nextConfig;
