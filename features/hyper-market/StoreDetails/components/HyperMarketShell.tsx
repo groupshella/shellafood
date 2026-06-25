@@ -1,7 +1,5 @@
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { Topbar } from "./Topbar";
-import Image from "next/image";
+import Navbar from "@/features/layout/components/Navbar";
 
 export function HyperMarketShell({
     children,
@@ -15,6 +13,7 @@ export function HyperMarketShell({
             <Topbar isAuthenticated={isAuthenticated} />
 
             {children}
+            <Navbar />
         </div>
     );
 }

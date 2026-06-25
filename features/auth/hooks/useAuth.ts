@@ -103,7 +103,8 @@ export function useAuth(): UseAuthReturn {
 
             if (data.is_existed) {
                 const existed = data as VerifyOtpExistedResponse;
-                await onAuthSuccess(existed.token, existed.user);
+                await saveSession(existed.token, existed.user);
+                router.replace("/home");
             } else {
                 const newUser = data as VerifyOtpNewResponse;
                 setRegistrationToken(newUser.registration_token);
@@ -114,7 +115,7 @@ export function useAuth(): UseAuthReturn {
         } finally {
             setIsLoading(false);
         }
-    }, [phone, onAuthSuccess]);
+    }, [phone]);
 
     // ── Step 3: Register ──────────────────────────────────────────────────────
 
@@ -143,13 +144,14 @@ export function useAuth(): UseAuthReturn {
                 payload
             );
 
-            await onAuthSuccess(data.token, data.user);
+            await saveSession(data.token, data.user);
+            router.replace("/addresses/add");
         } catch (err) {
             setError(err as string);
         } finally {
             setIsLoading(false);
         }
-    }, [phone, registrationToken, onAuthSuccess]);
+    }, [phone, registrationToken]);
 
     // ── Guest ─────────────────────────────────────────────────────────────────
 

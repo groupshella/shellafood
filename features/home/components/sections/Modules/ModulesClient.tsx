@@ -24,11 +24,19 @@ function HeroGrid({ left, right, startIndex }: { left: Module[]; right: Module |
     }
     return (
         <div className="grid h-[168px] grid-cols-2 grid-rows-2 gap-2.5">
-            {left[0] && <ModuleCard module={left[0]} colorIndex={startIndex} variant="compact" />}
-            {left[1] && <ModuleCard module={left[1]} colorIndex={startIndex + 1} variant="compact" />}
-            <div className="col-start-2 row-span-2 row-start-1 h-full">
+            <div className="col-start-1 row-span-2 row-start-1 h-full">
                 <ModuleCard module={right} colorIndex={startIndex + 2} variant="tall" />
             </div>
+            {left[0] && (
+                <div className="col-start-2 row-start-1">
+                    <ModuleCard module={left[0]} colorIndex={startIndex} variant="compact" />
+                </div>
+            )}
+            {left[1] && (
+                <div className="col-start-2 row-start-2">
+                    <ModuleCard module={left[1]} colorIndex={startIndex + 1} variant="compact" />
+                </div>
+            )}
         </div>
     );
 }
@@ -45,8 +53,8 @@ function ModuleRow({ modules, startIndex }: { modules: Module[]; startIndex: num
 }
 
 export function ModulesClient({ modules }: { modules: Module[] }) {
-    const heroLeft = modules.slice(0, 2);
-    const heroRight = modules[2] ?? null;
+    const heroLeft = modules.slice(1, 3);
+    const heroRight = modules[0] ?? null;
     const rows = chunkByTwo(modules.slice(3));
 
     return (

@@ -1,82 +1,44 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, ShoppingBag } from "lucide-react";
-import { addToCart } from "@/features/cart/actions/add-to-cart";
+import { Search, ShoppingBag } from "lucide-react";
+import { useCart } from "@/features/cart/context/CartContext";
 
 interface AddToCartClientProps {
-    itemId: string;
-    inStock: boolean;
+    moduleId?: string;
 }
 
-export function AddToCartClient({ itemId, inStock }: AddToCartClientProps) {
+export function AddToCartClient({ moduleId }: AddToCartClientProps) {
     const router = useRouter();
-    const [quantity, setQuantity] = useState(1);
-    const [error, setError] = useState<string | null>(null);
-    const [isPending, startTransition] = useTransition();
-
-    useEffect(() => {
-        setQuantity(1);
-        setError(null);
-    }, [itemId]);
-
-    function handleAddToCart() {
-        setError(null);
-
-        startTransition(async () => {
-            const result = await addToCart({
-                item_id: Number(itemId),
-                quantity,
-            });
-
-            if (result.success) {
-                router.push("/cart");
-                router.refresh();
-                return;
-            }
-
-            setError(result.message ?? "حدث خطأ");
-        });
-    }
+    const { totalCount } = useCart();
+    const searchHref = moduleId ? `/search?module_id=${moduleId}` : "/search";
 
     return (
-        <div className="sticky bottom-0 mt-2 border-t border-gray-100 bg-white px-4 py-3 sm:px-5" dir="rtl">
-            {error && (
-                <p className="mb-2 text-center text-xs text-red-600">{error}</p>
-            )}
+        <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center">
+            <div className="pointer-events-auto flex items-center gap-5 rounded-full bg-[#30913F] px-7 py-3.5 shadow-[0_8px_24px_rgba(48,145,63,0.35)]">
+                <Link
+                    href="/cart"
+                    aria-label={totalCount > 0 ? `السلة (${totalCount})` : "السلة"}
+                    className="relative flex items-center justify-center transition-transform active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-full"
+                >
+                    <ShoppingBag className="h-6 w-6 text-white" strokeWidth={2} />
+                    {totalCount > 0 && (
+                        <span className="absolute -top-1.5 -end-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#E53935] px-1 text-[10px] font-bold leading-none text-white ring-2 ring-[#30913F]">
+                            {totalCount > 99 ? "99+" : totalCount}
+                        </span>
+                    )}
+                </Link>
 
-            <div className="flex items-center gap-3">
-                <div className="flex items-center gap-3 rounded-full border border-gray-200 px-2 py-1">
-                    <button
-                        type="button"
-                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                        className="flex h-7 w-7 items-center justify-center rounded-full text-gray-600 transition-colors active:bg-gray-100"
-                        aria-label="تقليل الكمية"
-                        disabled={isPending}
-                    >
-                        <Minus className="h-3.5 w-3.5" />
-                    </button>
-                    <span className="min-w-[1.5rem] text-center text-sm font-bold text-gray-900">{quantity}</span>
-                    <button
-                        type="button"
-                        onClick={() => setQuantity((q) => q + 1)}
-                        className="flex h-7 w-7 items-center justify-center rounded-full text-gray-600 transition-colors active:bg-gray-100"
-                        aria-label="زيادة الكمية"
-                        disabled={isPending}
-                    >
-                        <Plus className="h-3.5 w-3.5" />
-                    </button>
-                </div>
+                <div className="h-5 w-px bg-white/30" aria-hidden />
 
                 <button
                     type="button"
-                    onClick={handleAddToCart}
-                    disabled={!inStock || isPending}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#45C553] py-3 text-sm font-bold text-white transition-opacity active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={() => router.push(searchHref)}
+                    aria-label="بحث"
+                    className="flex items-center justify-center transition-transform active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-full"
                 >
-                    <ShoppingBag className="h-4 w-4" />
-                    {isPending ? "جاري الإضافة..." : "إضافة للسلة"}
+                    <Search className="h-6 w-6 text-white" strokeWidth={2} />
                 </button>
             </div>
         </div>

@@ -9,6 +9,7 @@ import { CurrentOffers } from "@/features/markets/components/sections/CurrentOff
 import { RecentOrders } from "@/features/markets/components/sections/RecentOrders";
 import { PopularBrands } from "@/features/markets/components/sections/PopularBrands";
 import { Stores } from "@/features/markets/components/sections/Stores";
+import { AddressTopbarBanner } from "@/features/addresses/components/sections/AddressTopbarBanner";
 
 const DEFAULT_MODULE_ID = "7";
 
@@ -38,6 +39,19 @@ export default async function MarketsPage({ searchParams }: MarketsPageProps) {
 
     return (
         <MarketsShell moduleId={moduleId} moduleName={moduleName} isAuthenticated={isAuthenticated}>
+
+
+            <Suspense
+                fallback={
+                    <div className="px-4 sm:px-5">
+                        <AddressTopbarBanner.skeleton />
+                    </div>
+                }
+            >
+
+                <AddressTopbarBanner isAuthenticated={isAuthenticated} className="px-4 sm:px-5" />
+
+            </Suspense>
             <Suspense fallback={<Categories.skeleton />}>
                 <Categories moduleId={moduleId} />
             </Suspense>

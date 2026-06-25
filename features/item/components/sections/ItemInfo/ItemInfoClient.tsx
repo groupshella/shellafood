@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ArrowRight, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { X, ShoppingBag } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
+import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
 import { ItemDetails } from "@/features/item/types/item.types";
 
 interface ItemInfoClientProps {
@@ -14,78 +15,98 @@ interface ItemInfoClientProps {
 export function ItemInfoClient({ item }: ItemInfoClientProps) {
     const router = useRouter();
     const [imgError, setImgError] = useState(false);
+    const [addError, setAddError] = useState<string | null>(null);
+
     const discounted = item.discount > 0;
-    const displayPrice = discounted ? item.price * (1 - item.discount / 100) : item.price;
-    const inStock = item.is_available;
+    const displayPrice = discounted
+        ? item.price * (1 - item.discount / 100)
+        : item.price;
+
+    const product = {
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        discount: item.discount,
+    };
 
     return (
-        <>
-            <header className="flex items-center gap-3 bg-white px-4 pb-3 pt-4 sm:px-5">
+        <div className="bg-white" dir="rtl">
+            <header className="flex items-center justify-between px-4 pb-2 pt-4 sm:px-5">
                 <button
                     type="button"
                     onClick={() => router.back()}
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F0F0F0] transition-transform active:scale-90"
-                    aria-label="رجوع"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 transition-colors active:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]"
+                    aria-label="إغلاق"
                 >
-                    <ArrowRight className="h-4 w-4 text-gray-700" strokeWidth={2} />
+                    <X className="h-4 w-4 text-gray-700" strokeWidth={2.5} />
                 </button>
-                <h1 className="flex-1 truncate text-center text-sm font-bold text-gray-900">{item.name}</h1>
-                <div className="h-9 w-9" aria-hidden />
+                <div className="w-9" aria-hidden />
             </header>
 
-            <div className="bg-white">
-                <div className="relative aspect-square w-full overflow-hidden bg-[#F7F9F7]">
-                    {!imgError && item.image_full_url ? (
-                        <Image
-                            src={item.image_full_url}
-                            alt={item.name}
-                            fill
-                            className="object-contain p-6"
-                            sizes="(max-width: 768px) 100vw, 480px"
-                            priority
-                            onError={() => setImgError(true)}
-                        />
-                    ) : (
-                        <div className="flex h-full items-center justify-center opacity-20">
-                            <ShoppingBag className="h-16 w-16 text-gray-400" />
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="mt-0.5 bg-white px-4 py-4 sm:px-5">
-                <h2 className="text-base font-bold leading-snug text-gray-900">{item.name}</h2>
-
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span
-                        className={[
-                            "rounded-lg px-2 py-1 text-xs font-semibold",
-                            inStock ? "bg-[#E8F8E8] text-[#2F8F3B]" : "bg-red-50 text-red-600",
-                        ].join(" ")}
-                    >
-                        {inStock ? "متوفر" : "غير متوفر"}
+            <div className="relative mx-4 aspect-square overflow-hidden rounded-2xl bg-[#F7F9F7] sm:mx-5">
+                {discounted && (
+                    <span className="absolute start-3 top-3 z-10 rounded-lg bg-[#E53935] px-2 py-1 text-[11px] font-bold text-white">
+                        -{item.discount}%
                     </span>
-                </div>
-
-                <div className="mt-3 flex items-end gap-2">
-                    {discounted && (
-                        <PriceTag amount={item.price} size="sm" className="line-through" />
-                    )}
-                    <PriceTag amount={displayPrice} className="text-[#2F8F3B]" />
-                    {discounted && (
-                        <span className="mb-0.5 rounded-md bg-[#E53935] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                            -{item.discount}%
-                        </span>
-                    )}
-                </div>
-
-                {item.description?.trim() && (
-                    <div className="mt-4 border-t border-gray-100 pt-4">
-                        <h3 className="mb-2 text-sm font-bold text-gray-900">الوصف</h3>
-                        <p className="text-sm leading-relaxed text-gray-600">{item.description}</p>
+                )}
+                {!imgError && item.image_full_url ? (
+                    <Image
+                        src={item.image_full_url}
+                        alt={item.name}
+                        fill
+                        className="object-contain p-6"
+                        sizes="(max-width: 768px) calc(100vw - 32px), 480px"
+                        priority
+                        onError={() => setImgError(true)}
+                    />
+                ) : (
+                    <div className="flex h-full items-center justify-center">
+                        <ShoppingBag className="h-16 w-16 text-gray-200" aria-hidden />
                     </div>
                 )}
             </div>
-        </>
+
+            <div className="px-4 pb-4 pt-4 sm:px-5">
+                <h1 className="text-right text-lg font-bold leading-snug text-[#111B18] sm:text-xl">
+                    {item.name}
+                </h1>
+
+                {item.description?.trim() && (
+                    <p className="mt-1.5 text-right text-sm leading-relaxed text-gray-500">
+                        {item.description}
+                    </p>
+                )}
+
+                <div className="mt-4 flex items-center justify-between gap-4">
+                    <div className="flex flex-col items-end gap-0.5">
+                        {discounted && (
+                            <PriceTag
+                                amount={item.price}
+                                size="sm"
+                                className="text-[12px] text-gray-400 line-through"
+                            />
+                        )}
+                        <PriceTag amount={displayPrice} className="text-[#111B18]" />
+                    </div>
+
+                    <ProductAddControl
+                        product={product}
+                        isAvailable={item.is_available}
+                        size="md"
+                        onError={setAddError}
+                    />
+                </div>
+
+                {addError && (
+                    <p className="mt-2 text-center text-xs text-red-500">{addError}</p>
+                )}
+
+                {!item.is_available && (
+                    <p className="mt-2 text-right text-xs font-semibold text-red-500">
+                        غير متوفر
+                    </p>
+                )}
+            </div>
+        </div>
     );
 }

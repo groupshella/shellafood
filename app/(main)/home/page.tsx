@@ -5,9 +5,10 @@ import { Banners } from "@/features/home/components/sections/Banners";
 import { Modules } from "@/features/home/components/sections/Modules";
 import { DiscountedStores } from "@/features/home/components/sections/DiscountedStores";
 import { CurrentOffers } from "@/features/home/components/sections/CurrentOffers";
-import { PromoBanner } from "@/features/home/components/sections/PromoBanner";
+import { PromoBanners } from "@/features/home/components/sections/PromoBanner";
 import { RecentOrders } from "@/features/home/components/sections/RecentOrders";
 import { HomeShell } from "@/features/home/components/HomeShell";
+import { AddressTopbarBanner } from "@/features/addresses/components/sections/AddressTopbarBanner";
 
 export const metadata = {
 	title: "الرئيسية | شيلة فود",
@@ -21,6 +22,15 @@ export default async function HomePage() {
 
 	return (
 		<HomeShell isAuthenticated={isAuthenticated}>
+			<Suspense
+				fallback={
+					<div className="mx-4">
+						<AddressTopbarBanner.skeleton />
+					</div>
+				}
+			>
+				<AddressTopbarBanner isAuthenticated={isAuthenticated} className="mx-4" />
+			</Suspense>
 			<Suspense fallback={<Banners.skeleton />}>
 				<Banners />
 			</Suspense>
@@ -36,8 +46,7 @@ export default async function HomePage() {
 			<Suspense fallback={<CurrentOffers.skeleton />}>
 				<CurrentOffers />
 			</Suspense>
-
-			<PromoBanner />
+			<PromoBanners />
 
 			<Suspense fallback={<RecentOrders.skeleton />}>
 				<RecentOrders />
