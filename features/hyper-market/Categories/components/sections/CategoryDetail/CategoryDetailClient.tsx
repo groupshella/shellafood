@@ -1,11 +1,46 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { List, SlidersHorizontal, TrendingUp } from "lucide-react";
 import {
     CategoryDetails,
     SubCategory,
 } from "@/features/hyper-market/Categories/types/category-detail.types";
 import { CategoryProductCard } from "./CategoryProductCard";
+
+const TOOLBAR_ICON_BTN = [
+    "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#EBFEEB] text-[#30913F]",
+    "transition-colors active:bg-[#DCF5DC]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+].join(" ");
+
+// ─── Products toolbar ─────────────────────────────────────────────────────────
+
+function ProductsToolbar({ totalProducts }: { totalProducts: number }) {
+    return (
+        <div
+            dir="ltr"
+            className="flex items-center justify-between gap-3 bg-white px-4 py-2.5 sm:px-5"
+        >
+            <div className="flex items-center gap-2">
+                <button type="button" className={TOOLBAR_ICON_BTN} aria-label="عرض القائمة">
+                    <List className="h-[18px] w-[18px]" strokeWidth={2.25} />
+                </button>
+                <button type="button" className={TOOLBAR_ICON_BTN} aria-label="ترتيب المنتجات">
+                    <TrendingUp className="h-[18px] w-[18px]" strokeWidth={2.25} />
+                </button>
+                <button type="button" className={TOOLBAR_ICON_BTN} aria-label="تصفية المنتجات">
+                    <SlidersHorizontal className="h-[18px] w-[18px]" strokeWidth={2.25} />
+                </button>
+            </div>
+
+            <p dir="rtl" className="text-sm font-medium text-[#707784]">
+                <span className="tabular-nums">{totalProducts.toLocaleString("ar-SA")}</span>{" "}
+                المنتجات
+            </p>
+        </div>
+    );
+}
 
 /**
  * Sticky offset layout:
@@ -97,11 +132,13 @@ function SubCategorySection({
             className="pb-3"
         >
             {/* Section title */}
-            <div className="bg-white px-4 py-3 sm:px-5">
+            <div className="bg-white px-4 pt-3 sm:px-5">
                 <h2 className="text-right text-base font-bold text-[#111B18]">
                     {subCategory.name}
                 </h2>
             </div>
+
+            <ProductsToolbar totalProducts={subCategory.total_products} />
 
             {/* 3-column product grid */}
             <div className="grid grid-cols-3 gap-2 px-4 pt-2 sm:grid-cols-4 sm:px-5 md:grid-cols-5">

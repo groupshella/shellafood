@@ -155,62 +155,63 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
             </div>
           </div>
         )}
-      </div>
 
-      {/* ── Bottom sheet ──────────────────────────────────────────────────── */}
-      <div className="bg-white px-4 pt-4 pb-6 flex flex-col gap-3 shadow-[0_-4px_24px_rgba(0,0,0,0.08)]">
+        {/* Bottom controls — floated above the map */}
+        <div className="absolute bottom-18 inset-x-4 z-10 flex flex-col gap-3 pointer-events-none">
+          <div className="pointer-events-auto flex flex-col gap-3 rounded-2xl bg-white/95 px-4 py-4 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm">
+            {/* Coordinates + status row */}
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[11px] text-gray-400 font-mono tabular-nums">
+                {markerPos.lat.toFixed(5)}, {markerPos.lng.toFixed(5)}
+              </span>
+              {checkState === "idle" && (
+                <span className="text-[11px] text-gray-400">حدد الموقع بدقة</span>
+              )}
+              {isOutOfZone && (
+                <span className="text-[11px] text-red-500 font-medium flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" /> خارج النطاق
+                </span>
+              )}
+              {checkState === "confirmed" && (
+                <span className="text-[11px] text-green-600 font-medium flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> تم التأكيد
+                </span>
+              )}
+            </div>
 
-        {/* Coordinates + status row */}
-        <div className="flex items-center justify-between px-1">
-          <span className="text-[11px] text-gray-400 font-mono tabular-nums">
-            {markerPos.lat.toFixed(5)}, {markerPos.lng.toFixed(5)}
-          </span>
-          {checkState === "idle" && (
-            <span className="text-[11px] text-gray-400">حدد الموقع بدقة</span>
-          )}
-          {isOutOfZone && (
-            <span className="text-[11px] text-red-500 font-medium flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" /> خارج النطاق
-            </span>
-          )}
-          {checkState === "confirmed" && (
-            <span className="text-[11px] text-green-600 font-medium flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" /> تم التأكيد
-            </span>
-          )}
+            <button
+              onClick={handleConfirm}
+              disabled={isChecking || checkState === "confirmed"}
+              className="
+                w-full text-white text-sm font-semibold
+                rounded-2xl py-4 flex items-center justify-center gap-2
+                transition-all duration-200 active:scale-[0.98]
+                disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100
+                focus-visible:outline-none focus-visible:ring-2
+                focus-visible:ring-[#30913F] focus-visible:ring-offset-2
+              "
+              style={{
+                background: isOutOfZone
+                  ? "#ef4444"
+                  : "linear-gradient(135deg, #30913F 0%, #267332 100%)",
+              }}
+            >
+              {isChecking ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>جاري التحقق…</span>
+                </>
+              ) : isOutOfZone ? (
+                <>
+                  <AlertCircle className="w-4 h-4" />
+                  <span>اختر موقعاً داخل نطاق الخدمة</span>
+                </>
+              ) : (
+                "تأكيد الموقع"
+              )}
+            </button>
+          </div>
         </div>
-
-        <button
-          onClick={handleConfirm}
-          disabled={isChecking || checkState === "confirmed"}
-          className="
-            w-full text-white text-sm font-semibold
-            rounded-2xl py-4 flex items-center justify-center gap-2
-            transition-all duration-200 active:scale-[0.98]
-            disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100
-            focus-visible:outline-none focus-visible:ring-2
-            focus-visible:ring-[#30913F] focus-visible:ring-offset-2
-          "
-          style={{
-            background: isOutOfZone
-              ? "#ef4444"
-              : "linear-gradient(135deg, #30913F 0%, #267332 100%)",
-          }}
-        >
-          {isChecking ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>جاري التحقق…</span>
-            </>
-          ) : isOutOfZone ? (
-            <>
-              <AlertCircle className="w-4 h-4" />
-              <span>اختر موقعاً داخل نطاق الخدمة</span>
-            </>
-          ) : (
-            "تأكيد الموقع"
-          )}
-        </button>
       </div>
     </div>
   );
