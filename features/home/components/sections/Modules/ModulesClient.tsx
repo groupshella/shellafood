@@ -17,7 +17,7 @@ function HeroGrid({ left, right, startIndex }: { left: Module[]; right: Module |
         return (
             <div className="flex flex-col gap-2.5">
                 {left.map((module, i) => (
-                    <ModuleCard key={module.id} module={module} colorIndex={startIndex + i} variant="compact" />
+                    <ModuleCard key={module.id} module={module} colorIndex={startIndex + i} variant="compact" disabled />
                 ))}
             </div>
         );
@@ -29,12 +29,12 @@ function HeroGrid({ left, right, startIndex }: { left: Module[]; right: Module |
             </div>
             {left[0] && (
                 <div className="col-start-2 row-start-1">
-                    <ModuleCard module={left[0]} colorIndex={startIndex} variant="compact" />
+                    <ModuleCard module={left[0]} colorIndex={startIndex} variant="compact" disabled />
                 </div>
             )}
             {left[1] && (
                 <div className="col-start-2 row-start-2">
-                    <ModuleCard module={left[1]} colorIndex={startIndex + 1} variant="compact" />
+                    <ModuleCard module={left[1]} colorIndex={startIndex + 1} variant="compact" disabled />
                 </div>
             )}
         </div>
@@ -45,7 +45,7 @@ function ModuleRow({ modules, startIndex }: { modules: Module[]; startIndex: num
     return (
         <div className="grid grid-cols-2 gap-2.5">
             {modules.map((module, i) => (
-                <ModuleCard key={module.id} module={module} colorIndex={startIndex + i} variant="compact" />
+                <ModuleCard key={module.id} module={module} colorIndex={startIndex + i} variant="compact" disabled />
             ))}
             {modules.length === 1 && <div aria-hidden />}
         </div>
