@@ -62,13 +62,6 @@ export function useAuth(): UseAuthReturn {
     const [cooldownSeconds, setCooldownSeconds] = useState(0);
     const [expiresInSeconds, setExpiresInSeconds] = useState(0);
 
-    const onAuthSuccess = useCallback(async (
-        token: string,
-        user: Parameters<typeof saveSession>[1]
-    ) => {
-        await saveSession(token, user);
-        router.replace("/addresses/add");
-    }, [router]);
 
     const clearError = useCallback(() => setError(null), []);
 

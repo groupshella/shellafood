@@ -28,7 +28,66 @@ function ModuleIcon({ src, variant }: { src: string; variant: "tall" | "compact"
     );
 }
 
-export function ModuleCard({ module, colorIndex, variant }: { module: Module; colorIndex: number; variant: "tall" | "compact" }) {
+function DisabledModuleIcon({ src }: { src: string }) {
+    if (!src) return null;
+
+    return (
+        <div className="relative h-10 w-10 shrink-0" aria-hidden>
+            <Image
+                src={src}
+                alt=""
+                fill
+                className="object-contain opacity-40 grayscale"
+                sizes="40px"
+            />
+        </div>
+    );
+}
+
+function DisabledModuleCard({ module, variant }: { module: Module; variant: "tall" | "compact" }) {
+    const isTall = variant === "tall";
+
+    return (
+        <div
+            className={[
+                "relative flex w-full cursor-default items-center gap-3 overflow-hidden rounded-2xl bg-[#F3F4F6] outline-none",
+                isTall ? "h-full min-h-[168px] justify-between px-4 py-4" : "h-full min-h-[80px] px-4 py-3",
+            ].join(" ")}
+            aria-label={`${module.module_name} — قريباً`}
+        >
+            <DisabledModuleIcon src={module.icon_full_url} />
+            <div className="min-w-0 flex flex-1 flex-col gap-0.5">
+                <span
+                    className={[
+                        "truncate font-bold leading-tight text-gray-900",
+                        isTall ? "text-base" : "text-sm",
+                    ].join(" ")}
+                >
+                    {module.module_name}
+                </span>
+                <span className={isTall ? "text-sm font-normal text-gray-700" : "text-xs font-normal text-gray-700"}>
+                    (قريباً)
+                </span>
+            </div>
+        </div>
+    );
+}
+
+export function ModuleCard({
+    module,
+    colorIndex,
+    variant,
+    disabled = false,
+}: {
+    module: Module;
+    colorIndex: number;
+    variant: "tall" | "compact";
+    disabled?: boolean;
+}) {
+    if (disabled) {
+        return <DisabledModuleCard module={module} variant={variant} />;
+    }
+
     const { bg, text } = getColor(colorIndex);
     const isTall = variant === "tall";
     const href = module.id === 3
