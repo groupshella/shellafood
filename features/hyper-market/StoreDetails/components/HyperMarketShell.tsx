@@ -10,7 +10,7 @@ export function HyperMarketShell({
 }) {
     return (
         <div className="mx-auto min-h-screen w-full max-w-lg sm:max-w-2xl lg:max-w-4xl mb-16" dir="rtl">
-            <Topbar isAuthenticated={isAuthenticated} />
+            <Topbar />
 
             {children}
             <Navbar />
