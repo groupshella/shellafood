@@ -2,6 +2,8 @@
 
 import { createContext, useCallback, useContext, useState } from "react";
 import { useRecentSearches } from "@/features/search/hooks/useRecentSearches";
+import { useSearch } from "@/features/search/hooks/useSearch";
+import { SearchResults } from "@/features/search/types/search.types";
 
 interface SearchContextValue {
     query: string;
@@ -11,6 +13,10 @@ interface SearchContextValue {
     recentSearches: string[];
     clearRecent: () => void;
     isHydrated: boolean;
+    results: SearchResults | null;
+    isSearching: boolean;
+    error: string | null;
+    hasSearched: boolean;
 }
 
 const SearchContext = createContext<SearchContextValue | null>(null);
@@ -21,27 +27,64 @@ export function useSearchContext() {
     return ctx;
 }
 
-export function SearchProvider({ children }: { children: React.ReactNode }) {
+export function SearchProvider({
+    children,
+    moduleId,
+}: {
+    children: React.ReactNode;
+    moduleId: string;
+}) {
     const [query, setQuery] = useState("");
     const { recentSearches, addSearch, clearRecent, isHydrated } = useRecentSearches();
-
-    const handleSelect = useCallback((term: string) => {
-        setQuery(term);
-    }, []);
+    const { results, isSearching, error, hasSearched, search, resetSearch } = useSearch(moduleId);
 
     const handleSubmit = useCallback(
         (term: string) => {
             const trimmed = term.trim();
-            if (!trimmed) return;
+            if (!trimmed) {
+                resetSearch();
+                return;
+            }
+
             setQuery(trimmed);
             addSearch(trimmed);
+            void search(trimmed);
         },
-        [addSearch]
+        [addSearch, resetSearch, search],
+    );
+
+    const handleSelect = useCallback(
+        (term: string) => {
+            handleSubmit(term);
+        },
+        [handleSubmit],
+    );
+
+    const handleQueryChange = useCallback(
+        (value: string) => {
+            setQuery(value);
+            if (!value.trim()) {
+                resetSearch();
+            }
+        },
+        [resetSearch],
     );
 
     return (
         <SearchContext.Provider
-            value={{ query, setQuery, handleSelect, handleSubmit, recentSearches, clearRecent, isHydrated }}
+            value={{
+                query,
+                setQuery: handleQueryChange,
+                handleSelect,
+                handleSubmit,
+                recentSearches,
+                clearRecent,
+                isHydrated,
+                results,
+                isSearching,
+                error,
+                hasSearched,
+            }}
         >
             {children}
         </SearchContext.Provider>
