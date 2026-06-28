@@ -1,12 +1,13 @@
 import { Brand, GetBrandsResponse } from "@/features/hyper-market/Brands/types/brands.types";
 
 export async function getBrands(moduleId: string): Promise<Brand[]> {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v2/brands`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/brands`, {
         method: "GET",
         headers: {
             Accept: "application/json",
             "X-Localization": "ar",
             moduleId,
+            zoneId: process.env.ZONE_ID!,
         },
         next: {
             revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
