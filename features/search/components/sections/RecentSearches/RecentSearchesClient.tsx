@@ -5,7 +5,7 @@ import { useSearchContext } from "@/features/search/components/SearchContext";
 import { SearchChip } from "@/features/search/components/shared/SearchChip";
 
 export function RecentSearchesClient() {
-    const { query, handleSelect, recentSearches, clearRecent, isHydrated } = useSearchContext();
+    const { query, handleSubmit, recentSearches, clearRecent, isHydrated } = useSearchContext();
 
     if (!isHydrated || recentSearches.length === 0) return null;
 
@@ -29,7 +29,7 @@ export function RecentSearchesClient() {
                         key={term}
                         label={term}
                         isActive={query === term}
-                        onClick={() => handleSelect(term)}
+                        onClick={() => handleSubmit(term)}
                     />
                 ))}
             </div>

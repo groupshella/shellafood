@@ -9,7 +9,7 @@ interface PopularSearchClientProps {
 }
 
 export function PopularSearchClient({ items }: PopularSearchClientProps) {
-    const { query, handleSelect } = useSearchContext();
+    const { query, handleSubmit } = useSearchContext();
 
     return (
         <section aria-label="الأكثر بحثاً" className="space-y-3">
@@ -21,7 +21,7 @@ export function PopularSearchClient({ items }: PopularSearchClientProps) {
                         key={item.keyword}
                         label={item.keyword}
                         isActive={query === item.keyword}
-                        onClick={() => handleSelect(item.keyword)}
+                        onClick={() => handleSubmit(item.keyword)}
                     />
                 ))}
             </div>

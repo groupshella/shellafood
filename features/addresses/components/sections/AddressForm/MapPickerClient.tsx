@@ -34,18 +34,55 @@ const MAP_OPTIONS = {
 // Stable reference — inline arrays cause LoadScript reload warnings.
 const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
 
+const GEOCODER_LANGUAGE = "ar";
+const GEOCODER_REGION = "SA";
+
+function reverseGeocode(lat: number, lng: number): Promise<string> {
+  const geocoder = new google.maps.Geocoder();
+
+  return new Promise((resolve, reject) => {
+    geocoder.geocode(
+      { location: { lat, lng }, language: GEOCODER_LANGUAGE, region: GEOCODER_REGION },
+      (results, status) => {
+        if (status === "OK" && results?.[0]?.formatted_address) {
+          resolve(results[0].formatted_address);
+          return;
+        }
+
+        reject(new Error("تعذّر تحديد العنوان"));
+      },
+    );
+  });
+}
+
+function formatPickedAddress(result: {
+  formattedAddress?: string;
+  street_name?: string;
+  region?: string;
+  city?: string;
+}): string {
+  if (result.formattedAddress?.trim()) return result.formattedAddress.trim();
+
+  return [result.street_name, result.region, result.city].filter(Boolean).join("، ");
+}
+
 type CheckState = "idle" | "checking" | "out-of-zone" | "confirmed";
 
 export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
     libraries: GOOGLE_MAPS_LIBRARIES,
+    language: GEOCODER_LANGUAGE,
+    region: GEOCODER_REGION,
   });
 
   const [markerPos, setMarkerPos] =
     useState<google.maps.LatLngLiteral>(DEFAULT_CENTER);
   const [checkState, setCheckState] = useState<CheckState>("idle");
+  const [formattedAddress, setFormattedAddress] = useState<string | null>(null);
+  const [isResolvingAddress, setIsResolvingAddress] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
+  const geocodeRequestRef = useRef(0);
 
   // Stable initial center — changing this prop re-centers the map, so we
   // hold it in a ref and never update it.
@@ -55,10 +92,29 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
     mapRef.current = map;
   }, []);
 
-  const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+  const handleMapClick = useCallback(async (e: google.maps.MapMouseEvent) => {
     if (!e.latLng) return;
-    setMarkerPos({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+
+    const nextPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+    const requestId = ++geocodeRequestRef.current;
+
+    setMarkerPos(nextPos);
     setCheckState("idle");
+    setFormattedAddress(null);
+    setIsResolvingAddress(true);
+
+    try {
+      const address = await reverseGeocode(nextPos.lat, nextPos.lng);
+      if (requestId !== geocodeRequestRef.current) return;
+      setFormattedAddress(address);
+    } catch {
+      if (requestId !== geocodeRequestRef.current) return;
+      setFormattedAddress(null);
+    } finally {
+      if (requestId === geocodeRequestRef.current) {
+        setIsResolvingAddress(false);
+      }
+    }
   }, []);
 
   const handleConfirm = useCallback(async () => {
@@ -68,6 +124,11 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
     if (!result.inZone) {
       setCheckState("out-of-zone");
       return;
+    }
+
+    const resolvedAddress = formatPickedAddress(result);
+    if (resolvedAddress) {
+      setFormattedAddress(resolvedAddress);
     }
 
     setCheckState("confirmed");
@@ -159,29 +220,45 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
         {/* Bottom controls — floated above the map */}
         <div className="absolute bottom-18 inset-x-4 z-10 flex flex-col gap-3 pointer-events-none">
           <div className="pointer-events-auto flex flex-col gap-3 rounded-2xl bg-white/95 px-4 py-4 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm">
-            {/* Coordinates + status row */}
-            <div className="flex items-center justify-between px-1">
-              <span className="text-[11px] text-gray-400 font-mono tabular-nums">
-                {markerPos.lat.toFixed(5)}, {markerPos.lng.toFixed(5)}
-              </span>
-              {checkState === "idle" && (
-                <span className="text-[11px] text-gray-400">حدد الموقع بدقة</span>
+            <div className="space-y-2 px-1">
+              <p className="text-xs font-semibold text-gray-500">الموقع المحدد</p>
+
+              {isResolvingAddress ? (
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                  <span>جاري تحديد العنوان…</span>
+                </div>
+              ) : formattedAddress ? (
+                <p className="text-sm font-medium leading-relaxed text-gray-900">
+                  {formattedAddress}
+                </p>
+              ) : (
+                <p className="text-sm text-gray-400">اضغط على الخريطة لتحديد موقعك</p>
               )}
-              {isOutOfZone && (
-                <span className="text-[11px] text-red-500 font-medium flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" /> خارج النطاق
+
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[11px] text-gray-400 font-mono tabular-nums">
+                  {markerPos.lat.toFixed(5)}, {markerPos.lng.toFixed(5)}
                 </span>
-              )}
-              {checkState === "confirmed" && (
-                <span className="text-[11px] text-green-600 font-medium flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> تم التأكيد
-                </span>
-              )}
+                {checkState === "idle" && !isResolvingAddress && formattedAddress && (
+                  <span className="text-[11px] text-gray-400">تحقق من دقة الموقع</span>
+                )}
+                {isOutOfZone && (
+                  <span className="text-[11px] text-red-500 font-medium flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> خارج النطاق
+                  </span>
+                )}
+                {checkState === "confirmed" && (
+                  <span className="text-[11px] text-green-600 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> تم التأكيد
+                  </span>
+                )}
+              </div>
             </div>
 
             <button
               onClick={handleConfirm}
-              disabled={isChecking || checkState === "confirmed"}
+              disabled={isChecking || checkState === "confirmed" || isResolvingAddress || !formattedAddress}
               className="
                 w-full text-white text-sm font-semibold
                 rounded-2xl py-4 flex items-center justify-center gap-2
