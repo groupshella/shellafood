@@ -1,4 +1,4 @@
-import {
+import type {
     GetHyperMarketOffersResponse,
     HyperMarketOffer,
 } from "@/features/hyper-market/StoreDetails/types/offers.types";
@@ -8,6 +8,7 @@ export async function getHyperMarketOffers(moduleId: string): Promise<HyperMarke
         method: "GET",
         headers: {
             Accept: "application/json",
+            "X-Localization": "ar",
             zoneId: process.env.ZONE_ID!,
             moduleId,
         },
@@ -17,8 +18,11 @@ export async function getHyperMarketOffers(moduleId: string): Promise<HyperMarke
         },
     });
 
-    if (!res.ok) throw new Error(`Failed to fetch offers: ${res.status}`);
+    const json = (await res.json()) as GetHyperMarketOffersResponse;
 
-    const data: GetHyperMarketOffersResponse = await res.json();
-    return data.data ?? [];
+    if (!res.ok || !json.success) {
+        return [];
+    }
+
+    return json.data;
 }

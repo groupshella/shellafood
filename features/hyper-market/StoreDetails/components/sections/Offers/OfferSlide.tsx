@@ -1,5 +1,7 @@
+"use client";
 import Image from "next/image";
 import { HyperMarketOffer } from "@/features/hyper-market/StoreDetails/types/offers.types";
+import { useRouter } from "next/navigation";
 
 const SLIDE_CLASS = [
     "group relative w-full overflow-hidden rounded-2xl",
@@ -9,8 +11,9 @@ const SLIDE_CLASS = [
 ].join(" ");
 
 export function OfferSlide({ offer, priority = false }: { offer: HyperMarketOffer; priority?: boolean }) {
+    const router = useRouter();
     return (
-        <div className={SLIDE_CLASS}>
+        <div onClick={() => router.push(`/offers/${offer.id}?module_id=${offer.module_id}`)} className={SLIDE_CLASS}>
             <Image
                 src={offer.banner}
                 alt={offer.name || "عرض"}

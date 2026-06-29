@@ -43,36 +43,6 @@ function DisabledModuleIcon({ src }: { src: string }) {
         </div>
     );
 }
-
-function DisabledModuleCard({ module, variant }: { module: Module; variant: "tall" | "compact" }) {
-    const isTall = variant === "tall";
-
-    return (
-        <div
-            className={[
-                "relative flex w-full cursor-default items-center gap-3 overflow-hidden rounded-2xl bg-[#F3F4F6] outline-none",
-                isTall ? "h-full min-h-[168px] justify-between px-4 py-4" : "h-full min-h-[80px] px-4 py-3",
-            ].join(" ")}
-            aria-label={`${module.module_name} — قريباً`}
-        >
-            <DisabledModuleIcon src={module.icon_full_url} />
-            <div className="min-w-0 flex flex-1 flex-col gap-0.5">
-                <span
-                    className={[
-                        "truncate font-bold leading-tight text-gray-900",
-                        isTall ? "text-base" : "text-sm",
-                    ].join(" ")}
-                >
-                    {module.module_name}
-                </span>
-                <span className={isTall ? "text-sm font-normal text-gray-700" : "text-xs font-normal text-gray-700"}>
-                    (قريباً)
-                </span>
-            </div>
-        </div>
-    );
-}
-
 export function ModuleCard({
     module,
     colorIndex,
@@ -84,17 +54,11 @@ export function ModuleCard({
     variant: "tall" | "compact";
     disabled?: boolean;
 }) {
-    if (disabled) {
-        return <DisabledModuleCard module={module} variant={variant} />;
-    }
-
     const { bg, text } = getColor(colorIndex);
     const isTall = variant === "tall";
     const href = module.id === 3
         ? `/hyper-market?module_id=3`
-        : module.id === 7
-            ? `/markets?module_id=7`
-            : `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
+        : `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
 
     return (
         <Link

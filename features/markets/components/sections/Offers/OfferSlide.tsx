@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Offer } from "@/features/markets/types/offers.types";
 
 const SLIDE_CLASS = [
@@ -10,20 +11,24 @@ const SLIDE_CLASS = [
 
 export function OfferSlide({ offer, priority = false }: { offer: Offer; priority?: boolean }) {
     return (
-        <div className={SLIDE_CLASS}>
+        <Link
+            href={`/offers/${offer.id}?module_id=${offer.module_id}`}
+            className={SLIDE_CLASS}
+            aria-label={offer.name || "عرض"}
+        >
             <Image
-                src={offer.banner}
-                alt={offer.name || "عرض"}
+                src={offer.banner_full_url}
+                alt=""
                 fill
                 priority={priority}
                 quality={85}
-                className="object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                 sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) calc(100vw - 48px), 960px"
             />
             <div
                 className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/10 via-transparent to-transparent"
                 aria-hidden
             />
-        </div>
+        </Link>
     );
 }

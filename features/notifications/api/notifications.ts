@@ -1,8 +1,48 @@
 import { cookies } from "next/headers";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
-import { GetNotificationsResponse, Notification } from "@/features/notifications/types/notifications.types";
+import {
+    GetNotificationsResponse,
+    Notification,
+    NotificationApiItem,
+} from "@/features/notifications/types/notifications.types";
 
 const DEMO_BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://shellafood.com";
+
+function normalizeNotification(raw: NotificationApiItem): Notification {
+    const image = raw.data?.image?.trim() || null;
+
+    return {
+        id: raw.id,
+        title: raw.data?.title ?? "",
+        description: raw.data?.description ?? "",
+        image,
+        image_full_url: image,
+        status: raw.status,
+        created_at: raw.created_at,
+    };
+}
+
+function normalizeNotifications(body: unknown): Notification[] {
+    if (!body) return [];
+
+    if (Array.isArray(body)) {
+        if (body.length === 0) return [];
+
+        const first = body[0];
+        if (first && typeof first === "object" && "data" in first) {
+            return (body as NotificationApiItem[]).map(normalizeNotification);
+        }
+
+        return body as Notification[];
+    }
+
+    if (typeof body === "object" && body !== null && "notifications" in body) {
+        const wrapped = body as GetNotificationsResponse;
+        return (wrapped.notifications ?? []).map(normalizeNotification);
+    }
+
+    return [];
+}
 
 export async function getNotifications(): Promise<Notification[]> {
     const cookieStore = await cookies();
@@ -31,9 +71,6 @@ export async function getNotifications(): Promise<Notification[]> {
         throw new Error(`Failed to fetch notifications: ${res.status}`);
     }
 
-    const body: GetNotificationsResponse | Notification[] = await res.json();
-
-    if (Array.isArray(body)) return body;
-
-    return body.notifications ?? [];
+    const body: unknown = await res.json();
+    return normalizeNotifications(body);
 }

@@ -1,547 +1,205 @@
 # Shellafood — Project Architecture
 
-Next.js App Router project (Arabic RTL). Business logic lives in `features/`, routes in `app/`, BFF API routes in `app/api/`.
+A reference for how this codebase is structured and how to work within it.  
+Next.js App Router · TypeScript · Tailwind CSS · Arabic RTL.
 
 ---
 
-## Core Pattern
+## 1. Philosophy
 
-Every page follows the same composition:
+This project separates **routing** from **business logic**:
+
+| Layer | Location | Responsibility |
+|-------|----------|----------------|
+| Routes | `app/` | URL mapping, metadata, auth guards, composition only |
+| Domains | `features/` | All UI, data fetching, types, and domain logic |
+| Shared | `shared/` | Utilities used across multiple features |
+| Static | `public/` | Images and assets |
+
+**Core idea:** A developer should know what a file does from its name and folder — without opening it.
+
+Every screen is built from the same pieces:
 
 ```
-app/.../page.tsx          → Suspense + Shell + Sections only (no fetch, no layout logic)
-features/<domain>/
-  api/                    → Server-side fetch functions (called from section index.tsx)
-  types/                  → TypeScript interfaces
-  components/
-    <Domain>Shell.tsx     → Client page wrapper (layout, topbar, context)
-    sections/<Name>/      → One folder per UI section
-      index.tsx           → Server: fetch + guard + decide
-      *Client.tsx         → Client: layout, state, events
-      *Card.tsx           → Presentational unit
-      skeleton.tsx        → Loading state
-    shared/               → Reusable within the feature
+page.tsx  →  Shell  →  Suspense  →  Section(s)
 ```
 
-### Naming Convention
-
-| File | Role | Rules |
-|------|------|-------|
-| `index.tsx` | Server section entry | `async`, fetches data, returns `null` if empty, never `"use client"` |
-| `*Client.tsx` | Client section UI | `"use client"`, className, state, Swiper — never fetches |
-| `*Card.tsx` / `*Slide.tsx` | Presentational | Props in, JSX out |
-| `skeleton.tsx` | Loading placeholder | Matches real layout dimensions |
-| `*Shell.tsx` | Page wrapper | Client layout shell for the route |
-| `page.tsx` | Route | Only `Suspense` + imports — no business logic |
+Routes stay thin. Features own everything else.
 
 ---
 
-## `app/` — Routes & API
+## 2. Repository Layout
 
 ```
-app/
-├── layout.tsx                          # Root HTML, RTL, global metadata
-├── global.css                          # Tailwind + Swiper overrides
-├── loading.tsx                         # Global loading UI
-├── error.tsx                           # Global error boundary
-├── not-found.tsx                       # 404 entry
-├── NotFoundContent.tsx                 # 404 content component
-├── page.tsx                            # Root redirect
-├── favicon.ico
+shellafood/
+├── app/                    # Next.js App Router — routes & BFF API
+│   ├── layout.tsx          # Root HTML, RTL, global metadata
+│   ├── (main)/             # Authenticated app (home, cart, profile, …)
+│   │   └── (modules)/      # Module-specific experiences (markets, hyper-market)
+│   ├── auth/               # Auth entry
+│   ├── onboarding/         # First-run screens
+│   └── api/                # BFF proxy routes (client-side fetch targets)
 │
-├── auth/
-│   └── page.tsx                        # Auth flow entry
-│
-├── onboarding/
-│   ├── page.tsx                        # Onboarding screens
-│   └── error.tsx
-│
-├── (main)/                             # Authenticated main app routes
-│   ├── layout.tsx                      # Auth guard (token or guest cookie)
+├── features/               # Domain modules — where all logic lives
 │   ├── home/
-│   │   └── page.tsx                    # → features/home
-│   ├── modules/[id]/
-│   │   └── page.tsx                    # → features/markets (generic module)
-│   ├── markets/                        # (via redirect or modules route)
-│   ├── search/
-│   │   └── page.tsx                    # → features/search
-│   ├── items/[id]/
-│   │   └── page.tsx                    # → features/item
-│   ├── stores/[id]/
-│   │   ├── page.tsx                    # → features/store (legacy pattern)
-│   │   └── categories/
-│   │       └── page.tsx                # → features/store
-│   ├── notifications/
-│   │   └── page.tsx                    # → features/notifications
-│   ├── cart/page.tsx
-│   ├── profile/page.tsx
-│   ├── my-orders/page.tsx
-│   └── discounts/page.tsx
-│
-├── (modules)/                          # Module-specific experiences
-│   ├── layout.tsx                      # Auth guard
 │   ├── markets/
-│   │   └── page.tsx                    # → features/markets
-│   └── hyper-market/
-│       ├── page.tsx                    # → features/hyper-market/StoreDetails
-│       └── categories/
-│           └── page.tsx                # → features/hyper-market/Categories
+│   ├── hyper-market/       # Nested sub-features (StoreDetails, Categories, Brands)
+│   ├── item/
+│   ├── search/
+│   ├── cart/
+│   ├── addresses/
+│   ├── my-orders/
+│   ├── notifications/
+│   ├── auth/
+│   ├── onboarding/
+│   └── layout/             # Shared layout pieces (e.g. Navbar)
 │
-└── api/                                # BFF — proxies to external API
-    ├── auth/
-    │   ├── guest/route.ts
-    │   ├── register/route.ts
-    │   ├── send-otp/route.ts
-    │   ├── session/route.ts
-    │   └── verify-otp/route.ts
-    ├── home/
-    │   ├── banners/route.ts
-    │   ├── modules/route.ts
-    │   ├── current-offers/route.ts
-    │   ├── discounted-stores/route.ts
-    │   └── recent-orders/route.ts
-    ├── module/
-    │   ├── categories/route.ts
-    │   ├── offers/route.ts
-    │   ├── current-offers/route.ts
-    │   ├── stores/route.ts
-    │   ├── popular-brands/route.ts
-    │   └── recent-orders/route.ts
-    ├── store/
-    │   ├── details/route.ts
-    │   └── categories/
-    │       ├── details/route.ts
-    │       └── [id]/route.ts
-    ├── item/
-    │   ├── details/route.ts
-    │   └── related/route.ts
-    └── search/
-        ├── popular-brands/route.ts
-        └── popular-search/route.ts
-```
-
----
-
-## `features/` — Domain Modules
-
-### `features/auth/` — Authentication
-
-```
-features/auth/
-├── api/
-│   ├── guest.ts
-│   ├── register.ts
-│   ├── send-otp.ts
-│   ├── session.ts
-│   └── verify-otp.ts
-├── components/
-│   ├── AuthFlowPage.tsx
-│   ├── WelcomeScreen.tsx
-│   ├── EnterPhoneScreen.tsx
-│   ├── OtpScreen.tsx
-│   ├── CreateAccountScreen.tsx
-│   └── NumericKeypad.tsx
-├── hooks/
-│   └── useAuth.ts
-├── lib/
-│   └── auth.lib.ts
-└── types/
-    └── auth.types.ts
-```
-
----
-
-### `features/home/` — Home Page *(section-based)*
-
-```
-features/home/
-├── api/
-│   ├── banners.ts
-│   ├── modules.ts
-│   ├── current-offers.ts
-│   ├── discounted-stores.ts
-│   └── recent-orders.ts
-├── types/
-│   ├── banners.types.ts
-│   ├── modules.types.ts
-│   ├── current-offers.types.ts
-│   ├── discounted-stores.types.ts
-│   └── recent-orders.types.ts
-└── components/
-    ├── HomeShell.tsx
-    ├── Topbar.tsx
-    ├── shared/
-    │   ├── PriceTag.tsx
-    │   ├── ImageWithFallback.tsx
-    │   └── ScrollContainer.tsx
-    └── sections/
-        ├── Banners/
-        │   ├── index.tsx
-        │   ├── BannersClient.tsx
-        │   ├── BannerSlide.tsx
-        │   └── skeleton.tsx
-        ├── Modules/
-        │   ├── index.tsx
-        │   ├── ModulesClient.tsx
-        │   ├── ModuleCard.tsx
-        │   └── skeleton.tsx
-        ├── DiscountedStores/
-        │   ├── index.tsx
-        │   ├── DiscountedStoresClient.tsx
-        │   ├── StoreCard.tsx
-        │   └── skeleton.tsx
-        ├── CurrentOffers/
-        │   ├── index.tsx
-        │   ├── CurrentOffersClient.tsx
-        │   ├── OfferCard.tsx
-        │   └── skeleton.tsx
-        ├── RecentOrders/
-        │   ├── index.tsx
-        │   ├── RecentOrdersClient.tsx
-        │   ├── OrderCard.tsx
-        │   └── skeleton.tsx
-        └── PromoBanner/
-            └── index.tsx
-```
-
-**Route:** `app/(main)/home/page.tsx`
-
----
-
-### `features/markets/` — Markets / Generic Module *(section-based)*
-
-```
-features/markets/
-├── api/
-│   ├── categories.ts
-│   ├── offers.ts
-│   ├── current-offers.ts
-│   ├── stores.ts
-│   ├── popular-brands.ts
-│   └── recent-orders.ts
-├── types/
-│   ├── categories.types.ts
-│   ├── offers.types.ts
-│   ├── current-offers.types.ts
-│   ├── stores.types.ts
-│   ├── popular-brands.types.ts
-│   └── recent-orders.types.ts
-├── hooks/
-│   └── useStores.ts
-└── components/
-    ├── MarketsShell.tsx
-    ├── Topbar.tsx
-    └── sections/
-        ├── Categories/
-        │   ├── index.tsx
-        │   ├── CategoriesClient.tsx
-        │   ├── CategoryCard.tsx
-        │   └── skeleton.tsx
-        ├── Offers/
-        │   ├── index.tsx
-        │   ├── OffersClient.tsx
-        │   ├── OfferSlide.tsx
-        │   └── skeleton.tsx
-        ├── CurrentOffers/
-        │   ├── index.tsx
-        │   ├── CurrentOffersClient.tsx
-        │   ├── CurrentOfferCard.tsx
-        │   └── skeleton.tsx
-        ├── Stores/
-        │   ├── index.tsx
-        │   ├── StoresClient.tsx
-        │   ├── StoreCard.tsx
-        │   └── skeleton.tsx
-        ├── PopularBrands/
-        │   ├── index.tsx
-        │   ├── PopularBrandsClient.tsx
-        │   ├── BrandCard.tsx
-        │   └── skeleton.tsx
-        └── RecentOrders/
-            ├── index.tsx
-            ├── RecentOrdersClient.tsx
-            ├── OrderCard.tsx
-            └── skeleton.tsx
-```
-
-**Routes:** `app/(modules)/markets/page.tsx`, `app/(main)/modules/[id]/page.tsx`
-
----
-
-### `features/hyper-market/` — Hyper Market *(section-based, nested by screen)*
-
-```
-features/hyper-market/
+├── shared/                 # Cross-feature utilities
+│   └── lib/
 │
-├── StoreDetails/                       # /hyper-market
-│   ├── api/
-│   │   └── store-details.ts
-│   ├── types/
-│   │   └── store-details.types.ts
-│   └── components/
-│       ├── HyperMarketShell.tsx
-│       ├── Topbar.tsx
-│       ├── shared/
-│       │   └── ProductCard.tsx
-│       └── sections/
-│           ├── StoreDetails/
-│           │   ├── index.tsx
-│           │   ├── StoreDetailsClient.tsx
-│           │   └── skeleton.tsx
-│           ├── CategoriesGrid/
-│           │   ├── CategoriesGridClient.tsx
-│           │   └── CategoryCard.tsx
-│           └── FeaturedSections/
-│               └── FeaturedSections.tsx
-│
-└── Categories/                         # /hyper-market/categories
-    ├── api/
-    │   ├── categories.ts
-    │   └── category-detail.ts
-    ├── types/
-    │   ├── categories.types.ts
-    │   └── category-detail.types.ts
-    └── components/
-        ├── CategoriesPageShell.tsx
-        └── sections/
-            ├── CategoryTabs/
-            │   ├── index.tsx
-            │   ├── CategoryTabsClient.tsx
-            │   └── skeleton.tsx
-            └── CategoryDetail/
-                ├── index.tsx
-                ├── CategoryDetailClient.tsx
-                ├── CategoryProductCard.tsx
-                └── skeleton.tsx
+└── public/                 # Static assets grouped by feature
 ```
 
-**Routes:** `app/(modules)/hyper-market/page.tsx`, `app/(modules)/hyper-market/categories/page.tsx`
+**Path alias:** `@/*` maps to the project root (`tsconfig.json`).
 
 ---
 
-### `features/item/` — Product Detail *(section-based)*
+## 3. Feature Module Anatomy
+
+Each domain under `features/<name>/` follows a consistent internal structure. Not every folder is required — use only what the feature needs.
 
 ```
-features/item/
-├── api/
-│   ├── item-details.ts
-│   └── related-items.ts
-├── types/
-│   ├── item.types.ts
-│   └── related-items.types.ts
-└── components/
-    ├── ItemShell.tsx
-    └── sections/
-        ├── ItemInfo/
-        │   ├── index.tsx
-        │   ├── ItemInfoClient.tsx
-        │   └── skeleton.tsx
-        ├── ItemGallery/
-        │   ├── ItemGalleryClient.tsx
-        │   └── skeleton.tsx
-        ├── AddToCart/
-        │   └── AddToCartClient.tsx
-        └── RelatedItems/
-            ├── index.tsx
-            ├── RelatedItemsClient.tsx
-            ├── RelatedProductCard.tsx
-            └── skeleton.tsx
-```
-
-**Route:** `app/(main)/items/[id]/page.tsx`
-
----
-
-### `features/search/` — Search *(section-based)*
-
-```
-features/search/
-├── api/
-│   ├── popular-brands.ts
-│   └── popular-search.ts
-├── types/
-│   ├── popular-brands.types.ts
-│   └── popular-search.types.ts
-├── hooks/
-│   └── useRecentSearches.ts
-└── components/
-    ├── SearchShell.tsx
-    ├── SearchBar.tsx
-    ├── SearchContext.tsx
-    ├── shared/
-    │   └── SearchChip.tsx
-    └── sections/
-        ├── PopularBrands/
-        │   ├── index.tsx
-        │   ├── PopularBrandsClient.tsx
-        │   ├── BrandCard.tsx
-        │   └── skeleton.tsx
-        ├── PopularSearch/
-        │   ├── index.tsx
-        │   ├── PopularSearchClient.tsx
-        │   └── skeleton.tsx
-        └── RecentSearches/
-            ├── index.tsx
-            └── RecentSearchesClient.tsx
-```
-
-**Route:** `app/(main)/search/page.tsx`
-
----
-
-### `features/notifications/` — Notifications *(section-based)*
-
-```
-features/notifications/
-├── api/
-│   └── notifications.ts
-├── types/
-│   └── notifications.types.ts
-└── components/
-    ├── NotificationsShell.tsx
-    └── sections/
-        └── Notifications/
-            ├── index.tsx
-            ├── NotificationsClient.tsx
-            ├── NotificationCard.tsx
-            ├── NotificationsEmpty.tsx
-            └── skeleton.tsx
-```
-
-**Route:** `app/(main)/notifications/page.tsx`
-
----
-
-### `features/store/` — Store Detail *(legacy — pre-refactor)*
-
-```
-features/store/
+features/<domain>/
+├── api/                    # Server-side fetch functions (called from sections or layouts)
+├── types/                  # TypeScript interfaces for API responses & domain models
+├── actions/                # Server Actions ("use server") — mutations
+├── hooks/                  # Client hooks — state, BFF fetch, localStorage, etc.
+├── lib/                    # Pure helpers (no React)
+├── context/                # React context providers (feature-scoped global state)
+├── constants/              # Static data, mock data, config
 ├── components/
-│   └── StorePage.tsx                   # Monolithic page component
-├── hooks/
-│   ├── useStoreDetails.ts
-│   └── useStoreCategories.ts
-└── types/
-    ├── store-details.types.ts
-    └── store-categories.types.ts
+│   ├── <Domain>Shell.tsx   # Page wrapper — layout, topbar, providers
+│   ├── Topbar.tsx          # Page header (when needed)
+│   ├── <Feature>Context.tsx  # Context + hook (e.g. SearchContext)
+│   ├── shared/             # Reusable pieces within this feature only
+│   └── sections/<Name>/    # One folder per UI section on a page
+│       ├── index.tsx       # Server entry — fetch, guard, decide what to render
+│       ├── *Client.tsx     # Client UI — layout, state, events
+│       ├── *Card.tsx       # Presentational unit (card, slide, row)
+│       ├── *Empty.tsx      # Empty state (optional)
+│       └── skeleton.tsx    # Loading placeholder
 ```
 
-**Routes:** `app/(main)/stores/[id]/page.tsx`, `app/(main)/stores/[id]/categories/page.tsx`  
-**Note:** Not yet migrated to the section-based pattern used elsewhere.
+### When to use each data layer
 
----
+| Mechanism | Location | Use when |
+|-----------|----------|----------|
+| **Server fetch** | `features/<domain>/api/*.ts` | Section `index.tsx` loads data on the server. Preferred for page content. |
+| **BFF route** | `app/api/<domain>/*/route.ts` | Client hooks need data (auth, search, legacy hooks). Proxies external API with `apiSuccess` / `apiError` envelope. |
+| **Server Action** | `features/<domain>/actions/*.ts` | Mutations from client (add to cart, save address). Uses cookies, calls backend, revalidates cache tags. |
+| **Client hook** | `features/<domain>/hooks/*.ts` | Client-only state, BFF fetch via `unwrap()`, localStorage, debounced search. |
+| **Context** | `features/<domain>/context/` | State shared across multiple components in one feature (cart, search). |
 
-### `features/module/` — Old Module UI *(legacy — superseded by markets/)*
+### Server fetch pattern
 
-```
-features/module/
-├── components/
-│   ├── ModulePage.tsx
-│   ├── Categories.tsx
-│   ├── Offers.tsx
-│   ├── CurrentOffers.tsx
-│   ├── Stores.tsx
-│   ├── PopularBrands.tsx
-│   ├── RecentOrders.tsx
-│   └── topbar.tsx
-├── hooks/
-│   ├── useCategories.ts
-│   ├── useOffers.ts
-│   ├── useCurrentOffers.ts
-│   ├── useStores.ts
-│   ├── usePopularBrands.ts
-│   └── useRecentOrders.ts
-└── types/
-    ├── categories.types.ts
-    ├── offers.types.ts
-    ├── current-offers.types.ts
-    ├── stores.types.ts
-    ├── popular-brands.types.ts
-    └── recent-orders.types.ts
+```ts
+// features/home/api/banners.ts
+export async function getBanners() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/banners`, {
+    headers: { Accept: "application/json", zoneId: process.env.ZONE_ID! },
+    next: { revalidate: 3600, tags: ["banners", "home-data"] },
+  });
+  if (!res.ok) throw new Error(`Failed to fetch banners: ${res.status}`);
+  return res.json();
+}
 ```
 
-**Note:** Replaced by `features/markets/`. Safe to remove once confirmed unused.
+### BFF route pattern
 
----
+```ts
+// app/api/home/banners/route.ts
+import { apiSuccess, apiError } from "@/shared/lib/api-response";
 
-### Other Features
-
-```
-features/layout/
-└── components/
-    └── Navbar.tsx
-
-features/onboarding/
-└── OnboardingScreens.tsx
+export async function GET() {
+  const backendRes = await fetch(/* external API */);
+  if (!backendRes.ok) return apiError("Failed to get banners", backendRes.status);
+  return apiSuccess(await backendRes.json());
+}
 ```
 
----
+Client hooks consume BFF routes through `unwrap()` from `shared/lib/api-response.ts`, which unwraps the `{ success, data }` envelope.
 
-## `shared/` — Cross-Feature Utilities
+### Server Action pattern
 
-```
-shared/
-└── lib/
-    └── api-response.ts                 # Shared API response helpers
+```ts
+// features/cart/actions/add-to-cart.ts
+"use server";
+
+export async function addToCart(payload) {
+  // read cookies, call external API, updateTag("cart")
+  return { success: true, items };
+}
 ```
 
 ---
 
-## `public/` — Static Assets
+## 4. Section Architecture (Core Pattern)
 
-```
-public/
-├── home/
-│   └── banner.png
-├── hyper-market/
-│   └── banner.png
-├── notifications/
-│   └── notifications-empty.png
-└── onboarding/
-    ├── bag.png
-    ├── boxes.png
-    ├── clock.png
-    └── discount.png
-```
+A **section** is one independent block of UI on a page (banners, modules, cart list, order history). Each section is a folder under `components/sections/`.
 
----
+### Section `index.tsx` — server entry
 
-## Route → Feature Map
+- Runs on the server (`async` when fetching).
+- Calls `features/<domain>/api/` functions.
+- Returns `null` when there is nothing to show (empty guard).
+- Passes data as props to `*Client.tsx`.
+- Exports a `skeleton` for `Suspense` fallback.
+- Never has `"use client"`, never owns layout `className` on the outer wrapper.
 
-| URL | Feature | Pattern |
-|-----|---------|---------|
-| `/home` | `features/home` | Section-based |
-| `/modules/[id]` | `features/markets` | Section-based |
-| `/markets` | `features/markets` | Section-based |
-| `/hyper-market` | `features/hyper-market/StoreDetails` | Section-based |
-| `/hyper-market/categories` | `features/hyper-market/Categories` | Section-based |
-| `/items/[id]` | `features/item` | Section-based |
-| `/search` | `features/search` | Section-based |
-| `/notifications` | `features/notifications` | Section-based |
-| `/stores/[id]` | `features/store` | Legacy (monolithic) |
-| `/auth` | `features/auth` | Screen flow |
-| `/onboarding` | `features/onboarding` | Screen flow |
-
----
-
-## Data Flow
-
-```
-Browser
-  └── app/.../page.tsx          (composition only)
-        └── Section/index.tsx   (server fetch via features/<domain>/api/)
-              └── *Client.tsx   (interactive UI)
-                    └── *Card.tsx (presentational)
-
-Client hooks (legacy)           → app/api/*/route.ts → External Shellafood API
-Server fetch (new pattern)        → External API directly (with revalidate tags)
-```
-
----
-
-## Example — Minimal `page.tsx`
+**Two export styles (both valid):**
 
 ```tsx
+// Style A — Object.assign (preferred for skeleton co-location)
+export const Banners = Object.assign(
+  async function Banners() {
+    const { banners } = await getBanners();
+    if (banners.length === 0) return null;
+    return <BannersClient banners={banners} />;
+  },
+  { skeleton: BannerSkeleton }
+);
+
+// Style B — named export + separate skeleton import
+export { default as skeleton } from "./skeleton";
+export async function Orders() { /* … */ }
+```
+
+### `*Client.tsx` — interactive UI
+
+- `"use client"` at the top.
+- Receives data via props (from server section).
+- Owns layout (`className`), local state, events, Swiper, animations.
+- Never fetches on mount for initial page data — that belongs in `index.tsx`.
+- May call Server Actions or context methods for mutations.
+
+### `*Card.tsx` / `*Slide.tsx` — presentational
+
+- Props in, JSX out.
+- No fetch, no global state, no side effects.
+
+### `skeleton.tsx` — loading state
+
+- Matches real layout dimensions (`animate-pulse`).
+- Used as `<Section.skeleton />` or `<SectionSkeleton />` inside `Suspense`.
+
+---
+
+## 5. Page Composition (`app/`)
+
+`page.tsx` files do **composition only**. No business logic, no direct `fetch`, no layout `className` soup.
+
+```tsx
+// app/(main)/home/page.tsx
 import { Suspense } from "react";
 import { HomeShell } from "@/features/home/components/HomeShell";
 import { Banners } from "@/features/home/components/sections/Banners";
@@ -552,38 +210,310 @@ export default async function HomePage() {
       <Suspense fallback={<Banners.skeleton />}>
         <Banners />
       </Suspense>
+      {/* more sections… */}
     </HomeShell>
+  );
+}
+```
+
+### What `page.tsx` may contain
+
+- `metadata` export
+- Reading cookies for simple flags (e.g. `isAuthenticated`) passed to Shell
+- `Suspense` boundaries per section
+- Shell + section imports
+
+### What `page.tsx` must not contain
+
+- Direct API calls
+- Complex conditional rendering logic
+- Inline layout/styling beyond page-level structure
+
+---
+
+## 6. Shell Components
+
+Every route has a **Shell** — a client wrapper that defines the page frame.
+
+| Responsibility | Owner |
+|----------------|-------|
+| Page layout (`flex`, `gap`, `min-h-screen`) | Shell |
+| Topbar / back button | Shell or `Topbar.tsx` |
+| Bottom navbar | Shell (imports `features/layout/Navbar`) |
+| Feature context providers | Shell (e.g. `SearchProvider`, `CartProvider` is in layout) |
+| Section content | Passed as `children` |
+
+```tsx
+// features/home/components/HomeShell.tsx
+"use client";
+
+export function HomeShell({ isAuthenticated, children }) {
+  return (
+    <div className="flex flex-col min-h-screen gap-4 mb-16">
+      <Topbar />
+      {children}
+      <Navbar />
+    </div>
   );
 }
 ```
 
 ---
 
-## Example — Section `index.tsx`
+## 7. Routing & Layouts
+
+### Route groups
+
+| Group | Path prefix | Purpose |
+|-------|-------------|---------|
+| `(main)` | `/home`, `/cart`, `/profile`, … | Main authenticated app |
+| `(main)/(modules)` | `/markets`, `/hyper-market`, `/modules/[id]` | Module-specific store experiences |
+| `auth` | `/auth` | Login / OTP / registration flow |
+| `onboarding` | `/onboarding` | First-run screens |
+
+Parentheses in folder names are **route groups** — they organize layouts without affecting the URL.
+
+### Layout responsibilities
+
+| Layout | Guards | Provides |
+|--------|--------|----------|
+| `app/layout.tsx` | — | `<html lang="ar" dir="rtl">`, global CSS |
+| `app/(main)/layout.tsx` | Redirect to `/auth` if no token or guest cookie | `CartProvider` with server-fetched initial cart |
+| `app/(main)/(modules)/layout.tsx` | Same auth guard | Module route wrapper |
+
+### Route → feature map
+
+| URL | Feature module |
+|-----|----------------|
+| `/home` | `features/home` |
+| `/markets` | `features/markets` |
+| `/modules/[id]` | `features/markets` |
+| `/hyper-market` | `features/hyper-market/StoreDetails` |
+| `/hyper-market/categories` | `features/hyper-market/Categories` |
+| `/hyper-market/brands` | `features/hyper-market/Brands` |
+| `/items/[id]` | `features/item` |
+| `/search` | `features/search` |
+| `/notifications` | `features/notifications` |
+| `/cart` | `features/cart` |
+| `/addresses`, `/addresses/[id]`, `/addresses/add` | `features/addresses` |
+| `/my-orders`, `/my-orders/[id]` | `features/my-orders` |
+| `/profile` | `features/profile` (or inline in route) |
+| `/discounts` | TBD / discounts feature |
+| `/auth` | `features/auth` |
+| `/onboarding` | `features/onboarding` |
+
+---
+
+## 8. Feature Types
+
+Not every feature looks the same. There are three common shapes:
+
+### A. Section-based page (most features)
+
+Used for: `home`, `markets`, `item`, `search`, `notifications`, `cart`, `addresses`, `my-orders`.
+
+- One `*Shell.tsx` per route.
+- Multiple `sections/<Name>/` folders composed in `page.tsx`.
+- Data loaded in section `index.tsx` (server) or via context/hooks (client-driven sections).
+
+### B. Screen flow (multi-step UI)
+
+Used for: `auth`, `onboarding`.
+
+- No sections folder — sequential screens as top-level components.
+- `useAuth` hook orchestrates steps and talks to `app/api/auth/*` BFF routes.
+- Single `page.tsx` renders the flow component.
+
+### C. Nested sub-features
+
+Used for: `hyper-market`.
+
+When one domain has multiple distinct routes with different data needs, split into sub-folders — each with its own `api/`, `types/`, `components/`:
+
+```
+features/hyper-market/
+├── StoreDetails/     # /hyper-market
+├── Categories/       # /hyper-market/categories
+└── Brands/           # /hyper-market/brands
+```
+
+Each sub-feature is a mini feature module. Routes in `app/(main)/(modules)/hyper-market/` map to the matching sub-folder.
+
+---
+
+## 9. Cross-Cutting Concerns
+
+### Cart (`features/cart/`)
+
+- `CartProvider` wraps the entire `(main)` layout — cart state is available everywhere.
+- Initial items fetched server-side in `app/(main)/layout.tsx`.
+- Mutations via Server Actions (`add-to-cart`, `update-cart`, `remove-cart-item`, `clear-cart`).
+- `useProductCart` hook for product pages to read/increment/decrement without prop drilling.
+
+### Addresses (`features/addresses/`)
+
+- `AddressTopbarBanner` section reused on home (delivery address picker).
+- Server Actions for add/delete/zone check.
+- `useSelectedAddress` for client-side selected address state.
+
+### Layout (`features/layout/`)
+
+- `Navbar` — bottom navigation shared across main app shells.
+
+### Auth (`features/auth/`)
+
+- Cookie-based session: `ACCESS_TOKEN` (logged in) or `GUEST_ID` (guest).
+- `COOKIE_KEYS` defined in `features/auth/types/auth.types.ts`.
+- Client auth flow uses BFF routes under `app/api/auth/`.
+- `auth.lib.ts` — cookie/localStorage helpers.
+
+---
+
+## 10. Naming Contract
+
+| File / suffix | Server or client | Contains | Never contains |
+|---------------|------------------|----------|----------------|
+| `page.tsx` | Server (route) | `Suspense`, Shell, section imports, metadata | `fetch`, business logic, layout classes |
+| `index.tsx` (section) | Server | `async` fetch, empty guard, pass props to Client | `"use client"`, state, effects |
+| `*Client.tsx` | Client | `"use client"`, layout, state, events | Initial data `fetch` |
+| `*Card.tsx` / `*Slide.tsx` | Either | Props + JSX | Fetch, global state |
+| `skeleton.tsx` | Either | `animate-pulse`, matching dimensions | Logic |
+| `*Shell.tsx` | Client | Page frame, providers, children slot | Section data fetching |
+| `api/*.ts` | Server | `fetch` to external API, cache tags | React, `"use client"` |
+| `actions/*.ts` | Server | `"use server"`, mutations | React components |
+| `hooks/*.ts` | Client | `"use client"`, BFF fetch, local state | Server-only imports |
+| `route.ts` | Server | BFF proxy, `apiSuccess`/`apiError` | Business UI logic |
+
+---
+
+## 11. Data Flow Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Browser                                                        │
+│    page.tsx (composition)                                       │
+│      └── Shell (layout, providers)                              │
+│            └── Suspense                                         │
+│                  └── Section/index.tsx (server fetch)           │
+│                        └── *Client.tsx (interactive UI)         │
+│                              └── *Card.tsx (presentational)     │
+└─────────────────────────────────────────────────────────────────┘
+
+Server fetch (sections):     features/<domain>/api/  →  External Shellafood API
+BFF (client hooks):          app/api/*/route.ts      →  External API
+Server Actions (mutations):  features/<domain>/actions/  →  External API  →  revalidateTag
+```
+
+**Prefer server fetch in section `index.tsx`** for page content. Use BFF routes when the client must drive the request (auth, live search, SWR). Use Server Actions for writes.
+
+---
+
+## 12. Styling & UI Conventions
+
+- **RTL:** Root layout sets `lang="ar"` and `dir="rtl"`.
+- **Tailwind CSS v4** via `app/global.css`.
+- **Swiper** for carousels (banners, offers) — overrides in global CSS.
+- **Radix UI** for dialogs, popovers, scroll areas.
+- **Framer Motion** for animations where needed.
+- **Lucide / React Icons** for iconography.
+- Feature-level `shared/` for repeated UI within a domain (e.g. `PriceTag`, `ProductCard`).
+- Project-level `shared/` only for non-UI utilities.
+
+---
+
+## 13. Environment Variables
+
+Used across `api/`, `actions/`, and BFF routes:
+
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_API_URL` | External Shellafood API base URL |
+| `ZONE_ID` | Delivery zone header |
+| `MODULE_ID` | Module context for cart/items |
+| `REVALIDATE_TIME` | Default ISR revalidate seconds for BFF routes |
+
+---
+
+## 14. How to Add a New Feature
+
+1. **Create the feature folder:** `features/<name>/` with `types/`, `api/`, `components/`.
+2. **Add the Shell:** `components/<Name>Shell.tsx` — layout frame, topbar, navbar if needed.
+3. **Add sections:** One folder per UI block under `components/sections/<SectionName>/`.
+   - `index.tsx` — server fetch + guard
+   - `<Section>Client.tsx` — client UI
+   - `skeleton.tsx` — loading state
+4. **Add the route:** `app/(main)/<route>/page.tsx` — Shell + Suspense + sections only.
+5. **Add API layer:** `features/<name>/api/` for server fetch; `app/api/<name>/` only if client hooks need it.
+6. **Add mutations:** `features/<name>/actions/` for Server Actions if the feature writes data.
+7. **Wire auth:** Ensure the route lives under a layout that applies the correct guard.
+
+### Checklist before merging
+
+- [ ] `page.tsx` has no `fetch` or business logic
+- [ ] Each section has `index.tsx` + `*Client.tsx` + `skeleton.tsx`
+- [ ] Empty data returns `null` from section `index.tsx`
+- [ ] Types live in `features/<name>/types/`, not inline in components
+- [ ] File names match the naming contract above
+
+---
+
+## 15. Examples
+
+### Minimal section `index.tsx`
 
 ```tsx
 import { getBanners } from "@/features/home/api/banners";
 import { BannersClient } from "./BannersClient";
+import BannerSkeleton from "./skeleton";
 
-export { default as skeleton } from "./skeleton";
+export const Banners = Object.assign(
+  async function Banners() {
+    const { banners } = await getBanners();
+    if (banners.length === 0) return null;
+    return <BannersClient banners={banners} />;
+  },
+  { skeleton: BannerSkeleton }
+);
+```
 
-export async function Banners() {
-  const { banners } = await getBanners();
-  if (banners.length === 0) return null;
-  return <BannersClient banners={banners} />;
+### Client-only section (no server fetch yet)
+
+```tsx
+import { OrdersClient } from "./OrdersClient";
+import OrdersSkeleton from "./skeleton";
+
+export const Orders = Object.assign(
+  function Orders() {
+    return <OrdersClient />;
+  },
+  { skeleton: OrdersSkeleton }
+);
+```
+
+### Minimal `page.tsx`
+
+```tsx
+import { Suspense } from "react";
+import { MyOrdersShell } from "@/features/my-orders/components/MyOrdersShell";
+import { Orders } from "@/features/my-orders/components/sections/Orders";
+
+export default function MyOrdersPage() {
+  return (
+    <MyOrdersShell>
+      <Suspense fallback={<Orders.skeleton />}>
+        <Orders />
+      </Suspense>
+    </MyOrdersShell>
+  );
 }
 ```
 
 ---
 
-## The Rule (Summary)
+## 16. The Rule (Quick Reference)
 
-| File | Contains | Never Contains |
-|------|----------|----------------|
-| `page.tsx` | `Suspense`, shell, section imports | `fetch`, business logic, layout classNames |
-| `index.tsx` | `async`, `await getX()`, empty guard | `"use client"`, className, `<section>` |
-| `*Client.tsx` | `"use client"`, layout, state, events | `fetch`, `async` |
-| `*Card.tsx` | Props + JSX | fetch, state, effects |
-| `skeleton.tsx` | `animate-pulse`, matching size | logic |
+```
+Route composes → Shell frames → Section fetches → Client interacts → Card displays
+```
 
-A developer should know what a file does from its name — without opening it.
+Keep each layer doing one job. When in doubt, put logic in the feature folder, not in `app/`.

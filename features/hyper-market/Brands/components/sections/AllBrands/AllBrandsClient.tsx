@@ -34,7 +34,13 @@ export function AllBrandsClient({ brands }: AllBrandsClientProps) {
             <section aria-label="جميع العلامات التجارية" className="px-4 pb-6 pt-4 sm:px-5">
                 <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                     {brands.map((brand) => (
-                        <BrandGridCard key={brand.id} brand={brand} />
+                        <Link
+                            key={brand.id}
+                            href={`/hyper-market/brands/${brand.id}`}
+                            className="block outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 rounded-2xl"
+                        >
+                            <BrandGridCard brand={brand} />
+                        </Link>
                     ))}
                 </div>
             </section>

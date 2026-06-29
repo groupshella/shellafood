@@ -1,5 +1,6 @@
 export type HyperMarketOfferStatus = "active" | "inactive" | string;
 
+/** Single offer from GET /api/v1/offers/active → data[] */
 export interface HyperMarketOffer {
     id: number;
     reference: string;
@@ -9,17 +10,15 @@ export interface HyperMarketOffer {
     discount_min: number;
     discount_max: number;
     banner: string;
+    banner_full_url: string;
     module_id: number;
     zone_id: number | null;
     created_at: string;
     updated_at: string;
     items_count: number;
-    active: boolean;
     status: HyperMarketOfferStatus;
 }
 
-export interface GetHyperMarketOffersResponse {
-    success: boolean;
-    data: HyperMarketOffer[];
-    message: string;
-}
+export type GetHyperMarketOffersResponse =
+    | { success: true; data: HyperMarketOffer[]; message: string }
+    | { success: false; message: string };

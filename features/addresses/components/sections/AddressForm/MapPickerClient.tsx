@@ -37,7 +37,22 @@ const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
 const GEOCODER_LANGUAGE = "ar";
 const GEOCODER_REGION = "SA";
 
-function reverseGeocode(lat: number, lng: number): Promise<string> {
+function extractAddressParts(components: google.maps.GeocoderAddressComponent[]) {
+  const get = (type: string) =>
+    components.find((c) => c.types.includes(type))?.long_name ?? "";
+
+  return {
+    city: get("locality") || get("administrative_area_level_1"),
+    region: get("sublocality") || get("administrative_area_level_2") || get("neighborhood"),
+    street_name: get("route"),
+  };
+}
+
+interface GeocodedLocation extends PickedLocation {
+  formattedAddress: string;
+}
+
+function reverseGeocode(lat: number, lng: number): Promise<GeocodedLocation> {
   const geocoder = new google.maps.Geocoder();
 
   return new Promise((resolve, reject) => {
@@ -45,7 +60,17 @@ function reverseGeocode(lat: number, lng: number): Promise<string> {
       { location: { lat, lng }, language: GEOCODER_LANGUAGE, region: GEOCODER_REGION },
       (results, status) => {
         if (status === "OK" && results?.[0]?.formatted_address) {
-          resolve(results[0].formatted_address);
+          const { formatted_address, address_components } = results[0];
+          const { city, region, street_name } = extractAddressParts(address_components);
+
+          resolve({
+            lat,
+            lng,
+            city,
+            region,
+            street_name,
+            formattedAddress: formatted_address,
+          });
           return;
         }
 
@@ -55,15 +80,10 @@ function reverseGeocode(lat: number, lng: number): Promise<string> {
   });
 }
 
-function formatPickedAddress(result: {
-  formattedAddress?: string;
-  street_name?: string;
-  region?: string;
-  city?: string;
-}): string {
-  if (result.formattedAddress?.trim()) return result.formattedAddress.trim();
+function formatPickedAddress(location: GeocodedLocation): string {
+  if (location.formattedAddress.trim()) return location.formattedAddress.trim();
 
-  return [result.street_name, result.region, result.city].filter(Boolean).join("، ");
+  return [location.street_name, location.region, location.city].filter(Boolean).join("، ");
 }
 
 type CheckState = "idle" | "checking" | "out-of-zone" | "confirmed";
@@ -80,6 +100,7 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
     useState<google.maps.LatLngLiteral>(DEFAULT_CENTER);
   const [checkState, setCheckState] = useState<CheckState>("idle");
   const [formattedAddress, setFormattedAddress] = useState<string | null>(null);
+  const [geocodedLocation, setGeocodedLocation] = useState<GeocodedLocation | null>(null);
   const [isResolvingAddress, setIsResolvingAddress] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
   const geocodeRequestRef = useRef(0);
@@ -101,12 +122,14 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
     setMarkerPos(nextPos);
     setCheckState("idle");
     setFormattedAddress(null);
+    setGeocodedLocation(null);
     setIsResolvingAddress(true);
 
     try {
-      const address = await reverseGeocode(nextPos.lat, nextPos.lng);
+      const location = await reverseGeocode(nextPos.lat, nextPos.lng);
       if (requestId !== geocodeRequestRef.current) return;
-      setFormattedAddress(address);
+      setGeocodedLocation(location);
+      setFormattedAddress(location.formattedAddress);
     } catch {
       if (requestId !== geocodeRequestRef.current) return;
       setFormattedAddress(null);
@@ -118,6 +141,8 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
   }, []);
 
   const handleConfirm = useCallback(async () => {
+    if (!geocodedLocation) return;
+
     setCheckState("checking");
     const result = await checkZone(markerPos.lat, markerPos.lng);
 
@@ -126,20 +151,16 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
       return;
     }
 
-    const resolvedAddress = formatPickedAddress(result);
-    if (resolvedAddress) {
-      setFormattedAddress(resolvedAddress);
-    }
-
+    setFormattedAddress(formatPickedAddress(geocodedLocation));
     setCheckState("confirmed");
     onConfirm({
-      lat: markerPos.lat,
-      lng: markerPos.lng,
-      city: result.city ?? "",
-      region: result.region ?? "",
-      street_name: result.street_name ?? "",
+      lat: geocodedLocation.lat,
+      lng: geocodedLocation.lng,
+      city: geocodedLocation.city,
+      region: geocodedLocation.region,
+      street_name: geocodedLocation.street_name,
     });
-  }, [markerPos, onConfirm]);
+  }, [geocodedLocation, markerPos.lat, markerPos.lng, onConfirm]);
 
   // ── Error ──────────────────────────────────────────────────────────────────
   if (loadError) {
