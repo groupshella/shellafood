@@ -13,7 +13,6 @@ const PALETTE = [
 
 function getModuleHref(module: StoreModule): string {
     if (module.id === 3) return `/hyper-market?module_id=3`;
-    if (module.id === 7) return `/markets?module_id=7`;
     return `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
 }
 

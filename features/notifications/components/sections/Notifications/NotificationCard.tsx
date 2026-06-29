@@ -52,7 +52,7 @@ export function NotificationCard({ notification }: NotificationCardProps) {
                     ].join(" ")}
                     aria-hidden
                 >
-                    <span className="text-lg font-bold">{notification.title.charAt(0)}</span>
+                    <span className="text-lg font-bold">{notification.title?.charAt(0)}</span>
                 </div>
             )}
 

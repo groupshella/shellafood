@@ -1,45 +1,55 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Category } from "@/features/markets/types/categories.types";
 
-export function CategoryCard({
-    category,
-    moduleId,
-}: {
+interface CategoryCardProps {
     category: Category;
     moduleId: string;
-}) {
+    layout?: "scroll" | "grid";
+}
+
+export function CategoryCard({ category, moduleId, layout = "scroll" }: CategoryCardProps) {
+    const [imageError, setImageError] = useState(false);
+    const isGrid = layout === "grid";
+
     return (
         <Link
             href={`/modules/${moduleId}/category/${category.slug}`}
             className={[
-                "group relative block aspect-square w-[132px] shrink-0 overflow-hidden rounded-2xl sm:w-[148px] md:w-[160px]",
+                "group flex flex-col items-center gap-2.5",
+                isGrid ? "w-full" : "w-[5.5rem] shrink-0 sm:w-[5.75rem]",
                 "outline-none transition-transform duration-150 active:scale-[0.96]",
-                "focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+                "focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 focus-visible:ring-offset-black",
             ].join(" ")}
             aria-label={category.name}
         >
-            {category.image_full_url ? (
-                <Image
-                    src={category.image_full_url}
-                    alt=""
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                    sizes="(max-width: 640px) 132px, 160px"
-                    loading="lazy"
-                />
-            ) : (
-                <div className="absolute inset-0 bg-gray-100" />
-            )}
+            <div className="relative h-[72px] w-[72px] overflow-hidden rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.08)] sm:h-[80px] sm:w-[80px]">
+                {!imageError && category.image_full_url ? (
+                    <Image
+                        src={category.image_full_url}
+                        alt=""
+                        fill
+                        className="object-contain p-2 transition-transform duration-200 group-active:scale-95"
+                        sizes="80px"
+                        loading="lazy"
+                        onError={() => setImageError(true)}
+                    />
+                ) : (
+                    <div
+                        className="flex h-full items-center justify-center text-2xl opacity-30"
+                        aria-hidden
+                    >
+                        🍽️
+                    </div>
+                )}
+            </div>
 
-            <div
-                className="absolute inset-0 bg-black/25 transition-colors group-hover:bg-black/30"
-                aria-hidden
-            />
-
-            <h3 className="absolute inset-0 z-10 flex items-center justify-center px-3 text-center text-sm font-bold leading-tight text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)] sm:text-[15px]">
+            <span className="line-clamp-2 w-full text-center text-xs leading-tight text-gray-400 sm:text-[13px]">
                 {category.name}
-            </h3>
+            </span>
         </Link>
     );
 }

@@ -9,6 +9,9 @@ import { CurrentOffers } from "@/features/markets/components/sections/CurrentOff
 import { RecentOrders } from "@/features/markets/components/sections/RecentOrders";
 import { PopularBrands } from "@/features/markets/components/sections/PopularBrands";
 import { Stores } from "@/features/markets/components/sections/Stores";
+import { Banners } from "@/features/hyper-market/StoreDetails/components/sections/Banners";
+import { Modules } from "@/features/hyper-market/StoreDetails/components/sections/Modules";
+import { AddressTopbarBanner } from "@/features/addresses/components/sections/AddressTopbarBanner";
 
 interface ModulePageRouteProps {
     params: Promise<{ id: string }>;
@@ -41,21 +44,39 @@ export default async function ModulePageRoute({ params, searchParams }: ModulePa
 
     return (
         <MarketsShell moduleId={id} moduleName={moduleName} isAuthenticated={isAuthenticated}>
+            <Suspense
+                fallback={
+                    <div className="px-4 sm:px-5">
+                        <AddressTopbarBanner.skeleton />
+                    </div>
+                }
+            >
+
+                <AddressTopbarBanner isAuthenticated={isAuthenticated} className="px-4 sm:px-5" />
+
+            </Suspense>
+
+            <Suspense fallback={<Modules.skeleton />}>
+                <Modules />
+            </Suspense>
+            <Suspense fallback={<Banners.skeleton />}>
+                <Banners />
+            </Suspense>
             <Suspense fallback={<Categories.skeleton />}>
-                <Categories moduleId={id} />
+                <Categories moduleId={id} moduleName={moduleName} />
             </Suspense>
 
             <Suspense fallback={<Offers.skeleton />}>
                 <Offers moduleId={id} />
             </Suspense>
 
-            <Suspense fallback={<CurrentOffers.skeleton />}>
+            {/* <Suspense fallback={<CurrentOffers.skeleton />}>
                 <CurrentOffers moduleId={id} />
-            </Suspense>
-
+            </Suspense> */}
+            {/* 
             <Suspense fallback={<RecentOrders.skeleton />}>
                 <RecentOrders moduleId={id} />
-            </Suspense>
+            </Suspense> */}
 
             <Suspense fallback={<PopularBrands.skeleton />}>
                 <PopularBrands moduleId={id} />

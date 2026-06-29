@@ -13,6 +13,7 @@ export interface Offer {
     discount_max: number;
     banner: string;
     module_id: number;
+    banner_full_url: string;
     zone_id: number | null;
     created_at: string;
     updated_at: string;

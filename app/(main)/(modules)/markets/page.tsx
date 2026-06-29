@@ -9,38 +9,41 @@ import { CurrentOffers } from "@/features/markets/components/sections/CurrentOff
 import { RecentOrders } from "@/features/markets/components/sections/RecentOrders";
 import { PopularBrands } from "@/features/markets/components/sections/PopularBrands";
 import { Stores } from "@/features/markets/components/sections/Stores";
+import { Banners } from "@/features/hyper-market/StoreDetails/components/sections/Banners";
+import { Modules } from "@/features/hyper-market/StoreDetails/components/sections/Modules";
 import { AddressTopbarBanner } from "@/features/addresses/components/sections/AddressTopbarBanner";
 
-const DEFAULT_MODULE_ID = "7";
-
-interface MarketsPageProps {
-    searchParams: Promise<{ module_id?: string; module_name?: string }>;
+interface ModulePageRouteProps {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{ module_name?: string }>;
 }
 
-export async function generateMetadata({ searchParams }: MarketsPageProps): Promise<Metadata> {
+export async function generateMetadata({
+    params,
+    searchParams,
+}: ModulePageRouteProps): Promise<Metadata> {
+    const { id } = await params;
     const { module_name } = await searchParams;
-    const name = module_name || "الأسواق";
+    const name = module_name || "القسم";
 
     return {
         title: `${name} | شلة فود`,
         description: `تصفّح المتاجر والعروض والمنتجات المتوفرة ضمن ${name} عبر شلة فود.`,
-        alternates: { canonical: "/markets" },
+        alternates: { canonical: `/modules/${id}` },
     };
 }
 
-export default async function MarketsPage({ searchParams }: MarketsPageProps) {
-    const { module_id, module_name } = await searchParams;
-    const moduleId = module_id || DEFAULT_MODULE_ID;
-    const moduleName = module_name || "الأسواق";
+export default async function ModulePageRoute({ params, searchParams }: ModulePageRouteProps) {
+    const { id } = await params;
+    const { module_name } = await searchParams;
+    const moduleName = module_name || "";
 
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
     const isAuthenticated = !!token;
 
     return (
-        <MarketsShell moduleId={moduleId} moduleName={moduleName} isAuthenticated={isAuthenticated}>
-
-
+        <MarketsShell moduleId={id} moduleName={moduleName} isAuthenticated={isAuthenticated}>
             <Suspense
                 fallback={
                     <div className="px-4 sm:px-5">
@@ -52,28 +55,35 @@ export default async function MarketsPage({ searchParams }: MarketsPageProps) {
                 <AddressTopbarBanner isAuthenticated={isAuthenticated} className="px-4 sm:px-5" />
 
             </Suspense>
+
+            <Suspense fallback={<Modules.skeleton />}>
+                <Modules />
+            </Suspense>
+            <Suspense fallback={<Banners.skeleton />}>
+                <Banners />
+            </Suspense>
             <Suspense fallback={<Categories.skeleton />}>
-                <Categories moduleId={moduleId} />
+                <Categories moduleId={id} moduleName={moduleName} />
             </Suspense>
 
             <Suspense fallback={<Offers.skeleton />}>
-                <Offers moduleId={moduleId} />
+                <Offers moduleId={id} />
             </Suspense>
 
-            <Suspense fallback={<CurrentOffers.skeleton />}>
-                <CurrentOffers moduleId={moduleId} />
-            </Suspense>
-
+            {/* <Suspense fallback={<CurrentOffers.skeleton />}>
+                <CurrentOffers moduleId={id} />
+            </Suspense> */}
+            {/* 
             <Suspense fallback={<RecentOrders.skeleton />}>
-                <RecentOrders moduleId={moduleId} />
-            </Suspense>
+                <RecentOrders moduleId={id} />
+            </Suspense> */}
 
             <Suspense fallback={<PopularBrands.skeleton />}>
-                <PopularBrands moduleId={moduleId} />
+                <PopularBrands moduleId={id} />
             </Suspense>
 
             <Suspense fallback={<Stores.skeleton />}>
-                <Stores moduleId={moduleId} />
+                <Stores moduleId={id} />
             </Suspense>
         </MarketsShell>
     );
