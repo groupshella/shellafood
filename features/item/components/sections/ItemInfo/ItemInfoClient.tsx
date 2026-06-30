@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { X, ShoppingBag } from "lucide-react";
+import { ShoppingBag, Heart } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
+import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
 import { ItemDetails } from "@/features/item/types/item.types";
 
 interface ItemInfoClientProps {
@@ -13,9 +13,10 @@ interface ItemInfoClientProps {
 }
 
 export function ItemInfoClient({ item }: ItemInfoClientProps) {
-    const router = useRouter();
     const [imgError, setImgError] = useState(false);
     const [addError, setAddError] = useState<string | null>(null);
+    const [wishlisted, setWishlisted] = useState(false);
+    const [wishlistPending, setWishlistPending] = useState(false);
 
     const discounted = item.discount > 0;
     const displayPrice = discounted
@@ -29,19 +30,27 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
         discount: item.discount,
     };
 
+    async function toggleWishlist() {
+        if (wishlistPending) return;
+
+        setWishlistPending(true);
+        const wasLiked = wishlisted;
+        setWishlisted(!wasLiked);
+
+        const result = wasLiked
+            ? await removeFromWishlist({ itemId: item.id })
+            : await addToWishlist({ itemId: item.id });
+
+        if (!result.success) {
+            setWishlisted(wasLiked);
+        }
+
+        setWishlistPending(false);
+    }
+
     return (
         <div className="bg-white" dir="rtl">
-            <header className="flex items-center justify-between px-4 pb-2 pt-4 sm:px-5">
-                <button
-                    type="button"
-                    onClick={() => router.back()}
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 transition-colors active:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]"
-                    aria-label="إغلاق"
-                >
-                    <X className="h-4 w-4 text-gray-700" strokeWidth={2.5} />
-                </button>
-                <div className="w-9" aria-hidden />
-            </header>
+
 
             <div className="relative mx-4 aspect-square overflow-hidden rounded-2xl bg-[#F7F9F7] sm:mx-5">
                 {discounted && (
@@ -67,16 +76,34 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
             </div>
 
             <div className="px-4 pb-4 pt-4 sm:px-5">
-                <h1 className="text-right text-lg font-bold leading-snug text-[#111B18] sm:text-xl">
-                    {item.name}
-                </h1>
 
+                <div className="flex items-center justify-between">
+                    <h1 className="text-right text-lg font-bold leading-snug text-[#111B18] sm:text-xl">
+                        {item.name}
+                    </h1>
+                    <button
+                        type="button"
+                        onClick={toggleWishlist}
+                        disabled={wishlistPending}
+                        aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                        className="flex h-full items-center justify-center rounded-full bg-gray-100 p-3 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60"
+                    >
+                        <Heart
+                            className={[
+                                "h-6 w-6 transition-colors",
+                                wishlisted
+                                    ? "fill-[#30913F] text-[#30913F]"
+                                    : "fill-none text-[#111B18]",
+                            ].join(" ")}
+                            strokeWidth={wishlisted ? 0 : 1.8}
+                        />
+                    </button>
+                </div>
                 {item.description?.trim() && (
-                    <p className="mt-1.5 text-right text-sm leading-relaxed text-gray-500">
+                    <p className="mt-1.5 text-right block text-xs leading-relaxed text-gray-500">
                         {item.description}
                     </p>
                 )}
-
                 <div className="mt-4 flex items-center justify-between gap-4">
                     <div className="flex flex-col items-end gap-0.5">
                         {discounted && (
@@ -93,6 +120,7 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                         product={product}
                         isAvailable={item.is_available}
                         size="md"
+                        variant="soft"
                         onError={setAddError}
                     />
                 </div>

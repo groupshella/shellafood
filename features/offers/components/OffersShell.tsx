@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ShoppingBag } from "lucide-react";
+import { ChevronRight, ShoppingBag } from "lucide-react";
 
 interface OffersShellProps {
     children: React.ReactNode;
@@ -28,7 +28,7 @@ export function OffersShell({ children, offerName }: OffersShellProps) {
                         className={`${ICON_BTN} absolute right-4`}
                         aria-label="العودة"
                     >
-                        <ArrowRight className="h-5 w-5 text-[#30913F]" strokeWidth={2} />
+                        <ChevronRight className="h-5 w-5 text-[#30913F]" strokeWidth={2} />
                     </button>
 
                     <div className="flex flex-col items-center">

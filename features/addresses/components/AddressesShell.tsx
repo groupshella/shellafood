@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight, Plus } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
 
 interface AddressesShellProps {
   title: string;
@@ -21,11 +21,11 @@ export function AddressesShell({
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-4 bg-white border-b border-gray-100 sticky top-0 z-10">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push("/home")}
           className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 active:bg-gray-200 transition-colors"
           aria-label="رجوع"
         >
-          <ArrowRight className="w-5 h-5 text-gray-700" />
+          <ChevronRight className="w-6 h-6 text-gray-700" />
         </button>
 
         <h1 className="text-base font-semibold text-gray-900">{title}</h1>

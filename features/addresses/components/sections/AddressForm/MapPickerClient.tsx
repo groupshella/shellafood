@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -8,6 +9,7 @@ import {
 } from "@react-google-maps/api";
 import { MapPin, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { checkZone } from "@/features/addresses/actions/check-zone";
+import { OutOfServiceArea } from "@/features/addresses/components/shared/OutOfServiceArea";
 import { PickedLocation } from "@/features/addresses/types/address.types";
 
 interface MapPickerClientProps {
@@ -19,7 +21,6 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = {
   lng: Number(process.env.NEXT_PUBLIC_LONGITUDE) || 46.6753,
 };
 
-// Plain object — do not type as google.maps.MapOptions at module scope.
 const MAP_OPTIONS = {
   disableDefaultUI: true,
   zoomControl: true,
@@ -31,7 +32,6 @@ const MAP_OPTIONS = {
   ],
 };
 
-// Stable reference — inline arrays cause LoadScript reload warnings.
 const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
 
 const GEOCODER_LANGUAGE = "ar";
@@ -89,6 +89,8 @@ function formatPickedAddress(location: GeocodedLocation): string {
 type CheckState = "idle" | "checking" | "out-of-zone" | "confirmed";
 
 export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
+  const router = useRouter();
+
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
     libraries: GOOGLE_MAPS_LIBRARIES,
@@ -104,10 +106,27 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
   const [isResolvingAddress, setIsResolvingAddress] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
   const geocodeRequestRef = useRef(0);
-
-  // Stable initial center — changing this prop re-centers the map, so we
-  // hold it in a ref and never update it.
   const centerRef = useRef(DEFAULT_CENTER);
+
+  const resolveAddressAt = useCallback(async (
+    pos: google.maps.LatLngLiteral,
+    requestId: number,
+  ) => {
+    try {
+      const location = await reverseGeocode(pos.lat, pos.lng);
+      if (requestId !== geocodeRequestRef.current) return;
+      setGeocodedLocation(location);
+      setFormattedAddress(location.formattedAddress);
+    } catch {
+      if (requestId !== geocodeRequestRef.current) return;
+      setFormattedAddress(null);
+      setGeocodedLocation(null);
+    } finally {
+      if (requestId === geocodeRequestRef.current) {
+        setIsResolvingAddress(false);
+      }
+    }
+  }, []);
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
@@ -125,20 +144,28 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
     setGeocodedLocation(null);
     setIsResolvingAddress(true);
 
-    try {
-      const location = await reverseGeocode(nextPos.lat, nextPos.lng);
-      if (requestId !== geocodeRequestRef.current) return;
-      setGeocodedLocation(location);
-      setFormattedAddress(location.formattedAddress);
-    } catch {
-      if (requestId !== geocodeRequestRef.current) return;
-      setFormattedAddress(null);
-    } finally {
-      if (requestId === geocodeRequestRef.current) {
-        setIsResolvingAddress(false);
-      }
-    }
-  }, []);
+    await resolveAddressAt(nextPos, requestId);
+  }, [resolveAddressAt]);
+
+  const handleAutoRedirect = useCallback(async () => {
+    const nextPos = DEFAULT_CENTER;
+    const requestId = ++geocodeRequestRef.current;
+
+    setCheckState("idle");
+    setMarkerPos(nextPos);
+    mapRef.current?.panTo(nextPos);
+    mapRef.current?.setZoom(15);
+
+    setFormattedAddress(null);
+    setGeocodedLocation(null);
+    setIsResolvingAddress(true);
+
+    await resolveAddressAt(nextPos, requestId);
+  }, [resolveAddressAt]);
+
+  const handleGoHome = useCallback(() => {
+    router.push("/home");
+  }, [router]);
 
   const handleConfirm = useCallback(async () => {
     if (!geocodedLocation) return;
@@ -162,7 +189,6 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
     });
   }, [geocodedLocation, markerPos.lat, markerPos.lng, onConfirm]);
 
-  // ── Error ──────────────────────────────────────────────────────────────────
   if (loadError) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 bg-gray-50 p-6 text-center">
@@ -175,7 +201,6 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
     );
   }
 
-  // ── Loading ────────────────────────────────────────────────────────────────
   if (!isLoaded) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 bg-gray-50">
@@ -190,8 +215,6 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col" dir="rtl">
-
-      {/* Map area must have a definite height — percentage height alone collapses in flex layouts */}
       <div className="relative min-h-[50dvh] flex-1">
         <GoogleMap
           mapContainerClassName="absolute inset-0"
@@ -214,7 +237,6 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
           />
         </GoogleMap>
 
-        {/* Hint banner */}
         {!isOutOfZone && (
           <div className="absolute top-4 inset-x-4 flex justify-center pointer-events-none">
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-md">
@@ -226,90 +248,66 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
           </div>
         )}
 
-        {/* Out-of-zone banner */}
         {isOutOfZone && (
-          <div className="absolute top-4 inset-x-4 flex justify-center pointer-events-none">
-            <div className="bg-red-500 rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-md">
-              <AlertCircle className="w-4 h-4 text-white shrink-0" />
-              <span className="text-xs text-white font-semibold">
-                المنطقة خارج نطاق التوصيل — اختر موقعاً آخر
-              </span>
-            </div>
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-white">
+            <OutOfServiceArea
+              onAutoRedirect={handleAutoRedirect}
+              onGoHome={handleGoHome}
+            />
           </div>
         )}
 
-        {/* Bottom controls — floated above the map */}
-        <div className="absolute bottom-18 inset-x-4 z-10 flex flex-col gap-3 pointer-events-none">
-          <div className="pointer-events-auto flex flex-col gap-3 rounded-2xl bg-white/95 px-4 py-4 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm">
-            <div className="space-y-2 px-1">
-              <p className="text-xs font-semibold text-gray-500">الموقع المحدد</p>
+        {!isOutOfZone && (
+          <div className="absolute bottom-18 inset-x-4 z-10 flex flex-col gap-3 pointer-events-none">
+            <div className="pointer-events-auto flex flex-col gap-3 rounded-2xl bg-white/95 px-4 py-4 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm">
+              <div className="space-y-2 px-1">
+                <p className="text-xs font-semibold text-gray-500">الموقع المحدد</p>
 
-              {isResolvingAddress ? (
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                  <span>جاري تحديد العنوان…</span>
+                {isResolvingAddress ? (
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                    <span>جاري تحديد العنوان…</span>
+                  </div>
+                ) : formattedAddress ? (
+                  <p className="text-sm font-medium leading-relaxed text-gray-900">
+                    {formattedAddress}
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-400">اضغط على الخريطة لتحديد موقعك</p>
+                )}
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[11px] text-gray-400 font-mono tabular-nums">
+                    {markerPos.lat.toFixed(5)}, {markerPos.lng.toFixed(5)}
+                  </span>
+                  {checkState === "idle" && !isResolvingAddress && formattedAddress && (
+                    <span className="text-[11px] text-gray-400">تحقق من دقة الموقع</span>
+                  )}
+                  {checkState === "confirmed" && (
+                    <span className="text-[11px] text-green-600 font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> تم التأكيد
+                    </span>
+                  )}
                 </div>
-              ) : formattedAddress ? (
-                <p className="text-sm font-medium leading-relaxed text-gray-900">
-                  {formattedAddress}
-                </p>
-              ) : (
-                <p className="text-sm text-gray-400">اضغط على الخريطة لتحديد موقعك</p>
-              )}
-
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] text-gray-400 font-mono tabular-nums">
-                  {markerPos.lat.toFixed(5)}, {markerPos.lng.toFixed(5)}
-                </span>
-                {checkState === "idle" && !isResolvingAddress && formattedAddress && (
-                  <span className="text-[11px] text-gray-400">تحقق من دقة الموقع</span>
-                )}
-                {isOutOfZone && (
-                  <span className="text-[11px] text-red-500 font-medium flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" /> خارج النطاق
-                  </span>
-                )}
-                {checkState === "confirmed" && (
-                  <span className="text-[11px] text-green-600 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> تم التأكيد
-                  </span>
-                )}
               </div>
-            </div>
 
-            <button
-              onClick={handleConfirm}
-              disabled={isChecking || checkState === "confirmed" || isResolvingAddress || !formattedAddress}
-              className="
-                w-full text-white text-sm font-semibold
-                rounded-2xl py-4 flex items-center justify-center gap-2
-                transition-all duration-200 active:scale-[0.98]
-                disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100
-                focus-visible:outline-none focus-visible:ring-2
-                focus-visible:ring-[#30913F] focus-visible:ring-offset-2
-              "
-              style={{
-                background: isOutOfZone
-                  ? "#ef4444"
-                  : "linear-gradient(135deg, #30913F 0%, #267332 100%)",
-              }}
-            >
-              {isChecking ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>جاري التحقق…</span>
-                </>
-              ) : isOutOfZone ? (
-                <>
-                  <AlertCircle className="w-4 h-4" />
-                  <span>اختر موقعاً داخل نطاق الخدمة</span>
-                </>
-              ) : (
-                "تأكيد الموقع"
-              )}
-            </button>
+              <button
+                onClick={handleConfirm}
+                disabled={isChecking || checkState === "confirmed" || isResolvingAddress || !formattedAddress}
+                className="w-full rounded-2xl bg-gradient-to-br from-[#30913F] to-[#267332] py-4 text-sm font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 flex items-center justify-center gap-2"
+              >
+                {isChecking ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>جاري التحقق…</span>
+                  </>
+                ) : (
+                  "تأكيد الموقع"
+                )}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

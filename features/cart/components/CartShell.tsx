@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 interface CartShellProps {
   title: string;
@@ -19,7 +19,7 @@ export function CartShell({ title, children }: CartShellProps) {
           className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 transition-colors active:bg-gray-200"
           aria-label="رجوع"
         >
-          <ArrowRight className="h-5 w-5 text-gray-700" />
+          <ChevronRight className="h-5 w-5 text-gray-700" />
         </button>
 
         <h1 className="text-base font-semibold text-gray-900">{title}</h1>

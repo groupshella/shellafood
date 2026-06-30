@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Brand } from "@/features/hyper-market/Brands/types/brands.types";
 import { BrandGridCard } from "./BrandGridCard";
 
@@ -24,10 +24,10 @@ export function AllBrandsClient({ brands }: AllBrandsClientProps) {
                         className={`${ICON_BTN} absolute right-4`}
                         aria-label="العودة إلى هايبر ماركت"
                     >
-                        <ArrowRight className="h-5 w-5 text-[#30913F]" strokeWidth={2} />
+                        <ChevronRight className="h-5 w-5 text-[#30913F]" strokeWidth={2} />
                     </Link>
 
-                    <h1 className="text-base font-bold text-gray-900">العلامات التجارية</h1>
+                    <h1 className="text-base font-bold text-gray-900">اشهر العلامات التجارية</h1>
                 </div>
             </header>
 

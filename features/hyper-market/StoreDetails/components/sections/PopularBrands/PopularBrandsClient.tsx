@@ -25,38 +25,10 @@ function chunkByTwo(items: HyperMarketPopularBrand[]): HyperMarketPopularBrand[]
 
 export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBrand[] }) {
     const scrollRef = useRef<HTMLDivElement>(null);
-    const [canScrollMore, setCanScrollMore] = useState(false);
 
     const columns = chunkByTwo(brands);
     const hasMultipleColumns = columns.length > 3;
     const viewAllHref = "/hyper-market/brands";
-
-    const updateScrollHint = useCallback(() => {
-        const el = scrollRef.current;
-        if (!el) return;
-
-        const maxScroll = el.scrollWidth - el.clientWidth;
-        if (maxScroll <= 4) {
-            setCanScrollMore(false);
-            return;
-        }
-
-        const scrolled = Math.abs(el.scrollLeft);
-        setCanScrollMore(scrolled < maxScroll - 8);
-    }, []);
-
-    useEffect(() => {
-        updateScrollHint();
-        const el = scrollRef.current;
-        if (!el) return;
-
-        el.addEventListener("scroll", updateScrollHint, { passive: true });
-        window.addEventListener("resize", updateScrollHint);
-        return () => {
-            el.removeEventListener("scroll", updateScrollHint);
-            window.removeEventListener("resize", updateScrollHint);
-        };
-    }, [brands, updateScrollHint]);
 
     return (
         <section
@@ -68,12 +40,7 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
                 <h2 className="text-base font-bold text-[#111B18] sm:text-lg">أشهر العلامات التجارية</h2>
 
                 <div className="flex shrink-0 items-center gap-2">
-                    {hasMultipleColumns && canScrollMore && (
-                        <span className="hidden items-center gap-1 text-[11px] font-medium text-gray-400 sm:inline-flex sm:text-xs">
-                            اسحب للمزيد
-                            <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden />
-                        </span>
-                    )}
+
 
                     <Link
                         href={viewAllHref}
@@ -91,7 +58,7 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
             </div>
 
             <div className="relative">
-                {hasMultipleColumns && canScrollMore && (
+                {hasMultipleColumns && (
                     <div
                         className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[#F5F5F5] via-[#F5F5F5]/80 to-transparent sm:w-12"
                         aria-hidden

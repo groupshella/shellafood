@@ -1,64 +1,106 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { List, SlidersHorizontal, TrendingUp } from "lucide-react";
+import { LayoutGrid, List, SlidersHorizontal } from "lucide-react";
 import {
     CategoryDetails,
     SubCategory,
 } from "@/features/hyper-market/Categories/types/category-detail.types";
 import { CategoryProductCard } from "./CategoryProductCard";
+import { FilterSheet, FilterValues } from "../../shared/FilterSheet";
 
-const TOOLBAR_ICON_BTN = [
-    "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#EBFEEB] text-[#30913F]",
-    "transition-colors active:bg-[#DCF5DC]",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
-].join(" ");
+type ViewMode = "grid" | "list";
 
-// ─── Products toolbar ─────────────────────────────────────────────────────────
+// ── Sticky offset layout ───────────────────────────────────────────────────────
+//   0px  — top of viewport
+//  44px  — CategoryTabsClient (main green category nav)  [top-0 sticky]
+//  44px  — SubCategoryTabs (pill bar, this file)         [top-[44px] sticky]
+//  ────
+//  88px  — SCROLL_OFFSET used for scroll-to and rootMargin
+const CATEGORY_NAV_H = 44;
+const SUB_NAV_H = 44;
+const SCROLL_OFFSET = CATEGORY_NAV_H + SUB_NAV_H + 8;
 
-function ProductsToolbar({ totalProducts }: { totalProducts: number }) {
+// ── Toolbar button ─────────────────────────────────────────────────────────────
+
+function ToolbarBtn({
+    label,
+    onClick,
+    active = false,
+    children,
+}: {
+    label: string;
+    onClick: () => void;
+    active?: boolean;
+    children: React.ReactNode;
+}) {
+    return (
+        <button
+            type="button"
+            aria-label={label}
+            aria-pressed={active}
+            onClick={onClick}
+            className={[
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]",
+                "transition-colors active:scale-95",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+                active
+                    ? "bg-[#30913F] text-white"
+                    : "bg-[#EBFEEB] text-[#30913F]",
+            ].join(" ")}
+        >
+            {children}
+        </button>
+    );
+}
+
+// ── Products toolbar ───────────────────────────────────────────────────────────
+
+function ProductsToolbar({
+    totalProducts,
+    viewMode,
+    onToggleView,
+    onOpenFilter,
+}: {
+    totalProducts: number;
+    viewMode: ViewMode;
+    onToggleView: () => void;
+    onOpenFilter: () => void;
+}) {
     return (
         <div
             dir="ltr"
             className="flex items-center justify-between gap-3 bg-white px-4 py-2.5 sm:px-5"
         >
             <div className="flex items-center gap-2">
-                <button type="button" className={TOOLBAR_ICON_BTN} aria-label="عرض القائمة">
-                    <List className="h-[18px] w-[18px]" strokeWidth={2.25} />
-                </button>
-                <button type="button" className={TOOLBAR_ICON_BTN} aria-label="ترتيب المنتجات">
-                    <TrendingUp className="h-[18px] w-[18px]" strokeWidth={2.25} />
-                </button>
-                <button type="button" className={TOOLBAR_ICON_BTN} aria-label="تصفية المنتجات">
+                <ToolbarBtn
+                    label={viewMode === "grid" ? "عرض القائمة" : "عرض الشبكة"}
+                    onClick={onToggleView}
+                    active={viewMode === "list"}
+                >
+                    {viewMode === "grid"
+                        ? <List className="h-[18px] w-[18px]" strokeWidth={2.25} />
+                        : <LayoutGrid className="h-[18px] w-[18px]" strokeWidth={2.25} />
+                    }
+                </ToolbarBtn>
+
+                <ToolbarBtn
+                    label="تصفية المنتجات"
+                    onClick={onOpenFilter}
+                >
                     <SlidersHorizontal className="h-[18px] w-[18px]" strokeWidth={2.25} />
-                </button>
+                </ToolbarBtn>
             </div>
 
             <p dir="rtl" className="text-sm font-medium text-[#707784]">
-                <span className="tabular-nums">{totalProducts.toLocaleString("ar-SA")}</span>{" "}
+                <span className="tabular-nums">{totalProducts.toLocaleString("en-US")}</span>{" "}
                 المنتجات
             </p>
         </div>
     );
 }
 
-/**
- * Sticky offset layout:
- *
- *   0px   ─ top of viewport
- *  44px   ─ CategoryTabsClient (main green category nav)  [top-0 sticky]
- *  44px   ─ SubCategoryTabs (pill bar, this file)         [top-[44px] sticky]
- *  ─────
- *  88px   ─ STICKY_TOP used for scroll-to and rootMargin
- *
- * If your app has an additional header above CategoryTabsClient,
- * add its height to both CATEGORY_NAV_H and adjust top-0 → top-[Xpx].
- */
-const CATEGORY_NAV_H = 44;
-const SUB_NAV_H = 44;      // height of SubCategoryTabs (this file)
-const SCROLL_OFFSET = CATEGORY_NAV_H + SUB_NAV_H + 8; // 8px breathing room
-
-// ─── Sub-category pill bar ────────────────────────────────────────────────────
+// ── Sub-category pill bar ──────────────────────────────────────────────────────
 
 function SubCategoryTabs({
     subCategories,
@@ -71,7 +113,6 @@ function SubCategoryTabs({
 }) {
     const barRef = useRef<HTMLDivElement>(null);
 
-    // Keep active pill scrolled into view
     useEffect(() => {
         barRef.current
             ?.querySelector<HTMLElement>(`[data-sub-id="${activeId}"]`)
@@ -113,16 +154,22 @@ function SubCategoryTabs({
     );
 }
 
-// ─── Sub-category section ─────────────────────────────────────────────────────
+// ── Sub-category section ───────────────────────────────────────────────────────
 
 function SubCategorySection({
     subCategory,
     sectionRef,
     onLoadMore,
+    viewMode,
+    onToggleView,
+    onOpenFilter,
 }: {
     subCategory: SubCategory;
     sectionRef: (el: HTMLElement | null) => void;
     onLoadMore: () => void;
+    viewMode: ViewMode;
+    onToggleView: () => void;
+    onOpenFilter: () => void;
 }) {
     return (
         <section
@@ -131,21 +178,32 @@ function SubCategorySection({
             aria-label={subCategory.name}
             className="pb-3"
         >
-            {/* Section title */}
             <div className="bg-white px-4 pt-3 sm:px-5">
                 <h2 className="text-right text-base font-bold text-[#111B18]">
                     {subCategory.name}
                 </h2>
             </div>
 
-            <ProductsToolbar totalProducts={subCategory.total_products} />
+            <ProductsToolbar
+                totalProducts={subCategory.total_products}
+                viewMode={viewMode}
+                onToggleView={onToggleView}
+                onOpenFilter={onOpenFilter}
+            />
 
-            {/* 3-column product grid */}
-            <div className="grid grid-cols-3 gap-2 px-4 pt-2 sm:grid-cols-4 sm:px-5 md:grid-cols-5">
-                {subCategory.products.map((product) => (
-                    <CategoryProductCard key={product.id} product={product} />
-                ))}
-            </div>
+            {viewMode === "grid" ? (
+                <div className="grid grid-cols-2 gap-2.5 px-4 pt-2 sm:grid-cols-3 sm:px-5">
+                    {subCategory.products.map((product) => (
+                        <CategoryProductCard key={product.id} product={product} layout="grid" />
+                    ))}
+                </div>
+            ) : (
+                <div className="flex flex-col gap-2.5 px-4 pt-2 sm:px-5">
+                    {subCategory.products.map((product) => (
+                        <CategoryProductCard key={product.id} product={product} layout="list" />
+                    ))}
+                </div>
+            )}
 
             {subCategory.has_more && (
                 <div className="flex justify-center pb-2 pt-3">
@@ -162,7 +220,7 @@ function SubCategorySection({
     );
 }
 
-// ─── Page controller ──────────────────────────────────────────────────────────
+// ── Page controller ────────────────────────────────────────────────────────────
 
 interface Props {
     detail: CategoryDetails;
@@ -172,20 +230,26 @@ export function CategoryDetailClient({ detail }: Props) {
     const [activeSubId, setActiveSubId] = useState<number | null>(
         detail.sub_categories[0]?.id ?? null
     );
+    const [viewMode, setViewMode] = useState<ViewMode>("grid");
+    const [filterOpen, setFilterOpen] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_filters, setFilters] = useState<FilterValues | null>(null);
 
     const sectionRefs = useRef<Map<number, HTMLElement>>(new Map());
     const isProgrammatic = useRef(false);
+
+    const toggleView = useCallback(() => {
+        setViewMode((prev) => (prev === "grid" ? "list" : "grid"));
+    }, []);
 
     // ── Scroll-spy ──
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (isProgrammatic.current) return;
-
                 const best = entries
                     .filter((e) => e.isIntersecting)
                     .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
                 if (best) {
                     setActiveSubId(
                         Number((best.target as HTMLElement).dataset.subcategoryId)
@@ -202,23 +266,18 @@ export function CategoryDetailClient({ detail }: Props) {
         return () => observer.disconnect();
     }, [detail]);
 
-    // ── Register section DOM nodes ──
     const registerSection = useCallback((id: number, el: HTMLElement | null) => {
         if (el) sectionRefs.current.set(id, el);
         else sectionRefs.current.delete(id);
     }, []);
 
-    // ── Pill tap → scroll to section ──
     const scrollToSection = useCallback((id: number) => {
         const el = sectionRefs.current.get(id);
         if (!el) return;
-
         isProgrammatic.current = true;
         setActiveSubId(id);
-
         const top = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET;
         window.scrollTo({ top, behavior: "smooth" });
-
         setTimeout(() => { isProgrammatic.current = false; }, 650);
     }, []);
 
@@ -238,10 +297,22 @@ export function CategoryDetailClient({ detail }: Props) {
                         key={sc.id}
                         subCategory={sc}
                         sectionRef={(el) => registerSection(sc.id, el)}
-                        onLoadMore={() => {/* hook into your loadMoreProducts here */ }}
+                        onLoadMore={() => { /* hook into your loadMoreProducts here */ }}
+                        viewMode={viewMode}
+                        onToggleView={toggleView}
+                        onOpenFilter={() => setFilterOpen(true)}
                     />
                 ))}
             </div>
+
+            <FilterSheet
+                open={filterOpen}
+                onClose={() => setFilterOpen(false)}
+                onApply={(f) => {
+                    setFilters(f);
+                    setFilterOpen(false);
+                }}
+            />
         </div>
     );
 }

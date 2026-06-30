@@ -15,6 +15,9 @@ interface SearchContextValue {
     isHydrated: boolean;
     results: SearchResults | null;
     isSearching: boolean;
+    isLoadingMore: boolean;
+    hasMore: boolean;
+    loadMore: () => void;
     error: string | null;
     hasSearched: boolean;
 }
@@ -36,7 +39,7 @@ export function SearchProvider({
 }) {
     const [query, setQuery] = useState("");
     const { recentSearches, addSearch, clearRecent, isHydrated } = useRecentSearches();
-    const { results, isSearching, error, hasSearched, search, resetSearch } = useSearch(moduleId);
+    const { results, isSearching, isLoadingMore, hasMore, error, hasSearched, search, loadMore, resetSearch } = useSearch(moduleId);
 
     const handleSubmit = useCallback(
         (term: string) => {
@@ -82,6 +85,9 @@ export function SearchProvider({
                 isHydrated,
                 results,
                 isSearching,
+                isLoadingMore,
+                hasMore,
+                loadMore,
                 error,
                 hasSearched,
             }}

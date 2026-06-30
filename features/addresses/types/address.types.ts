@@ -40,6 +40,28 @@ export interface CreateAddressPayload {
   additional_info?: string;
 }
 
+// ─── Update payload (PUT/PATCH /api/v2/address/{id}) ─────────────────────────
+export interface UpdateAddressPayload {
+  latitude?: number;
+  longitude?: number;
+  city?: string;
+  region?: string;
+  street_name?: string;
+  address_label?: string;
+  building_type?: string;
+  building_number?: string;
+  floor_number?: string;
+  apartment_number?: string;
+  additional_info?: string;
+}
+
+export interface UpdateAddressResponse {
+  success: boolean;
+  message: string;
+  address?: Address;
+  errors?: Record<string, string[]>;
+}
+
 // ─── API responses ─────────────────────────────────────────────────────────────
 export interface ListAddressesResponse {
   addresses: AddressListItem[];

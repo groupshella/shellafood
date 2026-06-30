@@ -31,53 +31,22 @@ interface CategoriesGridClientProps {
 
 export function CategoriesGridClient({ categories }: CategoriesGridClientProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
-    const [canScrollMore, setCanScrollMore] = useState(false);
 
     const columns = buildColumns(categories);
     const hasMultipleColumns = columns.length > 3;
     const viewAllHref = "/hyper-market/categories";
 
-    const updateScrollHint = useCallback(() => {
-        const el = scrollRef.current;
-        if (!el) return;
 
-        const maxScroll = el.scrollWidth - el.clientWidth;
-        if (maxScroll <= 4) {
-            setCanScrollMore(false);
-            return;
-        }
-
-        const scrolled = Math.abs(el.scrollLeft);
-        setCanScrollMore(scrolled < maxScroll - 8);
-    }, []);
-
-    useEffect(() => {
-        updateScrollHint();
-        const el = scrollRef.current;
-        if (!el) return;
-
-        el.addEventListener("scroll", updateScrollHint, { passive: true });
-        window.addEventListener("resize", updateScrollHint);
-        return () => {
-            el.removeEventListener("scroll", updateScrollHint);
-            window.removeEventListener("resize", updateScrollHint);
-        };
-    }, [categories, updateScrollHint]);
 
     if (categories.length === 0) return null;
 
     return (
         <section aria-label="تصنيفات المتجر" className="bg-white px-4 pb-5 pt-3 sm:px-5" dir="rtl">
             <div className="mb-3 flex items-center justify-between gap-3">
-                <h2 className="text-base font-bold text-[#111B18] sm:text-lg">التصنيفات</h2>
+                <h2 className="text-base font-bold text-[#111B18] sm:text-lg">الاقسام</h2>
 
                 <div className="flex shrink-0 items-center gap-2">
-                    {hasMultipleColumns && canScrollMore && (
-                        <span className="hidden items-center gap-1 text-[11px] font-medium text-gray-400 sm:inline-flex sm:text-xs">
-                            اسحب للمزيد
-                            <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden />
-                        </span>
-                    )}
+
 
                     <Link
                         href={viewAllHref}
@@ -95,7 +64,7 @@ export function CategoriesGridClient({ categories }: CategoriesGridClientProps) 
             </div>
 
             <div className="relative">
-                {hasMultipleColumns && canScrollMore && (
+                {hasMultipleColumns && (
                     <div
                         className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-white via-white/80 to-transparent sm:w-12"
                         aria-hidden

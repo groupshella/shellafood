@@ -87,6 +87,16 @@ export function AddressPickerSheet({
                                             : "bg-white hover:bg-gray-50",
                                     ].join(" ")}
                                 >
+
+
+                                    <span className="min-w-0 flex-1">
+                                        <span className="block text-sm font-bold text-gray-900">
+                                            ({address.address_label})
+                                        </span>
+                                        <span className="mt-0.5 block text-xs leading-relaxed text-gray-600">
+                                            {formatAddressLine(address)}
+                                        </span>
+                                    </span>
                                     <span
                                         className={[
                                             "flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
@@ -97,15 +107,6 @@ export function AddressPickerSheet({
                                         aria-hidden
                                     >
                                         {isSelected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
-                                    </span>
-
-                                    <span className="min-w-0 flex-1">
-                                        <span className="block text-sm font-bold text-gray-900">
-                                            ({address.address_label})
-                                        </span>
-                                        <span className="mt-0.5 block text-xs leading-relaxed text-gray-600">
-                                            {formatAddressLine(address)}
-                                        </span>
                                     </span>
                                 </button>
                             );

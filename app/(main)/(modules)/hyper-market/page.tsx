@@ -42,7 +42,7 @@ export default async function HyperMarketPage() {
 				</Suspense>
 
 				<Suspense fallback={<Modules.skeleton />}>
-					<Modules />
+					<Modules moduleId={MODULE_ID} />
 				</Suspense>
 				<Suspense fallback={<Banners.skeleton />}>
 					<Banners />

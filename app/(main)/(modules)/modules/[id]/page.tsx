@@ -57,7 +57,7 @@ export default async function ModulePageRoute({ params, searchParams }: ModulePa
             </Suspense>
 
             <Suspense fallback={<Modules.skeleton />}>
-                <Modules />
+                <Modules moduleId={id} />
             </Suspense>
             <Suspense fallback={<Banners.skeleton />}>
                 <Banners />

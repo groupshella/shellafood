@@ -26,14 +26,14 @@ const TOOLBAR_ICON_BTN = [
 /* ── Toolbar ────────────────────────────────────────────────────────── */
 
 interface ToolbarProps {
-    total: number;
+    items: BrandItem[];
     hasActiveFilter: boolean;
     onFilterClick: () => void;
     onSearchOpen: () => void;
 }
 
 function ProductsToolbar({
-    total,
+    items,
     hasActiveFilter,
     onFilterClick,
     onSearchOpen,
@@ -84,7 +84,7 @@ function ProductsToolbar({
 
             {/* Right: product count */}
             <p dir="rtl" className="text-sm font-medium text-[#707784]">
-                <span className="tabular-nums">{total.toLocaleString("ar-SA")}</span>{" "}
+                <span className="tabular-nums">{items.length.toLocaleString("en-US")}</span>{" "}
                 منتج
             </p>
         </div>
@@ -221,7 +221,7 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
                 />
             ) : (
                 <ProductsToolbar
-                    total={total}
+                    items={displayItems}
                     hasActiveFilter={isFilterActive}
                     onFilterClick={openFilterSheet}
                     onSearchOpen={() => setSearchOpen(true)}

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import { ArrowLeft, ArrowRight, ArrowRightIcon } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { StoreCategory } from "@/features/hyper-market/Categories/types/categories.types";
 
 const ALL_CATEGORIES_HREF = "/hyper-market/categories";
@@ -44,7 +44,7 @@ export function CategoryTabsClient({ categories, activeCategoryId }: Props) {
                 className={`${PIN_BTN} border-r border-white/15 px-3 sm:px-4`}
                 aria-label="العودة إلى هايبر ماركت"
             >
-                <ArrowRight className="h-5 w-5 text-white" strokeWidth={2} />
+                <ChevronRight className="h-5 w-5 text-white" strokeWidth={2} />
             </Link>
 
             <div

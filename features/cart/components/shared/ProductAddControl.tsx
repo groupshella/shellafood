@@ -10,6 +10,7 @@ interface ProductAddControlProps {
     product: ProductCartMeta;
     isAvailable?: boolean;
     size?: "sm" | "md";
+    variant?: "solid" | "soft";
     className?: string;
     onError?: (message: string | null) => void;
 }
@@ -18,6 +19,7 @@ export function ProductAddControl({
     product,
     isAvailable = true,
     size = "sm",
+    variant = "solid",
     className = "",
     onError,
 }: ProductAddControlProps) {
@@ -42,6 +44,8 @@ export function ProductAddControl({
     }
 
     const isSm = size === "sm";
+    const isSoft = variant === "soft";
+    const isDisabled = !isAvailable || isPending;
 
     return (
         <button
@@ -51,21 +55,27 @@ export function ProductAddControl({
                 e.stopPropagation();
                 handleAdd();
             }}
-            disabled={!isAvailable || isPending}
+            disabled={isDisabled}
             aria-label="إضافة إلى السلة"
             className={[
-                "flex shrink-0 items-center justify-center rounded-full bg-[#45C553] shadow-md",
-                "transition-transform active:scale-90",
+                "flex shrink-0 items-center justify-center rounded-full transition-transform active:scale-90",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1",
                 isSm ? "h-7 w-7" : "h-11 w-11",
-                !isAvailable || isPending ? "cursor-not-allowed bg-gray-200" : "",
+                isSoft
+                    ? "bg-[#E8F8EA] shadow-[0_2px_10px_rgba(48,145,63,0.18)]"
+                    : "bg-[#45C553] shadow-md",
+                isDisabled ? "cursor-not-allowed bg-gray-200 shadow-none" : "",
                 className,
             ].join(" ")}
         >
             <Plus
                 className={[
                     isSm ? "h-3.5 w-3.5" : "h-5 w-5",
-                    !isAvailable || isPending ? "text-gray-400" : "text-white",
+                    isDisabled
+                        ? "text-gray-400"
+                        : isSoft
+                            ? "text-[#30913F]"
+                            : "text-white",
                 ].join(" ")}
                 strokeWidth={2.5}
             />

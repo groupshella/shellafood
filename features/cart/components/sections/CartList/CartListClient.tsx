@@ -125,6 +125,7 @@ export function CartListClient({ items: initialItems }: CartListClientProps) {
 
         <button
           type="button"
+          onClick={() => router.push("/checkout")}
           className="w-full rounded-2xl bg-[#30913F] py-4 text-sm font-semibold text-white transition-colors active:bg-[#267332] disabled:cursor-not-allowed disabled:opacity-60"
           disabled={items.length === 0 || isPending}
         >
