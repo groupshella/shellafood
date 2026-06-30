@@ -38,7 +38,27 @@ export function IconHome({ active, className }: SvgProps) {
 	);
 }
 
-// ── 2. BAG ICON ──────────────────────────────────────────────────────────────
+// ── 2. FAVORITES (HEART) ICON ────────────────────────────────────────────────
+export function IconHeart({ active, className }: SvgProps) {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			aria-hidden="true"
+			className={className}
+			fill={active ? "currentColor" : "none"}
+			stroke={active ? "none" : "currentColor"}
+			strokeWidth={active ? undefined : "1.75"}
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
+			<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+		</svg>
+	);
+}
+
+// ── 3. BAG ICON (CART) ───────────────────────────────────────────────────────
 export function IconBag({ active, className }: SvgProps) {
 	return (
 		<svg
@@ -165,6 +185,7 @@ export function IconUser({ active, className }: SvgProps) {
 // ─── Nav config ───────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
 	{ id: "home", label: "الرئيسية", Icon: IconHome, path: "/home" },
+	{ id: "favorites", label: "المفضلة", Icon: IconHeart, path: "/favorites" },
 	{ id: "cart", label: "السلة", Icon: IconBag, path: "/cart" },
 	{ id: "my-orders", label: "طلباتي", Icon: IconReceipt, path: "/my-orders" },
 	{ id: "discounts", label: "الخصومات", Icon: IconBadge, path: "/discounts" },

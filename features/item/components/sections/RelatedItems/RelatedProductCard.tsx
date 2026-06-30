@@ -49,6 +49,7 @@ export function RelatedProductCard({ product }: RelatedProductCardProps) {
                         }}
                         isAvailable={product.is_available}
                         size="sm"
+                        variant="soft"
                     />
                 </div>
 

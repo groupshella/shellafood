@@ -16,22 +16,67 @@ function getModuleHref(module: StoreModule): string {
     return `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
 }
 
-export function ModuleCard({ module, colorIndex }: { module: StoreModule; colorIndex: number }) {
+interface ModuleCardProps {
+    module: StoreModule;
+    colorIndex: number;
+    moduleId: string;
+}
+
+export function ModuleCard({ module, colorIndex, moduleId }: ModuleCardProps) {
+    const isActive = module.id === Number(moduleId);
     const { bg, text } = PALETTE[colorIndex % PALETTE.length];
+
+    const baseClassName = [
+        "relative flex shrink-0 snap-start items-center overflow-hidden",
+        "min-w-[9.5rem] rounded-2xl px-4 py-3",
+    ].join(" ");
+
+    if (!isActive) {
+        return (
+            <div
+                className={[baseClassName, "cursor-default bg-white saturate-0"].join(" ")}
+                aria-disabled="true"
+                aria-label={`${module.module_name} — قريباً`}
+            >
+                <span className="relative z-10 whitespace-nowrap text-sm font-bold leading-tight text-gray-500 blur-[0.4px]">
+                    {module.module_name}
+                </span>
+
+                {module.icon_full_url && (
+                    <div
+                        className="pointer-events-none absolute -end-1 top-1/2 h-14 w-14 -translate-y-1/2 opacity-[0.18] grayscale blur-[1px]"
+                        aria-hidden
+                    >
+                        <Image
+                            src={module.icon_full_url}
+                            alt=""
+                            fill
+                            className="object-contain"
+                            sizes="56px"
+                        />
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     return (
         <Link
             href={getModuleHref(module)}
             className={[
-                "flex shrink-0 snap-start items-center justify-between gap-3",
-                "min-w-[9.5rem] rounded-2xl px-4 py-3",
+                baseClassName,
+                "justify-between gap-3",
                 "transition-transform duration-150 active:scale-[0.98]",
                 "outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
             ].join(" ")}
             style={{ backgroundColor: bg }}
             aria-label={module.module_name}
+            aria-current="page"
         >
-            <span className="whitespace-nowrap text-sm font-bold leading-tight" style={{ color: text }}>
+            <span
+                className="whitespace-nowrap text-sm font-bold leading-tight"
+                style={{ color: text }}
+            >
                 {module.module_name}
             </span>
 

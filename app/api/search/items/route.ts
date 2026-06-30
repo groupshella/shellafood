@@ -13,6 +13,8 @@ export async function GET(request: Request) {
     const module_id = searchParams.get("module_id") ?? DEFAULT_MODULE_ID;
     const latitude = searchParams.get("latitude") ?? LATITUDE ?? "24.7136";
     const longitude = searchParams.get("longitude") ?? LONGITUDE ?? "46.6753";
+    const offset = searchParams.get("offset") ?? "1";
+    const limit = searchParams.get("limit") ?? "30";
 
     if (!name) {
         return apiError("Search query is required", 400);
@@ -23,8 +25,9 @@ export async function GET(request: Request) {
     }
 
     try {
+        const backendParams = new URLSearchParams({ name, offset, limit });
         const backendRes = await fetch(
-            `${BACKEND_URL}/api/v1/items/search?name=${encodeURIComponent(name)}`,
+            `${BACKEND_URL}/api/v1/items/search?${backendParams}`,
             {
                 method: "GET",
                 headers: {

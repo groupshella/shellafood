@@ -18,32 +18,25 @@ export function CategoryCard({ category }: CategoryCardProps) {
             className="
                 group relative flex aspect-square w-full shrink-0 flex-col
                 overflow-hidden rounded-2xl
+                bg-[#EBFEEB]
                 outline-none
                 transition-transform duration-150
                 active:scale-[0.96]
                 focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2
             "
-            style={{
-                // Two-tone diagonal wave gradient matching the uploaded reference images:
-                // Image 1: deep mint top-left → pale mint bottom-right (S-curve split)
-                // Image 2: pale mint top-right → deep mint bottom-left (mirror)
-                // We use a single consistent direction that reads like the references.
-                background: `
-                    radial-gradient(ellipse at 15% 15%, #bbf7d0 0%, transparent 55%),
-                    radial-gradient(ellipse at 85% 85%, #86efac 0%, transparent 50%),
-                    #f0fdf4
-                `,
-            }}
             aria-label={category.name}
         >
-            {/* Subtle top-left shine — mimics the lighter curved region in the reference */}
+            {/* Soft white diagonal blob — mimics the rotated rounded shape behind the product in the reference */}
             <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0"
-                style={{
-                    background:
-                        "radial-gradient(ellipse at 20% 0%, #dcfce7cc 0%, transparent 60%)",
-                }}
+                className="pointer-events-none absolute -right-6 bottom-0 h-[78%] w-[78%] rounded-[40%] bg-white/70 blur-[1px]"
+                style={{ transform: "rotate(-12deg)" }}
+            />
+
+            {/* Bright mint accent peeking from the bottom-left corner, as in the reference */}
+            <div
+                aria-hidden
+                className="pointer-events-none absolute -bottom-6 -left-6 h-16 w-16 rounded-full bg-[#9DF7A6]/70 blur-md"
             />
 
             {/* Category name */}
@@ -59,7 +52,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
             </h3>
 
             {/* Product image — takes bottom 62% of the card */}
-            <div className="absolute inset-x-0 bottom-0 h-[62%]">
+            <div className="absolute inset-x-0 bottom-0 z-10 h-[62%]">
                 {!imageError && category.full_image_url ? (
                     <Image
                         src={category.full_image_url}

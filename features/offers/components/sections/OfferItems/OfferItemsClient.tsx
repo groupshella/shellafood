@@ -49,7 +49,7 @@ function ProductsToolbar({ total, onSearchOpen }: ToolbarProps) {
             </div>
 
             <p dir="rtl" className="text-sm font-medium text-[#707784]">
-                <span className="tabular-nums">{total.toLocaleString("ar-SA")}</span>{" "}
+                <span className="tabular-nums">{total.toLocaleString("en-US")}</span>{" "}
                 منتجات
             </p>
         </div>

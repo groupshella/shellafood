@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { StoreCategory } from "@/features/hyper-market/Categories/types/categories.types";
 import { CategoryGridCard } from "./CategoryGridCard";
 
@@ -24,7 +24,7 @@ export function AllCategoriesClient({ categories }: AllCategoriesClientProps) {
                         className={`${ICON_BTN} absolute right-4`}
                         aria-label="العودة إلى هايبر ماركت"
                     >
-                        <ArrowRight className="h-5 w-5 text-[#30913F]" strokeWidth={2} />
+                        <ChevronRight className="h-5 w-5 text-[#30913F]" strokeWidth={2} />
                     </Link>
 
                     <h1 className="text-base font-bold text-gray-900">الأقسام</h1>

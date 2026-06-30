@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Category } from "@/features/markets/types/categories.types";
 import { CategoryCard } from "../Categories/CategoryCard";
 
@@ -39,7 +39,7 @@ export function AllCategoriesClient({
                         className={`${ICON_BTN} absolute right-4`}
                         aria-label="العودة"
                     >
-                        <ArrowRight className="h-5 w-5 text-[#30913F]" strokeWidth={2} />
+                        <ChevronRight className="h-5 w-5 text-[#30913F]" strokeWidth={2} />
                     </Link>
 
                     <h1 className="text-base font-semibold text-gray-500 sm:text-lg">الأقسام</h1>

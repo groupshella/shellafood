@@ -1,4 +1,4 @@
-import { Trash2, MapPin } from "lucide-react";
+import { Trash2, MapPin, Pencil } from "lucide-react";
 import { AddressListItem } from "@/features/addresses/types/address.types";
 
 interface AddressCardProps {
@@ -6,6 +6,7 @@ interface AddressCardProps {
   showDelete: boolean;
   onClick: () => void;
   onDelete: () => void;
+  onEdit: () => void;
   isDeleting?: boolean;
 }
 
@@ -14,6 +15,7 @@ export function AddressCard({
   showDelete,
   onClick,
   onDelete,
+  onEdit,
   isDeleting = false,
 }: AddressCardProps) {
   return (
@@ -45,20 +47,34 @@ export function AddressCard({
         </div>
       </button>
 
-      {/* Delete icon — bottom left (RTL: visual left = DOM right) */}
-      {showDelete && (
+      {/* Action icons */}
+      <div className="flex flex-col items-center gap-1 flex-shrink-0">
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onDelete();
+            onEdit();
           }}
-          className="mt-auto p-2 rounded-full text-red-400 hover:bg-red-50 active:bg-red-100 transition-colors flex-shrink-0"
-          aria-label={`حذف عنوان ${address.address_label}`}
+          className="p-2 rounded-full text-[#30913F] hover:bg-[#30913F]/10 active:bg-[#30913F]/20 transition-colors"
+          aria-label={`تعديل عنوان ${address.address_label}`}
           disabled={isDeleting}
         >
-          <Trash2 className="w-4 h-4" />
+          <Pencil className="w-4 h-4" />
         </button>
-      )}
+
+        {showDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="p-2 rounded-full text-red-400 hover:bg-red-50 active:bg-red-100 transition-colors"
+            aria-label={`حذف عنوان ${address.address_label}`}
+            disabled={isDeleting}
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }

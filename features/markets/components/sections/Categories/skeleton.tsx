@@ -1,6 +1,6 @@
 export default function CategoriesSkeleton() {
     return (
-        <div className="space-y-4 bg-black py-4">
+        <div className="space-y-4 bg-white py-4">
             <div className="flex items-center justify-between gap-3 px-4 sm:px-6">
                 <div className="h-5 w-16 animate-pulse rounded-lg bg-gray-800 sm:h-6 sm:w-20" />
                 <div className="h-8 w-24 animate-pulse rounded-lg bg-gray-800 sm:h-9 sm:w-28" />

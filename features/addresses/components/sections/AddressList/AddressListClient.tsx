@@ -44,6 +44,7 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
           address={address}
           showDelete={showDelete}
           onClick={() => router.push(`/addresses/${address.id}`)}
+          onEdit={() => router.push(`/addresses/${address.id}/edit`)}
           onDelete={() => handleDeleteRequest(address.id)}
           isDeleting={isPending && pendingDeleteId === null}
         />

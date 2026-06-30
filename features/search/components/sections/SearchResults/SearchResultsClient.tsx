@@ -1,12 +1,13 @@
 "use client";
 
-import Image from "next/image";
+import { Loader2 } from "lucide-react";
 import { useSearchContext } from "@/features/search/components/SearchContext";
 import { StoreCard } from "@/features/markets/components/sections/Stores/StoreCard";
 import { SearchProductCard } from "./SearchProductCard";
+import { SearchEmptyState } from "./SearchEmptyState";
 
 export function SearchResultsClient() {
-    const { results, isSearching, error, query } = useSearchContext();
+    const { results, isSearching, isLoadingMore, hasMore, loadMore, error, query } = useSearchContext();
 
     if (isSearching) {
         return (
@@ -49,22 +50,7 @@ export function SearchResultsClient() {
     const isEmpty = products.length === 0 && stores.length === 0;
 
     if (isEmpty) {
-        return (
-            <div className="mt-10 flex flex-col items-center gap-3 text-center">
-                <div className="relative h-40 w-40">
-                    <Image
-                        src="/search/search-empty.png"
-                        alt=""
-                        fill
-                        className="object-contain"
-                        sizes="160px"
-                    />
-                </div>
-                <p className="text-sm font-medium text-neutral-600">
-                    لا توجد نتائج لـ &quot;{query}&quot;
-                </p>
-            </div>
-        );
+        return <SearchEmptyState query={query} />;
     }
 
     return (
@@ -88,6 +74,29 @@ export function SearchResultsClient() {
                             <SearchProductCard key={product.id} product={product} />
                         ))}
                     </div>
+
+                    {hasMore && (
+                        <button
+                            onClick={loadMore}
+                            disabled={isLoadingMore}
+                            className="
+                                w-full mt-1 flex items-center justify-center gap-2
+                                rounded-2xl border border-[#30913F] py-3
+                                text-sm font-semibold text-[#30913F]
+                                active:bg-[#30913F]/5 transition-colors
+                                disabled:opacity-60 disabled:cursor-not-allowed
+                            "
+                        >
+                            {isLoadingMore ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>جاري التحميل...</span>
+                                </>
+                            ) : (
+                                "عرض المزيد"
+                            )}
+                        </button>
+                    )}
                 </section>
             )}
         </div>
