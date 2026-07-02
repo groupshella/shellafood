@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { Check, X } from "lucide-react";
+import { formatAddressLine } from "../../lib/format-address-line";
 import { AddressListItem } from "../../types/address.types";
 
 interface AddressPickerSheetProps {
@@ -11,10 +12,6 @@ interface AddressPickerSheetProps {
     addresses: AddressListItem[];
     selectedId: number | null;
     onSelect: (id: number) => void;
-}
-
-function formatAddressLine(address: AddressListItem): string {
-    return [address.city, address.region, address.street_name].filter(Boolean).join(" ، ");
 }
 
 export function AddressPickerSheet({

@@ -14,6 +14,7 @@ import { PickedLocation } from "@/features/addresses/types/address.types";
 
 interface MapPickerClientProps {
   onConfirm: (location: PickedLocation) => void;
+  initialPosition?: google.maps.LatLngLiteral;
 }
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
@@ -88,8 +89,9 @@ function formatPickedAddress(location: GeocodedLocation): string {
 
 type CheckState = "idle" | "checking" | "out-of-zone" | "confirmed";
 
-export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
+export function MapPickerClient({ onConfirm, initialPosition }: MapPickerClientProps) {
   const router = useRouter();
+  const startPos = initialPosition ?? DEFAULT_CENTER;
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
@@ -99,14 +101,14 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
   });
 
   const [markerPos, setMarkerPos] =
-    useState<google.maps.LatLngLiteral>(DEFAULT_CENTER);
+    useState<google.maps.LatLngLiteral>(startPos);
   const [checkState, setCheckState] = useState<CheckState>("idle");
   const [formattedAddress, setFormattedAddress] = useState<string | null>(null);
   const [geocodedLocation, setGeocodedLocation] = useState<GeocodedLocation | null>(null);
-  const [isResolvingAddress, setIsResolvingAddress] = useState(false);
+  const [isResolvingAddress, setIsResolvingAddress] = useState(!!initialPosition);
   const mapRef = useRef<google.maps.Map | null>(null);
   const geocodeRequestRef = useRef(0);
-  const centerRef = useRef(DEFAULT_CENTER);
+  const centerRef = useRef(startPos);
 
   const resolveAddressAt = useCallback(async (
     pos: google.maps.LatLngLiteral,
@@ -130,7 +132,15 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
-  }, []);
+
+    if (initialPosition) {
+      map.panTo(initialPosition);
+      map.setZoom(15);
+      const requestId = ++geocodeRequestRef.current;
+      setIsResolvingAddress(true);
+      void resolveAddressAt(initialPosition, requestId);
+    }
+  }, [initialPosition, resolveAddressAt]);
 
   const handleMapClick = useCallback(async (e: google.maps.MapMouseEvent) => {
     if (!e.latLng) return;
@@ -242,7 +252,9 @@ export function MapPickerClient({ onConfirm }: MapPickerClientProps) {
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-md">
               <MapPin className="w-4 h-4 text-[#30913F] shrink-0" />
               <span className="text-xs text-gray-700 font-medium">
-                اضغط على الخريطة لتحديد موقعك
+                {initialPosition
+                  ? "يمكنك تعديل الموقع على الخريطة"
+                  : "اضغط على الخريطة لتحديد موقعك"}
               </span>
             </div>
           </div>

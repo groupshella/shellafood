@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { addAddress } from "@/features/addresses/actions/add-address";
-import { PickedLocation } from "@/features/addresses/types/address.types";
+import { updateAddress } from "@/features/addresses/actions/update-address";
+import { Address, PickedLocation } from "@/features/addresses/types/address.types";
 
 const BUILDING_TYPES = [
   { value: "apartment", label: "شقة" },
@@ -22,6 +23,7 @@ interface FieldErrors {
 
 interface AddressFormClientProps {
   location: PickedLocation;
+  editAddress?: Address;
 }
 
 function FieldLabel({ text, required }: { text: string; required?: boolean }) {
@@ -33,22 +35,23 @@ function FieldLabel({ text, required }: { text: string; required?: boolean }) {
   );
 }
 
-export function AddressFormClient({ location }: AddressFormClientProps) {
+export function AddressFormClient({ location, editAddress }: AddressFormClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [generalError, setGeneralError] = useState<string | null>(null);
+  const isEdit = !!editAddress;
 
   const [form, setForm] = useState({
     city: location.city,
     region: location.region,
     street_name: location.street_name,
-    building_type: "",
-    building_number: "",
-    floor_number: "",
-    apartment_number: "",
-    additional_info: "",
-    address_label: "",
+    building_type: editAddress?.building_type ?? "",
+    building_number: editAddress?.building_number ?? "",
+    floor_number: editAddress?.floor_number ?? "",
+    apartment_number: editAddress?.apartment_number ?? "",
+    additional_info: editAddress?.additional_info ?? "",
+    address_label: editAddress?.address_label ?? "",
   });
 
   function handleChange(
@@ -64,7 +67,7 @@ export function AddressFormClient({ location }: AddressFormClientProps) {
       setGeneralError(null);
       setErrors({});
 
-      const result = await addAddress({
+      const payload = {
         latitude: location.lat,
         longitude: location.lng,
         city: form.city,
@@ -76,7 +79,11 @@ export function AddressFormClient({ location }: AddressFormClientProps) {
         floor_number: form.floor_number || undefined,
         apartment_number: form.apartment_number || undefined,
         additional_info: form.additional_info || undefined,
-      });
+      };
+
+      const result = isEdit
+        ? await updateAddress(editAddress!.id, payload)
+        : await addAddress(payload);
 
       if (result.success) {
         router.push("/addresses");
@@ -225,7 +232,7 @@ export function AddressFormClient({ location }: AddressFormClientProps) {
             <span>جاري الحفظ...</span>
           </>
         ) : (
-          "حفظ العنوان"
+          isEdit ? "حفظ التعديلات" : "حفظ العنوان"
         )}
       </button>
     </div>

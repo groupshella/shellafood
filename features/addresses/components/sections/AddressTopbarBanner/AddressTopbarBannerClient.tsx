@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { AddressPickerSheet } from "../../shared/AddressPickerSheet";
 import { useSelectedAddress } from "../../../hooks/useSelectedAddress";
+import { formatAddressLine } from "../../../lib/format-address-line";
 import { AddressListItem } from "../../../types/address.types";
 import { MapPinIcon } from "lucide-react";
 
@@ -11,10 +12,6 @@ interface AddressTopbarBannerClientProps {
     isAuthenticated: boolean;
     addresses: AddressListItem[];
     className?: string;
-}
-
-function formatAddressLine(address: AddressListItem): string {
-    return [address.city, address.region, address.street_name].filter(Boolean).join(" ، ");
 }
 
 function LocationPinIcon() {
