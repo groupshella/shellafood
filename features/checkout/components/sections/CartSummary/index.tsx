@@ -1,10 +1,17 @@
-import { MOCK_CHECKOUT } from "@/features/checkout/constants/checkout.constants";
+import { getCart } from "@/features/cart/api/cart";
+import { CartEmpty } from "@/features/cart/components/sections/CartList/CartEmpty";
 import { CartSummaryClient } from "./CartSummaryClient";
 import CartSummarySkeleton from "./skeleton";
 
 export const CartSummary = Object.assign(
-    function CartSummary() {
-        return <CartSummaryClient data={MOCK_CHECKOUT} />;
+    async function CartSummary() {
+        const items = await getCart();
+
+        if (items.length === 0) {
+            return <CartEmpty />;
+        }
+
+        return <CartSummaryClient items={items} />;
     },
     { skeleton: CartSummarySkeleton }
 );

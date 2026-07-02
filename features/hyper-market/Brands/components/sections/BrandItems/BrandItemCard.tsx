@@ -11,18 +11,6 @@ import type { BrandItem } from "@/features/hyper-market/Brands/types/brands.type
 interface BrandItemCardProps {
     item: BrandItem;
 }
-
-/**
- * List-row layout (RTL):
- *
- *  ┌─────────────────────────────────────────────────────┐
- *  │  [Heart]          name / desc / price   │  [image]  │
- *  │  [Add btn]                              │           │
- *  └─────────────────────────────────────────────────────┘
- *
- * The Link wraps only the image + text block so that tapping
- * the action buttons (heart, add) doesn't navigate.
- */
 export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCardProps) {
     const [imgError, setImgError] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);

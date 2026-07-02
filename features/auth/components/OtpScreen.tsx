@@ -2,25 +2,26 @@
 
 import { memo, useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Clock } from "lucide-react";
 import NumericKeypad from "./NumericKeypad";
-import type { SendOtpResponse } from "@/features/auth/types/auth.types";
+import type { OtpFlow } from "@/features/auth/types/auth.types";
 
 interface OtpScreenProps {
 	phone: string;
+	otpFlow: OtpFlow;
 	cooldownSeconds: number;
 	isLoading?: boolean;
 	error?: string | null;
 	onBack: () => void;
 	onVerify: (code: string) => void;
-	onResend: () => Promise<SendOtpResponse | undefined>;
+	onResend: () => Promise<{ retry_after_seconds?: number } | undefined>;
 	clearError: () => void;
 }
 
 function formatPhone(phone: string) {
 	const digits = phone.replace(/\D/g, "");
-	const local = digits.slice(0, 9);
-	return `+966 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 9)}`;
+	const local = digits.slice(-9);
+	return `+966${local}`;
 }
 
 function formatTime(seconds: number) {
@@ -31,6 +32,7 @@ function formatTime(seconds: number) {
 
 const OtpScreen = memo(function OtpScreen({
 	phone,
+	otpFlow,
 	cooldownSeconds,
 	isLoading = false,
 	error,
@@ -44,21 +46,24 @@ const OtpScreen = memo(function OtpScreen({
 	const [isResending, setIsResending] = useState(false);
 
 	useEffect(() => {
+		setTimer(cooldownSeconds);
+	}, [cooldownSeconds]);
+
+	useEffect(() => {
 		if (timer <= 0) return;
 		const t = setInterval(() => setTimer((s) => s - 1), 1000);
 		return () => clearInterval(t);
 	}, [timer]);
+
 	useEffect(() => {
-		if (error) {
-			setCode("********");
-		}
+		if (error) setCode("******");
 	}, [error]);
+
 	const handleClear = useCallback(() => {
 		if (error) {
 			clearError();
 			setCode("");
 		}
-
 	}, [error, clearError]);
 
 	const handleKeyPress = useCallback((key: string) => {
@@ -67,7 +72,7 @@ const OtpScreen = memo(function OtpScreen({
 			return;
 		}
 		setCode((prev) => (prev.length < 6 ? prev + key : prev));
-	}, []);
+	}, [error, handleClear]);
 
 	const handleBackspace = useCallback(() => {
 		setCode((prev) => prev.slice(0, -1));
@@ -76,14 +81,15 @@ const OtpScreen = memo(function OtpScreen({
 	const handleResend = useCallback(async () => {
 		setIsResending(true);
 		try {
-			const data = await onResend() ?? { cooldown_seconds: 0 };
-			setTimer(data.cooldown_seconds);
+			const data = (await onResend()) ?? { retry_after_seconds: 60 };
+			setTimer(data.retry_after_seconds ?? 60);
 		} finally {
 			setIsResending(false);
 		}
 	}, [onResend]);
 
 	const formattedPhone = formatPhone(phone);
+	const title = otpFlow === "forgot_password" ? "التحقق من رقم هاتفك الخاص" : "ادخل رمز التفعيل";
 
 	return (
 		<div dir="rtl" lang="ar" className="relative flex min-h-dvh w-full flex-col bg-white">
@@ -104,9 +110,9 @@ const OtpScreen = memo(function OtpScreen({
 					initial={{ y: 15, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
 					transition={{ duration: 0.4 }}
-					className="text-[28px] font-bold text-gray-900"
+					className="text-[26px] font-bold leading-snug text-gray-900"
 				>
-					ادخل رمز التفعيل
+					{title}
 				</motion.h1>
 
 				<motion.p
@@ -115,13 +121,11 @@ const OtpScreen = memo(function OtpScreen({
 					transition={{ delay: 0.1, duration: 0.4 }}
 					className="mt-3 text-sm leading-relaxed text-gray-500"
 				>
-					لقد أرسلنا رسالة نصية قصيرة تحتوي على رمز التفعيل إلى هاتفك{" "}
+					تم ارسال رمز التحقق الى الرقم الخاص بك{" "}
 					<span dir="ltr" className="inline-block font-medium text-gray-700">
 						{formattedPhone}
 					</span>
 				</motion.p>
-
-
 
 				<motion.div
 					initial={{ y: 10, opacity: 0 }}
@@ -175,7 +179,7 @@ const OtpScreen = memo(function OtpScreen({
 					disabled={code.length !== 6 || isLoading}
 					className="mt-8 w-full rounded-2xl bg-[#30913F] py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
 				>
-					{isLoading ? "جاري التحقق..." : "المتابعة"}
+					{isLoading ? "جاري التحقق..." : "ارسال"}
 				</motion.button>
 
 				<motion.div
@@ -185,10 +189,10 @@ const OtpScreen = memo(function OtpScreen({
 					className="mt-6 text-center"
 				>
 					{timer > 0 ? (
-						<p className="text-sm text-gray-500">
-							<span className="text-sm font-semibold text-gray-500">أرسل الرمز مرة أخرى</span>
-							{"  "}
-							<span className="font-medium text-gray-700">
+						<p className="flex items-center justify-center gap-1.5 text-sm text-gray-500">
+							<span className="font-semibold">في حال عدم وصول الرمز؟</span>
+							<span className="inline-flex items-center gap-1 font-medium text-gray-700">
+								<Clock className="h-3.5 w-3.5" />
 								{formatTime(timer)}
 							</span>
 						</p>
@@ -199,8 +203,7 @@ const OtpScreen = memo(function OtpScreen({
 							disabled={isResending}
 							className="text-sm font-semibold text-[#30913F] transition-colors hover:text-[#2a8036] disabled:opacity-50"
 						>
-							<span className="text-sm font-semibold text-gray-500">لم تستلم رمزاً؟</span>
-							{"  "}
+							<span className="text-sm font-semibold text-gray-500">لم تستلم رمزاً؟</span>{" "}
 							{isResending ? "جاري الإرسال..." : "إعادة الإرسال"}
 						</button>
 					)}

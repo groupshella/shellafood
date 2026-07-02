@@ -36,7 +36,8 @@ export function ProductAddControl({
                 quantity={quantity}
                 onIncrease={handleIncrease}
                 onDecrease={handleDecrease}
-                disabled={!isAvailable || isPending}
+                disabled={!isAvailable}
+                isSyncing={isPending}
                 size={size}
                 className={className}
             />
@@ -45,7 +46,7 @@ export function ProductAddControl({
 
     const isSm = size === "sm";
     const isSoft = variant === "soft";
-    const isDisabled = !isAvailable || isPending;
+    const isDisabled = !isAvailable;
 
     return (
         <button

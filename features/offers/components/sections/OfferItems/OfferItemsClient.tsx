@@ -11,6 +11,7 @@ import type { OfferItem } from "@/features/offers/types/offer.types";
 import { useOfferSearch } from "@/features/offers/hooks/useOfferSearch";
 import { ProductCard } from "./ProductCard";
 import { Empty } from "./Empty";
+import { OfferItemsSearchLoading } from "./skeleton";
 
 const TOOLBAR_ICON_BTN = [
     "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#EBFEEB] text-[#30913F]",
@@ -87,7 +88,12 @@ function SearchBar({ value, onChange, onClose }: SearchBarProps) {
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder="ابحث في المنتجات..."
-                    className="w-full rounded-xl bg-[#F6F5F8] py-2.5 pe-9 ps-4 text-[13px] text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#30913F]"
+                    className={[
+                        "w-full rounded-xl bg-[#F6F5F8] py-2.5 pe-9 ps-4 text-[13px] text-gray-700 placeholder:text-gray-400",
+                        "focus:outline-none focus:ring-2 focus:ring-[#30913F]",
+                        "[&::-webkit-search-cancel-button]:appearance-none",
+                        "[&::-webkit-search-decoration]:appearance-none",
+                    ].join(" ")}
                 />
             </div>
 
@@ -177,19 +183,15 @@ export function OfferItemsClient({
                 <ProductsToolbar total={visibleTotal} onSearchOpen={() => setSearchOpen(true)} />
             )}
 
-            {search.loading && (
-                <p className="px-4 py-2 text-center text-[13px] text-gray-400">
-                    جارٍ البحث…
-                </p>
-            )}
-
             {(search.error ?? loadMoreError) && (
                 <p className="px-4 py-2 text-center text-[13px] text-red-500">
                     {search.error ?? loadMoreError}
                 </p>
             )}
 
-            {!search.loading && visibleItems.length === 0 ? (
+            {search.loading ? (
+                <OfferItemsSearchLoading />
+            ) : visibleItems.length === 0 ? (
                 <Empty isSearch={isSearchActive} />
             ) : (
                 <div className="flex flex-col gap-2 px-4 pt-2">

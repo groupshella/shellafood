@@ -21,7 +21,7 @@ function itemsSearchHeaders(): HeadersInit {
 export async function getBrandItems(
     brandId: string,
     page = 1,
-    limit = 50
+    limit = 100
 ): Promise<{ items: BrandItem[]; total: number }> {
     const params = new URLSearchParams({
         page: String(page),

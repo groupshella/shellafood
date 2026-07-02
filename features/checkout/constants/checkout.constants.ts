@@ -1,11 +1,7 @@
-import type { CheckoutData, SavedAddress } from "@/features/checkout/types/checkout.types";
-
-export const MOCK_ADDRESSES: SavedAddress[] = [
-    { id: 1, label: "المنزل", address: "الرياض ، طريق الخليج 4423 ، رقم الدور 2 ، شقة 2" },
-    { id: 2, label: "العمل", address: "الرياض ، اسم المنطقة ، اسم الشارع" },
-];
+import type { CheckoutData } from "@/features/checkout/types/checkout.types";
 
 export const MOCK_CHECKOUT: CheckoutData = {
+    orderId: 1001,
     cartCount: 4,
     cartItems: [
         { id: 1, name: "منتج 1" },

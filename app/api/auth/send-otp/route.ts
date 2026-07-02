@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
-import { postSendOtp } from "@/features/auth/api/send-otp";
+import { postSendOtpAgain } from "@/features/auth/api/send-otp-again";
 
+/** @deprecated Use /api/auth/send-otp-again */
 export async function POST(request: NextRequest) {
-  return postSendOtp(request);
+	return postSendOtpAgain(request);
 }

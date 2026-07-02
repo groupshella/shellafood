@@ -2,45 +2,56 @@
 
 import { memo, useCallback, useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 
 interface CreateAccountScreenProps {
-	phone: string;
 	isLoading?: boolean;
 	error?: string | null;
 	onBack: () => void;
 	onCreate: (data: {
-		name: string;
+		fullName: string;
+		phone: string;
 		email?: string;
+		password: string;
+		confirmPassword: string;
 	}) => void;
 }
 
-function formatPhone(phone: string) {
-	const digits = phone.replace(/\D/g, "");
-	const local = digits.slice(0, 9);
-	return `${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 9)}`;
-}
-
 const CreateAccountScreen = memo(function CreateAccountScreen({
-	phone,
 	isLoading = false,
 	error,
 	onBack,
 	onCreate,
 }: CreateAccountScreenProps) {
-	const [name, setName] = useState("");
+	const [fullName, setFullName] = useState("");
 	const [email, setEmail] = useState("");
+	const [phone, setPhone] = useState("");
+	const [password, setPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirm, setShowConfirm] = useState(false);
 	const [agreed, setAgreed] = useState(false);
 
-	const handleSubmit = useCallback(() => {
-		if (!name.trim() || !agreed) return;
-		onCreate({
-			name: name.trim(),
-			...(email.trim() && { email: email.trim() }),
-		});
-	}, [name, email, agreed, onCreate]);
+	const passwordsMismatch =
+		confirmPassword.length > 0 && password !== confirmPassword;
 
-	const isValid = name.trim().length > 0 && agreed;
+	const isValid =
+		fullName.trim().length > 1 &&
+		phone.length === 9 &&
+		password.length >= 8 &&
+		password === confirmPassword &&
+		agreed;
+
+	const handleSubmit = useCallback(() => {
+		if (!isValid) return;
+		onCreate({
+			fullName: fullName.trim(),
+			phone: `+966${phone}`,
+			...(email.trim() && { email: email.trim() }),
+			password,
+			confirmPassword,
+		});
+	}, [fullName, email, phone, password, confirmPassword, isValid, onCreate]);
 
 	return (
 		<div
@@ -60,7 +71,7 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 				<ChevronLeft className="h-6 w-6 text-gray-700" />
 			</motion.button>
 
-			<div className="mt-10">
+			<div className="mt-10 flex-1 overflow-y-auto">
 				<motion.h1
 					initial={{ y: 15, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
@@ -78,16 +89,16 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 				>
 					<div>
 						<label className="mb-2 block text-sm font-semibold text-gray-900">
-							اسم المستخدم <span className="text-red-500">*</span>
+							الاسم بالكامل
 						</label>
 						<input
 							type="text"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-							placeholder="ادخل اسم المستخدم"
+							value={fullName}
+							onChange={(e) => setFullName(e.target.value)}
+							placeholder="ادخل اسمك بالكامل"
 							disabled={isLoading}
 							className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-right text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-[#30913F] focus:ring-1 focus:ring-[#30913F] disabled:opacity-50"
-							aria-label="اسم المستخدم"
+							aria-label="الاسم بالكامل"
 						/>
 					</div>
 
@@ -95,7 +106,6 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 						<label className="mb-2 block text-sm font-semibold text-gray-900">
 							البريد الالكتروني <span className="text-gray-400">(اختياري)</span>
 						</label>
-
 						<input
 							type="email"
 							inputMode="email"
@@ -112,16 +122,82 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 						<label className="mb-2 block text-sm font-semibold text-gray-900">
 							رقم الهاتف
 						</label>
-						<div className="flex items-center rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5">
-							<span dir="ltr" className="flex-1 text-left text-lg text-gray-400">
-								{formatPhone(phone)}
-							</span>
+						<div className="flex items-center rounded-xl border border-gray-200 bg-white px-4 py-3.5 transition-all focus-within:border-[#30913F] focus-within:ring-1 focus-within:ring-[#30913F]">
+							<input
+								type="tel"
+								inputMode="numeric"
+								value={phone}
+								onChange={(e) =>
+									setPhone(e.target.value.replace(/\D/g, "").slice(0, 9))
+								}
+								placeholder="00 000 0000"
+								disabled={isLoading}
+								className="flex-1 bg-transparent text-left text-lg text-gray-800 outline-none placeholder:text-gray-400"
+								aria-label="رقم الهاتف"
+							/>
 							<div className="mx-3 h-6 w-px bg-gray-300" />
 							<span className="text-lg font-medium text-gray-500">966+</span>
 						</div>
 					</div>
 
+					<div>
+						<label className="mb-2 block text-sm font-semibold text-gray-900">
+							كلمة المرور
+						</label>
+						<div className="flex items-center rounded-xl border border-gray-200 bg-white px-4 py-3.5 transition-all focus-within:border-[#30913F] focus-within:ring-1 focus-within:ring-[#30913F]">
+							<button
+								type="button"
+								onClick={() => setShowPassword((s) => !s)}
+								className="text-gray-400 transition-colors hover:text-gray-600"
+								aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+							>
+								{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+							</button>
+							<input
+								type={showPassword ? "text" : "password"}
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								placeholder="كلمة المرور"
+								disabled={isLoading}
+								className="flex-1 bg-transparent px-3 text-right text-gray-800 outline-none placeholder:text-gray-400"
+								aria-label="كلمة المرور"
+							/>
+						</div>
+					</div>
 
+					<div>
+						<label className="mb-2 block text-sm font-semibold text-gray-900">
+							ادخل كلمة المرور مرة أخرى
+						</label>
+						<div
+							className={`flex items-center rounded-xl border bg-white px-4 py-3.5 transition-all focus-within:ring-1 ${passwordsMismatch
+								? "border-red-400 focus-within:border-red-400 focus-within:ring-red-400"
+								: "border-gray-200 focus-within:border-[#30913F] focus-within:ring-[#30913F]"
+								}`}
+						>
+							<button
+								type="button"
+								onClick={() => setShowConfirm((s) => !s)}
+								className="text-gray-400 transition-colors hover:text-gray-600"
+								aria-label={showConfirm ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+							>
+								{showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+							</button>
+							<input
+								type={showConfirm ? "text" : "password"}
+								value={confirmPassword}
+								onChange={(e) => setConfirmPassword(e.target.value)}
+								onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+								placeholder="كلمة المرور"
+								disabled={isLoading}
+								className="flex-1 bg-transparent px-3 text-right text-gray-800 outline-none placeholder:text-gray-400"
+								aria-label="تأكيد كلمة المرور"
+							/>
+						</div>
+						{passwordsMismatch && (
+							<p className="mt-1.5 text-xs text-red-500">كلمتا المرور غير متطابقتين</p>
+						)}
+					</div>
 
 					<motion.label
 						initial={{ opacity: 0 }}
@@ -138,10 +214,14 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 						/>
 						<span className="text-sm text-gray-600">أوافق على الشروط وسياسة الخصوصية</span>
 					</motion.label>
+
+					{error && (
+						<p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+					)}
 				</motion.div>
 			</div>
 
-			<div className="mt-auto pt-8">
+			<div className="mt-6 pt-2">
 				<motion.button
 					type="button"
 					initial={{ y: 20, opacity: 0 }}
@@ -150,7 +230,7 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 					whileTap={{ scale: 0.98 }}
 					onClick={handleSubmit}
 					disabled={!isValid || isLoading}
-					className="w-full rounded-2xl bg-[#30913F] disabled:bg-[#30913F]/50 py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+					className="w-full rounded-2xl bg-[#30913F] disabled:bg-[#30913F]/50 py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed"
 				>
 					{isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
 				</motion.button>

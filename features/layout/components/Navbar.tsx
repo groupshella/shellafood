@@ -188,7 +188,7 @@ const NAV_ITEMS = [
 	{ id: "favorites", label: "المفضلة", Icon: IconHeart, path: "/favorites" },
 	{ id: "cart", label: "السلة", Icon: IconBag, path: "/cart" },
 	{ id: "my-orders", label: "طلباتي", Icon: IconReceipt, path: "/my-orders" },
-	{ id: "discounts", label: "الخصومات", Icon: IconBadge, path: "/discounts" },
+	{ id: "coupons", label: "الكوبونات", Icon: IconBadge, path: "/coupons" },
 	{ id: "profile", label: "حسابي", Icon: IconUser, path: "/profile" },
 ] as const;
 

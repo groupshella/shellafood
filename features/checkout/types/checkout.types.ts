@@ -25,6 +25,7 @@ export interface CheckoutInvoice {
 }
 
 export interface CheckoutData {
+    orderId: number;
     cartItems: CartItem[];
     cartCount: number;
     deliveryMethod: DeliveryMethodType;

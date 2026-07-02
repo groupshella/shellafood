@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
-import { postVerifyOtp } from "@/features/auth/api/verify-otp";
+import { postVerifyPhone } from "@/features/auth/api/verify-phone";
 
+/** @deprecated Use /api/auth/verify-phone */
 export async function POST(request: NextRequest) {
-  return postVerifyOtp(request);
+	return postVerifyPhone(request);
 }

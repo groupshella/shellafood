@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ChevronDown, MapPin } from "lucide-react";
-import { MOCK_ADDRESSES } from "@/features/checkout/constants/checkout.constants";
-import { CheckoutBottomSheet } from "@/features/checkout/components/shared/CheckoutBottomSheet";
-import { useBottomSheet } from "@/features/checkout/components/shared/useBottomSheet";
-import type { CheckoutData, DeliveryMethodType, SavedAddress } from "@/features/checkout/types/checkout.types";
+import { AddressPickerSheet } from "@/features/addresses/components/shared/AddressPickerSheet";
+import { useSelectedAddress } from "@/features/addresses/hooks/useSelectedAddress";
+import { formatAddressLine } from "@/features/addresses/lib/format-address-line";
+import type { AddressListItem } from "@/features/addresses/types/address.types";
+import type { DeliveryMethodType } from "@/features/checkout/types/checkout.types";
 
 interface DeliveryMethodClientProps {
-    data: CheckoutData;
+    isAuthenticated: boolean;
+    addresses: AddressListItem[];
 }
 
 interface DeliveryOptionCardProps {
@@ -46,91 +49,10 @@ function DeliveryOptionCard({ selected, onSelect, label, subLabel }: DeliveryOpt
     );
 }
 
-interface SelectAddressSheetProps {
-    isOpen: boolean;
-    isVisible: boolean;
-    onClose: () => void;
-    addresses: SavedAddress[];
-    selectedId: number;
-    onSelect: (address: SavedAddress) => void;
-}
-
-function SelectAddressSheet({
-    isOpen,
-    isVisible,
-    onClose,
-    addresses,
-    selectedId,
-    onSelect,
-}: SelectAddressSheetProps) {
-    return (
-        <CheckoutBottomSheet
-            isOpen={isOpen}
-            isVisible={isVisible}
-            onClose={onClose}
-            ariaLabel="إختار العنوان"
-            title="إختار العنوان"
-        >
-            <div className="space-y-3">
-                {addresses.map((address) => {
-                    const isSelected = address.id === selectedId;
-
-                    return (
-                        <button
-                            key={address.id}
-                            type="button"
-                            onClick={() => {
-                                onSelect(address);
-                                onClose();
-                            }}
-                            className={`flex w-full items-center justify-between rounded-xl border p-4 text-right transition-colors ${
-                                isSelected
-                                    ? "border-[#30913F] bg-[#EBFEEB]"
-                                    : "border-gray-200 bg-[#F6F5F8]"
-                            }`}
-                        >
-                            <div>
-                                <p className="text-[14px] font-semibold text-gray-900">
-                                    {address.label}
-                                </p>
-                                <p className="text-[13px] text-gray-600">{address.address}</p>
-                            </div>
-                            <div
-                                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                                    isSelected ? "border-[#30913F]" : "border-gray-300"
-                                }`}
-                            >
-                                {isSelected && (
-                                    <div className="h-2.5 w-2.5 rounded-full bg-[#30913F]" />
-                                )}
-                            </div>
-                        </button>
-                    );
-                })}
-            </div>
-
-            <div className="mt-5 space-y-3">
-                <button
-                    type="button"
-                    className="w-full rounded-xl bg-[#30913F] py-3.5 text-[14px] font-semibold text-white transition-colors active:bg-[#267332]"
-                >
-                    أضف عنوان جديد
-                </button>
-                <button
-                    type="button"
-                    className="w-full rounded-xl bg-[#F6F5F8] py-3.5 text-[14px] font-semibold text-gray-700 transition-colors active:bg-gray-200"
-                >
-                    تعديل العناوين
-                </button>
-            </div>
-        </CheckoutBottomSheet>
-    );
-}
-
-export function DeliveryMethodClient({ data }: DeliveryMethodClientProps) {
-    const [method, setMethod] = useState<DeliveryMethodType>(data.deliveryMethod);
-    const [selectedAddress, setSelectedAddress] = useState<SavedAddress>(MOCK_ADDRESSES[0]);
-    const addressSheet = useBottomSheet();
+export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMethodClientProps) {
+    const [method, setMethod] = useState<DeliveryMethodType>("delivery");
+    const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
+    const { selectedAddress, selectedId, setSelectedAddressId } = useSelectedAddress(addresses);
 
     return (
         <div dir="rtl">
@@ -153,20 +75,45 @@ export function DeliveryMethodClient({ data }: DeliveryMethodClientProps) {
 
             {method === "delivery" && (
                 <div className="mt-4">
-                    <button
-                        type="button"
-                        onClick={addressSheet.open}
-                        className="mb-2 flex items-center gap-1 text-[13px] font-medium text-[#30913F]"
-                    >
-                        <span>سيصلك على {data.deliveryAddressShort}</span>
-                        <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
-                    </button>
-                    <div className="flex items-start gap-2">
-                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#30913F]" strokeWidth={2} />
-                        <p className="text-[13px] leading-relaxed text-gray-600">
-                            {selectedAddress.address}
-                        </p>
-                    </div>
+                    {!isAuthenticated ? (
+                        <Link
+                            href="/auth"
+                            className="inline-flex items-center gap-1 text-[13px] font-medium text-[#30913F] transition-colors active:text-[#267332]"
+                        >
+                            <MapPin className="h-4 w-4 shrink-0" strokeWidth={2} />
+                            <span>سجل الدخول لإضافة عنوان</span>
+                        </Link>
+                    ) : !selectedAddress ? (
+                        <div className="space-y-2">
+                            <p className="text-[13px] text-gray-500">لا يوجد عنوان محفوظ بعد</p>
+                            <Link
+                                href="/addresses/add"
+                                className="inline-flex text-[13px] font-medium text-[#30913F] transition-colors active:text-[#267332]"
+                            >
+                                أضف عنوان جديد
+                            </Link>
+                        </div>
+                    ) : (
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => setIsAddressSheetOpen(true)}
+                                className="mb-2 flex items-center gap-1 text-[13px] font-medium text-[#30913F]"
+                            >
+                                <span>سيصلك على {selectedAddress.address_label}</span>
+                                <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
+                            </button>
+                            <div className="flex items-start gap-2">
+                                <MapPin
+                                    className="mt-0.5 h-4 w-4 shrink-0 text-[#30913F]"
+                                    strokeWidth={2}
+                                />
+                                <p className="text-[13px] leading-relaxed text-gray-600">
+                                    {formatAddressLine(selectedAddress)}
+                                </p>
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -176,20 +123,21 @@ export function DeliveryMethodClient({ data }: DeliveryMethodClientProps) {
                     <div className="flex items-start gap-2">
                         <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#30913F]" strokeWidth={2} />
                         <p className="text-[13px] leading-relaxed text-gray-600">
-                            {data.deliveryAddress}
+                            سيتم عرض عنوان المتجر عند تأكيد الطلب
                         </p>
                     </div>
                 </div>
             )}
 
-            <SelectAddressSheet
-                isOpen={addressSheet.isOpen}
-                isVisible={addressSheet.isVisible}
-                onClose={addressSheet.close}
-                addresses={MOCK_ADDRESSES}
-                selectedId={selectedAddress.id}
-                onSelect={setSelectedAddress}
-            />
+            {isAuthenticated && (
+                <AddressPickerSheet
+                    isOpen={isAddressSheetOpen}
+                    onClose={() => setIsAddressSheetOpen(false)}
+                    addresses={addresses}
+                    selectedId={selectedId}
+                    onSelect={setSelectedAddressId}
+                />
+            )}
         </div>
     );
 }

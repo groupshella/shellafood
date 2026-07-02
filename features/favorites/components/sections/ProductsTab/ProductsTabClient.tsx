@@ -13,7 +13,6 @@ interface ProductsTabClientProps {
 
 export function ProductsTabClient({ products: initialProducts }: ProductsTabClientProps) {
     const [products, setProducts] = useState(initialProducts);
-    console.log(products);
 
     function handleRemove(itemId: number) {
         setProducts((prev) => prev.filter((p) => p.id !== itemId));

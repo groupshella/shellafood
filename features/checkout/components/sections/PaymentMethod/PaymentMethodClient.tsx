@@ -1,18 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { AlertCircle, CreditCard, Wallet } from "lucide-react";
+import { AlertCircle, CheckCircle2, CreditCard, Wallet } from "lucide-react";
 import { CheckoutBottomSheet } from "@/features/checkout/components/shared/CheckoutBottomSheet";
 import { useBottomSheet } from "@/features/checkout/components/shared/useBottomSheet";
-import type {
-    CheckoutData,
-    ElectronicPaymentType,
-    PaymentMethodType,
-} from "@/features/checkout/types/checkout.types";
-
-interface PaymentMethodClientProps {
-    data: CheckoutData;
-}
+import { useCheckout } from "@/features/checkout/context/CheckoutContext";
+import type { ElectronicPaymentType, PaymentMethodType } from "@/features/checkout/types/checkout.types";
 
 interface PaymentTabProps {
     selected: boolean;
@@ -57,6 +49,24 @@ const ELECTRONIC_OPTIONS = [
     { id: "apple-pay" as const, label: "Apple Pay" },
     { id: "stc-pay" as const, label: "Debit Card" },
 ];
+
+const PAYMENT_METHOD_LABELS: Record<Exclude<PaymentMethodType, null>, string> = {
+    "my-wallet": "محفظتي",
+    "qidha-wallet": "محفظة قيدها",
+    electronic: "دفع الكتروني",
+};
+
+function getSelectedPaymentLabel(
+    selected: PaymentMethodType,
+    electronicMethod: ElectronicPaymentType
+): string | null {
+    if (!selected) return null;
+    if (selected === "electronic") {
+        const option = ELECTRONIC_OPTIONS.find((o) => o.id === electronicMethod);
+        return option ? `${PAYMENT_METHOD_LABELS.electronic} · ${option.label}` : PAYMENT_METHOD_LABELS.electronic;
+    }
+    return PAYMENT_METHOD_LABELS[selected];
+}
 
 interface EmptyWalletSheetProps {
     isOpen: boolean;
@@ -126,6 +136,7 @@ interface ElectronicPaymentSheetProps {
     isOpen: boolean;
     isVisible: boolean;
     onClose: () => void;
+    onConfirm: () => void;
     total: string;
     selected: ElectronicPaymentType;
     onSelect: (id: ElectronicPaymentType) => void;
@@ -135,6 +146,7 @@ function ElectronicPaymentSheet({
     isOpen,
     isVisible,
     onClose,
+    onConfirm,
     total,
     selected,
     onSelect,
@@ -181,7 +193,7 @@ function ElectronicPaymentSheet({
 
             <button
                 type="button"
-                onClick={onClose}
+                onClick={onConfirm}
                 className="w-full rounded-xl bg-[#30913F] py-3.5 text-[14px] font-semibold text-white transition-colors active:bg-[#267332]"
             >
                 اختيار طريقة الدفع
@@ -190,9 +202,15 @@ function ElectronicPaymentSheet({
     );
 }
 
-export function PaymentMethodClient({ data }: PaymentMethodClientProps) {
-    const [selected, setSelected] = useState<PaymentMethodType>(null);
-    const [electronicMethod, setElectronicMethod] = useState<ElectronicPaymentType>(null);
+export function PaymentMethodClient() {
+    const {
+        data,
+        selected,
+        electronicMethod,
+        showPaymentWarning,
+        setSelected,
+        setElectronicMethod,
+    } = useCheckout();
 
     const emptyWalletSheet = useBottomSheet();
     const qidhaSheet = useBottomSheet();
@@ -215,6 +233,12 @@ export function PaymentMethodClient({ data }: PaymentMethodClientProps) {
             electronicSheet.open();
         }
     };
+
+    const handleConfirmElectronicMethod = () => {
+        electronicSheet.close();
+    };
+
+    const selectedLabel = getSelectedPaymentLabel(selected, electronicMethod);
 
     return (
         <div dir="rtl">
@@ -243,11 +267,18 @@ export function PaymentMethodClient({ data }: PaymentMethodClientProps) {
                 />
             </div>
 
-            {selected === null && (
-                <div className="mt-3 flex items-center gap-2 rounded-xl bg-[#FFF8ED] p-3">
-                    <AlertCircle className="h-4 w-4 shrink-0 text-gray-900" strokeWidth={2} />
-                    <p className="flex-1 text-[13px] text-gray-700">بالرجاء تحديد طريقة الدفع</p>
+            {selectedLabel ? (
+                <div className="mt-3 flex items-center gap-2 rounded-xl bg-[#EBFEEB] p-3">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-[#30913F]" strokeWidth={2} />
+                    <p className="flex-1 text-[13px] font-medium text-[#267332]">{selectedLabel}</p>
                 </div>
+            ) : (
+                showPaymentWarning && (
+                    <div className="mt-3 flex items-center gap-2 rounded-xl bg-[#FFF8ED] p-3">
+                        <AlertCircle className="h-4 w-4 shrink-0 text-gray-900" strokeWidth={2} />
+                        <p className="flex-1 text-[13px] text-gray-700">بالرجاء تحديد طريقة الدفع</p>
+                    </div>
+                )
             )}
 
             <EmptyWalletSheet
@@ -264,7 +295,8 @@ export function PaymentMethodClient({ data }: PaymentMethodClientProps) {
                 isOpen={electronicSheet.isOpen}
                 isVisible={electronicSheet.isVisible}
                 onClose={electronicSheet.close}
-                total={data.invoice.subtotal}
+                onConfirm={handleConfirmElectronicMethod}
+                total={data.invoice.total}
                 selected={electronicMethod}
                 onSelect={setElectronicMethod}
             />

@@ -99,7 +99,7 @@ export function OrderCard({ order }: { order: ApiOrder }) {
                         aria-hidden
                     />
                     <p className="text-[12px] text-gray-500">
-                        تاريخ الطلب {formatDate(order.created_at)}
+                        تاريخ الطلب {formatDate(order.wishlisted_at)}
                     </p>
                 </div>
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
     ChevronRight,
     Bookmark,
@@ -12,14 +13,12 @@ import {
     CreditCard,
     Package,
 } from "lucide-react";
-import { MOCK_ORDERS } from "@/features/my-orders/constants/mock-orders";
-import type { Order, OrderItem } from "@/features/my-orders/types/orders.types";
+import { formatOrderMoney } from "@/features/my-orders/lib/order-detail-mapper";
+import type { OrderDetailView, OrderItem } from "@/features/my-orders/types/orders.types";
 
 interface OrderDetailClientProps {
-    orderId: string;
+    order: OrderDetailView;
 }
-
-/* ─── Modal helpers ─────────────────────────────────────────── */
 
 function useBottomSheet() {
     const [isOpen, setIsOpen] = useState(false);
@@ -37,8 +36,6 @@ function useBottomSheet() {
 
     return { isOpen, isVisible, open, close };
 }
-
-/* ─── ReorderModal ──────────────────────────────────────────── */
 
 interface ReorderModalProps {
     isOpen: boolean;
@@ -114,8 +111,6 @@ function ReorderModal({ isOpen, isVisible, onClose, onConfirm }: ReorderModalPro
         </>
     );
 }
-
-/* ─── ConfirmAddressModal ───────────────────────────────────── */
 
 interface ConfirmAddressModalProps {
     isOpen: boolean;
@@ -196,8 +191,6 @@ function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address }:
     );
 }
 
-/* ─── Section title ─────────────────────────────────────────── */
-
 function SectionTitle({ children }: { children: React.ReactNode }) {
     return (
         <p className="mb-3 text-right text-[15px] font-bold text-gray-900">
@@ -205,8 +198,6 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
         </p>
     );
 }
-
-/* ─── Invoice row ───────────────────────────────────────────── */
 
 function InvoiceRow({
     label,
@@ -221,7 +212,6 @@ function InvoiceRow({
 }) {
     return (
         <div className="flex items-center justify-between py-2" dir="rtl">
-            {/* label on right */}
             <span
                 className={[
                     bold ? "text-[14px] font-bold" : "text-[13px] font-medium",
@@ -230,7 +220,6 @@ function InvoiceRow({
             >
                 {label}
             </span>
-            {/* value on left */}
             <span
                 className={[
                     bold ? "text-[14px] font-bold" : "text-[13px] font-medium",
@@ -243,32 +232,33 @@ function InvoiceRow({
     );
 }
 
-/* ─── Order item row ────────────────────────────────────────── */
-
 function OrderItemRow({ item }: { item: OrderItem }) {
     return (
-        /*
-         * Layout (RTL, row-reverse):
-         *   [quantity •] [text block ··] [image placeholder]
-         *   LEFT          CENTER           RIGHT
-         */
-        <div className="flex  items-start gap-3 border-b border-gray-100 py-3 last:border-b-0">
-
-            {/* RIGHT — product image placeholder */}
-            <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-xl bg-[#F6F5F8]">
-                <Package className="h-6 w-6 text-gray-300" strokeWidth={1.4} />
+        <div className="flex items-start gap-3 border-b border-gray-100 py-3 last:border-b-0">
+            <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#F6F5F8]">
+                {item.imageUrl ? (
+                    <Image
+                        src={item.imageUrl}
+                        alt={item.name}
+                        width={60}
+                        height={60}
+                        className="h-full w-full object-cover"
+                    />
+                ) : (
+                    <Package className="h-6 w-6 text-gray-300" strokeWidth={1.4} />
+                )}
             </div>
 
-            {/* CENTER — item info */}
             <div className="min-w-0 flex-1">
                 <p className="text-right text-[14px] font-semibold text-gray-900 leading-snug">
                     {item.name}
                 </p>
-                <p className="mt-0.5 text-right text-[12px] text-gray-400 leading-snug">
-                    {item.description}
-                </p>
-                {/* price row: original (strikethrough) then current */}
-                <div className="mt-1.5 flex  items-center gap-2">
+                {item.description && (
+                    <p className="mt-0.5 text-right text-[12px] text-gray-400 leading-snug">
+                        {item.description}
+                    </p>
+                )}
+                <div className="mt-1.5 flex items-center gap-2">
                     <span className="text-[13px] font-bold text-gray-900">{item.price}</span>
                     {item.originalPrice && (
                         <span className="text-[12px] text-gray-300 line-through">{item.originalPrice}</span>
@@ -276,7 +266,6 @@ function OrderItemRow({ item }: { item: OrderItem }) {
                 </div>
             </div>
 
-            {/* LEFT — quantity circle */}
             <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#30913F]">
                 <span className="text-[11px] font-bold text-white">{item.quantity}</span>
             </div>
@@ -284,20 +273,16 @@ function OrderItemRow({ item }: { item: OrderItem }) {
     );
 }
 
-/* ─── Thin divider between sections ────────────────────────── */
-
 function Divider() {
     return <div className="my-1 h-px bg-gray-100" />;
 }
 
-/* ─── Main component ────────────────────────────────────────── */
-
-export function OrderDetailClient({ orderId }: OrderDetailClientProps) {
+export function OrderDetailClient({ order }: OrderDetailClientProps) {
     const router = useRouter();
     const reorderSheet = useBottomSheet();
     const addressSheet = useBottomSheet();
 
-    const order: Order | undefined = MOCK_ORDERS.find((o) => o.id === Number(orderId));
+    const { fees } = order;
 
     const handleReorderConfirm = useCallback(() => {
         reorderSheet.close();
@@ -306,33 +291,14 @@ export function OrderDetailClient({ orderId }: OrderDetailClientProps) {
 
     const handleAddressConfirm = useCallback(() => {
         addressSheet.close();
-    }, [addressSheet]);
-
-    if (!order) {
-        return (
-            <div className="flex min-h-screen flex-col items-center justify-center bg-white" dir="rtl">
-                <ShoppingBag className="mb-4 h-12 w-12 text-gray-300" strokeWidth={1.4} />
-                <p className="text-[15px] font-semibold text-gray-700">لم يتم العثور على الطلب</p>
-                <button
-                    type="button"
-                    onClick={() => router.back()}
-                    className="mt-4 text-[13px] text-[#30913F] underline-offset-2 hover:underline"
-                >
-                    العودة للطلبات
-                </button>
-            </div>
-        );
-    }
+        router.push(`/stores/${order.storeId}`);
+    }, [addressSheet, router, order.storeId]);
 
     return (
         <>
             <div className="mx-auto min-h-screen w-full max-w-lg bg-white" dir="rtl">
-
-                {/* ── Header ── */}
                 <header className="sticky top-0 z-20 bg-white shadow-sm">
                     <div className="relative flex items-center justify-center px-5 py-4">
-
-                        {/* Back — left side in RTL layout (visually left) */}
                         <button
                             type="button"
                             onClick={() => router.back()}
@@ -344,7 +310,6 @@ export function OrderDetailClient({ orderId }: OrderDetailClientProps) {
 
                         <h1 className="text-[17px] font-bold text-gray-900">تفاصيل طلبك</h1>
 
-                        {/* Bookmark — right side */}
                         <button
                             type="button"
                             aria-label="حفظ الطلب"
@@ -355,109 +320,134 @@ export function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                     </div>
                 </header>
 
-                {/* ── Single scrollable card ── */}
                 <div className="px-4 py-4 pb-28">
                     <div className="rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] overflow-hidden">
-
-                        {/* ── SECTION: تفاصيل الطلب ── */}
                         <div className="px-4 pt-4 pb-2">
                             <SectionTitle>تفاصيل الطلب</SectionTitle>
 
-                            {/* Store row: bookmark left, store info right */}
-                            <div className="mb-4 flex  items-center justify-between">
-                                {/* RIGHT: store name + description */}
+                            <div className="mb-4 flex items-center justify-between">
                                 <div className="min-w-0 flex-1">
                                     <p className="text-right text-[15px] font-bold text-gray-900">
                                         {order.storeName}
                                     </p>
-                                    <p className="text-right text-[13px] text-gray-400">
-                                        {order.storeDescription}
-                                    </p>
+                                    {order.storeDescription && (
+                                        <p className="text-right text-[13px] text-gray-400">
+                                            {order.storeDescription}
+                                        </p>
+                                    )}
                                 </div>
-                                {/* LEFT: image placeholder square */}
-                                <div className="mr-3 flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-xl bg-[#F6F5F8]">
-                                    <ShoppingBag className="h-6 w-6 text-gray-300" strokeWidth={1.4} />
+                                <div className="mr-3 flex h-[56px] w-[56px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#F6F5F8]">
+                                    {order.storeLogoUrl ? (
+                                        <Image
+                                            src={order.storeLogoUrl}
+                                            alt={order.storeName}
+                                            width={56}
+                                            height={56}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    ) : (
+                                        <ShoppingBag className="h-6 w-6 text-gray-300" strokeWidth={1.4} />
+                                    )}
                                 </div>
                             </div>
 
-                            {/* Order items */}
-                            <div>
-                                {order.items.map((item) => (
-                                    <OrderItemRow key={item.id} item={item} />
-                                ))}
-                            </div>
+                            {order.items.length > 0 ? (
+                                <div>
+                                    {order.items.map((item) => (
+                                        <OrderItemRow key={item.id} item={item} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="py-4 text-center text-[13px] text-gray-400">
+                                    لا توجد منتجات في هذا الطلب
+                                </p>
+                            )}
                         </div>
 
                         <Divider />
 
-                        {/* ── SECTION: تفاصيل الفاتورة ── */}
                         <div className="px-4 py-3">
                             <SectionTitle>تفاصيل الفاتورة</SectionTitle>
-                            <InvoiceRow label="إجمالي المنتجات" value={order.subtotal} />
-                            <InvoiceRow label="مصاريف الشحن" value={order.deliveryFee} />
-                            <InvoiceRow label="رسوم الخدمة" value={order.serviceFee} />
-                            <InvoiceRow label="كود خصم" value={`- ${order.discount}`} />
+                            <InvoiceRow
+                                label="إجمالي المنتجات"
+                                value={formatOrderMoney(fees.itemsSubtotal)}
+                            />
+                            <InvoiceRow
+                                label="مصاريف الشحن"
+                                value={formatOrderMoney(fees.deliveryCharge)}
+                            />
+                            <InvoiceRow
+                                label="رسوم الخدمة"
+                                value={formatOrderMoney(fees.serviceFee)}
+                            />
+                            <InvoiceRow
+                                label="كود خصم"
+                                value={`- ${formatOrderMoney(fees.couponDiscount)}`}
+                            />
                             <div className="my-2 h-px bg-gray-200" />
-                            <InvoiceRow label="إجمالي الطلب" value={order.total} bold green />
+                            <InvoiceRow
+                                label="إجمالي الطلب"
+                                value={formatOrderMoney(fees.total)}
+                                bold
+                                green
+                            />
                         </div>
 
                         <Divider />
 
-                        {/* ── SECTION: طريقة الدفع ── */}
                         <div className="px-4 py-3">
                             <SectionTitle>طريقة الدفع</SectionTitle>
-                            <div className="flex  items-center gap-2">
-                                {/* LEFT: credit card icon with orange/red dot like Mastercard */}
+                            <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-1">
                                     <CreditCard className="h-5 w-5 shrink-0 text-gray-500" strokeWidth={1.6} />
-                                    {/* Mastercard-style indicator */}
-                                    <span className="inline-block h-3 w-3 rounded-full bg-orange-500 opacity-80" />
+                                    {order.paymentMethod === "Credit Card" && (
+                                        <span className="inline-block h-3 w-3 rounded-full bg-orange-500 opacity-80" />
+                                    )}
                                 </div>
-                                {/* RIGHT: label */}
                                 <span className="text-right text-[13px] text-gray-700">
                                     {order.paymentMethod}
                                 </span>
-
                             </div>
                         </div>
 
                         <Divider />
 
-                        {/* ── SECTION: عنوان توصيل ── */}
                         <div className="px-4 py-3">
                             <SectionTitle>عنوان توصيل</SectionTitle>
-                            <div className="flex  items-start gap-2">
-                                {/* LEFT: pin icon */}
+                            <div className="flex items-start gap-2">
                                 <MapPin className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[#30913F]" strokeWidth={1.8} />
-
-                                {/* RIGHT: address text */}
                                 <span className="text-right text-[13px] leading-relaxed text-gray-700">
-                                    {order.orderAddress}
+                                    {order.deliveryAddress}
                                 </span>
-
                             </div>
                         </div>
 
                         <Divider />
 
-                        {/* ── SECTION: تاريخ الطلب ── */}
                         <div className="px-4 pt-3 pb-4">
                             <SectionTitle>تاريخ الطلب</SectionTitle>
-                            <div className="flex  items-center gap-2">
-                                {/* LEFT: clock icon */}
+                            <div className="flex items-center gap-2">
                                 <Clock className="h-[18px] w-[18px] shrink-0 text-[#30913F]" strokeWidth={1.8} />
-                                {/* RIGHT: date text */}
                                 <span className="text-right text-[13px] text-gray-700">
                                     {order.orderDate}
                                 </span>
-
                             </div>
                         </div>
 
+                        {order.cancellationReason && (
+                            <>
+                                <Divider />
+                                <div className="px-4 py-3 pb-4">
+                                    <SectionTitle>سبب الإلغاء</SectionTitle>
+                                    <p className="text-right text-[13px] text-red-500">
+                                        {order.cancellationReason}
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
-                {/* ── Fixed bottom bar ── */}
                 <div className="fixed inset-x-0 bottom-0 border-t border-gray-100 bg-white px-4 py-4">
                     <button
                         type="button"
@@ -469,7 +459,6 @@ export function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                 </div>
             </div>
 
-            {/* ── Modals ── */}
             <ReorderModal
                 isOpen={reorderSheet.isOpen}
                 isVisible={reorderSheet.isVisible}
@@ -481,7 +470,7 @@ export function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                 isVisible={addressSheet.isVisible}
                 onClose={addressSheet.close}
                 onConfirm={handleAddressConfirm}
-                address={order.orderAddress}
+                address={order.deliveryAddress}
             />
         </>
     );

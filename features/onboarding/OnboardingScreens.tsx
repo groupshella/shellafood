@@ -50,9 +50,21 @@ const STEPS = [
 		title: "تجربة أسرع",
 		description: "اطلب، احجز، وتابع كل شيء بسهولة.",
 	},
+	{
+		id: "language",
+		title: "اختر لغتك",
+		description: "",
+	},
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
+
+type LanguageCode = "ar" | "en";
+
+const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
+	{ code: "ar", label: "العربية" },
+	{ code: "en", label: "English (US)" },
+];
 
 // ─── Shopping circles ─────────────────────────────────────────────────────────
 // Positions are within the 306×390 stage coordinate system.
@@ -338,6 +350,69 @@ function FastIllustration() {
 	);
 }
 
+// ─── Page 4: Language ─────────────────────────────────────────────────────────
+function LanguageIllustration() {
+	return (
+		<Stage>
+			{/* Globe: bottom-anchored, centered */}
+			<FadeIn className="absolute inset-x-0 bottom-0 flex justify-center">
+				<Image
+					src="/onboarding/world.png"
+					alt="اختر لغتك"
+					width={260}
+					height={260}
+					className="h-auto w-[260px] object-contain"
+					priority
+				/>
+			</FadeIn>
+		</Stage>
+	);
+}
+
+// ─── Language picker (radio list) ─────────────────────────────────────────────
+function LanguageSelector({
+	value,
+	onChange,
+}: {
+	value: LanguageCode;
+	onChange: (code: LanguageCode) => void;
+}) {
+	return (
+		<div
+			className="mx-auto mt-2 w-full divide-y divide-gray-100 border-y border-gray-100"
+			style={{ width: 274 }}
+			role="radiogroup"
+			aria-label="اختر لغتك"
+		>
+			{LANGUAGE_OPTIONS.map((opt) => {
+				const selected = value === opt.code;
+				return (
+					<button
+						key={opt.code}
+						type="button"
+						role="radio"
+						aria-checked={selected}
+						onClick={() => onChange(opt.code)}
+						className="flex w-full items-center justify-between py-4"
+					>
+						<span className="text-[15px] font-bold text-gray-900">
+							{opt.label}
+						</span>
+						<span
+							className={`flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors ${selected ? "border-gray-900" : "border-gray-300"
+								}`}
+						>
+							{selected && (
+								<span className="h-2.5 w-2.5 rounded-full bg-gray-900" />
+							)}
+						</span>
+					</button>
+				);
+			})}
+		</div>
+	);
+}
+
 // ─── Illustration router ──────────────────────────────────────────────────────
 function StepIllustration({ stepId }: { stepId: StepId }) {
 	switch (stepId) {
@@ -347,12 +422,15 @@ function StepIllustration({ stepId }: { stepId: StepId }) {
 			return <DiscountIllustration />;
 		case "fast":
 			return <FastIllustration />;
+		case "language":
+			return <LanguageIllustration />;
 	}
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 const OnboardingScreens = memo(function OnboardingScreens() {
 	const [step, setStep] = useState(0);
+	const [language, setLanguage] = useState<LanguageCode>("ar");
 	const isLast = step === STEPS.length - 1;
 	const current = STEPS[step];
 	const router = useRouter();
@@ -363,11 +441,13 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 
 	const handleAction = useCallback(() => {
 		if (isLast) {
+			// `language` holds the user's selected locale (ar | en) if you need
+			// to persist it (e.g. cookie, API call) before navigating.
 			router.replace("/auth");
 		} else {
 			setStep((prev) => prev + 1);
 		}
-	}, [isLast]);
+	}, [isLast, language]);
 
 	return (
 		<div
@@ -415,74 +495,90 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 							<h1 className="w-full text-[20px] font-bold leading-[100%] text-gray-900">
 								{current.title}
 							</h1>
-							<p className="w-full text-[15px] font-medium leading-[130%] text-gray-500">
-								{current.description}
-							</p>
+							{current.description && (
+								<p className="w-full text-[15px] font-medium leading-[130%] text-gray-500">
+									{current.description}
+								</p>
+							)}
 						</div>
+
+						{/* Language radio list – only on the language step */}
+						{current.id === "language" && (
+							<LanguageSelector value={language} onChange={setLanguage} />
+						)}
 					</motion.div>
 				</AnimatePresence>
 
-				{/* Progress button + dots */}
+				{/* Progress button + dots, OR full-width action button on the language step */}
 				<div className="mt-auto flex flex-col items-center pt-8">
-					<motion.button
-						type="button"
-						onClick={handleAction}
-						className="relative flex items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
-						style={{ width: BTN_SIZE, height: BTN_SIZE }}
-						whileTap={{ scale: 0.95 }}
-						aria-label={isLast ? "ابدأ" : "التالي"}
-					>
-						{/* Ring progress */}
-						<svg
-							width={BTN_SIZE}
-							height={BTN_SIZE}
-							viewBox={`0 0 ${BTN_SIZE} ${BTN_SIZE}`}
-							className="absolute inset-0 -rotate-90"
+					{current.id === "language" ? (
+						<motion.button
+							type="button"
+							onClick={handleAction}
+							className="w-full rounded-full bg-[#30913F] py-4 text-base font-bold text-white shadow-lg shadow-[#30913F]/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+							whileTap={{ scale: 0.98 }}
 						>
-							<circle
-								cx={BTN_SIZE / 2}
-								cy={BTN_SIZE / 2}
-								r={BTN_RADIUS}
-								fill="none"
-								stroke="#E5E7EB"
-								strokeWidth={BTN_STROKE}
-							/>
-							<motion.circle
-								cx={BTN_SIZE / 2}
-								cy={BTN_SIZE / 2}
-								r={BTN_RADIUS}
-								fill="none"
-								stroke="#30913F"
-								strokeWidth={BTN_STROKE}
-								strokeLinecap="round"
-								strokeDasharray={CIRCUMFERENCE}
-								animate={{ strokeDashoffset: progressOffset }}
-								transition={{ duration: 0.5, ease: "easeInOut" }}
-							/>
-						</svg>
-						{/* Inner circle */}
-						<div
-							className="flex items-center justify-center rounded-full bg-[#30913F] text-white shadow-lg shadow-[#30913F]/25"
-							style={{ width: BTN_INNER, height: BTN_INNER }}
-						>
-							{isLast ? (
-								<Check className="h-5 w-5" strokeWidth={2.5} />
-							) : (
-								<ChevronRight className="h-5 w-5" strokeWidth={2.5} />
-							)}
-						</div>
-					</motion.button>
+							التالي
+						</motion.button>
+					) : (
+						<>
+							<motion.button
+								type="button"
+								onClick={handleAction}
+								className="relative flex items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+								style={{ width: BTN_SIZE, height: BTN_SIZE }}
+								whileTap={{ scale: 0.95 }}
+								aria-label="التالي"
+							>
+								{/* Ring progress */}
+								<svg
+									width={BTN_SIZE}
+									height={BTN_SIZE}
+									viewBox={`0 0 ${BTN_SIZE} ${BTN_SIZE}`}
+									className="absolute inset-0 -rotate-90"
+								>
+									<circle
+										cx={BTN_SIZE / 2}
+										cy={BTN_SIZE / 2}
+										r={BTN_RADIUS}
+										fill="none"
+										stroke="#E5E7EB"
+										strokeWidth={BTN_STROKE}
+									/>
+									<motion.circle
+										cx={BTN_SIZE / 2}
+										cy={BTN_SIZE / 2}
+										r={BTN_RADIUS}
+										fill="none"
+										stroke="#30913F"
+										strokeWidth={BTN_STROKE}
+										strokeLinecap="round"
+										strokeDasharray={CIRCUMFERENCE}
+										animate={{ strokeDashoffset: progressOffset }}
+										transition={{ duration: 0.5, ease: "easeInOut" }}
+									/>
+								</svg>
+								{/* Inner circle */}
+								<div
+									className="flex items-center justify-center rounded-full bg-[#30913F] text-white shadow-lg shadow-[#30913F]/25"
+									style={{ width: BTN_INNER, height: BTN_INNER }}
+								>
+									<ChevronRight className="h-5 w-5" strokeWidth={2.5} />
+								</div>
+							</motion.button>
 
-					{/* Step dots */}
-					<div className="mt-5 flex justify-center gap-2" aria-hidden>
-						{STEPS.map((s, idx) => (
-							<div
-								key={s.id}
-								className={`h-1.5 rounded-full transition-all duration-300 ${idx === step ? "w-6 bg-[#30913F]" : "w-1.5 bg-gray-300"
-									}`}
-							/>
-						))}
-					</div>
+							{/* Step dots */}
+							<div className="mt-5 flex justify-center gap-2" aria-hidden>
+								{STEPS.map((s, idx) => (
+									<div
+										key={s.id}
+										className={`h-1.5 rounded-full transition-all duration-300 ${idx === step ? "w-6 bg-[#30913F]" : "w-1.5 bg-gray-300"
+											}`}
+									/>
+								))}
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</div>

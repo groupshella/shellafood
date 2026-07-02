@@ -1,41 +1,116 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { SlidersHorizontal, X, Calendar, ShoppingBag, Store, Clock } from "lucide-react";
-import type { Order, OrderStatus, OrderModule, FilterState } from "@/features/my-orders/types/orders.types";
-import { MOCK_ORDERS } from "@/features/my-orders/constants/mock-orders";
+import type { ApiOrder, OrderStatus, FilterState, DateGroupLabel } from "@/features/my-orders/types/orders.types";
 
-const MODULE_TABS: { id: OrderModule; label: string }[] = [
-    { id: "all", label: "الكل" },
-    { id: "restaurants", label: "المطاعم" },
-    { id: "hyper", label: "هايبر ماركت شلة" },
-    { id: "cafes", label: "المقاهي" },
+// ── Status helpers ────────────────────────────────────────────────────────────
+
+const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+    preparing:  { bg: "bg-amber-50",   text: "text-amber-600",  label: "تحت الإعداد" },
+    confirmed:  { bg: "bg-blue-50",    text: "text-blue-600",   label: "مؤكد" },
+    processing: { bg: "bg-amber-50",   text: "text-amber-600",  label: "قيد التحضير" },
+    handover:   { bg: "bg-orange-50",  text: "text-orange-500", label: "جاري التسليم" },
+    picked_up:  { bg: "bg-indigo-50",  text: "text-indigo-600", label: "في الطريق" },
+    delivered:  { bg: "bg-emerald-50", text: "text-emerald-600",label: "تم التوصيل" },
+    completed:  { bg: "bg-emerald-50", text: "text-emerald-600",label: "مكتمل" },
+    cancelled:  { bg: "bg-red-50",     text: "text-red-500",    label: "ملغى" },
+    canceled:   { bg: "bg-red-50",     text: "text-red-500",    label: "ملغى" },
+    failed:     { bg: "bg-red-50",     text: "text-red-500",    label: "فشل" },
+    expired:    { bg: "bg-gray-100",   text: "text-gray-500",   label: "منتهي" },
+};
+
+const STATUS_CHIPS: { id: OrderStatus; label: string }[] = [
+    { id: "preparing",  label: "تحت الإعداد" },
+    { id: "completed",  label: "مكتمل" },
+    { id: "cancelled",  label: "ملغى" },
 ];
 
 const TIME_CHIPS = ["اليوم", "هذا الأسبوع", "هذا الشهر"];
-
-const STATUS_CHIPS: { id: OrderStatus; label: string }[] = [
-    { id: "preparing", label: "تحت الإعداد" },
-    { id: "completed", label: "مكتمل" },
-    { id: "cancelled", label: "ملغى" },
-];
-
-const STATUS_STYLES: Record<OrderStatus, { bg: string; text: string; label: string }> = {
-    preparing: { bg: "bg-amber-50", text: "text-amber-600", label: "تحت الإعداد" },
-    completed: { bg: "bg-emerald-50", text: "text-emerald-600", label: "مكتمل" },
-    cancelled: { bg: "bg-red-50", text: "text-red-500", label: "ملغى" },
-};
-
 const EMPTY_FILTER: FilterState = { date: "", timePeriod: null, statuses: [] };
 
-export function OrdersClient() {
-    const [activeModule, setActiveModule] = useState<OrderModule>("all");
-    const [filterOpen, setFilterOpen] = useState(false);
+// ── Date-group helpers ────────────────────────────────────────────────────────
+
+function todayStr() {
+    return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+}
+function yesterdayStr() {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return d.toISOString().slice(0, 10);
+}
+function dateGroupLabel(orderDate: string): DateGroupLabel {
+    if (orderDate === todayStr()) return "اليوم";
+    if (orderDate === yesterdayStr()) return "الأمس";
+    return "الأقدم";
+}
+
+const GROUP_ORDER: DateGroupLabel[] = ["اليوم", "الأمس", "الأقدم"];
+
+// ── Module helpers ────────────────────────────────────────────────────────────
+
+function getModuleId(order: ApiOrder): number {
+    return order.store?.module_id ?? order.module_id;
+}
+function getModuleName(order: ApiOrder): string {
+    return order.store?.module?.module_name ?? order.module_name;
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+interface Props {
+    orders: ApiOrder[];
+}
+
+export function OrdersClient({ orders }: Props) {
+    const [activeModuleId, setActiveModuleId] = useState<number | "all">("all");
+    const [filterOpen, setFilterOpen]     = useState(false);
     const [filterVisible, setFilterVisible] = useState(false);
-    const [draftFilter, setDraftFilter] = useState<FilterState>(EMPTY_FILTER);
+    const [draftFilter, setDraftFilter]   = useState<FilterState>(EMPTY_FILTER);
     const [appliedFilter, setAppliedFilter] = useState<FilterState>(EMPTY_FILTER);
 
+    // ── Build dynamic module tabs from data ──
+    const moduleTabs = useMemo(() => {
+        const seen = new Map<number, string>();
+        for (const o of orders) {
+            const id = getModuleId(o);
+            if (!seen.has(id)) seen.set(id, getModuleName(o));
+        }
+        return Array.from(seen.entries()).map(([id, label]) => ({ id, label }));
+    }, [orders]);
+
+    // ── Filter & group ──
+    const filteredOrders = useMemo(() => {
+        return orders.filter((o) => {
+            const moduleMatch = activeModuleId === "all" || getModuleId(o) === activeModuleId;
+            const statusMatch =
+                appliedFilter.statuses.length === 0 ||
+                appliedFilter.statuses.includes(o.order_status as OrderStatus);
+            return moduleMatch && statusMatch;
+        });
+    }, [orders, activeModuleId, appliedFilter]);
+
+    const groupedOrders = useMemo(() => {
+        const map = new Map<DateGroupLabel, ApiOrder[]>();
+        for (const o of filteredOrders) {
+            const label = dateGroupLabel(o.order_date);
+            if (!map.has(label)) map.set(label, []);
+            map.get(label)!.push(o);
+        }
+        return GROUP_ORDER.filter((g) => map.has(g)).map((g) => ({
+            label: g,
+            orders: map.get(g)!,
+        }));
+    }, [filteredOrders]);
+
+    const hasActiveFilters =
+        appliedFilter.statuses.length > 0 ||
+        appliedFilter.timePeriod !== null ||
+        appliedFilter.date !== "";
+
+    // ── Filter sheet handlers ──
     const openFilter = useCallback(() => {
         setDraftFilter(appliedFilter);
         setFilterOpen(true);
@@ -52,11 +127,6 @@ export function OrdersClient() {
         closeFilter();
     }, [draftFilter, closeFilter]);
 
-    useEffect(() => {
-        document.body.style.overflow = filterOpen ? "hidden" : "";
-        return () => { document.body.style.overflow = ""; };
-    }, [filterOpen]);
-
     const toggleStatus = (status: OrderStatus) => {
         setDraftFilter((prev) => ({
             ...prev,
@@ -66,16 +136,10 @@ export function OrdersClient() {
         }));
     };
 
-    const filteredOrders = MOCK_ORDERS.filter((order) => {
-        const moduleMatch = activeModule === "all" || order.module === activeModule;
-        const statusMatch = appliedFilter.statuses.length === 0 || appliedFilter.statuses.includes(order.status);
-        return moduleMatch && statusMatch;
-    });
-
-    const hasActiveFilters =
-        appliedFilter.statuses.length > 0 ||
-        appliedFilter.timePeriod !== null ||
-        appliedFilter.date !== "";
+    useEffect(() => {
+        document.body.style.overflow = filterOpen ? "hidden" : "";
+        return () => { document.body.style.overflow = ""; };
+    }, [filterOpen]);
 
     return (
         <>
@@ -96,16 +160,28 @@ export function OrdersClient() {
                     <h1 className="text-[17px] font-bold text-gray-900">طلباتي</h1>
                 </div>
 
-                {/* Module tabs */}
+                {/* Dynamic module tabs */}
                 <div className="flex gap-2 overflow-x-auto px-4 pb-3 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    {MODULE_TABS.map((tab) => (
+                    <button
+                        type="button"
+                        onClick={() => setActiveModuleId("all")}
+                        className={[
+                            "shrink-0 rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors",
+                            activeModuleId === "all"
+                                ? "bg-[#30913F] text-white"
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                        ].join(" ")}
+                    >
+                        الكل
+                    </button>
+                    {moduleTabs.map((tab) => (
                         <button
                             key={tab.id}
                             type="button"
-                            onClick={() => setActiveModule(tab.id)}
+                            onClick={() => setActiveModuleId(tab.id)}
                             className={[
                                 "shrink-0 rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors",
-                                activeModule === tab.id
+                                activeModuleId === tab.id
                                     ? "bg-[#30913F] text-white"
                                     : "bg-gray-100 text-gray-600 hover:bg-gray-200",
                             ].join(" ")}
@@ -117,7 +193,7 @@ export function OrdersClient() {
             </header>
 
             {/* ── Orders list ── */}
-            <main className="space-y-3 px-4 py-4 pb-24">
+            <main className="space-y-1 px-4 py-4 pb-24">
                 {filteredOrders.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
                         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
@@ -127,8 +203,15 @@ export function OrdersClient() {
                         <p className="mt-1 text-sm text-gray-400">لم يتم العثور على طلبات بهذه الفلاتر</p>
                     </div>
                 ) : (
-                    filteredOrders.map((order) => (
-                        <OrderCard key={order.id} order={order} />
+                    groupedOrders.map(({ label, orders: groupOrders }) => (
+                        <section key={label} className="space-y-3">
+                            <p className="pt-3 text-[12px] font-semibold text-gray-400 tracking-wide">
+                                {label}
+                            </p>
+                            {groupOrders.map((order) => (
+                                <OrderCard key={order.id} order={order} />
+                            ))}
+                        </section>
                     ))
                 )}
             </main>
@@ -250,9 +333,20 @@ export function OrdersClient() {
     );
 }
 
-function OrderCard({ order }: { order: Order }) {
+// ── OrderCard ─────────────────────────────────────────────────────────────────
+
+function OrderCard({ order }: { order: ApiOrder }) {
     const router = useRouter();
-    const statusStyle = STATUS_STYLES[order.status];
+    const statusInfo = STATUS_STYLES[order.order_status] ?? {
+        bg: "bg-gray-100",
+        text: "text-gray-500",
+        label: order.order_status,
+    };
+    const storeName = order.store?.name ?? "—";
+    const logoUrl   = order.store?.logo_full_url;
+    const amount    = order.order_amount != null
+        ? `${order.order_amount} ج.م`
+        : null;
 
     return (
         <article
@@ -261,39 +355,48 @@ function OrderCard({ order }: { order: Order }) {
         >
             {/* RIGHT — text content */}
             <div className="flex flex-1 flex-col gap-1.5 px-4 py-3.5">
-                {/* Store name + status badge */}
                 <div className="flex items-center justify-between gap-2">
-
-                    <p className="text-right text-[12px] text-gray-400">{order.storeName}</p>
-
-                    <p className="truncate text-[15px] font-bold text-gray-900">{order.orderNum}</p>
+                    <p className="text-right text-[12px] text-gray-400">{storeName}</p>
+                    <p className="truncate text-[15px] font-bold text-gray-900">#{order.id}</p>
                 </div>
 
                 <span
                     className={[
                         "shrink-0 w-fit rounded-full px-3 py-1 text-[11px] font-semibold",
-                        statusStyle.bg,
-                        statusStyle.text,
+                        statusInfo.bg,
+                        statusInfo.text,
                     ].join(" ")}
                 >
-                    {statusStyle.label}
+                    {statusInfo.label}
                 </span>
 
-                {/* Date with clock icon */}
-                <div className="flex  items-center gap-1.5">
+                <div className="flex items-center gap-1.5">
                     <Clock className="h-[13px] w-[13px] shrink-0 text-gray-400" strokeWidth={1.6} />
-                    <p className="text-[12px] text-gray-500">تاريخ الطلب {order.date}</p>
+                    <p className="text-[12px] text-gray-500">
+                        {order.order_date} · {order.order_time}
+                    </p>
                 </div>
 
-                {/* Total */}
-                <p className="text-right text-[14px] font-bold text-gray-900">
-                    إجمالي التكلفة {order.total}
-                </p>
+                {amount && (
+                    <p className="text-right text-[14px] font-bold text-gray-900">
+                        إجمالي التكلفة {amount}
+                    </p>
+                )}
             </div>
 
-            {/* LEFT — image placeholder */}
+            {/* LEFT — store logo or placeholder */}
             <div className="flex w-[90px] shrink-0 items-center justify-center self-stretch rounded-l-2xl bg-[#F6F5F8]">
-                <Store className="h-8 w-8 text-gray-300" strokeWidth={1.4} />
+                {logoUrl ? (
+                    <Image
+                        src={logoUrl}
+                        alt={storeName}
+                        width={56}
+                        height={56}
+                        className="h-14 w-14 rounded-xl object-cover"
+                    />
+                ) : (
+                    <Store className="h-8 w-8 text-gray-300" strokeWidth={1.4} />
+                )}
             </div>
         </article>
     );

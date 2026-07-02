@@ -1,10 +1,28 @@
-import { MOCK_CHECKOUT } from "@/features/checkout/constants/checkout.constants";
+import { getCart } from "@/features/cart/api/cart";
+import { formatPrice } from "@/features/home/components/shared/PriceTag";
 import { InvoiceDetailsClient } from "./InvoiceDetailsClient";
 import InvoiceDetailsSkeleton from "./skeleton";
 
+function formatInvoiceAmount(amount: number) {
+    return `${formatPrice(amount)} ﷼`;
+}
+
 export const InvoiceDetails = Object.assign(
-    function InvoiceDetails() {
-        return <InvoiceDetailsClient invoice={MOCK_CHECKOUT.invoice} />;
+    async function InvoiceDetails() {
+        const items = await getCart();
+        const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+        return (
+            <InvoiceDetailsClient
+                invoice={{
+                    subtotal: formatInvoiceAmount(subtotal),
+                    deliveryFee: formatInvoiceAmount(0),
+                    serviceFee: formatInvoiceAmount(0),
+                    discount: formatInvoiceAmount(0),
+                    total: formatInvoiceAmount(subtotal),
+                }}
+            />
+        );
     },
     { skeleton: InvoiceDetailsSkeleton }
 );
