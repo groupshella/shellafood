@@ -50,15 +50,15 @@ function formatArabicDate(date: Date): string {
     });
 }
 
-function sortNewestFirst<T extends { created_at?: string | null }>(items: T[]): T[] {
+function sortNewestFirst<T extends { wishlisted_at?: string | null }>(items: T[]): T[] {
     return [...items].sort((a, b) => {
-        const timeA = parseDate(a.created_at)?.getTime() ?? 0;
-        const timeB = parseDate(b.created_at)?.getTime() ?? 0;
+        const timeA = parseDate(a.wishlisted_at)?.getTime() ?? 0;
+        const timeB = parseDate(b.wishlisted_at)?.getTime() ?? 0;
         return timeB - timeA;
     });
 }
 
-export function groupByDate<T extends { created_at?: string | null }>(
+export function groupByDate<T extends { wishlisted_at?: string | null }>(
     items: T[]
 ): DateGroup<T>[] {
     const todayKey = getTodayKey();
@@ -66,7 +66,7 @@ export function groupByDate<T extends { created_at?: string | null }>(
     const map = new Map<string, T[]>();
 
     for (const item of items) {
-        const parsed = parseDate(item.created_at);
+        const parsed = parseDate(item.wishlisted_at);
         const key = parsed ? toLocalDateKey(parsed) : "unknown";
         const group = map.get(key) ?? [];
         group.push(item);

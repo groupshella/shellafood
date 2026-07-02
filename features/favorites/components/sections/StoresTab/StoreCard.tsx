@@ -44,9 +44,9 @@ export function StoreCard({
         <article className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04]">
             {/* Banner area */}
             <div className="relative h-[140px] w-full bg-[#F6F5F8]">
-                {store.banner ? (
+                {store.cover_photo ? (
                     <Image
-                        src={store.banner}
+                        src={store.cover_photo}
                         alt=""
                         fill
                         className="object-cover"
@@ -79,7 +79,7 @@ export function StoreCard({
                 </button>
 
                 {/* Rating pill — top right (LTR: end) */}
-                {store.rating != null && (
+                {store.avg_rating > 0 && (
                     <div className="absolute end-3 top-3 flex items-center gap-1 rounded-full bg-[#EBFEEB] px-2 py-1 shadow-sm">
                         <Star
                             className="h-3 w-3 fill-[#30913F] text-[#30913F]"
@@ -87,18 +87,18 @@ export function StoreCard({
                             aria-hidden
                         />
                         <span className="text-[11px] font-bold text-[#30913F]">
-                            {store.rating.toFixed(1)}
+                            {store.avg_rating.toFixed(1)}
                         </span>
                     </div>
                 )}
 
                 {/* Bottom pills */}
                 <div className="absolute bottom-2.5 start-2.5 flex items-center gap-1.5">
-                    {store.delivery_time != null && (
+                    {store.delivery_time && (
                         <span className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur-sm">
                             <Clock className="h-3 w-3 text-gray-500" strokeWidth={1.6} aria-hidden />
                             <span className="text-[11px] font-medium text-gray-700">
-                                {store.delivery_time} دقيقة
+                                {store.delivery_time}
                             </span>
                         </span>
                     )}
@@ -136,9 +136,9 @@ export function StoreCard({
                     <p className="truncate text-[15px] font-bold text-[#111B18]">
                         {store.name}
                     </p>
-                    {store.module_type && (
+                    {(store.module_type || store.module_id) && (
                         <p className="truncate text-[12px] text-[#707784]">
-                            {store.module_type}
+                            {store.module_type ?? `قسم ${store.module_id}`}
                         </p>
                     )}
                 </div>

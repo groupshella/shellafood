@@ -6,7 +6,6 @@ export const ProductsTab = Object.assign(
     async function ProductsTab() {
         const data = await getWishlist();
         const products = data.item ?? [];
-        console.log(products);
         return <ProductsTabClient products={products} />;
     },
     { skeleton: ProductsTabSkeleton }

@@ -29,7 +29,8 @@ export function ProductCard({
     const displayPrice = hasDiscount ? product.discounted_price! : product.price;
     const discountPercent =
         hasDiscount && product.discount != null ? Math.round(product.discount) : null;
-    const showImage = !imgError && !!product.image;
+    const imageUrl = product.image_full_url || product.image;
+    const showImage = !imgError && !!imageUrl;
 
     async function toggleFavorite(e: React.MouseEvent) {
         e.preventDefault();
@@ -60,7 +61,7 @@ export function ProductCard({
         >
             {/* Product image */}
             <Link
-                href={`/items/${product.id}`}
+                href={`/items/${product.id}?module_id=${product.module_id}`}
                 tabIndex={-1}
                 aria-hidden
                 className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl bg-[#F6F5F8] outline-none"
@@ -72,7 +73,7 @@ export function ProductCard({
                 )}
                 {showImage ? (
                     <Image
-                        src={product.image!}
+                        src={imageUrl}
                         alt=""
                         fill
                         className="object-contain p-1.5"
@@ -89,7 +90,7 @@ export function ProductCard({
 
             {/* Text */}
             <Link
-                href={`/items/${product.id}`}
+                href={`/items/${product.id}?module_id=${product.module_id}`}
                 aria-label={product.name}
                 className="min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
             >
@@ -98,7 +99,7 @@ export function ProductCard({
                 </p>
                 {product.unit_type && (
                     <p className="mt-0.5 text-[12px] text-[#707784]">
-                        {product.unit_amount} {product.unit_type}
+                        {product.unit_type}
                     </p>
                 )}
                 <div className="mt-1.5 flex items-center gap-2">
