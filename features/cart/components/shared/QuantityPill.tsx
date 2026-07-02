@@ -7,6 +7,7 @@ interface QuantityPillProps {
     onIncrease: () => void;
     onDecrease: () => void;
     disabled?: boolean;
+    isSyncing?: boolean;
     size?: "sm" | "md";
     className?: string;
 }
@@ -16,6 +17,7 @@ export function QuantityPill({
     onIncrease,
     onDecrease,
     disabled = false,
+    isSyncing = false,
     size = "md",
     className = "",
 }: QuantityPillProps) {
@@ -50,8 +52,9 @@ export function QuantityPill({
 
             <span
                 className={[
-                    "min-w-[1.25rem] text-center font-bold text-white",
+                    "min-w-[1.25rem] text-center font-bold text-white transition-opacity duration-200",
                     isSm ? "text-xs" : "text-base",
+                    isSyncing ? "opacity-70" : "opacity-100",
                 ].join(" ")}
             >
                 {quantity}
