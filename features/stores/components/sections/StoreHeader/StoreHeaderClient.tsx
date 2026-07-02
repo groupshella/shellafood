@@ -1,10 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Heart, Search, Clock, Truck, Star } from "lucide-react";
+import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
 import { StoreDetails, StoreCategory } from "@/features/stores/types/store.types";
 
+const HERO_ICON_BTN = [
+    "flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-colors active:bg-white/30",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+    "disabled:cursor-not-allowed disabled:opacity-60",
+].join(" ");
 interface StoreHeaderClientProps {
     store: StoreDetails;
     categories: StoreCategory[];
@@ -21,6 +28,8 @@ export function StoreHeaderClient({
     moduleId,
 }: StoreHeaderClientProps) {
     const router = useRouter();
+    const [favorited, setFavorited] = useState(false);
+    const [favoritePending, setFavoritePending] = useState(false);
 
     const handleCategoryClick = (categoryId: number) => {
         router.push(`/stores/${storeId}?module_id=${moduleId}&categoryId=${categoryId}`);
@@ -30,6 +39,28 @@ export function StoreHeaderClient({
         router.back();
     };
 
+    const handleOpenSearch = () => {
+        router.push(`/search?module_id=${moduleId}`);
+    };
+
+    async function toggleFavorite() {
+        if (favoritePending) return;
+
+        setFavoritePending(true);
+        const wasLiked = favorited;
+        setFavorited(!wasLiked);
+
+        const numericStoreId = Number(storeId);
+        const result = wasLiked
+            ? await removeFromWishlist({ storeId: numericStoreId })
+            : await addToWishlist({ storeId: numericStoreId });
+
+        if (!result.success) {
+            setFavorited(wasLiked);
+        }
+
+        setFavoritePending(false);
+    }
     return (
         <div>
             {/* ── Green hero header ─────────────────────────────────────────── */}
@@ -56,20 +87,29 @@ export function StoreHeaderClient({
                 />
 
                 {/* Icon row */}
-                <div className="relative z-10 flex items-center justify-between px-4 pt-4">
+                <div className="relative z-10 flex items-center flex-row-reverse justify-between px-4 pt-4">
                     {/* Right: heart + search */}
                     <div className="flex items-center gap-2">
                         <button
                             type="button"
-                            aria-label="إضافة إلى المفضلة"
-                            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-colors active:bg-white/30"
+                            onClick={toggleFavorite}
+                            disabled={favoritePending}
+                            aria-label={favorited ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                            className={HERO_ICON_BTN}
                         >
-                            <Heart className="h-5 w-5 text-white" strokeWidth={1.8} />
+                            <Heart
+                                className={[
+                                    "h-5 w-5 transition-colors",
+                                    favorited ? "fill-white text-white" : "fill-none text-white",
+                                ].join(" ")}
+                                strokeWidth={favorited ? 0 : 1.8}
+                            />
                         </button>
                         <button
                             type="button"
+                            onClick={handleOpenSearch}
                             aria-label="بحث"
-                            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-colors active:bg-white/30"
+                            className={HERO_ICON_BTN}
                         >
                             <Search className="h-5 w-5 text-white" strokeWidth={1.8} />
                         </button>
@@ -80,30 +120,15 @@ export function StoreHeaderClient({
                         type="button"
                         onClick={handleBack}
                         aria-label="رجوع"
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-colors active:bg-white/30"
-                    >
-                        <ChevronRight className="h-5 w-5 text-white" strokeWidth={2} />
+                        className={HERO_ICON_BTN}
+                    >                        <ChevronRight className="h-5 w-5 text-white" strokeWidth={2} />
                     </button>
                 </div>
 
-                {/* Delivery badges */}
-                <div className="relative z-10 mt-3 flex items-center gap-2 px-4">
-                    {store.delivery_time && (
-                        <span className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                            <Clock className="h-3.5 w-3.5" strokeWidth={1.8} />
-                            {store.delivery_time}
-                        </span>
-                    )}
-                    {store.free_delivery && (
-                        <span className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                            <Truck className="h-3.5 w-3.5" strokeWidth={1.8} />
-                            توصيل مجاني
-                        </span>
-                    )}
-                </div>
 
-                {/* Store logo card — floats on the end (right in RTL) */}
-                <div className="relative z-10 mt-4 flex justify-end px-4">
+
+                {/* Store logo card — floats on the start (right in RTL) */}
+                <div className="relative z-10 mt-4 flex justify-start px-4">
                     <div className="h-[72px] w-[72px] overflow-hidden rounded-2xl bg-white p-1.5 shadow-lg">
                         {store.store_logo_url ? (
                             <Image
@@ -121,6 +146,21 @@ export function StoreHeaderClient({
                             </div>
                         )}
                     </div>
+                </div>
+                {/* Delivery badges */}
+                <div className="relative z-10 mt-3 flex items-center gap-2 px-4">
+                    {store.delivery_time && (
+                        <span className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                            <Clock className="h-3.5 w-3.5" strokeWidth={1.8} />
+                            {store.delivery_time}
+                        </span>
+                    )}
+                    {store.free_delivery && (
+                        <span className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                            <Truck className="h-3.5 w-3.5" strokeWidth={1.8} />
+                            توصيل مجاني
+                        </span>
+                    )}
                 </div>
             </div>
 
