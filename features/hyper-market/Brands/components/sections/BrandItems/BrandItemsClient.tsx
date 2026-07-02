@@ -14,6 +14,7 @@ import { useBrandSearch } from "@/features/hyper-market/Brands/hooks/useBrandSea
 import { useBrandFilter } from "@/features/hyper-market/Brands/hooks/useBrandFilter";
 import { FilterSheet } from "@/features/hyper-market/Brands/components/shared/FilterSheet";
 import { BrandItemCard } from "./BrandItemCard";
+import { BrandItemsListLoading } from "./skeleton";
 
 /* ── Shared icon-button class ──────────────────────────────────────── */
 
@@ -45,13 +46,7 @@ function ProductsToolbar({
         >
             {/* Left group: action icon buttons */}
             <div className="flex items-center gap-2">
-                <button type="button" className={TOOLBAR_ICON_BTN} aria-label="عرض القائمة">
-                    <List className="h-[18px] w-[18px]" strokeWidth={2.25} />
-                </button>
 
-                <button type="button" className={TOOLBAR_ICON_BTN} aria-label="ترتيب المنتجات">
-                    <TrendingUp className="h-[18px] w-[18px]" strokeWidth={2.25} />
-                </button>
 
                 {/* Filter button with active-indicator dot */}
                 <div className="relative">
@@ -126,7 +121,12 @@ function SearchBar({ value, onChange, onClose }: SearchBarProps) {
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder="ابحث في المنتجات..."
-                    className="w-full rounded-xl bg-[#F6F5F8] py-2.5 pe-9 ps-4 text-[13px] text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#30913F]"
+                    className={[
+                        "w-full rounded-xl bg-[#F6F5F8] py-2.5 pe-9 ps-4 text-[13px] text-gray-700 placeholder:text-gray-400",
+                        "focus:outline-none focus:ring-2 focus:ring-[#30913F]",
+                        "[&::-webkit-search-cancel-button]:appearance-none",
+                        "[&::-webkit-search-decoration]:appearance-none",
+                    ].join(" ")}
                 />
             </div>
 
@@ -145,20 +145,59 @@ function SearchBar({ value, onChange, onClose }: SearchBarProps) {
 
 /* ── Empty state ────────────────────────────────────────────────────── */
 
-function EmptyState({ isSearch }: { isSearch: boolean }) {
+type EmptyMode = "search" | "filter" | "none";
+
+function EmptyState({
+    mode,
+    onClearSearch,
+    onClearFilters,
+}: {
+    mode: EmptyMode;
+    onClearSearch: () => void;
+    onClearFilters: () => void;
+}) {
+    const title =
+        mode === "search"
+            ? "لا توجد نتائج"
+            : mode === "filter"
+                ? "لا توجد منتجات بهذا الفلتر"
+                : "لا توجد منتجات حالياً";
+
+    const description =
+        mode === "search"
+            ? "جرّب كلمة بحث مختلفة"
+            : mode === "filter"
+                ? "جرّب تعديل الفلاتر أو إزالتها"
+                : "جرّب لاحقاً أو غيّر الفلاتر إن كانت مطبّقة";
+
     return (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="flex flex-col items-center justify-center py-20 text-center" dir="rtl">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
                 <ShoppingBag className="h-8 w-8 text-gray-300" strokeWidth={1.4} />
             </div>
-            <p className="text-[15px] font-semibold text-gray-700">
-                {isSearch ? "لا توجد نتائج" : "لا توجد منتجات"}
-            </p>
-            <p className="mt-1 text-[13px] text-gray-400">
-                {isSearch
-                    ? "جرّب كلمة بحث مختلفة"
-                    : "جرّب تغيير الفلاتر المطبّقة"}
-            </p>
+
+            <p className="text-[15px] font-semibold text-gray-700">{title}</p>
+            <p className="mt-1 text-[13px] text-gray-400">{description}</p>
+
+            {mode === "search" && (
+                <button
+                    type="button"
+                    onClick={onClearSearch}
+                    className="mt-4 rounded-xl border border-[#30913F]/30 bg-white px-4 py-2 text-[13px] font-semibold text-[#30913F] transition-colors active:bg-[#EBFEEB]"
+                >
+                    مسح البحث
+                </button>
+            )}
+
+            {mode === "filter" && (
+                <button
+                    type="button"
+                    onClick={onClearFilters}
+                    className="mt-4 rounded-xl border border-[#30913F]/30 bg-white px-4 py-2 text-[13px] font-semibold text-[#30913F] transition-colors active:bg-[#EBFEEB]"
+                >
+                    إزالة الفلاتر
+                </button>
+            )}
         </div>
     );
 }
@@ -228,20 +267,6 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
                 />
             )}
 
-            {/* ── Search loading ── */}
-            {search.loading && (
-                <p className="px-4 py-2 text-center text-[13px] text-gray-400">
-                    جارٍ البحث…
-                </p>
-            )}
-
-            {/* ── Filter loading ── */}
-            {filter.loading && (
-                <p className="px-4 py-2 text-center text-[13px] text-gray-400">
-                    جارٍ تطبيق الفلتر…
-                </p>
-            )}
-
             {/* ── Error ── */}
             {(search.error ?? filter.error) && (
                 <p className="px-4 py-2 text-center text-[13px] text-red-500">
@@ -270,9 +295,15 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
                 </div>
             )}
 
-            {/* ── Product list ── */}
-            {!search.loading && !filter.loading && displayItems.length === 0 ? (
-                <EmptyState isSearch={isSearchActive} />
+            {/* ── Search / filter loading ── */}
+            {search.loading || filter.loading ? (
+                <BrandItemsListLoading />
+            ) : total === 0 ? (
+                <EmptyState
+                    mode={isSearchActive ? "search" : isFilterActive ? "filter" : "none"}
+                    onClearSearch={closeSearch}
+                    onClearFilters={filter.clearFilters}
+                />
             ) : (
                 <div className="flex flex-col divide-y divide-gray-100 bg-white">
                     {displayItems.map((item) => (
