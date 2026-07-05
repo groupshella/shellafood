@@ -29,6 +29,7 @@ export function applyOptimisticQuantity(
     return [
         ...items,
         {
+            item_id: optimisticCartLineId(product.id),
             id: optimisticCartLineId(product.id),
             name: product.name,
             description: "",

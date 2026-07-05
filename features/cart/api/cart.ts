@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
-import { CartItem } from "../types/cart.types";
+import { CartItem, parseCartItems } from "../types/cart.types";
 
 export async function getCart(): Promise<CartItem[]> {
   const cookieStore = await cookies();
@@ -32,5 +32,5 @@ export async function getCart(): Promise<CartItem[]> {
   if (!res.ok) return [];
 
   const json = await res.json();
-  return Array.isArray(json) ? json : [];
+  return parseCartItems(json);
 }

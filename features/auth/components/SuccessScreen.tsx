@@ -2,7 +2,11 @@
 
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+
+import {
+	PrimaryButton,
+	tajawal,
+} from "@/features/auth/components/shared/AuthPrimitives";
 
 interface SuccessScreenProps {
 	title: string;
@@ -10,6 +14,55 @@ interface SuccessScreenProps {
 	buttonLabel: string;
 	onAction: () => void;
 }
+
+const SuccessIllustration = memo(function SuccessIllustration() {
+	return (
+		<motion.svg
+			width="176"
+			height="176"
+			viewBox="0 0 176 176"
+			fill="none"
+			initial={{ scale: 0.6, opacity: 0 }}
+			animate={{ scale: 1, opacity: 1 }}
+			transition={{ type: "spring", stiffness: 200, damping: 14 }}
+			aria-hidden
+		>
+			<defs>
+				<linearGradient id="successGrad" x1="88" y1="30" x2="88" y2="146" gradientUnits="userSpaceOnUse">
+					<stop stopColor="#8CC63F" />
+					<stop offset="1" stopColor="#39B54A" />
+				</linearGradient>
+			</defs>
+
+			{/* Decorative particles */}
+			<g opacity="0.18" fill="url(#successGrad)">
+				<circle cx="26" cy="60" r="5" />
+				<circle cx="150" cy="54" r="6" />
+				<circle cx="40" cy="126" r="4" />
+				<circle cx="140" cy="128" r="5" />
+				<circle cx="88" cy="20" r="4" />
+				<rect x="18" y="92" width="8" height="8" rx="2" transform="rotate(20 22 96)" />
+				<rect x="150" y="96" width="9" height="9" rx="2" transform="rotate(-15 154 100)" />
+			</g>
+
+			{/* Main circle */}
+			<circle cx="88" cy="88" r="52" fill="url(#successGrad)" />
+
+			{/* Checkmark */}
+			<motion.path
+				d="M66 89 82 105 112 73"
+				stroke="#fff"
+				strokeWidth="8"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				fill="none"
+				initial={{ pathLength: 0 }}
+				animate={{ pathLength: 1 }}
+				transition={{ delay: 0.25, duration: 0.4, ease: "easeOut" }}
+			/>
+		</motion.svg>
+	);
+});
 
 const SuccessScreen = memo(function SuccessScreen({
 	title,
@@ -21,48 +74,35 @@ const SuccessScreen = memo(function SuccessScreen({
 		<div
 			dir="rtl"
 			lang="ar"
-			className="relative flex min-h-dvh w-full flex-col items-center justify-center bg-white px-6 pb-8"
+			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col bg-white text-[#111B18]`}
 		>
-			<motion.div
-				initial={{ scale: 0.6, opacity: 0 }}
-				animate={{ scale: 1, opacity: 1 }}
-				transition={{ type: "spring", stiffness: 200, damping: 14 }}
-				className="flex h-28 w-28 items-center justify-center rounded-full bg-[#30913F]/10"
-			>
-				<div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#30913F] shadow-lg shadow-[#30913F]/25">
-					<Check className="h-10 w-10 text-white" strokeWidth={2.5} />
+			<div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center px-4 pb-8 pt-14 sm:pt-16">
+				<div className="flex flex-1 flex-col items-center justify-center">
+					<SuccessIllustration />
+
+					<motion.h1
+						initial={{ y: 12, opacity: 0 }}
+						animate={{ y: 0, opacity: 1 }}
+						transition={{ delay: 0.2, duration: 0.4 }}
+						className="mt-8 text-center text-[24px] font-bold leading-[29px] text-[#111B18]"
+					>
+						{title}
+					</motion.h1>
+
+					<motion.p
+						initial={{ y: 8, opacity: 0 }}
+						animate={{ y: 0, opacity: 1 }}
+						transition={{ delay: 0.25, duration: 0.4 }}
+						className="mt-2 max-w-[300px] text-center text-[16px] font-normal leading-relaxed text-[#555555]"
+					>
+						{subtitle}
+					</motion.p>
 				</div>
-			</motion.div>
 
-			<motion.h1
-				initial={{ y: 15, opacity: 0 }}
-				animate={{ y: 0, opacity: 1 }}
-				transition={{ delay: 0.15, duration: 0.4 }}
-				className="mt-8 text-center text-[22px] font-bold text-gray-900"
-			>
-				{title}
-			</motion.h1>
-
-			<motion.p
-				initial={{ y: 10, opacity: 0 }}
-				animate={{ y: 0, opacity: 1 }}
-				transition={{ delay: 0.2, duration: 0.4 }}
-				className="mt-2 max-w-[280px] text-center text-sm leading-relaxed text-gray-500"
-			>
-				{subtitle}
-			</motion.p>
-
-			<motion.button
-				type="button"
-				initial={{ y: 20, opacity: 0 }}
-				animate={{ y: 0, opacity: 1 }}
-				transition={{ delay: 0.3, duration: 0.4 }}
-				whileTap={{ scale: 0.98 }}
-				onClick={onAction}
-				className="mt-10 w-full rounded-2xl bg-[#30913F] py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
-			>
-				{buttonLabel}
-			</motion.button>
+				<div className="w-full">
+					<PrimaryButton onClick={onAction}>{buttonLabel}</PrimaryButton>
+				</div>
+			</div>
 		</div>
 	);
 });

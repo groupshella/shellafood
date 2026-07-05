@@ -29,15 +29,19 @@ export default function AuthFlowPage() {
         goToRegister,
         goToForgotPassword,
         goToLogin,
+        goToLoginWithPhone,
+        goToForgotPasswordWithPhone,
+        prefillPhone,
     } = useAuth();
 
     return (
-        <main className="min-h-dvh bg-white">
+        <>
             {step === "login" && (
                 <LoginScreen
                     isLoading={isLoading}
                     error={error}
                     infoMessage={infoMessage}
+                    prefillPhone={prefillPhone}
                     onLogin={handleLogin}
                     onForgotPassword={goToForgotPassword}
                     onRegister={goToRegister}
@@ -52,6 +56,8 @@ export default function AuthFlowPage() {
                     isLoading={isLoading}
                     error={error}
                     onBack={goBack}
+                    onGoToLogin={goToLoginWithPhone}
+                    onForgotPassword={goToForgotPasswordWithPhone}
                     onCreate={handleRegister}
                 />
             )}
@@ -60,6 +66,7 @@ export default function AuthFlowPage() {
                 <ForgotPasswordScreen
                     isLoading={isLoading}
                     error={error}
+                    prefillPhone={prefillPhone}
                     onBack={goBack}
                     onSubmit={handleForgotPasswordSubmit}
                 />
@@ -105,6 +112,6 @@ export default function AuthFlowPage() {
                     onAction={goToLogin}
                 />
             )}
-        </main>
+        </>
     );
 }

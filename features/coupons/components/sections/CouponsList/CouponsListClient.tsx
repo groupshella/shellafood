@@ -64,7 +64,7 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 					}
 				/>
 			) : (
-				<div className="flex flex-col gap-3">
+				<div className="flex flex-col gap-4">
 					{activeList.map((coupon, index) => (
 						<CouponCard
 							key={coupon.id}

@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import { UpdateAddressPayload, UpdateAddressResponse } from "../types/address.types";
 
@@ -36,8 +36,8 @@ export async function updateAddress(
   const json: UpdateAddressResponse = await res.json();
 
   if (json.success) {
-    revalidateTag("addresses", "page");
-    revalidateTag(`address-${id}`, "page");
+    updateTag("addresses");
+    updateTag(`address-${id}`);
     return { success: true, message: json.message };
   }
 

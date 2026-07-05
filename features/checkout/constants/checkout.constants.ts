@@ -21,4 +21,17 @@ export const MOCK_CHECKOUT: CheckoutData = {
         discount: "20.00 ﷼",
         total: "51.95 ﷼",
     },
+    placeOrderPayload: {
+        cart: [],
+        order_amount: 0,
+        payment_method: "digital_payment",
+        order_type: "delivery",
+        store_id: 1,
+        distance: 0,
+        address: "",
+        longitude: "",
+        latitude: "",
+        contact_person_name: "",
+        contact_person_number: "",
+    },
 };

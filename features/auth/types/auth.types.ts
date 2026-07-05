@@ -7,6 +7,8 @@
 
 // ── User ─────────────────────────────────────────────────────────────────────
 
+export type UserGender = "male" | "female";
+
 export interface AuthUser {
     id: number;
     f_name: string;
@@ -15,8 +17,13 @@ export interface AuthUser {
     image?: string | null;
     loyalty_point: number;
     wallet_balance: number;
+    has_qidha_wallet?: boolean;
+    qidha_wallet_signed?: boolean;
+    qidha_wallet_active?: boolean;
+    qidha_wallet_balance?: number | null;
     email: string | null;
     phone: string;
+    gender?: UserGender | null;
     is_phone_verified: 0 | 1;
     is_email_verified: 0 | 1;
 }

@@ -1,0 +1,50 @@
+export const MODULE_SPEC = {
+	hypermarket: {
+		bg: "#E3FFE8",
+		text: "#237030",
+		label: "هايبر ماركت شلة",
+		tall: true,
+		disabled: false,
+		textAlign: "right" as const,
+		iconOpacity: 0.5,
+	},
+	restaurants: {
+		bg: "#FFF1E7",
+		text: "#B56717",
+		label: "المطـــاعم",
+		tall: true,
+		disabled: false,
+		textAlign: "right" as const,
+		iconOpacity: 0.5,
+	},
+	cafe: {
+		bg: "#F6F0E9",
+		text: "#7A4E2B",
+		label: "المقـــاهي",
+		tall: false,
+		disabled: false,
+		textAlign: "right" as const,
+		iconOpacity: 1,
+	},
+	markets: {
+		bg: "#F5F6F4",
+		text: "#555555",
+		label: "أسواق الحــي (قريباً)",
+		tall: false,
+		disabled: true,
+		textAlign: "center" as const,
+		iconOpacity: 0.5,
+	},
+	pharmacy: {
+		bg: "#F5F6F4",
+		text: "#555555",
+		label: "الصيدليات (قريباً)",
+		tall: false,
+		disabled: true,
+		textAlign: "center" as const,
+		iconOpacity: 0.5,
+		iconRotate: -15.3,
+	},
+} as const;
+
+export type ModuleSpecKey = keyof typeof MODULE_SPEC;

@@ -14,7 +14,6 @@ interface BrandItemCardProps {
 export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCardProps) {
     const [imgError, setImgError] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
-
     const hasDiscount = item.discount_percentage > 0 && item.discounted_price < item.price;
     const displayPrice = hasDiscount ? item.discounted_price : item.price;
     const showImage = !imgError && !!item.image_full_url;

@@ -1,15 +1,18 @@
 export default function ModuleSkeleton() {
-    return (
-        <div className="mx-auto w-full max-w-5xl space-y-2.5 px-4">
-            <div className="grid h-[168px] grid-cols-2 grid-rows-2 gap-2.5" dir="ltr">
-                <div className="animate-pulse rounded-2xl bg-gray-100" />
-                <div className="animate-pulse rounded-2xl bg-gray-100" />
-                <div className="col-start-2 row-span-2 row-start-1 animate-pulse rounded-2xl bg-gray-100" />
-            </div>
-            <div className="grid grid-cols-2 gap-2.5">
-                <div className="h-20 animate-pulse rounded-2xl bg-gray-100" />
-                <div className="h-20 animate-pulse rounded-2xl bg-gray-100" />
-            </div>
-        </div>
-    );
+	return (
+		<div className="flex w-full flex-col items-end gap-2">
+			<div className="h-6 w-16 animate-pulse rounded bg-[#F6F5F8]" />
+			<div className="grid h-[190px] w-full grid-cols-2 gap-4">
+				<div className="flex flex-col gap-2">
+					<div className="h-[91px] animate-pulse rounded-lg bg-[#F6F5F8]" />
+					<div className="h-[91px] animate-pulse rounded-lg bg-[#F6F5F8]" />
+				</div>
+				<div className="flex flex-col gap-2">
+					<div className="h-[58px] animate-pulse rounded-lg bg-[#F6F5F8]" />
+					<div className="h-[58px] animate-pulse rounded-lg bg-[#F6F5F8]" />
+					<div className="h-[58px] animate-pulse rounded-lg bg-[#F6F5F8]" />
+				</div>
+			</div>
+		</div>
+	);
 }

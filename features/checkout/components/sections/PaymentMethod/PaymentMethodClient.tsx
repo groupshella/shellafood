@@ -43,11 +43,61 @@ function PaymentTab({ selected, onSelect, icon, label, subValue }: PaymentTabPro
 const isEmptyBalance = (val: string) =>
     val === "0" || val === "00.0" || val === "0.0" || val === "0.00";
 
+function VisaMasterIcon() {
+    return (
+        <svg viewBox="0 0 72 24" fill="none" className="h-6 w-full" aria-hidden>
+            <text x="0" y="17" fill="#1A1F71" fontSize="14" fontWeight="700" fontFamily="Arial, sans-serif">
+                VISA
+            </text>
+            <circle cx="52" cy="12" r="8" fill="#EB001B" />
+            <circle cx="62" cy="12" r="8" fill="#F79E1B" fillOpacity="0.9" />
+        </svg>
+    );
+}
+
+function MadaIcon() {
+    return (
+        <svg viewBox="0 0 72 24" fill="none" className="h-6 w-full" aria-hidden>
+            <text x="36" y="17" fill="#00A651" fontSize="16" fontWeight="700" fontFamily="Arial, sans-serif" textAnchor="middle">
+                mada
+            </text>
+        </svg>
+    );
+}
+
+function ApplePayIcon() {
+    return (
+        <svg viewBox="0 0 72 24" fill="none" className="h-6 w-full" aria-hidden>
+            <path
+                d="M14.2 6.2c-.5.6-1.3 1.1-2.1 1-.1-.8.3-1.6.8-2.1.5-.6 1.4-1 2.1-1 .1.8-.2 1.6-.8 2.1Zm-.7 1.2c-1.2-.1-2.2.7-2.8.7-.6 0-1.5-.7-2.5-.7-1.3 0-2.5.8-3.1 2-.9 1.5-.7 3.8.6 5.3.5.7 1.1 1.4 1.9 1.4.8 0 1.1-.5 2.1-.5 1 0 1.2.5 2.1.5.8 0 1.4-.7 1.9-1.4.6-.8.8-1.6.8-1.7-.1 0-1.6-.6-1.6-2.4 0-1.5 1.2-2.2 1.3-2.3-1.1-1.6-2.7-1.7-3.2-1.7Z"
+                fill="#111B18"
+            />
+            <text x="24" y="17" fill="#111B18" fontSize="14" fontWeight="600" fontFamily="Arial, sans-serif">
+                Pay
+            </text>
+        </svg>
+    );
+}
+
+function StcPayIcon() {
+    return (
+        <svg viewBox="0 0 72 24" fill="none" className="h-6 w-full" aria-hidden>
+            <rect x="4" y="4" width="16" height="16" rx="4" fill="#4F008C" />
+            <text x="12" y="15.5" fill="#FFFFFF" fontSize="9" fontWeight="700" fontFamily="Arial, sans-serif" textAnchor="middle">
+                stc
+            </text>
+            <text x="42" y="17" fill="#4F008C" fontSize="13" fontWeight="700" fontFamily="Arial, sans-serif" textAnchor="middle">
+                pay
+            </text>
+        </svg>
+    );
+}
+
 const ELECTRONIC_OPTIONS = [
-    { id: "visa-master" as const, label: "VISA / MASTER" },
-    { id: "mada" as const, label: "Mada Card" },
-    { id: "apple-pay" as const, label: "Apple Pay" },
-    { id: "stc-pay" as const, label: "Debit Card" },
+    { id: "visa-master" as const, label: "VISA / MASTER", icon: <VisaMasterIcon /> },
+    { id: "mada" as const, label: "Mada Card", icon: <MadaIcon /> },
+    { id: "apple-pay" as const, label: "Apple Pay", icon: <ApplePayIcon /> },
+    { id: "stc-pay" as const, label: "Debit Card", icon: <StcPayIcon /> },
 ];
 
 const PAYMENT_METHOD_LABELS: Record<Exclude<PaymentMethodType, null>, string> = {
@@ -177,11 +227,8 @@ function ElectronicPaymentSheet({
                                     : "border-gray-200 bg-white"
                             }`}
                         >
-                            <div className="flex h-8 w-full items-center justify-center text-[10px] font-bold text-gray-400">
-                                {option.id === "visa-master" && "VISA / MC"}
-                                {option.id === "mada" && "mada"}
-                                {option.id === "apple-pay" && " Pay"}
-                                {option.id === "stc-pay" && "stc pay"}
+                            <div className="flex h-8 w-full items-center justify-center">
+                                {option.icon}
                             </div>
                             <span className="text-center text-[11px] font-medium text-gray-700">
                                 {option.label}

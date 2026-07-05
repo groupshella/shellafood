@@ -1,3 +1,4 @@
+import { MarketsStoreProvider } from "@/features/markets/context/MarketsStoreContext";
 import { Topbar } from "./Topbar";
 
 export function MarketsShell({
@@ -18,7 +19,7 @@ export function MarketsShell({
         >
             <Topbar moduleName={moduleName} moduleId={moduleId} isAuthenticated={isAuthenticated} />
 
-            {children}
+            <MarketsStoreProvider moduleId={moduleId}>{children}</MarketsStoreProvider>
         </div>
     );
 }

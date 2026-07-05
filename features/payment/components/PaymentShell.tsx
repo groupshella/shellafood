@@ -1,4 +1,3 @@
-// features/payment/components/PaymentShell.tsx
 "use client";
 
 import { ChevronRight } from "lucide-react";

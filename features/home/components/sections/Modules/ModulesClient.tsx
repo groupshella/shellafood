@@ -1,69 +1,59 @@
 "use client";
 
 import { Module } from "@/features/home/types/modules.types";
-import { ModuleCard } from "./ModuleCard";
+import { ModuleSpecKey } from "@/features/home/components/shared/home.tokens";
+import { ModuleCard, StaticModuleCard, resolveSpecKey } from "./ModuleCard";
 
-function chunkByTwo(items: Module[]): Module[][] {
-    const rows: Module[][] = [];
-    for (let i = 0; i < items.length; i += 2) {
-        rows.push(items.slice(i, i + 2));
-    }
-    return rows;
-}
-
-function HeroGrid({ left, right, startIndex }: { left: Module[]; right: Module | null; startIndex: number }) {
-    if (left.length === 0 && !right) return null;
-    if (!right) {
-        return (
-            <div className="flex flex-col gap-2.5">
-                {left.map((module, i) => (
-                    <ModuleCard key={module.id} module={module} colorIndex={startIndex + i} variant="compact" disabled />
-                ))}
-            </div>
-        );
-    }
-    return (
-        <div className="grid h-[168px] grid-cols-2 grid-rows-2 gap-2.5">
-            <div className="col-start-1 row-span-2 row-start-1 h-full">
-                <ModuleCard module={right} colorIndex={startIndex + 2} variant="tall" />
-            </div>
-            {left[0] && (
-                <div className="col-start-2 row-start-1">
-                    <ModuleCard module={left[0]} colorIndex={startIndex} variant="compact" disabled />
-                </div>
-            )}
-            {left[1] && (
-                <div className="col-start-2 row-start-2">
-                    <ModuleCard module={left[1]} colorIndex={startIndex + 1} variant="compact" disabled />
-                </div>
-            )}
-        </div>
-    );
-}
-
-function ModuleRow({ modules, startIndex }: { modules: Module[]; startIndex: number }) {
-    return (
-        <div className="grid grid-cols-2 gap-2.5">
-            {modules.map((module, i) => (
-                <ModuleCard key={module.id} module={module} colorIndex={startIndex + i} variant="compact" disabled />
-            ))}
-            {modules.length === 1 && <div aria-hidden />}
-        </div>
-    );
+function pickModule(modules: Module[], key: ModuleSpecKey): Module | null {
+	return modules.find((m) => resolveSpecKey(m) === key) ?? null;
 }
 
 export function ModulesClient({ modules }: { modules: Module[] }) {
-    const heroLeft = modules.slice(1, 3);
-    const heroRight = modules[0] ?? null;
-    const rows = chunkByTwo(modules.slice(3));
+	const hypermarket = pickModule(modules, "hypermarket");
+	const restaurants = pickModule(modules, "restaurants");
+	const cafe = pickModule(modules, "cafe");
 
-    return (
-        <section aria-label="الأقسام" className="mx-auto w-full max-w-5xl space-y-3 px-4">
-            <h2 className="text-lg font-bold text-gray-800">خدماتنا</h2>
-            <HeroGrid left={heroLeft} right={heroRight} startIndex={0} />
-            {rows.map((row, rowIndex) => (
-                <ModuleRow key={row.map((m) => m.id).join("-")} modules={row} startIndex={3 + rowIndex * 2} />
-            ))}
-        </section>
-    );
+	const compactSlots: { key: ModuleSpecKey; module: Module | null }[] = [
+		{ key: "cafe", module: cafe },
+		{ key: "markets", module: pickModule(modules, "markets") },
+		{ key: "pharmacy", module: pickModule(modules, "pharmacy") },
+	];
+
+	return (
+		<section
+			aria-label="خدماتنا"
+			className="flex w-full flex-col items-start gap-2"
+		>
+			<h2 className="h-6 text-right text-[20px] font-bold leading-[1.2] text-[#111B18]">
+				خدماتنا
+			</h2>
+
+			<div className="grid h-[190px] w-full grid-cols-2 gap-4">
+				{/* Right column in RTL — hypermarket + restaurants */}
+				<div className="flex flex-col gap-2">
+					{hypermarket ? (
+						<ModuleCard module={hypermarket} specKey="hypermarket" />
+					) : (
+						<StaticModuleCard specKey="hypermarket" />
+					)}
+					{restaurants ? (
+						<ModuleCard module={restaurants} specKey="restaurants" />
+					) : (
+						<StaticModuleCard specKey="restaurants" />
+					)}
+				</div>
+
+				{/* Left column in RTL — café, markets, pharmacy */}
+				<div className="flex flex-col gap-2">
+					{compactSlots.map(({ key, module }) =>
+						module ? (
+							<ModuleCard key={module.id} module={module} specKey={key} />
+						) : (
+							<StaticModuleCard key={key} specKey={key} />
+						),
+					)}
+				</div>
+			</div>
+		</section>
+	);
 }

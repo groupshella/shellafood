@@ -1,5 +1,7 @@
 export interface CartItem {
   id: number;
+  /** Product item id — used for addToCart/matching. Distinct from the cart-line id above. */
+  item_id: number;
   name: string;
   description: string;
   price: number;
@@ -35,3 +37,15 @@ export const CART_ERROR_MESSAGES: Record<CartErrorCode, string> = {
   different_store: "لا يمكن إضافة منتجات من متجر مختلف",
   cart_not_found: "المنتج غير موجود في السلة",
 };
+
+/**
+ * Safely extract a CartItem array from whatever the server returns.
+ * Handles both a plain array and an envelope { data: [...] } or { cart: [...] }.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseCartItems(json: any): CartItem[] {
+  if (Array.isArray(json)) return json as CartItem[];
+  if (Array.isArray(json?.data)) return json.data as CartItem[];
+  if (Array.isArray(json?.cart)) return json.cart as CartItem[];
+  return [];
+}

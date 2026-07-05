@@ -9,7 +9,7 @@ import {
     StoreFilters,
     hasActiveFilters,
 } from "@/features/markets/types/stores.types";
-import { useStores } from "@/features/markets/hooks/useStores";
+import { useMarketsStore } from "@/features/markets/context/MarketsStoreContext";
 import { StoreCard } from "./StoreCard";
 
 function FilterChip({
@@ -316,21 +316,16 @@ function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () 
     );
 }
 
-export function StoresClient({
-    moduleId,
-    categories,
-}: {
-    moduleId: string;
-    categories: Category[];
-}) {
+export function StoresClient({ categories }: { categories: Category[] }) {
     const { stores, isLoading, isLoadingMore, error, hasMore, filters, setFilters, loadMore } =
-        useStores(moduleId);
+        useMarketsStore();
 
     const filtersActive = hasActiveFilters(filters);
 
     return (
         <section
-            className="mx-auto w-full max-w-2xl space-y-3 px-4 sm:px-6"
+            id="module-stores"
+            className="mx-auto w-full max-w-2xl space-y-3 px-4 sm:px-6 scroll-mt-4"
             aria-label="المتاجر"
             dir="rtl"
         >

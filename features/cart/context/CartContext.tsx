@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/navigation";
 import { addToCart } from "../actions/add-to-cart";
 import { updateCart } from "../actions/update-cart";
+import { clearCart } from "../actions/clear-cart";
 import { removeCartItem } from "../actions/remove-cart-item";
 import { CART_SYNC_DEBOUNCE_MS } from "../constants";
 import { applyOptimisticQuantity, isOptimisticCartLine } from "../lib/optimistic-cart";
@@ -30,6 +31,8 @@ interface CartContextValue {
     addProduct: (product: ProductCartMeta, quantity?: number) => Promise<CartMutationResult>;
     incrementProduct: (product: ProductCartMeta) => Promise<CartMutationResult>;
     decrementProduct: (product: ProductCartMeta) => Promise<CartMutationResult>;
+    removeProduct: (product: ProductCartMeta) => Promise<CartMutationResult>;
+    clearAllProducts: () => Promise<CartMutationResult>;
     isProductPending: (productId: number) => boolean;
     getProductSyncError: (productId: number) => string | undefined;
     clearProductError: (productId: number) => void;
@@ -260,6 +263,35 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
         [mutateQuantity]
     );
 
+    const removeProduct = useCallback(
+        (product: ProductCartMeta) => {
+            return Promise.resolve(mutateQuantity(product, () => 0));
+        },
+        [mutateQuantity]
+    );
+
+    const clearAllProducts = useCallback(async () => {
+        const previousServerItems = serverItemsRef.current;
+        setItems([]);
+        setSyncErrors({});
+
+        debounceTimersRef.current.forEach((timer) => clearTimeout(timer));
+        debounceTimersRef.current.clear();
+        inFlightRef.current.clear();
+        setSyncingIds(new Set());
+
+        const result = await clearCart();
+
+        if (result.success) {
+            serverItemsRef.current = [];
+            router.refresh();
+            return { success: true };
+        }
+
+        setItems(previousServerItems);
+        return { success: false, message: result.message ?? "تعذّر تفريغ السلة" };
+    }, [router]);
+
     const value = useMemo(
         () => ({
             items,
@@ -268,6 +300,8 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
             addProduct,
             incrementProduct,
             decrementProduct,
+            removeProduct,
+            clearAllProducts,
             isProductPending,
             getProductSyncError,
             clearProductError,
@@ -279,6 +313,8 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
             addProduct,
             incrementProduct,
             decrementProduct,
+            removeProduct,
+            clearAllProducts,
             isProductPending,
             getProductSyncError,
             clearProductError,

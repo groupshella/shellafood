@@ -1,39 +1,34 @@
 export default function StoreHeaderSkeleton() {
     return (
         <div className="animate-pulse bg-white">
-            {/* Green hero */}
-            <div className="h-[120px] bg-[#1B5E20] px-4 pt-4">
-                <div className="flex items-center justify-between">
-                    <div className="h-9 w-9 rounded-full bg-white/20" />
-                    <div className="flex gap-2">
-                        <div className="h-9 w-9 rounded-full bg-white/20" />
-                        <div className="h-9 w-9 rounded-full bg-white/20" />
-                    </div>
-                </div>
-            </div>
+            <div className="h-[155px] bg-[#2E7D32]" />
 
-            {/* Overlapping card */}
-            <div className="relative -mt-12 px-4">
-                <div className="absolute end-4 -top-10 h-[76px] w-[76px] rounded-2xl bg-gray-100" />
-                <div className="rounded-2xl bg-white px-4 pb-4 pt-3 shadow-sm">
-                    <div className="flex items-start gap-3">
-                        <div className="min-w-0 flex-1 space-y-2 pe-[84px]">
+            <div className="relative -mt-8 px-4">
+                <div className="flex items-start justify-between gap-4">
+                    <div className="flex min-w-0 items-end gap-2">
+                        <div className="h-[81px] w-[71px] shrink-0 rounded bg-gray-100" />
+                        <div className="flex flex-col items-end gap-2">
                             <div className="flex gap-2">
-                                <div className="h-6 w-24 rounded-full bg-gray-100" />
-                                <div className="h-6 w-20 rounded-full bg-gray-100" />
+                                <div className="h-[19px] w-[98px] rounded bg-gray-100" />
+                                <div className="h-[19px] w-[73px] rounded bg-gray-100" />
                             </div>
-                            <div className="h-5 w-40 rounded bg-gray-100 ms-auto" />
-                            <div className="h-4 w-56 rounded bg-gray-100 ms-auto" />
+                            <div className="h-5 w-36 rounded bg-gray-100" />
+                            <div className="h-5 w-44 rounded bg-gray-100" />
                         </div>
-                        <div className="h-7 w-14 shrink-0 rounded-lg bg-gray-100" />
+                    </div>
+                    <div className="shrink-0 pt-[34px]">
+                        <div className="h-[19px] w-[47px] rounded-e-lg bg-gray-100" />
                     </div>
                 </div>
             </div>
 
-            {/* Tabs */}
-            <div className="mt-3 flex gap-2 px-4 pb-3">
-                {[80, 64, 88, 72].map((w, i) => (
-                    <div key={i} className="h-8 rounded-full bg-gray-100" style={{ width: w }} />
+            <div className="mt-6 flex gap-2 px-4 pb-3">
+                {[61, 117, 93, 65, 72].map((w, i) => (
+                    <div
+                        key={i}
+                        className="h-[37px] shrink-0 rounded-[5px] bg-gray-100"
+                        style={{ width: w }}
+                    />
                 ))}
             </div>
         </div>

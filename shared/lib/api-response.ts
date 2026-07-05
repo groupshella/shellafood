@@ -35,3 +35,22 @@ export function unwrap<T>(response: ApiResponse<T>): T {
     }
     return response.data;
 }
+
+// ── Backend error extraction ──────────────────────────────────────────────────
+// The Shella backend uses two failure shapes:
+//   { success: false, message: "…" }
+//   { success: false, errors: { message: "…" } }
+// Pass the raw parsed JSON and a fallback; get a human-readable string back.
+
+export function extractBackendError(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    json: any,
+    fallback: string
+): string {
+    return (
+        json?.message ??
+        json?.errors?.message ??
+        (Array.isArray(json?.errors) ? json.errors[0]?.message : undefined) ??
+        fallback
+    );
+}
