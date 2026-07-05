@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useState } from "react";
 import { useRouter } from "next/navigation";
+import { usePlaceOrder } from "@/features/checkout/hooks/usePlaceOrder";
 import type {
     CheckoutData,
     ElectronicPaymentType,
@@ -12,15 +13,13 @@ function parseInvoiceAmount(formatted: string): number {
     return Number(formatted.replace(/[^\d.]/g, "")) || 0;
 }
 
-function isPaymentReady(selected: PaymentMethodType): boolean {
-    return selected !== null;
-}
-
 interface CheckoutContextValue {
     data: CheckoutData;
     selected: PaymentMethodType;
     electronicMethod: ElectronicPaymentType;
     showPaymentWarning: boolean;
+    isPlacingOrder: boolean;
+    orderError: string | null;
     setSelected: (id: PaymentMethodType) => void;
     setElectronicMethod: (id: ElectronicPaymentType) => void;
     confirmPayment: () => void;
@@ -35,13 +34,17 @@ interface CheckoutProviderProps {
 
 export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
     const router = useRouter();
+    const { placeOrder, isLoading: isPlacingOrder } = usePlaceOrder();
+
     const [selected, setSelectedState] = useState<PaymentMethodType>(null);
     const [electronicMethod, setElectronicMethodState] = useState<ElectronicPaymentType>(null);
     const [showPaymentWarning, setShowPaymentWarning] = useState(false);
+    const [orderError, setOrderError] = useState<string | null>(null);
 
     const setSelected = (id: PaymentMethodType) => {
         setSelectedState(id);
         setShowPaymentWarning(false);
+        setOrderError(null);
         if (id !== "electronic") {
             setElectronicMethodState(null);
         }
@@ -52,21 +55,34 @@ export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
         setShowPaymentWarning(false);
     };
 
-    const confirmPayment = useCallback(() => {
-        if (!isPaymentReady(selected)) {
+    const confirmPayment = useCallback(async () => {
+        if (!selected) {
             setShowPaymentWarning(true);
             return;
         }
 
-        if (selected === "electronic") {
+        if (selected !== "electronic") {
+            // wallet flows — not yet implemented
+            return;
+        }
+
+        setOrderError(null);
+
+        try {
+            const { order_id } = await placeOrder(data.placeOrderPayload);
+
             const params = new URLSearchParams({
-                orderId: String(data.orderId),
+                orderId: String(order_id),
                 amount: String(parseInvoiceAmount(data.invoice.total)),
                 currency: "SAR",
             });
+
             router.push(`/checkout/payment?${params.toString()}`);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "تعذر إتمام الطلب، يرجى المحاولة مرة أخرى";
+            setOrderError(message);
         }
-    }, [data, router, selected]);
+    }, [data, placeOrder, router, selected]);
 
     return (
         <CheckoutContext.Provider
@@ -75,6 +91,8 @@ export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
                 selected,
                 electronicMethod,
                 showPaymentWarning,
+                isPlacingOrder,
+                orderError,
                 setSelected,
                 setElectronicMethod,
                 confirmPayment,

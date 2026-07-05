@@ -1,31 +1,32 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import type { PlaceOrderPayload } from "@/features/checkout/types/checkout.types";
+import type { PlaceOrderResponse } from "@/app/api/order/place/route";
 import type { ApiResponse } from "@/shared/lib/api-response";
-import type { CheckStatusData, CheckStatusRequest } from "@/features/payment/types/payment.types";
 
-interface UseCheckPaymentStatusResult {
-    checkStatus: (payload: CheckStatusRequest) => Promise<CheckStatusData>;
+interface UsePlaceOrderResult {
+    placeOrder: (payload: PlaceOrderPayload) => Promise<PlaceOrderResponse>;
     isLoading: boolean;
     error: string | null;
 }
 
-export function useCheckPaymentStatus(): UseCheckPaymentStatusResult {
+export function usePlaceOrder(): UsePlaceOrderResult {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const checkStatus = useCallback(async (payload: CheckStatusRequest) => {
+    const placeOrder = useCallback(async (payload: PlaceOrderPayload): Promise<PlaceOrderResponse> => {
         setIsLoading(true);
         setError(null);
 
         try {
-            const res = await fetch("/api/payment/myfatoorah/check-status", {
+            const res = await fetch("/api/order/place", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
 
-            const json: ApiResponse<CheckStatusData> = await res.json();
+            const json: ApiResponse<PlaceOrderResponse> = await res.json();
 
             if (!json.success) {
                 throw new Error(json.message);
@@ -33,7 +34,7 @@ export function useCheckPaymentStatus(): UseCheckPaymentStatusResult {
 
             return json.data;
         } catch (err) {
-            const message = err instanceof Error ? err.message : "تعذر التحقق من حالة الدفع";
+            const message = err instanceof Error ? err.message : "تعذر إتمام الطلب";
             setError(message);
             throw err;
         } finally {
@@ -41,5 +42,5 @@ export function useCheckPaymentStatus(): UseCheckPaymentStatusResult {
         }
     }, []);
 
-    return { checkStatus, isLoading, error };
+    return { placeOrder, isLoading, error };
 }

@@ -1,98 +1,87 @@
-// features/payment/types/payment.types.ts
-
 /**
- * Payload the client sends to OUR backend (BFF) to create a MyFatoorah
- * embedded session. Notice: no card fields here, ever.
+ * Payment method as returned by the real backend endpoint.
+ * Field names are PascalCase (MyFatoorah convention).
+ * Optional fields are present for some methods only.
  */
-export interface CreateSessionRequest {
+export interface PaymentMethod {
+    PaymentMethodId: number;
+    PaymentMethodAr: string;
+    PaymentMethodEn: string;
+    PaymentMethodCode: string;
+    /** Per-method fee added on top of the order total. May be absent (treat as 0). */
+    ServiceCharge?: number;
+    /** order total + ServiceCharge. May be absent. */
+    TotalAmount?: number;
+    IsDirectPayment?: boolean;
+    /** URL of the payment method logo. May be absent. */
+    ImageUrl?: string;
+}
+
+// ── Process payment (hosted flow) ─────────────────────────────────────────────
+
+export interface ProcessPaymentRequest {
     order_id: number;
-    amount: number;
-    currency: string; // "SAR"
-    language: "AR" | "EN";
-    save_card: boolean;
-    retrieve_saved_tokens: boolean;
-    supported_payment_methods: ["card"];
-}
-
-export interface SavedCard {
-    token: string;
-    brand: string; // "Visa" | "MasterCard" | "Mada" | ...
-    maskedCard: string; // "5277 **** **** 2262"
-}
-
-export interface CreateSessionData {
-    session_id: string;
-    session_expiry: string;
-    operation_type: string;
     amount: number;
     currency: string;
-    order_id: number;
-    customer_reference: string;
-    save_card_available: boolean;
-    saved_cards: SavedCard[];
-    supported_payment_methods: string[];
-    encryption_key?: string;
+    payment_method_id: number;
+    customer_name: string;
+    customer_phone: string;
+    customer_email: string;
 }
 
-export interface CreateSessionResponse {
-    success: boolean;
-    message: string;
-    data: CreateSessionData;
+export interface ProcessPaymentData {
+    payment_url: string;
+    invoice_id: string;
 }
 
-export type PaymentStatusKeyType = "PaymentId" | "InvoiceId" | "CustomerReference";
+// ── Check payment status ──────────────────────────────────────────────────────
 
 export interface CheckStatusRequest {
-    key_type: PaymentStatusKeyType;
+    key_type: "InvoiceId" | "PaymentId";
     key: string;
 }
 
-export type InvoiceStatus = "Paid" | "Pending" | "Failed" | "Canceled" | "Expired";
+export type InvoiceStatus = "Paid" | "Pending" | "InProgress" | "Failed" | "Canceled" | "Expired";
+export type PaymentOrderStatus = "paid" | "partially_paid" | "unpaid";
 
 export interface CheckStatusData {
-    invoice_id?: string;
-    payment_id?: string;
-    invoice_status: InvoiceStatus;
-    order_id?: number;
-    amount?: number;
-    currency?: string;
-}
-
-export interface CheckStatusResponse {
-    success: boolean;
-    message: string;
-    data: CheckStatusData;
-}
-
-/**
- * Local UI state machine for the payment screen.
- * This never holds card data — only orchestration state.
- */
-export type PaymentScreenStatus =
-    | "creating_session" // calling our backend for session_id
-    | "widget_loading" // MyFatoorah script/component is mounting
-    | "ready" // widget mounted, user can pay
-    | "processing" // user pressed pay, MyFatoorah is handling it
-    | "checking_status" // we're calling check-status after MyFatoorah callback
-    | "success"
-    | "pending"
-    | "failed";
-
-/**
- * Minimal shape of what MyFatoorah's callback gives us.
- * We do NOT trust this for the final decision — we always confirm
- * via our backend's check-status endpoint.
- */
-export interface MyFatoorahCallbackResponse {
-    paymentCompleted?: boolean;
-    sessionId?: string;
-    invoiceId?: string | number;
-    paymentId?: string;
-    customerReference?: string;
-    paymentData?: string;
-    card?: {
-        brand?: string;
+    InvoiceStatus: InvoiceStatus;
+    order?: {
+        payment_status: PaymentOrderStatus;
+        order_status: string;
     };
-    isSuccess?: boolean;
-    error?: unknown;
+}
+
+// ── Result classification (mirrors checkout_controller.dart logic) ────────────
+
+export type PaymentResult = "success" | "pending" | "failed";
+
+/**
+ * Classify the check-status response using the same decision logic as the
+ * Flutter app (checkout_controller.dart:1271-1315).
+ *
+ * order.payment_status == "paid" | "partially_paid"  →  success
+ * InvoiceStatus == Pending | InProgress, or payment_status == unpaid,
+ *   or order_status == payment_pending                →  pending
+ * anything else                                       →  failed
+ */
+export function classifyPaymentResult(data: CheckStatusData): PaymentResult {
+    const paymentStatus = data.order?.payment_status;
+    const orderStatus = data.order?.order_status;
+    const invoiceStatus = data.InvoiceStatus;
+
+    if (paymentStatus === "paid" || paymentStatus === "partially_paid") {
+        return "success";
+    }
+
+    if (
+        invoiceStatus === "Pending" ||
+        invoiceStatus === "InProgress" ||
+        paymentStatus === "unpaid" ||
+        orderStatus === "payment_pending"
+    ) {
+        return "pending";
+    }
+
+    return "failed";
 }

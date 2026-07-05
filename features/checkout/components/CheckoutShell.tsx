@@ -16,7 +16,7 @@ interface CheckoutShellInnerProps {
 
 function CheckoutShellInner({ children }: CheckoutShellInnerProps) {
     const router = useRouter();
-    const { confirmPayment } = useCheckout();
+    const { confirmPayment, isPlacingOrder, orderError } = useCheckout();
 
     return (
         <div className="relative mx-auto min-h-screen w-full max-w-lg bg-white" dir="rtl">
@@ -38,12 +38,16 @@ function CheckoutShellInner({ children }: CheckoutShellInnerProps) {
             <main className="space-y-5 px-4 py-4 pb-32">{children}</main>
 
             <div className="fixed inset-x-0 bottom-0 z-10 mx-auto w-full max-w-lg bg-white px-4 pt-3 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+                {orderError && (
+                    <p className="mb-2 text-center text-[12px] text-red-600">{orderError}</p>
+                )}
                 <button
                     type="button"
                     onClick={confirmPayment}
-                    className="w-full rounded-xl bg-[#30913F] py-4 text-[15px] font-semibold text-white transition-colors active:bg-[#267332]"
+                    disabled={isPlacingOrder}
+                    className="w-full rounded-xl bg-[#30913F] py-4 text-[15px] font-semibold text-white transition-colors active:bg-[#267332] disabled:opacity-60"
                 >
-                    تأكيد الدفع
+                    {isPlacingOrder ? "جاري تأكيد الطلب..." : "تأكيد الدفع"}
                 </button>
             </div>
         </div>
