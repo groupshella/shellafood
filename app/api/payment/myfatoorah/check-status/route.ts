@@ -1,10 +1,19 @@
-// app/api/payment/myfatoorah/check-status/route.ts
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
-import { apiSuccess, apiError } from "@/shared/lib/api-response";
+import { apiSuccess, apiError, extractBackendError } from "@/shared/lib/api-response";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
-import type { CheckStatusRequest } from "@/features/payment/types/payment.types";
+import type { CheckStatusRequest, CheckStatusData } from "@/features/payment/types/payment.types";
 
+/**
+ * BFF proxy for POST /api/v1/payment/myfatoorah/check-status.
+ *
+ * Called once after the user returns from the hosted payment page.
+ * Do NOT poll — call once and classify the result with classifyPaymentResult().
+ *
+ * Returns a unified CheckStatusData shape that includes:
+ *   InvoiceStatus — gateway-level status (Paid | Pending | InProgress | Failed …)
+ *   order         — backend order record (payment_status, order_status)
+ */
 export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
@@ -26,13 +35,16 @@ export async function POST(request: NextRequest) {
 
     try {
         const backendRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/v2/payments/myfatoorah/check-status`,
+            `${process.env.NEXT_PUBLIC_API_URL}/api/v1/payment/myfatoorah/check-status`,
             {
                 method: "POST",
                 headers: {
                     Accept: "application/json",
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json; charset=UTF-8",
                     Authorization: `Bearer ${accessToken}`,
+                    "X-localization": "ar",
+                    zoneId: process.env.ZONE_ID ?? "[2]",
+                    moduleId: process.env.MODULE_ID ?? "3",
                 },
                 body: JSON.stringify({
                     key_type: body.key_type,
@@ -42,14 +54,17 @@ export async function POST(request: NextRequest) {
             }
         );
 
-        const data = await backendRes.json();
+        const json = await backendRes.json();
 
-        if (!backendRes.ok || !data?.success) {
-            return apiError(data?.message ?? "Failed to check payment status", backendRes.status);
+        if (!backendRes.ok || !json?.success) {
+            return apiError(extractBackendError(json, "Failed to check payment status"), backendRes.status);
         }
 
-        return apiSuccess(data.data);
-    } catch (error) {
+        return apiSuccess<CheckStatusData>({
+            InvoiceStatus: json.data?.InvoiceStatus,
+            order: json.order,
+        });
+    } catch {
         return apiError("Payment status check failed", 502);
     }
 }

@@ -56,12 +56,11 @@ export function useStores(moduleId: string) {
                 const res = await fetch(`/api/module/stores?${params}`, { signal });
                 const json = (await res.json()) as ApiResponse<GetStoresResponse>;
                 const data = unwrap(json);
-                console.log(data);
                 setStores((prev) => {
                     const next = append
                         ? [...prev, ...(data.stores ?? [])]
                         : (data.stores ?? []);
-                    loadedCountRef.current += 1;
+                    loadedCountRef.current = next.length;
                     return next;
                 });
                 setTotalSize(data.total_size ?? 0);
@@ -89,7 +88,7 @@ export function useStores(moduleId: string) {
     const setFilters = useCallback((f: StoreFilters) => {
         setFiltersState(f);
     }, []);
-    console.log(loadedCountRef.current + PAGE_SIZE);
+
     const loadMore = useCallback(
         () => fetchStores(loadedCountRef.current, true, filters),
         [fetchStores, filters],

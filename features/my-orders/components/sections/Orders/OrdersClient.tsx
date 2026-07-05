@@ -9,23 +9,23 @@ import type { ApiOrder, OrderStatus, FilterState, DateGroupLabel } from "@/featu
 // ── Status helpers ────────────────────────────────────────────────────────────
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-    preparing:  { bg: "bg-amber-50",   text: "text-amber-600",  label: "تحت الإعداد" },
-    confirmed:  { bg: "bg-blue-50",    text: "text-blue-600",   label: "مؤكد" },
-    processing: { bg: "bg-amber-50",   text: "text-amber-600",  label: "قيد التحضير" },
-    handover:   { bg: "bg-orange-50",  text: "text-orange-500", label: "جاري التسليم" },
-    picked_up:  { bg: "bg-indigo-50",  text: "text-indigo-600", label: "في الطريق" },
-    delivered:  { bg: "bg-emerald-50", text: "text-emerald-600",label: "تم التوصيل" },
-    completed:  { bg: "bg-emerald-50", text: "text-emerald-600",label: "مكتمل" },
-    cancelled:  { bg: "bg-red-50",     text: "text-red-500",    label: "ملغى" },
-    canceled:   { bg: "bg-red-50",     text: "text-red-500",    label: "ملغى" },
-    failed:     { bg: "bg-red-50",     text: "text-red-500",    label: "فشل" },
-    expired:    { bg: "bg-gray-100",   text: "text-gray-500",   label: "منتهي" },
+    preparing: { bg: "bg-amber-50", text: "text-amber-600", label: "تحت الإعداد" },
+    confirmed: { bg: "bg-blue-50", text: "text-blue-600", label: "مؤكد" },
+    processing: { bg: "bg-amber-50", text: "text-amber-600", label: "قيد التحضير" },
+    handover: { bg: "bg-orange-50", text: "text-orange-500", label: "جاري التسليم" },
+    picked_up: { bg: "bg-indigo-50", text: "text-indigo-600", label: "في الطريق" },
+    delivered: { bg: "bg-emerald-50", text: "text-emerald-600", label: "تم التوصيل" },
+    completed: { bg: "bg-emerald-50", text: "text-emerald-600", label: "مكتمل" },
+    cancelled: { bg: "bg-red-50", text: "text-red-500", label: "ملغى" },
+    canceled: { bg: "bg-red-50", text: "text-red-500", label: "ملغى" },
+    failed: { bg: "bg-red-50", text: "text-red-500", label: "فشل" },
+    expired: { bg: "bg-gray-100", text: "text-gray-500", label: "منتهي" },
 };
 
 const STATUS_CHIPS: { id: OrderStatus; label: string }[] = [
-    { id: "preparing",  label: "تحت الإعداد" },
-    { id: "completed",  label: "مكتمل" },
-    { id: "cancelled",  label: "ملغى" },
+    { id: "preparing", label: "تحت الإعداد" },
+    { id: "completed", label: "مكتمل" },
+    { id: "cancelled", label: "ملغى" },
 ];
 
 const TIME_CHIPS = ["اليوم", "هذا الأسبوع", "هذا الشهر"];
@@ -66,9 +66,9 @@ interface Props {
 
 export function OrdersClient({ orders }: Props) {
     const [activeModuleId, setActiveModuleId] = useState<number | "all">("all");
-    const [filterOpen, setFilterOpen]     = useState(false);
+    const [filterOpen, setFilterOpen] = useState(false);
     const [filterVisible, setFilterVisible] = useState(false);
-    const [draftFilter, setDraftFilter]   = useState<FilterState>(EMPTY_FILTER);
+    const [draftFilter, setDraftFilter] = useState<FilterState>(EMPTY_FILTER);
     const [appliedFilter, setAppliedFilter] = useState<FilterState>(EMPTY_FILTER);
 
     // ── Build dynamic module tabs from data ──
@@ -256,7 +256,7 @@ export function OrdersClient({ orders }: Props) {
                             <p className="mb-3 text-[13px] font-semibold text-gray-800">الفترة الزمنية</p>
                             <div className="mb-3 flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
                                 <input
-                                    type="text"
+                                    type="date"
                                     placeholder="dd/mm/yyyy"
                                     value={draftFilter.date}
                                     onChange={(e) =>
@@ -265,7 +265,6 @@ export function OrdersClient({ orders }: Props) {
                                     className="flex-1 bg-transparent text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none"
                                     dir="ltr"
                                 />
-                                <Calendar className="h-5 w-5 shrink-0 text-gray-400" strokeWidth={1.6} />
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {TIME_CHIPS.map((chip) => {
@@ -343,8 +342,8 @@ function OrderCard({ order }: { order: ApiOrder }) {
         label: order.order_status,
     };
     const storeName = order.store?.name ?? "—";
-    const logoUrl   = order.store?.logo_full_url;
-    const amount    = order.order_amount != null
+    const logoUrl = order.store?.logo_full_url;
+    const amount = order.order_amount != null
         ? `${order.order_amount} ج.م`
         : null;
 

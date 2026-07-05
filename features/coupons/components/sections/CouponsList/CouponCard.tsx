@@ -4,12 +4,10 @@ import { formatExpireDate, isCouponExpiringSoon } from "@/features/coupons/lib/c
 import type { AvailableCoupon, Coupon } from "@/features/coupons/types/coupon.types";
 
 const RIBBON_STYLES = [
-	{ stub: "bg-[#30913F]/10", text: "text-[#30913F]", chip: "bg-[#30913F]/10 text-[#30913F]", accent: "text-[#30913F]" },
-	{ stub: "bg-[#7C6FE0]/10", text: "text-[#7C6FE0]", chip: "bg-[#7C6FE0]/10 text-[#7C6FE0]", accent: "text-[#7C6FE0]" },
-	{ stub: "bg-[#E05C6B]/10", text: "text-[#E05C6B]", chip: "bg-[#E05C6B]/10 text-[#E05C6B]", accent: "text-[#E05C6B]" },
+	{ stub: "bg-[#D1FDD2]", text: "text-[#30913F]", overlay: "bg-[#EBFEEB]/80" },
+	{ stub: "bg-[#DFD3F5]", text: "text-[#7861A6]", overlay: "bg-white/25" },
+	{ stub: "bg-[#FFDCDC]", text: "text-[#DB2626]", overlay: "bg-white/35" },
 ] as const;
-
-const PERFORATION_COUNT = 7;
 
 type CouponCardProps = {
 	coupon: Coupon | AvailableCoupon;
@@ -19,22 +17,30 @@ type CouponCardProps = {
 	onCopyCode: (code: string) => void;
 };
 
-function discountLabel(coupon: Coupon) {
-	return coupon.discount_type === "percent" ? `${coupon.discount}%` : `${coupon.discount} ر.س`;
+function discountValue(coupon: Coupon) {
+	return coupon.discount_type === "percent" ? `${coupon.discount}%` : `${coupon.discount}`;
 }
 
-function TicketPerforation({ side }: { side: "left" | "right" }) {
+function StubDecoration({ overlayClass }: { overlayClass: string }) {
 	return (
-		<div
-			className={`pointer-events-none absolute inset-y-0 flex w-3 flex-col justify-evenly py-2 ${
-				side === "left" ? "-left-1.5" : "-right-1.5"
-			}`}
-			aria-hidden="true"
-		>
-			{Array.from({ length: PERFORATION_COUNT }, (_, i) => (
-				<span key={i} className="mx-auto h-3 w-3 shrink-0 rounded-full bg-white" />
-			))}
-		</div>
+		<>
+			<span
+				className={`pointer-events-none absolute -left-[7px] top-[9px] h-[13px] w-14 -rotate-[21deg] ${overlayClass}`}
+				aria-hidden
+			/>
+			<span
+				className={`pointer-events-none absolute -left-[3px] top-[26px] h-[7px] w-14 -rotate-[21deg] ${overlayClass}`}
+				aria-hidden
+			/>
+			<div
+				className="pointer-events-none absolute -left-[7px] top-[27px] flex flex-col gap-1"
+				aria-hidden
+			>
+				{Array.from({ length: 4 }, (_, i) => (
+					<span key={i} className="h-[13px] w-[13px] rounded-full bg-white" />
+				))}
+			</div>
+		</>
 	);
 }
 
@@ -45,13 +51,13 @@ export function CouponCard({ coupon, index, variant, isCopied, onCopyCode }: Cou
 	const expiryText = formatExpireDate(coupon);
 
 	let statusLabel = "تفعيل";
-	let statusClass = `font-bold ${ribbon.accent}`;
+	let statusClass = "font-bold text-[#30913F]";
 	if (variant === "expired") {
 		statusLabel = "منتهية الصلاحية";
 		statusClass = "font-bold text-gray-400";
 	} else if (expiringSoon) {
 		statusLabel = "قرب على الانتهاء";
-		statusClass = "font-bold text-[#E05C6B]";
+		statusClass = "font-bold text-[#30913F]";
 	} else if (!isUsable) {
 		statusLabel = "مستخدم";
 		statusClass = "font-bold text-gray-400";
@@ -60,53 +66,59 @@ export function CouponCard({ coupon, index, variant, isCopied, onCopyCode }: Cou
 	return (
 		<div
 			dir="ltr"
-			className={`relative flex overflow-hidden rounded-[20px] border border-gray-100 bg-white shadow-sm ${
+			className={`relative flex h-[125px] w-full overflow-hidden ${
 				variant === "expired" || !isUsable ? "opacity-60" : ""
 			}`}
 		>
-			{/* ticket stub */}
 			<div
-				className={`relative flex w-[72px] shrink-0 items-center justify-center sm:w-20 ${ribbon.stub}`}
-				style={{
-					backgroundImage:
-						"repeating-linear-gradient(-45deg, transparent, transparent 5px, rgba(0,0,0,0.025) 5px, rgba(0,0,0,0.025) 10px)",
-				}}
+				className={`relative flex w-11 shrink-0 flex-col items-center justify-center rounded-l-2xl shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)] ${ribbon.stub}`}
 			>
-				<TicketPerforation side="left" />
-				<span
-					className={`whitespace-nowrap text-sm font-extrabold [writing-mode:vertical-rl] ${ribbon.text}`}
-					style={{ transform: "rotate(180deg)" }}
-				>
-					{discountLabel(coupon)} خصم
+				<StubDecoration overlayClass={ribbon.overlay} />
+				<span className={`whitespace-nowrap text-[16px] font-bold leading-[160%] [transform:rotate(-90deg)] ${ribbon.text}`}>
+					خصم
 				</span>
-				<div className="absolute inset-y-4 right-0 border-r border-dashed border-gray-300/80" aria-hidden="true" />
-				<TicketPerforation side="right" />
+				<span className={`whitespace-nowrap text-[20px] font-black leading-[160%] [transform:rotate(-90deg)] ${ribbon.text}`}>
+					{discountValue(coupon)}
+				</span>
 			</div>
 
-			{/* content */}
-			<div dir="rtl" className="flex flex-1 flex-col gap-2.5 px-4 py-3.5 sm:px-5 sm:py-4">
-				<div className="flex items-center justify-between gap-2">
-					<span className={`text-sm ${statusClass}`}>{statusLabel}</span>
-					<button
-						type="button"
-						onClick={() => onCopyCode(coupon.code)}
-						className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors active:opacity-80 ${ribbon.chip}`}
-						aria-label={`نسخ الكود ${coupon.code}`}
-					>
-						{isCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-						{coupon.code}
-					</button>
+			<div
+				dir="rtl"
+				className="relative flex h-[125px] min-w-0 flex-1 flex-col rounded-r-2xl border border-[#F6F5F8] border-s-0 bg-white shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)]"
+			>
+				<div className="flex flex-col gap-1 px-4 pt-2">
+					<div className="flex items-start justify-between gap-4">
+						<span className={`text-[16px] leading-[160%] ${statusClass}`}>{statusLabel}</span>
+						<button
+							type="button"
+							onClick={() => onCopyCode(coupon.code)}
+							className="flex h-[26px] min-w-[100px] items-center justify-center gap-2 rounded-lg bg-[#F6F5F8] px-2 shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)] transition-colors active:opacity-80"
+							aria-label={`نسخ الكود ${coupon.code}`}
+						>
+							{isCopied ? (
+								<Check className="h-4 w-4 text-[#111B18]" strokeWidth={1.25} />
+							) : (
+								<Copy className="h-4 w-4 text-[#111B18]" strokeWidth={1.25} />
+							)}
+							<span className="text-[14px] font-bold leading-[160%] text-[#111B18]">{coupon.code}</span>
+						</button>
+					</div>
+
+					<h3 className="text-end text-[16px] font-bold leading-[160%] text-[#111B18]">{coupon.title}</h3>
 				</div>
 
-				<h3 className="text-sm font-extrabold leading-6 text-gray-900 sm:text-[15px]">{coupon.title}</h3>
+				<div className="my-1 border-t border-dashed border-[#F6F5F8]" aria-hidden />
 
-				<div className="border-t border-dashed border-gray-200" aria-hidden="true" />
-
-				<p className="text-xs leading-5 text-gray-500 sm:text-[13px]">
-					استخدم هذا الكوبون عند الدفع للحصول على الخصم تلقائيًا.
-				</p>
-
-				{expiryText && <span className="text-[11px] text-gray-400 sm:text-xs">{expiryText}</span>}
+				<div className="relative flex-1 px-4 pb-2">
+					<p className="text-end text-[14px] font-medium leading-[160%] text-[#111B18]">
+						استخدم هذا الكوبون عند الدفع للحصول على الخصم تلقائيًا.
+					</p>
+					{expiryText && (
+						<span className="absolute bottom-0 start-3 text-[12px] font-medium leading-[160%] text-[#30913F]">
+							{expiryText}
+						</span>
+					)}
+				</div>
 			</div>
 		</div>
 	);

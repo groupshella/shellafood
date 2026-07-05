@@ -11,5 +11,5 @@ export async function CartList() {
     return <CartEmpty />;
   }
 
-  return <CartListClient items={items} />;
+  return <CartListClient />;
 }

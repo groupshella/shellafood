@@ -64,7 +64,7 @@ export function OrderCard({ order }: { order: ApiOrder }) {
             {/* Right — text content */}
             <div className="flex flex-1 flex-col gap-1.5 px-4 py-3.5" dir="rtl">
                 {/* Header row: heart + order number */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2">
                     <Heart
                         aria-hidden
                         className="h-4 w-4 shrink-0 fill-[#30913F] text-[#30913F]"
@@ -106,7 +106,7 @@ export function OrderCard({ order }: { order: ApiOrder }) {
                 {/* Total */}
                 <p className="text-[14px] font-bold text-[#111B18]">
                     إجمالي التكلفة{" "}
-                    {order.order_amount?.toFixed(2)} ﷼
+                    {order.order_amount?.toFixed(2) ?? 0} ﷼
                 </p>
             </div>
         </article>

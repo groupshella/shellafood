@@ -214,17 +214,16 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
     /* Search mode toggle */
     const [searchOpen, setSearchOpen] = useState(false);
 
-    /* Filter bottom-sheet animation state */
+
     const [filterSheetOpen, setFilterSheetOpen] = useState(false);
     const [filterSheetVisible, setFilterSheetVisible] = useState(false);
-
     /* Hooks */
     const search = useBrandSearch(brandId);
     const filter = useBrandFilter(brandId);
 
     /* Priority: search results > filter results > original server items */
-    const displayItems: BrandItem[] =
-        search.results ?? filter.results ?? items;
+    const displayItems: BrandItem[] = search.results ?? filter.results ?? items;
+
 
     const isSearchActive = search.query.trim().length > 0;
     const isFilterActive = filter.applied !== null;
@@ -298,7 +297,7 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
             {/* ── Search / filter loading ── */}
             {search.loading || filter.loading ? (
                 <BrandItemsListLoading />
-            ) : total === 0 ? (
+            ) : displayItems.length === 0 ? (
                 <EmptyState
                     mode={isSearchActive ? "search" : isFilterActive ? "filter" : "none"}
                     onClearSearch={closeSearch}

@@ -18,7 +18,7 @@ import {
     VerifyTokenResponse,
     isLoginSuccess,
 } from "@/features/auth/types/auth.types";
-import { saveGuestId, saveSession } from "@/features/auth/lib/auth.lib";
+import { saveGuestId, saveSession, getErrorMessage, toLocalPhone } from "@/features/auth/lib/auth.lib";
 import { ApiResponse, unwrap } from "@/shared/lib/api-response";
 
 export interface UseAuthReturn {
@@ -29,6 +29,7 @@ export interface UseAuthReturn {
     error: string | null;
     infoMessage: string | null;
     cooldownSeconds: number;
+    prefillPhone: string;
 
     handleLogin: (phone: string, password: string) => Promise<void>;
     handleRegister: (data: {
@@ -49,6 +50,8 @@ export interface UseAuthReturn {
     goToRegister: () => void;
     goToForgotPassword: () => void;
     goToLogin: () => void;
+    goToLoginWithPhone: (phone: string) => void;
+    goToForgotPasswordWithPhone: (phone: string) => void;
 }
 
 // ── Shared fetch helpers ───────────────────────────────────────────────────────
@@ -95,6 +98,7 @@ export function useAuth(): UseAuthReturn {
     const [error, setError] = useState<string | null>(null);
     const [infoMessage, setInfoMessage] = useState<string | null>(null);
     const [cooldownSeconds, setCooldownSeconds] = useState(DEFAULT_COOLDOWN);
+    const [prefillPhone, setPrefillPhone] = useState("");
 
     const clearError = useCallback(() => setError(null), []);
 
@@ -133,7 +137,7 @@ export function useAuth(): UseAuthReturn {
             setCooldownSeconds(data.retry_after_seconds ?? DEFAULT_COOLDOWN);
             setStep("otp");
         } catch (err) {
-            setError(err as string);
+            setError(getErrorMessage(err));
         } finally {
             setIsLoading(false);
         }
@@ -188,7 +192,7 @@ export function useAuth(): UseAuthReturn {
             setCooldownSeconds(data.retry_after_seconds ?? DEFAULT_COOLDOWN);
             setStep("otp");
         } catch (err) {
-            setError(err as string);
+            setError(getErrorMessage(err));
         } finally {
             setIsLoading(false);
         }
@@ -223,7 +227,7 @@ export function useAuth(): UseAuthReturn {
                 setStep("new-password");
             }
         } catch (err) {
-            setError(err as string);
+            setError(getErrorMessage(err));
         } finally {
             setIsLoading(false);
         }
@@ -247,7 +251,7 @@ export function useAuth(): UseAuthReturn {
             const data = await post<ForgotPasswordResponse>("/api/auth/forgot-password", { phone });
             return { retry_after_seconds: data.retry_after_seconds ?? DEFAULT_COOLDOWN };
         } catch (err) {
-            setError(err as string);
+            setError(getErrorMessage(err));
             return undefined;
         }
     }, [otpFlow, phone]);
@@ -274,7 +278,7 @@ export function useAuth(): UseAuthReturn {
             setCooldownSeconds(data.retry_after_seconds ?? DEFAULT_COOLDOWN);
             setStep("otp");
         } catch (err) {
-            setError(err as string);
+            setError(getErrorMessage(err));
         } finally {
             setIsLoading(false);
         }
@@ -304,7 +308,7 @@ export function useAuth(): UseAuthReturn {
 
             setStep("reset-success");
         } catch (err) {
-            setError(err as string);
+            setError(getErrorMessage(err));
         } finally {
             setIsLoading(false);
         }
@@ -321,7 +325,7 @@ export function useAuth(): UseAuthReturn {
             await saveGuestId(String(data.guest_id));
             router.replace("/home");
         } catch (err) {
-            setError(err as string);
+            setError(getErrorMessage(err));
             router.replace("/home");
         } finally {
             setIsLoading(false);
@@ -346,6 +350,20 @@ export function useAuth(): UseAuthReturn {
         setError(null);
         setInfoMessage(null);
         setStep("login");
+    }, []);
+
+    const goToLoginWithPhone = useCallback((phoneNumber: string) => {
+        setError(null);
+        setInfoMessage(null);
+        setPrefillPhone(toLocalPhone(phoneNumber));
+        setStep("login");
+    }, []);
+
+    const goToForgotPasswordWithPhone = useCallback((phoneNumber: string) => {
+        setError(null);
+        setInfoMessage(null);
+        setPrefillPhone(toLocalPhone(phoneNumber));
+        setStep("forgot-phone");
     }, []);
 
     const goBack = useCallback(() => {
@@ -379,6 +397,7 @@ export function useAuth(): UseAuthReturn {
         error,
         infoMessage,
         cooldownSeconds,
+        prefillPhone,
         handleLogin,
         handleRegister,
         handleVerifyOtp,
@@ -391,5 +410,7 @@ export function useAuth(): UseAuthReturn {
         goToRegister,
         goToForgotPassword,
         goToLogin,
+        goToLoginWithPhone,
+        goToForgotPasswordWithPhone,
     };
 }

@@ -11,29 +11,23 @@ import {
 import Image from "next/image";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-	Check,
-	ChevronRight,
-	Pill,
-	Salad,
-	UtensilsCrossed,
-	type LucideIcon,
-} from "lucide-react";
 import { Tajawal } from "next/font/google";
 import { useRouter } from "next/navigation";
 
-const tajawal = Tajawal({ subsets: ["arabic", "latin"], weight: ["500", "700"] });
+const tajawal = Tajawal({
+	subsets: ["arabic", "latin"],
+	weight: ["500", "700"],
+});
 
-// ─── Layout constants ─────────────────────────────────────────────────────────
 const STAGE_W = 306;
 const STAGE_H = 390;
-const BTN_SIZE = 63;
-const BTN_INNER = 48;
-const BTN_RADIUS = 26;
-const BTN_STROKE = 3;
-const CIRCUMFERENCE = 2 * Math.PI * BTN_RADIUS;
 
-// ─── Steps ────────────────────────────────────────────────────────────────────
+const RING_SIZE = 87;
+const RING_STROKE = 4.5;
+const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+const INNER_BTN = 63;
+
 const STEPS = [
 	{
 		id: "shopping",
@@ -43,7 +37,7 @@ const STEPS = [
 	{
 		id: "discount",
 		title: "وفّر أكثر مع شِلّة وسجل في قيدها",
-		description: "استمتع بالخصومات مع إمكانية السداد شهرياً من راتبك",
+		description: "استمتع بالخصومات مع امكانية السداد شهريآ\nمن راتبك",
 	},
 	{
 		id: "fast",
@@ -58,7 +52,6 @@ const STEPS = [
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
-
 type LanguageCode = "ar" | "en";
 
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
@@ -66,45 +59,82 @@ const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
 	{ code: "en", label: "English (US)" },
 ];
 
-// ─── Shopping circles ─────────────────────────────────────────────────────────
-// Positions are within the 306×390 stage coordinate system.
-// Bag is 240px wide, bottom-anchored → bag top ≈ y=150, handles top ≈ y=165.
-// Circles float above and around the bag.
-const SHOPPING_CIRCLES: {
-	id: string;
-	top: number;
-	left: number;
-	size: number;
-	bg: string;
-	Icon: LucideIcon;
-	iconClass: string;
-}[] = [
-		// Medicine – white, top center, above bag handles
-		{ id: "medicine", top: 52, left: 118, size: 70, bg: "#FFFFFF", Icon: Pill, iconClass: "text-[#47AF57]" },
-		// Burger – green, left side
-		{ id: "burger", top: 170, left: 6, size: 58, bg: "#47AF57", Icon: UtensilsCrossed, iconClass: "text-white" },
-		// Salad – green, right side, slightly higher than burger
-		{ id: "salad", top: 142, left: 214, size: 62, bg: "#47AF57", Icon: Salad, iconClass: "text-white" },
-	];
+const DISCOUNT_BADGES = [
+	{ id: "b50", value: 50, top: 14, left: 113, size: 72, bg: "#EBFEEB", textColor: "#237D2D", fontSize: 42 },
+	{ id: "b20", value: 20, top: 96, left: 4, size: 60, bg: "#47AF57", textColor: "#EBFEEB", fontSize: 30 },
+	{ id: "b30", value: 30, top: 82, left: 218, size: 60, bg: "#47AF57", textColor: "#EBFEEB", fontSize: 25 },
+] as const;
 
-// ─── Discount badges ──────────────────────────────────────────────────────────
-// Discount image is 240px wide, bottom-anchored → image top ≈ y=170.
-// Badges float above the image.
-const DISCOUNT_BADGES: {
-	id: string;
-	value: number;
-	top: number;
-	left: number;
-	size: number;
-	reversed?: boolean;
-}[] = [
-		{ id: "b50", value: 50, top: 14, left: 113, size: 72, reversed: true },
-		{ id: "b20", value: 20, top: 96, left: 4, size: 60 },
-		{ id: "b30", value: 30, top: 82, left: 218, size: 60 },
-	];
+const slideVariants = {
+	enter: { x: "-100%", opacity: 0 },
+	center: { x: 0, opacity: 1 },
+	exit: { x: "100%", opacity: 0 },
+};
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function FadeIn({
+function BlurredGradientBackground() {
+	return (
+		<div
+			aria-hidden
+			className="pointer-events-none absolute inset-x-0 top-0 h-[min(55vh,480px)] overflow-hidden opacity-70"
+		>
+			<motion.div
+				className="absolute rounded-full"
+				style={{
+					left: "5%",
+					top: "-10%",
+					width: "55%",
+					height: "55%",
+					background: "#45A6FF",
+					filter: "blur(100px)",
+				}}
+				animate={{ rotate: [0, 6, 0] }}
+				transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+			/>
+			<motion.div
+				className="absolute rounded-full"
+				style={{
+					right: "0%",
+					top: "30%",
+					width: "45%",
+					height: "45%",
+					background: "#3AEAAB",
+					filter: "blur(100px)",
+				}}
+				animate={{ rotate: [0, -4, 0] }}
+				transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+			/>
+			<motion.div
+				className="absolute rounded-full"
+				style={{
+					left: "20%",
+					bottom: "0%",
+					width: "50%",
+					height: "40%",
+					background: "#F0C043",
+					filter: "blur(100px)",
+				}}
+				animate={{ rotate: [0, 5, 0] }}
+				transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+			/>
+			<motion.div
+				className="absolute rounded-full"
+				style={{
+					left: "0%",
+					top: "35%",
+					width: "40%",
+					height: "40%",
+					background: "#B04AFF",
+					filter: "blur(100px)",
+				}}
+				animate={{ rotate: [0, -6, 0] }}
+				transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+			/>
+			<div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/30 to-white" />
+		</div>
+	);
+}
+
+function Entrance({
 	children,
 	delay = 0,
 	className = "",
@@ -119,301 +149,176 @@ function FadeIn({
 		<motion.div
 			className={className}
 			style={style}
-			initial={{ opacity: 0 }}
-			animate={{ opacity: 1 }}
-			transition={{ duration: 0.45, delay }}
+			initial={{ opacity: 0, y: 20 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.6, delay, ease: "easeOut" }}
 		>
 			{children}
 		</motion.div>
 	);
 }
 
-// ─── Full-page background (gradient + blur) ───────────────────────────────────
-function OnboardingPageBackground() {
+function TextEntrance({
+	children,
+	delay = 0,
+	className = "",
+}: {
+	children: ReactNode;
+	delay?: number;
+	className?: string;
+}) {
 	return (
-		<div
-			aria-hidden
-			className="pointer-events-none absolute inset-0 overflow-hidden"
+		<motion.div
+			className={className}
+			initial={{ opacity: 0, y: 16 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.4, delay, ease: "easeOut" }}
 		>
-			{/* Base: white fade from mid-screen down */}
-			<div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/40 to-white" />
-
-			{/* Color mesh – top half of screen */}
-			<div
-				className="absolute inset-0"
-				style={{
-					background: `
-						radial-gradient(ellipse 80% 60% at 8% 0%,   rgba(147,197,253,0.75) 0%, transparent 70%),
-						radial-gradient(ellipse 70% 55% at 92% 0%,  rgba(216,180,254,0.65) 0%, transparent 70%),
-						radial-gradient(ellipse 75% 58% at 50% 18%, rgba(134,239,172,0.50) 0%, transparent 72%),
-						radial-gradient(ellipse 60% 45% at 20% 55%, rgba(254,215,170,0.35) 0%, transparent 70%)
-					`,
-				}}
-			/>
-
-			{/* Soft blur washes */}
-			<div
-				className="absolute -left-16 top-0 h-80 w-80 opacity-70"
-				style={{
-					background:
-						"linear-gradient(145deg, rgba(147,197,253,0.65) 0%, rgba(186,230,253,0.2) 55%, transparent 100%)",
-					filter: "blur(72px)",
-				}}
-			/>
-			<div
-				className="absolute -right-12 top-4 h-72 w-72 opacity-65"
-				style={{
-					background:
-						"linear-gradient(215deg, rgba(216,180,254,0.60) 0%, rgba(233,213,255,0.15) 55%, transparent 100%)",
-					filter: "blur(68px)",
-				}}
-			/>
-			<div
-				className="absolute left-1/4 top-24 h-64 w-96 opacity-55"
-				style={{
-					background:
-						"linear-gradient(180deg, rgba(134,239,172,0.45) 0%, rgba(187,247,208,0.12) 60%, transparent 100%)",
-					filter: "blur(80px)",
-				}}
-			/>
-		</div>
+			{children}
+		</motion.div>
 	);
 }
 
-// ─── Illustration stage wrapper ───────────────────────────────────────────────
 function Stage({ children }: { children: ReactNode }) {
 	return (
 		<div className="mx-auto w-full" style={{ maxWidth: STAGE_W }}>
 			<div
-				className="relative"
-				style={{ width: STAGE_W, height: STAGE_H, overflow: "visible" }}
+				className="relative mx-auto"
+				style={{ width: STAGE_W, height: STAGE_H, maxWidth: "100%" }}
 			>
 				{children}
 			</div>
-			{/* Figma divider: width 306, border 0.81px #213134 */}
 			<div
 				aria-hidden
-				style={{
-					width: STAGE_W,
-					height: 0,
-					borderTop: "0.81px solid #213134",
-					opacity: 1,
-				}}
+				className="mx-auto"
+				style={{ width: STAGE_W, maxWidth: "100%", borderTop: "0.81px solid #213134" }}
 			/>
 		</div>
 	);
 }
 
-// ─── Page 1: Shopping ─────────────────────────────────────────────────────────
 function ShoppingIllustration() {
 	return (
 		<Stage>
-			{/* Bag: bottom-anchored, centered */}
-			<FadeIn className="absolute inset-x-0 bottom-0 flex justify-center">
-				<div className="relative">
-					<Image
-						src="/onboarding/bag.png"
-						alt="حقيبة تسوق"
-						width={240}
-						height={240}
-						className="relative z-10 h-auto w-[240px] object-contain"
-						priority
-					/>
-					{/* Shella logo centered on bag face */}
-					<div
-						className="pointer-events-none absolute z-20"
-						style={{
-							width: 111,
-							height: 80,
-							left: "50%",
-							top: "57%",
-							transform: "translate(-50%, -50%)",
-						}}
-					>
-						<Image
-							src="/favicon.ico"
-							alt="شلة"
-							width={111}
-							height={80}
-							className="h-[80px] w-[111px] object-contain"
-							priority
-						/>
-					</div>
-				</div>
-			</FadeIn>
-
-			{/* Icon circles – rendered above bag */}
-			<div className="pointer-events-none absolute inset-0 z-20" aria-hidden>
-				{SHOPPING_CIRCLES.map((c, i) => {
-					const { Icon } = c;
-					const iconSize = Math.round(c.size * 0.42);
-					return (
-						<FadeIn
-							key={c.id}
-							delay={0.3 + i * 0.1}
-							className="absolute flex items-center justify-center rounded-full shadow-lg"
-							style={{
-								width: c.size,
-								height: c.size,
-								top: c.top,
-								left: c.left,
-								backgroundColor: c.bg,
-							}}
-						>
-							<Icon className={c.iconClass} size={iconSize} strokeWidth={2.2} />
-						</FadeIn>
-					);
-				})}
-			</div>
+			<Entrance className="absolute inset-x-0 bottom-0 flex justify-center">
+				<Image
+					src="/onboarding/bag.png"
+					alt="حقيبة تسوق"
+					width={240}
+					height={240}
+					className="h-auto w-[min(240px,70vw)] object-contain"
+					priority
+				/>
+			</Entrance>
 		</Stage>
 	);
 }
 
-// ─── Page 2: Discount ─────────────────────────────────────────────────────────
 function DiscountIllustration() {
 	return (
 		<Stage>
-			{/* Discount image: bottom-anchored, centered */}
-			<FadeIn className="absolute inset-x-0 bottom-0 flex justify-center">
+			<Entrance className="absolute inset-x-0 bottom-0 flex justify-center">
 				<Image
 					src="/onboarding/discount.png"
 					alt="خصومات حصرية"
 					width={240}
 					height={240}
-					className="h-auto w-[240px] object-contain"
+					className="h-auto w-[min(240px,70vw)] object-contain"
 				/>
-			</FadeIn>
-
-			{/* Discount badges – rendered above image */}
-			<div className="pointer-events-none absolute inset-0 z-20" aria-hidden>
-				{DISCOUNT_BADGES.map((b, i) => {
-					const percentSize = Math.round(b.size * 0.22);
-					const valueSize = Math.round(b.size * 0.32);
-
-					return (
-						<FadeIn
-							key={b.id}
-							delay={0.3 + i * 0.1}
-							className={`absolute flex flex-col items-center justify-center gap-0.5 rounded-full shadow-lg ${b.reversed ? "bg-white" : "bg-[#47AF57]"
-								}`}
-							style={{ width: b.size, height: b.size, top: b.top, left: b.left }}
-						>
-							<span
-								className={`font-bold leading-none ${b.reversed ? "text-[#47AF57]" : "text-white"}`}
-								style={{ fontSize: percentSize }}
-							>
-								%
-							</span>
-							<span
-								className={`font-bold leading-none ${b.reversed ? "text-[#47AF57]" : "text-white"}`}
-								style={{ fontSize: valueSize }}
-							>
-								{b.value}
-							</span>
-						</FadeIn>
-					);
-				})}
+			</Entrance>
+			<div className="pointer-events-none absolute inset-0 z-10" aria-hidden>
+				{DISCOUNT_BADGES.map((b, i) => (
+					<motion.div
+						key={b.id}
+						className="absolute flex items-center justify-center rounded-full font-bold"
+						style={{
+							top: b.top,
+							left: b.left,
+							width: b.size,
+							height: b.size,
+							background: b.bg,
+							color: b.textColor,
+							fontSize: b.fontSize,
+						}}
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: [0, -6, 0] }}
+						transition={{
+							opacity: { duration: 0.6, delay: 0.3 + i * 0.1 },
+							y: { duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.8 + i * 0.2 },
+						}}
+					>
+						{b.value}
+					</motion.div>
+				))}
 			</div>
 		</Stage>
 	);
 }
 
-// ─── Page 3: Fast ─────────────────────────────────────────────────────────────
 function FastIllustration() {
 	return (
 		<Stage>
-			{/* Clock: centered, upper area */}
-			<FadeIn className="absolute inset-x-0 top-8 flex justify-center">
+			<Entrance className="absolute inset-x-0 top-8 flex justify-center">
 				<Image
 					src="/onboarding/clock.png"
 					alt="ساعة"
 					width={230}
 					height={230}
-					className="h-auto w-[230px] object-contain"
+					className="h-auto w-[min(230px,65vw)] object-contain"
 				/>
-			</FadeIn>
-
-			{/* Boxes: foreground, lower – z-index above clock */}
-			<FadeIn
-				delay={0.35}
-				className="absolute inset-x-0 bottom-0 z-20 flex justify-center"
-			>
+			</Entrance>
+			<Entrance delay={0.1} className="absolute inset-x-0 bottom-0 z-10 flex justify-center">
 				<Image
 					src="/onboarding/boxes.png"
 					alt="طرود"
 					width={218}
 					height={125}
-					className="h-auto w-[218px] object-contain"
+					className="h-auto w-[min(218px,60vw)] object-contain"
 				/>
-			</FadeIn>
+			</Entrance>
 		</Stage>
 	);
 }
 
-// ─── Page 4: Language ─────────────────────────────────────────────────────────
 function LanguageIllustration() {
 	return (
 		<Stage>
-			{/* Globe: bottom-anchored, centered */}
-			<FadeIn className="absolute inset-x-0 bottom-0 flex justify-center">
-				<Image
-					src="/onboarding/world.png"
-					alt="اختر لغتك"
-					width={260}
-					height={260}
-					className="h-auto w-[260px] object-contain"
-					priority
-				/>
-			</FadeIn>
+			<Entrance className="absolute inset-x-0 bottom-0 flex justify-center">
+				<div className="relative">
+					<Image
+						src="/onboarding/world.png"
+						alt="اختر لغتك"
+						width={260}
+						height={260}
+						className="h-auto w-[min(260px,72vw)] object-contain"
+						priority
+					/>
+					<motion.span
+						className="absolute text-[28px] font-bold leading-none text-[#30913F] sm:text-[32px]"
+						style={{ right: "17%", top: "10.5%", rotate: "12.78deg" }}
+						initial={{ opacity: 0, scale: 0.8 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ duration: 0.5, delay: 0.4 }}
+						aria-hidden
+					>
+						ض
+					</motion.span>
+					<motion.span
+						className="absolute text-[28px] font-bold leading-none text-[#30913F] sm:text-[32px]"
+						style={{ left: "13%", bottom: "51%", rotate: "-26.13deg" }}
+						initial={{ opacity: 0, scale: 0.8 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ duration: 0.5, delay: 0.5 }}
+						aria-hidden
+					>
+						A
+					</motion.span>
+				</div>
+			</Entrance>
 		</Stage>
 	);
 }
 
-// ─── Language picker (radio list) ─────────────────────────────────────────────
-function LanguageSelector({
-	value,
-	onChange,
-}: {
-	value: LanguageCode;
-	onChange: (code: LanguageCode) => void;
-}) {
-	return (
-		<div
-			className="mx-auto mt-2 w-full divide-y divide-gray-100 border-y border-gray-100"
-			style={{ width: 274 }}
-			role="radiogroup"
-			aria-label="اختر لغتك"
-		>
-			{LANGUAGE_OPTIONS.map((opt) => {
-				const selected = value === opt.code;
-				return (
-					<button
-						key={opt.code}
-						type="button"
-						role="radio"
-						aria-checked={selected}
-						onClick={() => onChange(opt.code)}
-						className="flex w-full items-center justify-between py-4"
-					>
-						<span className="text-[15px] font-bold text-gray-900">
-							{opt.label}
-						</span>
-						<span
-							className={`flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors ${selected ? "border-gray-900" : "border-gray-300"
-								}`}
-						>
-							{selected && (
-								<span className="h-2.5 w-2.5 rounded-full bg-gray-900" />
-							)}
-						</span>
-					</button>
-				);
-			})}
-		</div>
-	);
-}
-
-// ─── Illustration router ──────────────────────────────────────────────────────
 function StepIllustration({ stepId }: { stepId: StepId }) {
 	switch (stepId) {
 		case "shopping":
@@ -427,42 +332,160 @@ function StepIllustration({ stepId }: { stepId: StepId }) {
 	}
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+function LanguageSelector({
+	value,
+	onChange,
+}: {
+	value: LanguageCode;
+	onChange: (code: LanguageCode) => void;
+}) {
+	return (
+		<div
+			className="mx-auto mt-4 w-full max-w-[343px]"
+			role="radiogroup"
+			aria-label="اختر لغتك"
+		>
+			{LANGUAGE_OPTIONS.map((opt, idx) => {
+				const selected = value === opt.code;
+				return (
+					<button
+						key={opt.code}
+						type="button"
+						role="radio"
+						aria-checked={selected}
+						onClick={() => onChange(opt.code)}
+						className={`flex w-full items-center justify-between py-4 ${idx === 0 ? "border-b border-[#F6F5F8]" : ""}`}
+					>
+						<span className="text-right text-[14px] font-bold leading-[160%] text-[#111B18]">
+							{opt.label}
+						</span>
+						<span
+							className="relative flex shrink-0 items-center justify-center rounded-full"
+							style={{
+								width: 20,
+								height: 20,
+								background: selected ? "#111B18" : "#D1D5DB",
+							}}
+						>
+							<motion.span
+								className="rounded-full bg-white"
+								style={{ width: 10, height: 10 }}
+								initial={false}
+								animate={{ scale: selected ? 1 : 0 }}
+								transition={{ duration: 0.2 }}
+							/>
+						</span>
+					</button>
+				);
+			})}
+		</div>
+	);
+}
+
+function ProgressRingButton({
+	progress,
+	onClick,
+}: {
+	progress: number;
+	onClick: () => void;
+}) {
+	const offset = RING_CIRCUMFERENCE - progress * RING_CIRCUMFERENCE;
+
+	return (
+		<motion.button
+			type="button"
+			onClick={onClick}
+			className="relative flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+			style={{ width: RING_SIZE, height: RING_SIZE }}
+			whileHover={{ scale: 1.05 }}
+			whileTap={{ scale: 0.95 }}
+			transition={{ duration: 0.2 }}
+			aria-label="التالي"
+		>
+			<svg
+				width={RING_SIZE}
+				height={RING_SIZE}
+				viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
+				className="absolute inset-0 -rotate-90"
+				aria-hidden
+			>
+				<circle
+					cx={RING_SIZE / 2}
+					cy={RING_SIZE / 2}
+					r={RING_RADIUS}
+					fill="none"
+					stroke="#F8F8F8"
+					strokeWidth={RING_STROKE}
+				/>
+				<motion.circle
+					cx={RING_SIZE / 2}
+					cy={RING_SIZE / 2}
+					r={RING_RADIUS}
+					fill="none"
+					stroke="#30913F"
+					strokeWidth={RING_STROKE}
+					strokeLinecap="round"
+					strokeDasharray={RING_CIRCUMFERENCE}
+					animate={{ strokeDashoffset: offset }}
+					transition={{ duration: 0.4, ease: "easeOut" }}
+				/>
+			</svg>
+			<div
+				className="relative flex items-center justify-center rounded-full bg-[#30913F]"
+				style={{ width: INNER_BTN, height: INNER_BTN }}
+			>
+				<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+					<path
+						d="M5 2.5L10 7L5 11.5"
+						stroke="#FEFEFE"
+						strokeWidth="3"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					/>
+				</svg>
+			</div>
+		</motion.button>
+	);
+}
+
 const OnboardingScreens = memo(function OnboardingScreens() {
 	const [step, setStep] = useState(0);
 	const [language, setLanguage] = useState<LanguageCode>("ar");
+	const router = useRouter();
+
 	const isLast = step === STEPS.length - 1;
 	const current = STEPS[step];
-	const router = useRouter();
-	const progressOffset = useMemo(
-		() => CIRCUMFERENCE - ((step + 1) / STEPS.length) * CIRCUMFERENCE,
-		[step],
-	);
+
+	const progress = useMemo(() => {
+		if (isLast) return 1;
+		return (step + 1) / 3;
+	}, [step, isLast]);
+
+	const goToLanguage = useCallback(() => {
+		setStep(STEPS.length - 1);
+	}, []);
 
 	const handleAction = useCallback(() => {
 		if (isLast) {
-			// `language` holds the user's selected locale (ar | en) if you need
-			// to persist it (e.g. cookie, API call) before navigating.
 			router.replace("/auth");
 		} else {
 			setStep((prev) => prev + 1);
 		}
-	}, [isLast, language]);
+	}, [isLast, router]);
 
 	return (
 		<div
-			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col overflow-hidden pb-10 pt-16`}
+			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col overflow-hidden bg-white`}
 			dir="rtl"
 			lang="ar"
 		>
-			<OnboardingPageBackground />
+			<BlurredGradientBackground />
 
-			{/* Skip – top RIGHT (visual right on any RTL/LTR screen) */}
 			{!isLast && (
 				<motion.button
 					type="button"
-					onClick={() => router.replace("/auth")}
-					className="absolute top-6 right-6 z-20 rounded-full border border-white/60 bg-white/70 px-5 py-2 text-sm font-medium text-gray-600 shadow-sm backdrop-blur-md"
+					onClick={goToLanguage}
+					className="absolute top-6 z-20 rounded-full border border-[#F6F5F8] bg-white/25 px-6 py-2.5 text-[14px] font-medium text-[#2D2F35] backdrop-blur-sm start-6"
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.15 }}
@@ -472,112 +495,55 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 				</motion.button>
 			)}
 
-			<div className="relative z-10 mx-auto flex w-full max-w-[390px] flex-1 flex-col px-6">
+			<div className="relative z-10 mx-auto flex w-full max-w-lg flex-1 flex-col px-6 pb-8 pt-16 sm:px-8 sm:pt-20">
 				<AnimatePresence mode="wait" initial={false}>
 					<motion.div
 						key={current.id}
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-						transition={{ duration: 0.3 }}
+						variants={slideVariants}
+						initial="enter"
+						animate="center"
+						exit="exit"
+						transition={{ duration: 0.4, ease: "easeOut" }}
 						className="flex flex-1 flex-col"
 					>
-						{/* Illustration */}
 						<div className="w-full">
 							<StepIllustration stepId={current.id} />
 						</div>
 
-						{/* Text block – 274px wide, 8px gap, immediately below divider */}
-						<div
-							className="mx-auto mt-6 flex flex-col items-center gap-2 text-center"
-							style={{ width: 274 }}
+						<TextEntrance
+							delay={0.2}
+							className="mx-auto mt-6 flex max-w-[300px] flex-col items-center gap-2 text-center sm:mt-8"
 						>
-							<h1 className="w-full text-[20px] font-bold leading-[100%] text-gray-900">
+							<h1 className="w-full text-[20px] font-bold leading-6 text-black sm:text-[22px]">
 								{current.title}
 							</h1>
 							{current.description && (
-								<p className="w-full text-[15px] font-medium leading-[130%] text-gray-500">
+								<p className="w-full whitespace-pre-line text-[15px] font-medium leading-[18px] text-black">
 									{current.description}
 								</p>
 							)}
-						</div>
+						</TextEntrance>
 
-						{/* Language radio list – only on the language step */}
 						{current.id === "language" && (
 							<LanguageSelector value={language} onChange={setLanguage} />
 						)}
 					</motion.div>
 				</AnimatePresence>
 
-				{/* Progress button + dots, OR full-width action button on the language step */}
-				<div className="mt-auto flex flex-col items-center pt-8">
-					{current.id === "language" ? (
+				<div className="mt-auto flex flex-col items-center pt-8 sm:pt-10">
+					{isLast ? (
 						<motion.button
 							type="button"
 							onClick={handleAction}
-							className="w-full rounded-full bg-[#30913F] py-4 text-base font-bold text-white shadow-lg shadow-[#30913F]/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+							className="w-full max-w-[343px] rounded-xl bg-[#30913F] py-3 text-[16px] font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
+							transition={{ duration: 0.2 }}
 						>
 							التالي
 						</motion.button>
 					) : (
-						<>
-							<motion.button
-								type="button"
-								onClick={handleAction}
-								className="relative flex items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
-								style={{ width: BTN_SIZE, height: BTN_SIZE }}
-								whileTap={{ scale: 0.95 }}
-								aria-label="التالي"
-							>
-								{/* Ring progress */}
-								<svg
-									width={BTN_SIZE}
-									height={BTN_SIZE}
-									viewBox={`0 0 ${BTN_SIZE} ${BTN_SIZE}`}
-									className="absolute inset-0 -rotate-90"
-								>
-									<circle
-										cx={BTN_SIZE / 2}
-										cy={BTN_SIZE / 2}
-										r={BTN_RADIUS}
-										fill="none"
-										stroke="#E5E7EB"
-										strokeWidth={BTN_STROKE}
-									/>
-									<motion.circle
-										cx={BTN_SIZE / 2}
-										cy={BTN_SIZE / 2}
-										r={BTN_RADIUS}
-										fill="none"
-										stroke="#30913F"
-										strokeWidth={BTN_STROKE}
-										strokeLinecap="round"
-										strokeDasharray={CIRCUMFERENCE}
-										animate={{ strokeDashoffset: progressOffset }}
-										transition={{ duration: 0.5, ease: "easeInOut" }}
-									/>
-								</svg>
-								{/* Inner circle */}
-								<div
-									className="flex items-center justify-center rounded-full bg-[#30913F] text-white shadow-lg shadow-[#30913F]/25"
-									style={{ width: BTN_INNER, height: BTN_INNER }}
-								>
-									<ChevronRight className="h-5 w-5" strokeWidth={2.5} />
-								</div>
-							</motion.button>
-
-							{/* Step dots */}
-							<div className="mt-5 flex justify-center gap-2" aria-hidden>
-								{STEPS.map((s, idx) => (
-									<div
-										key={s.id}
-										className={`h-1.5 rounded-full transition-all duration-300 ${idx === step ? "w-6 bg-[#30913F]" : "w-1.5 bg-gray-300"
-											}`}
-									/>
-								))}
-							</div>
-						</>
+						<ProgressRingButton progress={progress} onClick={handleAction} />
 					)}
 				</div>
 			</div>

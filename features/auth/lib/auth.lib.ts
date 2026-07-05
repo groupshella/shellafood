@@ -29,3 +29,25 @@ export async function getGuestId(): Promise<string | null> {
 export async function clearSession() {
     await fetch("/api/auth/session", { method: "DELETE" });
 }
+
+export const ACCOUNT_EXISTS_ERROR =
+    "يوجد حساب مرتبط بهذا الرقم بالفعل. يمكنك تسجيل الدخول أو استعادة كلمة المرور.";
+
+export function getErrorMessage(err: unknown): string {
+    if (err instanceof Error) return err.message;
+    if (typeof err === "string") return err;
+    return "حدث خطأ غير متوقع";
+}
+
+export function isAccountExistsError(message: string | null | undefined): boolean {
+    if (!message) return false;
+    return (
+        message.includes("يوجد حساب مرتبط بهذا الرقم") ||
+        message.includes("مرتبط بهذا الرقم بالفعل")
+    );
+}
+
+/** Local 9-digit phone from +966XXXXXXXXX or raw digits. */
+export function toLocalPhone(phone: string): string {
+    return phone.replace(/\D/g, "").slice(-9);
+}

@@ -2,8 +2,14 @@
 
 import { memo, useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Clock } from "lucide-react";
+
 import NumericKeypad from "./NumericKeypad";
+import {
+	AuthTitle,
+	BackHeader,
+	PrimaryButton,
+	tajawal,
+} from "@/features/auth/components/shared/AuthPrimitives";
 import type { OtpFlow } from "@/features/auth/types/auth.types";
 
 interface OtpScreenProps {
@@ -29,6 +35,15 @@ function formatTime(seconds: number) {
 	const remainingSeconds = seconds % 60;
 	return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
+
+const ClockIcon = memo(function ClockIcon() {
+	return (
+		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+			<circle cx="12" cy="12" r="9" stroke="#555555" strokeWidth="1.6" />
+			<path d="M12 7v5l3 2" stroke="#555555" strokeWidth="1.6" strokeLinecap="round" />
+		</svg>
+	);
+});
 
 const OtpScreen = memo(function OtpScreen({
 	phone,
@@ -66,13 +81,16 @@ const OtpScreen = memo(function OtpScreen({
 		}
 	}, [error, clearError]);
 
-	const handleKeyPress = useCallback((key: string) => {
-		if (error) {
-			handleClear();
-			return;
-		}
-		setCode((prev) => (prev.length < 6 ? prev + key : prev));
-	}, [error, handleClear]);
+	const handleKeyPress = useCallback(
+		(key: string) => {
+			if (error) {
+				handleClear();
+				return;
+			}
+			setCode((prev) => (prev.length < 6 ? prev + key : prev));
+		},
+		[error, handleClear],
+	);
 
 	const handleBackspace = useCallback(() => {
 		setCode((prev) => prev.slice(0, -1));
@@ -89,46 +107,34 @@ const OtpScreen = memo(function OtpScreen({
 	}, [onResend]);
 
 	const formattedPhone = formatPhone(phone);
-	const title = otpFlow === "forgot_password" ? "التحقق من رقم هاتفك الخاص" : "ادخل رمز التفعيل";
+	const title =
+		otpFlow === "forgot_password" ? "التحقق من رقم هاتفك الخاص" : "ادخل رمز التفعيل";
 
 	return (
-		<div dir="rtl" lang="ar" className="relative flex min-h-dvh w-full flex-col bg-white">
-			<div className="px-6 pt-16 pb-4">
-				<motion.button
-					type="button"
-					initial={{ opacity: 0, x: 10 }}
-					animate={{ opacity: 1, x: 0 }}
-					onClick={onBack}
-					disabled={isLoading}
-					className="absolute top-6 left-3 rounded-full p-2 transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-50"
-					aria-label="رجوع"
-				>
-					<ChevronLeft className="h-6 w-6 text-gray-700" />
-				</motion.button>
+		<div
+			dir="rtl"
+			lang="ar"
+			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col bg-white text-[#111B18]`}
+		>
+			<div className="mx-auto flex w-full max-w-md flex-col px-4 pb-4 pt-14 sm:pt-16">
+				<BackHeader onBack={onBack} disabled={isLoading} />
 
-				<motion.h1
-					initial={{ y: 15, opacity: 0 }}
-					animate={{ y: 0, opacity: 1 }}
-					transition={{ duration: 0.4 }}
-					className="text-[26px] font-bold leading-snug text-gray-900"
-				>
-					{title}
-				</motion.h1>
+				<AuthTitle>{title}</AuthTitle>
 
 				<motion.p
-					initial={{ y: 10, opacity: 0 }}
+					initial={{ y: 8, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
 					transition={{ delay: 0.1, duration: 0.4 }}
-					className="mt-3 text-sm leading-relaxed text-gray-500"
+					className="mt-2 text-right text-[16px] font-normal leading-relaxed text-[#555555]"
 				>
 					تم ارسال رمز التحقق الى الرقم الخاص بك{" "}
-					<span dir="ltr" className="inline-block font-medium text-gray-700">
+					<span dir="ltr" className="inline-block font-medium text-[#111B18]">
 						{formattedPhone}
 					</span>
 				</motion.p>
 
 				<motion.div
-					initial={{ y: 10, opacity: 0 }}
+					initial={{ y: 8, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
 					transition={{ delay: 0.2 }}
 					className="mt-8"
@@ -141,15 +147,16 @@ const OtpScreen = memo(function OtpScreen({
 							return (
 								<div
 									key={i}
-									onClick={() => handleClear()}
-									className={`flex h-14 w-12 items-center justify-center rounded-xl border-2 text-xl font-semibold transition-all duration-200 ${isActive
-										? "border-[#30913F] text-gray-900"
-										: error
-											? "border-red-500 text-red-500"
-											: isFilled
-												? "border-gray-400 text-gray-900"
-												: "border-gray-200 text-gray-900"
-										}`}
+									onClick={handleClear}
+									className={`flex h-14 min-w-0 flex-1 items-center justify-center rounded-xl border-2 text-xl font-bold transition-all duration-200 ${
+										isActive
+											? "border-[#30913F] text-[#111B18]"
+											: error
+												? "border-red-500 text-red-500"
+												: isFilled
+													? "border-[#30913F] text-[#111B18]"
+													: "border-[#C6C8CE] text-[#111B18]"
+									}`}
 								>
 									<AnimatePresence mode="popLayout">
 										{isFilled && (
@@ -169,45 +176,45 @@ const OtpScreen = memo(function OtpScreen({
 					</div>
 				</motion.div>
 
-				<motion.button
-					type="button"
-					initial={{ y: 15, opacity: 0 }}
-					animate={{ y: 0, opacity: 1 }}
-					transition={{ delay: 0.3 }}
-					whileTap={{ scale: 0.98 }}
-					onClick={() => onVerify(code)}
-					disabled={code.length !== 6 || isLoading}
-					className="mt-8 w-full rounded-2xl bg-[#30913F] py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
-				>
-					{isLoading ? "جاري التحقق..." : "ارسال"}
-				</motion.button>
-
 				<motion.div
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.4 }}
-					className="mt-6 text-center"
+					className="mt-6 flex flex-col items-center gap-2 text-center"
 				>
 					{timer > 0 ? (
-						<p className="flex items-center justify-center gap-1.5 text-sm text-gray-500">
-							<span className="font-semibold">في حال عدم وصول الرمز؟</span>
-							<span className="inline-flex items-center gap-1 font-medium text-gray-700">
-								<Clock className="h-3.5 w-3.5" />
+						<>
+							<p className="text-[16px] font-medium text-[#555555]">
+								في حال عدم وصول الرمز؟ إعادة الإرسال
+							</p>
+							<span className="inline-flex items-center gap-2 text-[16px] font-normal text-[#555555]">
+								<ClockIcon />
 								{formatTime(timer)}
 							</span>
-						</p>
+						</>
 					) : (
 						<button
 							type="button"
 							onClick={handleResend}
 							disabled={isResending}
-							className="text-sm font-semibold text-[#30913F] transition-colors hover:text-[#2a8036] disabled:opacity-50"
+							className="text-[16px] font-medium text-[#555555] disabled:opacity-50"
 						>
-							<span className="text-sm font-semibold text-gray-500">لم تستلم رمزاً؟</span>{" "}
-							{isResending ? "جاري الإرسال..." : "إعادة الإرسال"}
+							في حال عدم وصول الرمز؟{" "}
+							<span className="font-bold text-[#30913F]">
+								{isResending ? "جاري الإرسال..." : "إعادة الإرسال"}
+							</span>
 						</button>
 					)}
 				</motion.div>
+
+				<div className="mt-8">
+					<PrimaryButton
+						onClick={() => onVerify(code)}
+						disabled={code.length !== 6 || isLoading}
+					>
+						{isLoading ? "جاري التحقق..." : "إرسال"}
+					</PrimaryButton>
+				</div>
 			</div>
 
 			<div className="mt-auto">

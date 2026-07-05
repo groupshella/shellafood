@@ -1,17 +1,25 @@
+import { ScrollContainer } from "@/features/home/components/shared/ScrollContainer";
+import { OfferDiscountCard } from "./OfferDiscountCard";
 import { PromoBannerCard } from "./PromoBannerCard";
-import { PROMO_BANNERS } from "./promo-banners.config";
+import { OFFER_DISCOUNTS, WEBSITE_BANNER } from "./promo-banners.config";
 
 export function PromoBanners() {
-    return (
-        <section aria-label="عروض ترويجية" className="mx-auto w-full max-w-5xl space-y-6 px-4">
-            {PROMO_BANNERS.map((banner, index) => (
-                <article key={banner.id} className="space-y-3">
-                    {banner.title && (
-                        <h2 className="text-lg font-bold text-gray-800">{banner.title}</h2>
-                    )}
-                    <PromoBannerCard banner={banner} priority={index === 0} />
-                </article>
-            ))}
-        </section>
-    );
+	return (
+		<>
+			<section aria-label="عروض وخصومات" className="w-full space-y-4 pt-3">
+				<h2 className="text-right text-[16px] font-bold leading-[1.4] text-[#111B18]">
+					عروض وخصومات
+				</h2>
+				<ScrollContainer className="-mx-4 px-4 pb-2 pt-3 [&>div]:gap-4">
+					{OFFER_DISCOUNTS.map((offer) => (
+						<OfferDiscountCard key={offer.id} percent={offer.percent} href={offer.href} />
+					))}
+				</ScrollContainer>
+			</section>
+
+			<section aria-label="موقع شلة" className="pt-2">
+				<PromoBannerCard banner={WEBSITE_BANNER} priority />
+			</section>
+		</>
+	);
 }

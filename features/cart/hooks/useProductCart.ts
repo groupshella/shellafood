@@ -9,6 +9,7 @@ export function useProductCart(product: ProductCartMeta, isAvailable = true) {
         getQuantity,
         incrementProduct,
         decrementProduct,
+        removeProduct,
         isProductPending,
         getProductSyncError,
         clearProductError,
@@ -18,23 +19,34 @@ export function useProductCart(product: ProductCartMeta, isAvailable = true) {
     const isPending = isProductPending(product.id);
     const error = getProductSyncError(product.id) ?? null;
 
-    const handleAdd = useCallback(() => {
-        if (!isAvailable) return;
-        clearProductError(product.id);
-        void incrementProduct(product);
-    }, [clearProductError, incrementProduct, isAvailable, product]);
+    const mutate = useCallback(
+        (action: () => ReturnType<typeof incrementProduct>) => {
+            if (!isAvailable) return;
+            clearProductError(product.id);
+            void action();
+        },
+        [clearProductError, isAvailable, product.id]
+    );
 
-    const handleIncrease = useCallback(() => {
-        if (!isAvailable) return;
-        clearProductError(product.id);
-        void incrementProduct(product);
-    }, [clearProductError, incrementProduct, isAvailable, product]);
+    const handleAdd = useCallback(
+        () => mutate(() => incrementProduct(product)),
+        [incrementProduct, mutate, product]
+    );
 
-    const handleDecrease = useCallback(() => {
-        if (!isAvailable) return;
-        clearProductError(product.id);
-        void decrementProduct(product);
-    }, [clearProductError, decrementProduct, isAvailable, product]);
+    const handleIncrease = useCallback(
+        () => mutate(() => incrementProduct(product)),
+        [incrementProduct, mutate, product]
+    );
+
+    const handleDecrease = useCallback(
+        () => mutate(() => decrementProduct(product)),
+        [decrementProduct, mutate, product]
+    );
+
+    const handleRemove = useCallback(
+        () => mutate(() => removeProduct(product)),
+        [mutate, product, removeProduct]
+    );
 
     return {
         quantity,
@@ -43,5 +55,6 @@ export function useProductCart(product: ProductCartMeta, isAvailable = true) {
         handleAdd,
         handleIncrease,
         handleDecrease,
+        handleRemove,
     };
 }

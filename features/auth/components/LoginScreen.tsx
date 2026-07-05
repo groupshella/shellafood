@@ -1,14 +1,24 @@
 "use client";
 
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Globe } from "lucide-react";
 import Image from "next/image";
+
+import {
+	AuthShell,
+	AuthErrorMessage,
+	InfoMessage,
+	PasswordField,
+	PhoneField,
+	PrimaryButton,
+	SecondaryButton,
+} from "@/features/auth/components/shared/AuthPrimitives";
 
 interface LoginScreenProps {
 	isLoading?: boolean;
 	error?: string | null;
 	infoMessage?: string | null;
+	prefillPhone?: string;
 	onLogin: (phone: string, password: string) => void;
 	onForgotPassword: () => void;
 	onRegister: () => void;
@@ -20,7 +30,7 @@ interface LoginScreenProps {
 
 const AppleIcon = memo(function AppleIcon() {
 	return (
-		<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="#111B18">
 			<path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
 		</svg>
 	);
@@ -49,10 +59,24 @@ const GoogleIcon = memo(function GoogleIcon() {
 	);
 });
 
+const GlobeIcon = memo(function GlobeIcon() {
+	return (
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+			<circle cx="12" cy="12" r="9" stroke="#111B18" strokeWidth="1.6" />
+			<path
+				d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"
+				stroke="#111B18"
+				strokeWidth="1.4"
+			/>
+		</svg>
+	);
+});
+
 const LoginScreen = memo(function LoginScreen({
 	isLoading = false,
 	error,
 	infoMessage,
+	prefillPhone = "",
 	onLogin,
 	onForgotPassword,
 	onRegister,
@@ -61,9 +85,14 @@ const LoginScreen = memo(function LoginScreen({
 	onGoogle,
 	onLanguageToggle,
 }: LoginScreenProps) {
-	const [phone, setPhone] = useState("");
+	const [phone, setPhone] = useState(prefillPhone);
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
+	const [remember, setRemember] = useState(false);
+
+	useEffect(() => {
+		if (prefillPhone) setPhone(prefillPhone);
+	}, [prefillPhone]);
 
 	const isValid = phone.length === 9 && password.length > 0;
 
@@ -73,200 +102,157 @@ const LoginScreen = memo(function LoginScreen({
 	}, [phone, password, isValid, onLogin]);
 
 	return (
-		<div
-			dir="rtl"
-			lang="ar"
-			className="relative flex min-h-dvh w-full flex-col bg-white px-6 pt-16 pb-8"
-		>
+		<AuthShell>
 			<motion.button
 				type="button"
-				initial={{ opacity: 0, y: -10 }}
-				animate={{ opacity: 1, y: 0 }}
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
 				transition={{ delay: 0.1 }}
 				onClick={onLanguageToggle}
-				className="absolute top-6 right-6 z-10 inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3.5 py-2 text-sm font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+				className="absolute top-14 right-4 z-10 inline-flex items-center gap-1 rounded-2xl border border-[#C6C8CE] bg-white px-2 py-1 text-[14px] font-normal text-[#111B18] sm:top-16"
 				aria-label="Change language"
 			>
-				<Globe className="h-4 w-4 text-black" />
+				<GlobeIcon />
 				English
 			</motion.button>
 
-			<div className="mt-8 flex flex-col items-center gap-3">
+			<div className="mt-10 flex flex-col items-center gap-6">
 				<motion.div
 					initial={{ scale: 0.8, opacity: 0 }}
 					animate={{ scale: 1, opacity: 1 }}
 					transition={{ type: "spring", stiffness: 200, damping: 15 }}
-					className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-50"
+					className="flex h-20 w-20 items-center justify-center rounded-full"
+					style={{ background: "rgba(235, 235, 235, 0.5)" }}
 				>
 					<Image
 						src="/favicon.ico"
 						alt="شلة"
-						width={40}
-						height={40}
-						className="h-10 w-10 object-contain"
+						width={64}
+						height={46}
+						className="h-[46px] w-16 object-contain"
 						priority
 					/>
 				</motion.div>
 
 				<motion.div
-					initial={{ y: 15, opacity: 0 }}
+					initial={{ y: 12, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
 					transition={{ delay: 0.15, duration: 0.4 }}
-					className="text-center"
+					className="flex flex-col items-center gap-2"
 				>
-					<h1 className="text-[22px] font-bold text-gray-900">مرحباً بك</h1>
-					<p className="mt-1 text-sm text-gray-500">
+					<h1 className="text-center text-[25px] font-bold leading-[30px] text-[#111B18]">
+						مرحباً بك
+					</h1>
+					<p className="text-center text-[16px] font-normal text-[#555555]">
 						سجل دخول أو أنشئ حساب جديد للمتابعة
 					</p>
 				</motion.div>
 			</div>
 
 			<motion.div
-				initial={{ y: 15, opacity: 0 }}
+				initial={{ y: 12, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ delay: 0.2, duration: 0.4 }}
-				className="mt-8 space-y-5"
+				className="mt-8 flex flex-col gap-4"
 			>
-				<div>
-					<label className="mb-2 block text-sm font-semibold text-gray-900">
-						رقم الهاتف
-					</label>
-					<div className="flex items-center rounded-xl border border-gray-200 bg-white px-4 py-3.5 transition-all focus-within:border-[#30913F] focus-within:ring-1 focus-within:ring-[#30913F]">
-						<input
-							type="tel"
-							inputMode="numeric"
-							value={phone}
-							onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 9))}
-							placeholder="00 000 0000"
-							className="flex-1 bg-transparent text-left text-lg text-gray-800 outline-none placeholder:text-gray-400"
-							aria-label="رقم الهاتف"
-						/>
-						<div className="mx-3 h-6 w-px bg-gray-300" />
-						<span className="text-lg font-medium text-gray-500">966+</span>
-					</div>
-				</div>
+				<PhoneField value={phone} onChange={setPhone} onEnter={handleSubmit} disabled={isLoading} />
 
-				<div>
-					<label className="mb-2 block text-sm font-semibold text-gray-900">
-						كلمة المرور
-					</label>
-					<div className="flex items-center rounded-xl border border-gray-200 bg-white px-4 py-3.5 transition-all focus-within:border-[#30913F] focus-within:ring-1 focus-within:ring-[#30913F]">
+				<div className="flex flex-col gap-2">
+					<PasswordField
+						label="كلمة المرور"
+						value={password}
+						onChange={setPassword}
+						onEnter={handleSubmit}
+						show={showPassword}
+						onToggle={() => setShowPassword((s) => !s)}
+						disabled={isLoading}
+					/>
+
+					<div className="flex items-center flex-row-reverse justify-between">
 						<button
 							type="button"
-							onClick={() => setShowPassword((s) => !s)}
-							className="text-gray-400 transition-colors hover:text-gray-600"
-							aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+							onClick={onForgotPassword}
+							className="text-[14px] font-medium text-[#555555] underline transition-colors hover:text-[#30913F]"
 						>
-							{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+							نسيت كلمة المرور ؟
 						</button>
-						<input
-							type={showPassword ? "text" : "password"}
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-							placeholder="كلمة المرور"
-							className="flex-1 bg-transparent px-3 text-right text-gray-800 outline-none placeholder:text-gray-400"
-							aria-label="كلمة المرور"
-						/>
+						<label className="flex cursor-pointer select-none items-center gap-2 opacity-80">
+							<button
+								type="button"
+								role="checkbox"
+								aria-checked={remember}
+								onClick={() => setRemember((r) => !r)}
+								className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors ${remember ? "border-[#30913F] bg-[#30913F]" : "border-[#555555] bg-white"
+									}`}
+							>
+								{remember && (
+									<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+										<path
+											d="M2.5 7.5 5.5 10.5 11.5 3.5"
+											stroke="#fff"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										/>
+									</svg>
+								)}
+							</button>
+							<span className="text-[14px] font-medium text-[#111B18]">تذكرني</span>
+
+						</label>
 					</div>
-					<button
-						type="button"
-						onClick={onForgotPassword}
-						className="mt-2 text-sm font-semibold text-gray-500 transition-colors hover:text-[#30913F]"
-					>
-						نسيت كلمة المرور؟
-					</button>
 				</div>
 
-				{infoMessage && (
-					<p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-[#2a8036]">
-						{infoMessage}
-					</p>
-				)}
-				{error && (
-					<p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
-				)}
+				{infoMessage && <InfoMessage>{infoMessage}</InfoMessage>}
+				{error && <AuthErrorMessage error={error} />}
 			</motion.div>
 
-			<div className="mt-8 w-full space-y-3">
-				<motion.button
-					type="button"
-					initial={{ y: 20, opacity: 0 }}
-					animate={{ y: 0, opacity: 1 }}
-					transition={{ delay: 0.3, duration: 0.4 }}
-					whileTap={{ scale: 0.98 }}
-					onClick={handleSubmit}
-					disabled={!isValid || isLoading}
-					className="w-full rounded-2xl bg-[#30913F] disabled:bg-[#30913F]/50 py-4 text-lg font-semibold text-white shadow-lg shadow-[#30913F]/20 transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed"
-				>
+			<div className="mt-8 flex w-full flex-col gap-3">
+				<PrimaryButton onClick={handleSubmit} disabled={!isValid || isLoading}>
 					{isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
-				</motion.button>
+				</PrimaryButton>
 
-				<motion.button
-					type="button"
-					initial={{ y: 20, opacity: 0 }}
-					animate={{ y: 0, opacity: 1 }}
-					transition={{ delay: 0.35, duration: 0.4 }}
-					whileTap={{ scale: 0.98 }}
-					onClick={onGuest}
-					disabled={isLoading}
-					className="w-full rounded-2xl bg-gray-100 py-4 text-base font-semibold text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-				>
+				<SecondaryButton onClick={onGuest} disabled={isLoading}>
 					المتابعة كزائر
-				</motion.button>
+				</SecondaryButton>
 
-				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					transition={{ delay: 0.4 }}
-					className="relative flex items-center py-2"
-				>
-					<div className="h-px flex-1 bg-gray-200" />
-					<span className="mx-4 text-sm font-medium text-gray-400">أو المتابعة بحساب</span>
-					<div className="h-px flex-1 bg-gray-200" />
-				</motion.div>
+				<div className="flex items-center gap-3 py-1">
+					<div className="h-px flex-1 bg-[#C6C8CE]" />
+					<span className="text-[16px] font-normal text-[#555555]">أو المتابعة بحساب</span>
+					<div className="h-px flex-1 bg-[#C6C8CE]" />
+				</div>
 
-				<motion.div
-					initial={{ y: 20, opacity: 0 }}
-					animate={{ y: 0, opacity: 1 }}
-					transition={{ delay: 0.45, duration: 0.4 }}
-					className="flex gap-3"
-				>
-					<button
-						type="button"
-						onClick={onGoogle}
-						className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3.5 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
-					>
-						<GoogleIcon />
-						<span className="text-sm font-semibold text-gray-800">Google</span>
-					</button>
+				<div className="flex gap-2">
 					<button
 						type="button"
 						onClick={onApple}
-						className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3.5 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-white transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
 					>
 						<AppleIcon />
-						<span className="text-sm font-semibold text-gray-800">Apple</span>
+						<span className="text-[14px] font-medium text-[#555555]">Apple</span>
 					</button>
-				</motion.div>
+					<button
+						type="button"
+						onClick={onGoogle}
+						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-white transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+					>
+						<GoogleIcon />
+						<span className="text-[14px] font-medium text-[#555555]">Google</span>
+					</button>
+				</div>
 
-				<motion.p
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					transition={{ delay: 0.5 }}
-					className="pt-2 text-center text-sm text-gray-500"
-				>
+				<p className="pt-2 text-center text-[14px] font-medium text-[#111B18]">
 					ليس لديك حساب؟{" "}
 					<button
 						type="button"
 						onClick={onRegister}
-						className="font-semibold text-[#30913F] hover:text-[#2a8036]"
+						className="font-bold text-[#30913F] hover:text-[#2a8036]"
 					>
 						إنشاء حساب
 					</button>
-				</motion.p>
+				</p>
 			</div>
-		</div>
+		</AuthShell>
 	);
 });
 

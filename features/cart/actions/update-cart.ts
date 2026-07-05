@@ -6,8 +6,8 @@ import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import {
   CartActionResult,
   CartErrorResponse,
-  CartItem,
   CART_ERROR_MESSAGES,
+  parseCartItems,
 } from "../types/cart.types";
 
 interface UpdateCartPayload {
@@ -55,5 +55,5 @@ export async function updateCart(payload: UpdateCartPayload): Promise<CartAction
   }
 
   updateTag("cart");
-  return { success: true, items: json as CartItem[] };
+  return { success: true, items: parseCartItems(json) };
 }

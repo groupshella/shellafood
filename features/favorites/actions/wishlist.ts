@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 
 async function buildHeaders(): Promise<Record<string, string>> {
@@ -44,7 +44,7 @@ export async function addToWishlist({
         return { success: false, message: "فشل في الإضافة إلى المفضلة" };
     }
 
-    revalidateTag("wishlist", "page");
+    updateTag("wishlist");
     const json = await res.json();
     return { success: true, message: json.message ?? "تمت الإضافة إلى المفضلة" };
 }
@@ -71,7 +71,7 @@ export async function removeFromWishlist({
         return { success: false, message: "فشل في إزالة المفضلة" };
     }
 
-    revalidateTag("wishlist", "page");
+    updateTag("wishlist");
     const json = await res.json();
     return { success: true, message: json.message ?? "تمت الإزالة من المفضلة" };
 }
