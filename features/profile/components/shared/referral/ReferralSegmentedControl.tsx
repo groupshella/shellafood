@@ -18,7 +18,7 @@ export function ReferralSegmentedControl({ active, onChange }: ReferralSegmented
         <div
             role="tablist"
             aria-label={REFERRAL_STRINGS.pageTitle}
-            className="mx-auto flex h-[44px] w-full max-w-[343px] rounded-[12px] bg-[#F6F5F8] p-[2px]"
+            className="mx-auto flex min-h-[44px] w-full rounded-[12px] bg-[#F6F5F8] p-[2px] dark:bg-gray-800 sm:max-w-md"
         >
             {TABS.map((tab) => {
                 const isActive = tab.id === active;
@@ -30,10 +30,10 @@ export function ReferralSegmentedControl({ active, onChange }: ReferralSegmented
                         aria-selected={isActive}
                         onClick={() => onChange(tab.id)}
                         className={[
-                            "h-[40px] flex-1 rounded-[12px] text-[14px] font-bold leading-none transition-colors duration-200",
+                            "min-h-[40px] flex-1 rounded-[12px] px-3 text-[14px] font-bold leading-none transition-colors duration-200 sm:text-[15px]",
                             isActive
                                 ? "bg-[#30913F] text-white shadow-[0px_3px_8px_rgba(255,243,245,0.12),0px_3px_1px_rgba(0,0,0,0.04)]"
-                                : "bg-transparent text-[#082E0A]",
+                                : "bg-transparent text-[#082E0A] dark:text-gray-300",
                         ].join(" ")}
                     >
                         {tab.label}

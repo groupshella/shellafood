@@ -8,7 +8,7 @@ interface ReferralStatsCardProps {
 export function ReferralStatsCard({ stats }: ReferralStatsCardProps) {
     return (
         <div
-            className="relative h-[88px] w-full overflow-hidden rounded-2xl"
+            className="relative min-h-[88px] w-full overflow-hidden rounded-2xl sm:min-h-[104px]"
             style={{
                 background: "linear-gradient(135deg, #30913F 0%, #3EC856 100%)",
             }}
@@ -18,26 +18,26 @@ export function ReferralStatsCard({ stats }: ReferralStatsCardProps) {
                 aria-hidden
             />
 
-            <div className="relative flex h-full items-center">
-                <div className="flex flex-1 flex-col items-center justify-center">
+            <div className="relative grid min-h-[88px] grid-cols-2 items-center sm:min-h-[104px]">
+                <div className="flex min-w-0 flex-col items-center justify-center px-2">
                     <div className="flex items-center gap-1">
-                        <span className="text-[38px] font-extrabold leading-none text-white">
+                        <span className="text-[clamp(30px,9vw,38px)] font-extrabold leading-none text-white sm:text-[42px]">
                             {stats.totalRewards}
                         </span>
-                        <span className="text-[16px] font-medium leading-none text-white">
-                            {REFERRAL_STRINGS.currencySymbol}
+                        <span className="text-[14px] font-medium leading-none text-white sm:text-[16px]">
+                            {stats.currency ?? REFERRAL_STRINGS.currencySymbol}
                         </span>
                     </div>
-                    <p className="mt-1 text-center text-[12px] font-normal leading-none text-white">
+                    <p className="mt-1 text-center text-[12px] font-normal leading-snug text-white sm:text-[13px]">
                         {REFERRAL_STRINGS.statsTotalRewards}
                     </p>
                 </div>
 
-                <div className="flex flex-1 flex-col items-center justify-center">
-                    <span className="text-[38px] font-extrabold leading-none text-white">
+                <div className="flex min-w-0 flex-col items-center justify-center px-2">
+                    <span className="text-[clamp(30px,9vw,38px)] font-extrabold leading-none text-white sm:text-[42px]">
                         {stats.totalInvites}
                     </span>
-                    <p className="mt-1 text-center text-[11.5px] font-normal leading-none text-white">
+                    <p className="mt-1 text-center text-[11.5px] font-normal leading-snug text-white sm:text-[13px]">
                         {REFERRAL_STRINGS.statsTotalInvites}
                     </p>
                 </div>

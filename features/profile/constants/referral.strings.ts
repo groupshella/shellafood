@@ -23,5 +23,7 @@ export const REFERRAL_STRINGS = {
     statusPending: "انتظار",
     statusRegistered: "تم التسجيل",
 
+    emptyInvitedFriends: "لا يوجد أصدقاء تمت دعوتهم حاليا",
+
     currencySymbol: "﷼",
 } as const;

@@ -10,7 +10,7 @@ export function ReferralInvitedList({ groups }: ReferralInvitedListProps) {
         <div className="flex w-full flex-col gap-4">
             {groups.map((group) => (
                 <section key={group.key}>
-                    <h3 className="mb-0 text-start text-[16px] font-bold text-[#707784]">
+                    <h3 className="mb-0 text-start text-[16px] font-bold text-[#707784] dark:text-gray-500">
                         {group.label}
                     </h3>
                     <div>
