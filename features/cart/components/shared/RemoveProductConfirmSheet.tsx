@@ -2,22 +2,22 @@
 
 import { useEffect } from "react";
 
-interface ClearCartConfirmSheetProps {
+interface RemoveProductConfirmSheetProps {
   isOpen: boolean;
   onConfirm: () => void;
   onCancel: () => void;
-  isClearing?: boolean;
+  isRemoving?: boolean;
 }
 
 const SHEET_LAYOUT =
   "fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-3xl bg-white px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-4 shadow-2xl dark:bg-gray-900 sm:max-w-2xl sm:px-5 md:max-w-xl lg:max-w-2xl";
 
-export function ClearCartConfirmSheet({
+export function RemoveProductConfirmSheet({
   isOpen,
   onConfirm,
   onCancel,
-  isClearing = false,
-}: ClearCartConfirmSheetProps) {
+  isRemoving = false,
+}: RemoveProductConfirmSheetProps) {
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -39,27 +39,29 @@ export function ClearCartConfirmSheet({
       <div
         role="dialog"
         aria-modal
-        aria-label="تأكيد تفريغ السلة"
+        aria-label="تأكيد حذف المنتج"
         className={SHEET_LAYOUT}
         dir="rtl"
       >
         <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-gray-200 dark:bg-gray-700" />
 
-        <p className="mb-6 text-center text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-lg">
-          هل ترغب في تفريغ السلة؟
+        <p className="mb-6 text-center text-base font-bold text-red-500 dark:text-red-400 sm:text-lg">
+          هل متأكد من حذف المنتج؟
         </p>
 
         <button
+          type="button"
           onClick={onConfirm}
-          disabled={isClearing}
+          disabled={isRemoving}
           className="mb-3 w-full rounded-2xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] disabled:cursor-not-allowed disabled:opacity-60 sm:py-4 sm:text-[15px]"
         >
-          {isClearing ? "جاري التفريغ..." : "تفريغ السلة"}
+          {isRemoving ? "جاري الحذف..." : "حذف"}
         </button>
 
         <button
+          type="button"
           onClick={onCancel}
-          disabled={isClearing}
+          disabled={isRemoving}
           className="w-full rounded-2xl bg-gray-100 py-3.5 text-sm font-medium text-gray-700 transition-colors active:bg-gray-200 disabled:opacity-60 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:py-4 sm:text-[15px]"
         >
           إلغاء

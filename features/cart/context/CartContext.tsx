@@ -16,7 +16,7 @@ import { clearCart } from "../actions/clear-cart";
 import { removeCartItem } from "../actions/remove-cart-item";
 import { CART_SYNC_DEBOUNCE_MS } from "../constants";
 import { applyOptimisticQuantity, isOptimisticCartLine } from "../lib/optimistic-cart";
-import { getTotalCount, matchCartLine, ProductCartMeta } from "../lib/match-cart-line";
+import { getTotalCount, getTotalPrice, matchCartLine, ProductCartMeta } from "../lib/match-cart-line";
 import { CartActionResult, CartItem } from "../types/cart.types";
 
 interface CartMutationResult {
@@ -27,6 +27,7 @@ interface CartMutationResult {
 interface CartContextValue {
     items: CartItem[];
     totalCount: number;
+    totalPrice: number;
     getQuantity: (product: ProductCartMeta) => number;
     addProduct: (product: ProductCartMeta, quantity?: number) => Promise<CartMutationResult>;
     incrementProduct: (product: ProductCartMeta) => Promise<CartMutationResult>;
@@ -72,7 +73,7 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
     }, []);
 
     const totalCount = useMemo(() => getTotalCount(items), [items]);
-
+    const totalPrice = useMemo(() => getTotalPrice(items), [items]);
     const getQuantity = useCallback(
         (product: ProductCartMeta) => matchCartLine(items, product)?.quantity ?? 0,
         [items]
@@ -296,6 +297,7 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
         () => ({
             items,
             totalCount,
+            totalPrice,
             getQuantity,
             addProduct,
             incrementProduct,
@@ -309,6 +311,7 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
         [
             items,
             totalCount,
+            totalPrice,
             getQuantity,
             addProduct,
             incrementProduct,
