@@ -8,7 +8,10 @@ interface StoreShellProps {
 
 export function StoreShell({ children }: StoreShellProps) {
     return (
-        <div className="mx-auto min-h-screen w-full max-w-lg sm:max-w-2xl lg:max-w-4xl mb-16 bg-[#F6F5F8]" dir="rtl">
+        <div
+            className="flex min-h-dvh min-w-0 flex-col overflow-x-hidden bg-white pb-[calc(58px+env(safe-area-inset-bottom))] dark:bg-gray-950"
+            dir="rtl"
+        >
             {children}
             <Navbar />
         </div>

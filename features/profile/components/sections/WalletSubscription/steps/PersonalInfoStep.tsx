@@ -6,10 +6,10 @@ import { PhoneField } from "@/features/profile/components/shared/registration/Ph
 import type { WalletFormData } from "../types";
 
 const inputCls =
-    "w-full rounded-xl border border-[#F6F5F8] bg-[#F6F5F8] px-3 py-[14px] text-[14px] text-[#111B18] outline-none placeholder:text-[#555555] h-14 text-end";
+    "h-14 w-full rounded-xl border border-[#F6F5F8] bg-[#F6F5F8] px-3 py-[14px] text-end text-[14px] text-[#111B18] outline-none placeholder:text-[#555555] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 sm:px-4";
 
 const inputWithIconCls =
-    "flex h-14 w-full items-center rounded-xl border border-[#F6F5F8] bg-[#F6F5F8] px-3";
+    "flex h-14 w-full items-center rounded-xl border border-[#F6F5F8] bg-[#F6F5F8] px-3 dark:border-gray-700 dark:bg-gray-800 sm:px-4";
 
 function WField({
     label,
@@ -26,7 +26,7 @@ function WField({
                 {required && (
                     <span className="text-[12px] font-bold text-[#DB2626]">*</span>
                 )}
-                <span className="text-[14px] font-bold text-[#111B18]">{label}</span>
+                <span className="text-[14px] font-bold text-[#111B18] dark:text-gray-100 sm:text-[15px]">{label}</span>
             </div>
             {children}
         </div>
@@ -60,20 +60,20 @@ function WDropdown({
                     className={`${inputWithIconCls} justify-between`}
                 >
                     <ChevronDown
-                        className={`h-6 w-6 shrink-0 text-[#555555] transition-transform ${open ? "rotate-180" : ""}`}
+                        className={`h-6 w-6 shrink-0 text-[#555555] transition-transform dark:text-gray-400 ${open ? "rotate-180" : ""}`}
                         strokeWidth={1.5}
                     />
                     <div className="flex items-center gap-1">
                         {extra}
                         <span
-                            className={`text-[14px] ${value ? "text-[#111B18]" : "text-[#555555]"}`}
+                            className={`text-[14px] ${value ? "text-[#111B18] dark:text-gray-100" : "text-[#555555] dark:text-gray-500"}`}
                         >
                             {value || placeholder}
                         </span>
                     </div>
                 </button>
                 {open && (
-                    <ul className="absolute inset-x-0 top-[calc(100%+4px)] z-20 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+                    <ul className="absolute inset-x-0 top-[calc(100%+4px)] z-20 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
                         {options.map((opt, i) => (
                             <li key={opt}>
                                 <button
@@ -82,11 +82,11 @@ function WDropdown({
                                         onChange(opt);
                                         setOpen(false);
                                     }}
-                                    className={`w-full px-4 py-3 text-end text-[14px] transition-colors active:bg-gray-50 ${
+                                    className={`w-full px-4 py-3 text-end text-[14px] transition-colors active:bg-gray-50 dark:active:bg-gray-700 ${
                                         value === opt
-                                            ? "font-semibold text-[#30913F]"
-                                            : "text-[#111B18]"
-                                    } ${i > 0 ? "border-t border-gray-100" : ""}`}
+                                            ? "font-semibold text-[#30913F] dark:text-[#4db860]"
+                                            : "text-[#111B18] dark:text-gray-100"
+                                    } ${i > 0 ? "border-t border-gray-100 dark:border-gray-700" : ""}`}
                                 >
                                     {opt}
                                 </button>
@@ -112,26 +112,26 @@ function WRadioGroup({
 }) {
     return (
         <WField label={label}>
-            <div className="overflow-hidden rounded-xl bg-[#F6F5F8]">
+            <div className="overflow-hidden rounded-xl bg-[#F6F5F8] dark:bg-gray-800">
                 {options.map((opt, i) => (
                     <button
                         key={opt}
                         type="button"
                         onClick={() => onChange(opt)}
-                        className={`flex w-full items-center justify-between px-4 py-4 text-[16px] text-[#111B18] ${
-                            i > 0 ? "border-t border-[#F6F5F8] bg-white" : ""
+                        className={`flex w-full items-center justify-between px-4 py-4 text-[16px] text-[#111B18] dark:text-gray-100 ${
+                            i > 0 ? "border-t border-[#F6F5F8] bg-white dark:border-gray-700 dark:bg-gray-900" : ""
                         }`}
                     >
                         <span
                             className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                                value === opt ? "border-[#111B18]" : "border-[#D1D5DB]"
+                                value === opt ? "border-[#111B18] dark:border-gray-200" : "border-[#D1D5DB] dark:border-gray-600"
                             }`}
                         >
                             {value === opt && (
-                                <span className="h-2.5 w-2.5 rounded-full bg-[#111B18]" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-[#111B18] dark:bg-gray-200" />
                             )}
                         </span>
-                        <span className="text-[16px] font-medium text-[#111B18]">{opt}</span>
+                        <span className="text-[16px] font-medium text-[#111B18] dark:text-gray-100">{opt}</span>
                     </button>
                 ))}
             </div>
@@ -158,13 +158,13 @@ export function PersonalInfoStep({
     onViewContract,
 }: PersonalInfoStepProps) {
     return (
-        <div className="flex flex-col gap-4 pb-6">
+        <div className="flex flex-col gap-4 pb-6 sm:gap-5">
             {/* Personal Information Card */}
-            <div className="rounded-2xl bg-[#F6F5F8] p-4">
-                <h2 className="mb-4 text-center text-[16px] font-bold text-[#555555]">
+            <div className="rounded-2xl bg-[#F6F5F8] p-3 dark:bg-gray-800/50 sm:p-4">
+                <h2 className="mb-4 text-center text-[16px] font-bold text-[#555555] dark:text-gray-400">
                     المعلومات الشخصية
                 </h2>
-                <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)]">
+                <div className="grid grid-cols-1 gap-4 rounded-2xl bg-white p-3 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] dark:bg-gray-900 dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.2)] sm:p-4 md:grid-cols-2">
                     <WField label="الاسم الأول" required>
                         <input
                             className={inputCls}
@@ -209,11 +209,11 @@ export function PersonalInfoStep({
                     <WField label="تاريخ الميلاد" required>
                         <div className={inputWithIconCls + " justify-between"}>
                             <Calendar
-                                className="h-6 w-6 shrink-0 text-[#555555]"
+                                className="h-6 w-6 shrink-0 text-[#555555] dark:text-gray-400"
                                 strokeWidth={1.5}
                             />
                             <input
-                                className="flex-1 bg-transparent text-end text-[14px] text-[#111B18] outline-none placeholder:text-[#555555]"
+                                className="flex-1 bg-transparent text-end text-[14px] text-[#111B18] outline-none placeholder:text-[#555555] dark:text-gray-100 dark:placeholder:text-gray-500"
                                 placeholder="yyyy / mm / dd"
                                 value={data.birthDate}
                                 onChange={(e) => onChange({ birthDate: e.target.value })}
@@ -273,11 +273,11 @@ export function PersonalInfoStep({
                     <WField label="تاريخ الانتهاء" required>
                         <div className={inputWithIconCls + " justify-between"}>
                             <Calendar
-                                className="h-6 w-6 shrink-0 text-[#555555]"
+                                className="h-6 w-6 shrink-0 text-[#555555] dark:text-gray-400"
                                 strokeWidth={1.5}
                             />
                             <input
-                                className="flex-1 bg-transparent text-end text-[14px] text-[#111B18] outline-none placeholder:text-[#555555]"
+                                className="flex-1 bg-transparent text-end text-[14px] text-[#111B18] outline-none placeholder:text-[#555555] dark:text-gray-100 dark:placeholder:text-gray-500"
                                 placeholder="yyyy / mm / dd"
                                 value={data.idExpiryDate}
                                 onChange={(e) => onChange({ idExpiryDate: e.target.value })}
@@ -298,11 +298,11 @@ export function PersonalInfoStep({
             </div>
 
             {/* Housing Information Card */}
-            <div className="rounded-2xl bg-[#F6F5F8] p-4">
-                <h2 className="mb-4 text-center text-[16px] font-bold text-[#555555]">
+            <div className="rounded-2xl bg-[#F6F5F8] p-3 dark:bg-gray-800/50 sm:p-4">
+                <h2 className="mb-4 text-center text-[16px] font-bold text-[#555555] dark:text-gray-400">
                     بيانات السكن
                 </h2>
-                <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)]">
+                <div className="grid grid-cols-1 gap-4 rounded-2xl bg-white p-3 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] dark:bg-gray-900 dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.2)] sm:p-4 md:grid-cols-2">
                     <WRadioGroup
                         label="نوع المنزل"
                         options={HOME_TYPE_OPTIONS}
@@ -332,18 +332,18 @@ export function PersonalInfoStep({
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-col gap-3 pt-2">
+            <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
                 <button
                     type="button"
                     onClick={onNext}
-                    className="h-12 w-full rounded-xl bg-[#30913F] text-[16px] font-bold text-white active:bg-[#267332]"
+                    className="min-h-[48px] w-full rounded-xl bg-[#30913F] px-4 text-[16px] font-bold text-white active:bg-[#267332] sm:min-h-[52px]"
                 >
                     التالي
                 </button>
                 <button
                     type="button"
                     onClick={onViewContract}
-                    className="h-[50px] w-full rounded-xl bg-[#F6F6F6] text-[16px] font-bold text-[#43474F] active:bg-gray-200"
+                    className="min-h-[50px] w-full rounded-xl bg-[#F6F6F6] px-4 text-[16px] font-bold text-[#43474F] active:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:active:bg-gray-700"
                 >
                     استعراض العقد قبل التوقيع
                 </button>

@@ -8,9 +8,10 @@ interface PasswordInputProps {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
+    hasError?: boolean;
 }
 
-export function PasswordInput({ value, onChange, placeholder }: PasswordInputProps) {
+export function PasswordInput({ value, onChange, placeholder, hasError }: PasswordInputProps) {
     const [visible, setVisible] = useState(false);
 
     return (
@@ -20,14 +21,18 @@ export function PasswordInput({ value, onChange, placeholder }: PasswordInputPro
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className={`${inputClassName} pe-12 text-start`}
+                className={`${inputClassName} text-end ${
+                    hasError
+                        ? "border-[#DB2626] focus:border-[#DB2626] focus:ring-red-100 dark:focus:ring-red-900/30"
+                        : ""
+                }`}
                 autoComplete="new-password"
                 aria-required
             />
             <button
                 type="button"
                 onClick={() => setVisible((v) => !v)}
-                className="absolute inset-y-0 end-3 flex items-center text-[#707784] transition-colors active:text-[#111B18]"
+                className="absolute inset-y-0 start-3 flex h-full min-w-[44px] items-center justify-center text-[#707784] transition-colors active:text-[#111B18] dark:text-gray-500 dark:active:text-gray-200"
                 aria-label={visible ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
             >
                 {visible ? <Eye className="h-5 w-5" strokeWidth={1.5} /> : <EyeOff className="h-5 w-5" strokeWidth={1.5} />}

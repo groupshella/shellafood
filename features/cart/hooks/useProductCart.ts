@@ -28,15 +28,12 @@ export function useProductCart(product: ProductCartMeta, isAvailable = true) {
         [clearProductError, isAvailable, product.id]
     );
 
-    const handleAdd = useCallback(
-        () => mutate(() => incrementProduct(product)),
-        [incrementProduct, mutate, product]
-    );
-
     const handleIncrease = useCallback(
         () => mutate(() => incrementProduct(product)),
         [incrementProduct, mutate, product]
     );
+
+    const handleAdd = handleIncrease;
 
     const handleDecrease = useCallback(
         () => mutate(() => decrementProduct(product)),

@@ -1,16 +1,20 @@
 import type { AuthUser, UserGender } from "@/features/auth/types/auth.types";
 
 export interface UpdateProfilePayload {
-    f_name: string;
-    l_name: string;
+    name: string;
     email: string;
-    gender?: UserGender | null;
+    phone: string;
 }
+
+export type ProfileFieldKey = "name" | "email" | "phone" | "image" | "general";
+
+export type ProfileFieldErrors = Partial<Record<ProfileFieldKey, string>>;
 
 export interface UpdateProfileResult {
     success: boolean;
     message: string;
     user?: AuthUser;
+    fieldErrors?: ProfileFieldErrors;
 }
 
 export interface DeleteAccountResult {
@@ -21,6 +25,7 @@ export interface DeleteAccountResult {
 export type ProfileEditDraft = {
     fullName: string;
     email: string;
+    phone: string;
     gender: UserGender | null;
     imagePreview: string | null;
     pendingPhotoDataUrl: string | null;

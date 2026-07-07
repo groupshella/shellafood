@@ -11,17 +11,9 @@ import { FilterSheet, FilterValues } from "../../shared/FilterSheet";
 
 type ViewMode = "grid" | "list";
 
-// ── Sticky offset layout ───────────────────────────────────────────────────────
-//   0px  — top of viewport
-//  44px  — CategoryTabsClient (main green category nav)  [top-0 sticky]
-//  44px  — SubCategoryTabs (pill bar, this file)         [top-[44px] sticky]
-//  ────
-//  88px  — SCROLL_OFFSET used for scroll-to and rootMargin
 const CATEGORY_NAV_H = 44;
 const SUB_NAV_H = 44;
 const SCROLL_OFFSET = CATEGORY_NAV_H + SUB_NAV_H + 8;
-
-// ── Toolbar button ─────────────────────────────────────────────────────────────
 
 function ToolbarBtn({
     label,
@@ -43,18 +35,16 @@ function ToolbarBtn({
             className={[
                 "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]",
                 "transition-colors active:scale-95",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
                 active
                     ? "bg-[#30913F] text-white"
-                    : "bg-[#EBFEEB] text-[#30913F]",
+                    : "bg-[#EBFEEB] text-[#30913F] dark:bg-[#30913F]/15 dark:text-[#4db860]",
             ].join(" ")}
         >
             {children}
         </button>
     );
 }
-
-// ── Products toolbar ───────────────────────────────────────────────────────────
 
 function ProductsToolbar({
     totalProducts,
@@ -70,7 +60,7 @@ function ProductsToolbar({
     return (
         <div
             dir="ltr"
-            className="flex items-center justify-between gap-3 bg-white px-4 py-2.5 sm:px-5"
+            className="flex items-center justify-between gap-3 bg-white px-3 py-2.5 dark:bg-gray-900 sm:px-5 lg:px-6"
         >
             <div className="flex items-center gap-2">
                 <ToolbarBtn
@@ -92,15 +82,12 @@ function ProductsToolbar({
                 </ToolbarBtn>
             </div>
 
-            <p dir="rtl" className="text-sm font-medium text-[#707784]">
-                <span className="tabular-nums">{totalProducts.toLocaleString("en-US")}</span>{" "}
-                المنتجات
+            <p dir="rtl" className="text-sm font-medium text-[#707784] dark:text-gray-400">
+                <span className="tabular-nums">{totalProducts.toLocaleString("en-US")}</span> المنتجات
             </p>
         </div>
     );
 }
-
-// ── Sub-category pill bar ──────────────────────────────────────────────────────
 
 function SubCategoryTabs({
     subCategories,
@@ -125,7 +112,7 @@ function SubCategoryTabs({
             dir="rtl"
             role="tablist"
             aria-label="أقسام فرعية"
-            className="sticky z-20 flex h-12 gap-2 overflow-x-auto border-b border-gray-100 bg-white px-4 py-2 sm:px-5
+            className="sticky z-20 flex h-12 gap-2 overflow-x-auto overscroll-x-contain border-b border-gray-100 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-900 sm:px-5 lg:px-6
                        scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             style={{ top: CATEGORY_NAV_H }}
         >
@@ -140,10 +127,10 @@ function SubCategoryTabs({
                         data-sub-id={sc.id}
                         onClick={() => onSelect(sc.id)}
                         className={[
-                            "shrink-0 whitespace-nowrap rounded-[13.5px] px-4 py-2 text-xs font-semibold transition-colors",
+                            "shrink-0 whitespace-nowrap rounded-[13.5px] px-4 py-2 text-xs font-semibold transition-colors sm:text-[13px]",
                             active
-                                ? "bg-[#EBFEEB] text-[#30913F]"
-                                : "bg-[#F6F5F8] text-[#707784]",
+                                ? "bg-[#EBFEEB] text-[#30913F] dark:bg-[#30913F]/15 dark:text-[#4db860]"
+                                : "bg-[#F6F5F8] text-[#707784] dark:bg-gray-800 dark:text-gray-400",
                         ].join(" ")}
                     >
                         {sc.name}
@@ -153,8 +140,6 @@ function SubCategoryTabs({
         </div>
     );
 }
-
-// ── Sub-category section ───────────────────────────────────────────────────────
 
 function SubCategorySection({
     subCategory,
@@ -178,8 +163,8 @@ function SubCategorySection({
             aria-label={subCategory.name}
             className="pb-3"
         >
-            <div className="bg-white px-4 pt-3 sm:px-5">
-                <h2 className="text-right text-base font-bold text-[#111B18]">
+            <div className="bg-white px-3 pt-3 dark:bg-gray-900 sm:px-5 lg:px-6">
+                <h2 className="text-right text-base font-bold text-[#111B18] dark:text-gray-50 sm:text-lg">
                     {subCategory.name}
                 </h2>
             </div>
@@ -192,13 +177,13 @@ function SubCategorySection({
             />
 
             {viewMode === "grid" ? (
-                <div className="grid grid-cols-2 gap-2.5 px-4 pt-2 sm:grid-cols-3 sm:px-5">
+                <div className="grid grid-cols-2 gap-2 px-3 pt-2 sm:grid-cols-3 sm:gap-2.5 sm:px-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-3 lg:px-6 xl:grid-cols-5">
                     {subCategory.products.map((product) => (
                         <CategoryProductCard key={product.id} product={product} layout="grid" />
                     ))}
                 </div>
             ) : (
-                <div className="flex flex-col gap-2.5 px-4 pt-2 sm:px-5">
+                <div className="grid grid-cols-1 gap-2.5 px-3 pt-2 sm:px-5 md:grid-cols-2 md:gap-3 lg:px-6">
                     {subCategory.products.map((product) => (
                         <CategoryProductCard key={product.id} product={product} layout="list" />
                     ))}
@@ -210,7 +195,7 @@ function SubCategorySection({
                     <button
                         type="button"
                         onClick={onLoadMore}
-                        className="rounded-full border border-[#30913F] bg-white px-5 py-2 text-xs font-semibold text-[#30913F] transition-opacity active:opacity-70"
+                        className="min-h-[40px] rounded-full border border-[#30913F] bg-white px-5 py-2 text-xs font-semibold text-[#30913F] transition-opacity active:opacity-70 dark:bg-gray-900 dark:text-[#4db860] dark:border-[#30913F]/50 sm:text-sm"
                     >
                         عرض المزيد
                     </button>
@@ -219,8 +204,6 @@ function SubCategorySection({
         </section>
     );
 }
-
-// ── Page controller ────────────────────────────────────────────────────────────
 
 interface Props {
     detail: CategoryDetails;
@@ -242,7 +225,6 @@ export function CategoryDetailClient({ detail }: Props) {
         setViewMode((prev) => (prev === "grid" ? "list" : "grid"));
     }, []);
 
-    // ── Scroll-spy ──
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -291,7 +273,7 @@ export function CategoryDetailClient({ detail }: Props) {
                 />
             )}
 
-            <div className="bg-[#F6F5F8] pb-28">
+            <div className="bg-[#F6F5F8] pb-28 dark:bg-gray-950">
                 {detail.sub_categories.map((sc) => (
                     <SubCategorySection
                         key={sc.id}

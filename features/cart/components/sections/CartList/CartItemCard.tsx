@@ -52,32 +52,37 @@ export function CartItemCard({
   const weight = item.description?.trim() ? extractWeight(item.description) : null;
 
   return (
-    <div className="flex h-[90px] items-end gap-[11px]">
-      <div className="relative h-[90px] w-[90px] shrink-0 overflow-hidden rounded-lg bg-[#F6F5F8]">
+    <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
+      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-800 sm:h-[88px] sm:w-[88px] md:h-24 md:w-24">
         {item.image_full_url ? (
           <Image
             src={item.image_full_url}
             alt={item.name}
             fill
-            className="object-contain p-2"
-            sizes="90px"
+            className="object-contain p-1.5 sm:p-2"
+            sizes="(max-width: 640px) 80px, (max-width: 768px) 88px, 96px"
           />
         ) : (
-          <div className="flex h-full items-center justify-center opacity-20">
-            <ShoppingBag className="h-8 w-8 text-gray-400" />
+          <div className="flex h-full items-center justify-center opacity-30">
+            <ShoppingBag className="h-7 w-7 text-gray-400 dark:text-gray-500 sm:h-8 sm:w-8" />
           </div>
         )}
       </div>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col items-end gap-1">
-        <div className="flex w-full items-start justify-between gap-[17px]">
-          <div className="flex min-w-0 flex-1 flex-col items-end gap-[3px]">
-            <h3 className="w-full truncate text-end text-[14px] font-bold leading-[140%] text-[#111B18]">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 sm:gap-2.5">
+        <div className="flex w-full items-start justify-between gap-2 sm:gap-3">
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <h3 className="line-clamp-2 w-full text-start text-sm font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-[15px]">
               {item.name}
             </h3>
-            {item.description?.trim() && (
-              <p className="w-full truncate text-end text-[14px] font-medium leading-[140%] text-[#555555]">
+            {item.description?.trim() && !weight && (
+              <p className="line-clamp-1 w-full text-start text-xs font-medium leading-snug text-gray-500 dark:text-gray-400 sm:text-[13px]">
                 {item.description}
+              </p>
+            )}
+            {weight && (
+              <p className="text-start text-xs font-medium text-gray-500 dark:text-gray-400 sm:text-[13px]">
+                {weight}
               </p>
             )}
           </div>
@@ -85,59 +90,52 @@ export function CartItemCard({
           <button
             type="button"
             onClick={onRemove}
-            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center text-[#555555] transition-opacity active:opacity-70"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors active:bg-gray-100 active:text-red-500 dark:text-gray-500 dark:active:bg-gray-800 dark:active:text-red-400 sm:h-10 sm:w-10"
             aria-label="حذف المنتج"
           >
-            <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.25} />
+            <Trash2 className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={1.5} />
           </button>
         </div>
 
-        <div className="flex w-full items-start justify-between gap-[37px]">
-          <div className="flex min-w-0 flex-col items-end gap-[3px]">
-            {weight && (
-              <span className="w-full truncate text-end text-[14px] font-medium leading-[140%] text-[#555555]">
-                {weight}
+        <div className="flex w-full flex-wrap items-center justify-between gap-2 sm:gap-3">
+          <div className="flex flex-col items-start gap-0.5">
+            {originalPrice != null && (
+              <span className="flex items-center gap-[2px] text-[10px] font-medium text-gray-400 line-through dark:text-gray-500 sm:text-[11px]">
+                <CurrencyIcon size="sm" />
+                {formatPrice(originalPrice)}
               </span>
             )}
-
-            <div className="flex items-center justify-end gap-[2.36px]">
-              {originalPrice != null && (
-                <span className="flex items-center gap-[2.85px] text-[9px] font-medium leading-[120%] text-[#707784] line-through">
-                  <CurrencyIcon size="sm" />
-                  {formatPrice(originalPrice)}
-                </span>
-              )}
-              <span className="flex items-center gap-[2.36px] text-[14px] font-bold leading-[120%] text-[#111B18]">
-                <CurrencyIcon size="md" />
-                {formatPrice(item.price)}
-              </span>
-            </div>
+            <span className="flex items-center gap-1 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
+              <CurrencyIcon size="md" />
+              {formatPrice(item.price)}
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 rounded-full border border-gray-200 px-2 py-1">
+          <div
+            className={[
+              "flex items-center gap-1 rounded-full border px-1.5 py-1 transition-opacity duration-200 sm:gap-1.5 sm:px-2",
+              "border-gray-200 dark:border-gray-700",
+              isUpdating ? "opacity-60" : "opacity-100",
+            ].join(" ")}
+          >
             <button
               type="button"
               onClick={onDecrease}
-              className="flex h-7 w-7 items-center justify-center rounded-full text-gray-600 transition-colors active:bg-gray-100"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors active:bg-gray-100 dark:text-gray-400 dark:active:bg-gray-800 sm:h-9 sm:w-9"
               aria-label="تقليل الكمية"
             >
-              <Minus className="h-3.5 w-3.5" />
+              <Minus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </button>
-            <span
-              className={[
-                "min-w-[1.5rem] text-center text-sm font-bold text-gray-900 transition-opacity duration-200",
-                isUpdating ? "opacity-70" : "opacity-100",
-              ].join(" ")}
-            >
+            <span className="min-w-[1.75rem] text-center text-sm font-bold text-gray-900 dark:text-gray-50 sm:min-w-8 sm:text-[15px]">
               {item.quantity}
             </span>
             <button
               type="button"
               onClick={onIncrease}
-              className="flex h-7 w-7 items-center justify-center rounded-full text-gray-600 transition-colors active:bg-gray-100"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors active:bg-gray-100 dark:text-gray-400 dark:active:bg-gray-800 sm:h-9 sm:w-9"
               aria-label="زيادة الكمية"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </button>
           </div>
         </div>

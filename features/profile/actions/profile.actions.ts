@@ -2,9 +2,12 @@
 
 import { cookies } from "next/headers";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
-import type { AuthUser, UserGender } from "@/features/auth/types/auth.types";
+import type { AuthUser } from "@/features/auth/types/auth.types";
 import type { UpdateProfileResult } from "@/features/profile/types/profile.types";
-import { resolveProfileImageUrl } from "@/features/profile/lib/profile.lib";
+import {
+    mapCustomerInfoToAuthUser,
+    parseProfileFieldErrors,
+} from "@/features/profile/lib/profile.lib";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 const IS_PROD = process.env.NODE_ENV === "production";
@@ -21,30 +24,74 @@ async function getToken(): Promise<string | null> {
     return cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value ?? null;
 }
 
+async function getCurrentUser(): Promise<AuthUser | null> {
+    const cookieStore = await cookies();
+    const rawUser = cookieStore.get(COOKIE_KEYS.USER)?.value;
+    if (!rawUser) return null;
+    try {
+        return JSON.parse(rawUser) as AuthUser;
+    } catch {
+        return null;
+    }
+}
+
 async function persistUser(user: AuthUser) {
     const cookieStore = await cookies();
     cookieStore.set(COOKIE_KEYS.USER, JSON.stringify(user), COOKIE_OPTS);
 }
 
+async function fetchCustomerInfo(token: string, current: AuthUser | null): Promise<AuthUser | null> {
+    const res = await fetch(`${BACKEND_URL}/api/v1/customer/info`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "X-localization": "ar",
+        },
+        cache: "no-store",
+    });
+
+    if (!res.ok) return null;
+
+    const json = await res.json();
+    const data = (json?.data ?? json?.user ?? json) as Record<string, unknown>;
+    if (!data || typeof data !== "object") return null;
+
+    return mapCustomerInfoToAuthUser(data, current);
+}
+
 export async function updateProfile(
     payload: {
-        f_name: string;
-        l_name: string;
+        name: string;
         email: string;
-        gender?: UserGender | null;
+        phone: string;
     },
     imageFile?: File | null,
 ): Promise<UpdateProfileResult> {
     const token = await getToken();
-    if (!token) return { success: false, message: "غير مصرح" };
+    if (!token) {
+        return { success: false, message: "غير مصرح", fieldErrors: { general: "غير مصرح" } };
+    }
+
+    const currentUser = await getCurrentUser();
+    const phone = payload.phone.trim();
+
+    if (!phone) {
+        return {
+            success: false,
+            message: "رقم الهاتف مطلوب",
+            fieldErrors: { phone: "رقم الهاتف مطلوب" },
+        };
+    }
 
     try {
         const formData = new FormData();
-        formData.append("f_name", payload.f_name);
-        formData.append("l_name", payload.l_name);
-        formData.append("email", payload.email);
-        if (payload.gender) formData.append("gender", payload.gender);
-        if (imageFile) formData.append("image", imageFile);
+        formData.append("name", payload.name.trim());
+        formData.append("email", payload.email.trim());
+        formData.append("phone", phone);
+
+        if (imageFile instanceof File && imageFile.size > 0) {
+            formData.append("image", imageFile);
+        }
 
         const res = await fetch(`${BACKEND_URL}/api/v1/customer/update-profile`, {
             method: "POST",
@@ -56,32 +103,38 @@ export async function updateProfile(
             body: formData,
         });
 
-
         const json = await res.json();
 
         if (!res.ok) {
-            const message = json?.errors?.[0]?.message ?? json?.message ?? "تعذر حفظ التغييرات";
-            return { success: false, message };
+            const fieldErrors = parseProfileFieldErrors(json);
+            const message = fieldErrors.general ?? Object.values(fieldErrors)[0] ?? "تعذر حفظ التغييرات";
+            return { success: false, message, fieldErrors };
         }
 
-        const cookieStore = await cookies();
-        const rawUser = cookieStore.get(COOKIE_KEYS.USER)?.value;
-        const currentUser: AuthUser | null = rawUser ? JSON.parse(rawUser) : null;
+        const refreshedUser = (await fetchCustomerInfo(token, currentUser)) ?? currentUser;
 
-        const updatedUser: AuthUser = {
+        const updatedUser: AuthUser = refreshedUser ?? {
             ...(currentUser ?? ({} as AuthUser)),
-            f_name: payload.f_name,
-            l_name: payload.l_name,
-            email: payload.email,
-            gender: payload.gender ?? currentUser?.gender ?? null,
-            image: resolveProfileImageUrl(json?.image ?? json?.user?.image ?? currentUser?.image ?? null),
+            f_name: payload.name.trim().split(/\s+/)[0] ?? "",
+            l_name: payload.name.trim().split(/\s+/).slice(1).join(" ") || payload.name.trim(),
+            name: payload.name.trim(),
+            email: payload.email.trim(),
+            phone,
         };
 
         await persistUser(updatedUser);
 
-        return { success: true, message: json?.message ?? "تم الحفظ", user: updatedUser };
+        return {
+            success: true,
+            message: typeof json?.message === "string" ? json.message : "تم حفظ التغييرات بنجاح",
+            user: updatedUser,
+        };
     } catch {
-        return { success: false, message: "تعذر حفظ التغييرات، حاول مرة أخرى" };
+        return {
+            success: false,
+            message: "تعذر حفظ التغييرات، حاول مرة أخرى",
+            fieldErrors: { general: "تعذر حفظ التغييرات، حاول مرة أخرى" },
+        };
     }
 }
 

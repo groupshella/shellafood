@@ -15,7 +15,7 @@ interface StoreDetailsClientProps {
 
 export function StoreDetailsClient({ store, moduleId }: StoreDetailsClientProps) {
     return (
-        <div className="flex flex-col pb-2">
+        <div className="flex flex-col bg-white pb-2 dark:bg-gray-900">
             <CategoriesGridClient categories={store.categories} />
             {/* 
             {store.featured_store_discounted && <FeaturedDiscounted data={store.featured_store_discounted} />}

@@ -267,12 +267,12 @@ export interface ApiOrder {
     restaurant?: {
         id: number;
         name: string;
-        logo?: string | null;
+        logo_full_url: string;
     };
     store?: {
         id: number;
         name: string;
-        logo?: string | null;
+        logo_full_url: string;
     };
     order_note?: string | null;
     delivery_address?: { address: string } | null;

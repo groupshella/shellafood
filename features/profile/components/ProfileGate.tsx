@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 import { LoginRequiredSheet } from "@/features/profile/components/modals/LoginRequiredSheet";
 
 interface ProfileGateProps {
@@ -15,7 +15,7 @@ export function ProfileGate({ isAuthenticated, children }: ProfileGateProps) {
     if (isAuthenticated) return <>{children}</>;
 
     return (
-        <div className="min-h-screen bg-[#F5F5F5]">
+        <div className="min-h-dvh overflow-x-hidden bg-[#F5F5F5] dark:bg-gray-950">
             <LoginRequiredSheet
                 isOpen
                 isVisible

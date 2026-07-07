@@ -5,16 +5,19 @@ import { ScrollContainer } from "@/features/home/components/shared/ScrollContain
 import { OfferCard } from "./OfferCard";
 
 export function CurrentOffersClient({ offers }: { offers: CurrentOffer[] }) {
-    return (
-        <section aria-label="العروض الحالية" className="mx-auto w-full max-w-5xl space-y-3 px-4">
-            <h2 className="text-lg font-bold text-gray-800">العروض الحالية</h2>
-            <ScrollContainer>
-                {offers.map((offer, index) => (
-                    <div key={`${offer.store_id}-${offer.offer_title}-${index}`} className="snap-start">
-                        <OfferCard offer={offer} index={index} />
-                    </div>
-                ))}
-            </ScrollContainer>
-        </section>
-    );
+	return (
+		<section aria-label="العروض الحالية" className="w-full min-w-0 space-y-2.5 sm:space-y-3 lg:space-y-4">
+			<h2 className="text-right text-base font-bold text-gray-800 dark:text-gray-100 sm:text-lg md:text-xl">
+				العروض الحالية
+			</h2>
+			<ScrollContainer
+				className="-mx-3 px-3 sm:-mx-4 sm:px-4 lg:-mx-6 lg:px-6 2xl:mx-0 2xl:px-0"
+				ariaLabel="قائمة العروض الحالية"
+			>
+				{offers.map((offer, index) => (
+					<OfferCard key={`${offer.store_id}-${offer.offer_title}-${index}`} offer={offer} index={index} />
+				))}
+			</ScrollContainer>
+		</section>
+	);
 }

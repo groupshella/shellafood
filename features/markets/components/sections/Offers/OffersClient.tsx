@@ -12,7 +12,7 @@ export function OffersClient({ offers }: { offers: Offer[] }) {
 
     return (
         <section
-            className="mx-auto w-full max-w-5xl overflow-hidden px-4 sm:px-6"
+            className="mx-auto w-full max-w-lg overflow-hidden px-3 sm:max-w-2xl sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl"
             aria-label="العروض"
         >
             {canLoop ? (

@@ -1,7 +1,6 @@
 "use client";
 
 import { Tajawal } from "next/font/google";
-import Link from "next/link";
 
 import Navbar from "@/features/layout/components/Navbar";
 import { Topbar } from "@/features/home/components/Topbar";
@@ -21,11 +20,11 @@ export function HomeShell({ children }: HomeShellProps) {
 		<div
 			dir="rtl"
 			lang="ar"
-			className={`${tajawal.className} flex min-h-dvh flex-col bg-white text-[#111B18] pb-[calc(58px+env(safe-area-inset-bottom))]`}
+			className={`${tajawal.className} flex min-h-dvh min-w-0 flex-col overflow-x-hidden bg-white text-[#111B18] pb-[calc(58px+env(safe-area-inset-bottom))] dark:bg-gray-900 dark:text-gray-100`}
 		>
-			<div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-4 px-4 pb-4 pt-4 sm:pt-5">
+			<div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-3 px-3 pb-4 pt-2.5 sm:max-w-xl sm:gap-4 sm:px-4 sm:pt-4 md:max-w-2xl lg:max-w-4xl lg:gap-5 lg:px-6 xl:max-w-5xl 2xl:max-w-6xl 2xl:gap-6 2xl:px-8">
 				<Topbar />
-				{children}
+				<div className="flex min-w-0 flex-col gap-3 sm:gap-4 lg:gap-5 2xl:gap-6">{children}</div>
 			</div>
 			<Navbar />
 		</div>

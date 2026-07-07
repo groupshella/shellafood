@@ -286,7 +286,7 @@ function DropdownMenu({
         <div
             ref={ref}
             className={[
-                "absolute top-[calc(100%+4px)] z-30 w-[86px] overflow-hidden rounded-[4px] border border-[#F6F5F8] bg-[#F6F5F8] shadow-[0px_1px_9.6px_rgba(0,0,0,0.15)]",
+                "absolute top-[calc(100%+4px)] z-30 w-[86px] overflow-hidden rounded-[4px] border border-[#F6F5F8] dark:border-gray-700 bg-[#F6F5F8] dark:bg-gray-800 shadow-[0px_1px_9.6px_rgba(0,0,0,0.15)]",
                 "animate-in fade-in slide-in-from-top-1 duration-200",
                 className,
             ].join(" ")}
@@ -299,13 +299,13 @@ function DropdownMenu({
                             onSelect(item);
                             onClose();
                         }}
-                        className="flex h-8 w-full items-center justify-center text-[14px] font-medium text-[#343434] transition-colors hover:bg-white/60"
+                        className="flex h-8 w-full items-center justify-center text-[14px] font-medium text-[#343434] dark:text-gray-200 transition-colors hover:bg-white/60 dark:hover:bg-gray-700/60"
                         style={TAJAWAL}
                     >
                         {item}
                     </button>
                     {index < items.length - 1 && (
-                        <div className="mx-2 border-t border-[#C6C8CE] opacity-40" />
+                        <div className="mx-2 border-t border-[#C6C8CE] dark:border-gray-600 opacity-40" />
                     )}
                 </div>
             ))}
@@ -417,7 +417,7 @@ function SpendingChart({
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
     return (
-        <h2 className="text-start text-[16px] font-bold leading-[160%] text-[#111B18]" style={TAJAWAL}>
+        <h2 className="text-start text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100" style={TAJAWAL}>
             {children}
         </h2>
     );
@@ -425,8 +425,8 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function EmptySectionCard({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex min-h-[71px] w-full items-center justify-center rounded-[18px] border border-[#F6F5F8] bg-white px-4 py-6 shadow-[0px_1px_8px_rgba(0,0,0,0.04)]">
-            <p className="text-center text-[14px] font-medium text-[#555555]" style={TAJAWAL}>
+        <div className="flex min-h-[71px] w-full items-center justify-center rounded-[18px] border border-[#F6F5F8] dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-6 shadow-[0px_1px_8px_rgba(0,0,0,0.04)]">
+            <p className="text-center text-[14px] font-medium text-[#555555] dark:text-gray-400" style={TAJAWAL}>
                 {children}
             </p>
         </div>
@@ -487,13 +487,13 @@ export function StatisticsClient({
             title="إحصائيات"
             relaxedHeader
             showHeaderBorder={false}
-            mainClassName="bg-[#F6F5F8] pb-[max(2rem,env(safe-area-inset-bottom))] pt-4"
+            mainClassName="bg-[#F6F5F8] dark:bg-gray-800 pb-[max(2rem,env(safe-area-inset-bottom))] pt-4"
         >
-            <div className="mx-auto flex w-full max-w-[343px] flex-col gap-6">
+            <div className="mx-auto flex w-full max-w-lg flex-col gap-6 sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl">
                 <div
                     role="tablist"
                     aria-label="إحصائيات"
-                    className="flex h-[44px] w-full items-center rounded-[12px] bg-[#F6F5F8] p-[2px]"
+                    className="mx-auto flex min-h-[44px] w-full items-center rounded-[12px] bg-[#F6F5F8] p-[2px] dark:bg-gray-800 sm:max-w-md"
                 >
                     <button
                         type="button"
@@ -501,7 +501,7 @@ export function StatisticsClient({
                         aria-selected={activeTab === "general"}
                         onClick={() => switchTab("general")}
                         className={[
-                            "flex h-[40px] flex-1 items-center justify-center rounded-[12px] text-[14px] font-bold transition-[background-color,color] duration-200 sm:text-[16px]",
+                            "flex min-h-[40px] flex-1 items-center justify-center rounded-[12px] px-3 text-[14px] font-bold transition-[background-color,color] duration-200 sm:text-[16px]",
                             activeTab === "general"
                                 ? "bg-[#30913F] text-white shadow-[0px_3px_8px_rgba(255,243,245,0.12),0px_3px_1px_rgba(0,0,0,0.04)]"
                                 : "bg-transparent text-[#082E0A]",
@@ -517,7 +517,7 @@ export function StatisticsClient({
                         aria-selected={activeTab === "recorded"}
                         onClick={() => switchTab("recorded")}
                         className={[
-                            "flex h-[40px] flex-1 items-center justify-center rounded-[12px] text-[14px] font-bold transition-[background-color,color] duration-200 sm:text-[16px]",
+                            "flex min-h-[40px] flex-1 items-center justify-center rounded-[12px] px-3 text-[14px] font-bold transition-[background-color,color] duration-200 sm:text-[16px]",
                             activeTab === "recorded"
                                 ? "bg-[#30913F] text-white shadow-[0px_3px_8px_rgba(255,243,245,0.12),0px_3px_1px_rgba(0,0,0,0.04)]"
                                 : "bg-transparent text-[#082E0A]",
@@ -615,7 +615,7 @@ function GeneralTabContent({
 }) {
     return (
         <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <StatSpendingCard label="الإنفاق الشهري" amount={displayAmount} />
                 <StatSpendingCard label="الإنفاق الأسبوعي" amount={displayAmount} />
             </div>
@@ -624,9 +624,9 @@ function GeneralTabContent({
                 <div className="flex min-h-[33px] items-center justify-between gap-3">
                     <SectionTitle>الرسوم البيانية</SectionTitle>
                     <div className="relative shrink-0">
-                        <button type="button" onClick={onChartDropdownToggle} className="flex h-[33px] min-h-11 min-w-[86px] items-center justify-end gap-2 rounded-[4px] bg-[#F6F5F8] px-2.5 py-2 sm:px-[10px]">
-                            <ChevronDown className="h-4 w-4 shrink-0 text-[#111B18]" strokeWidth={1.25} />
-                            <span className="text-[14px] font-medium text-[#111B18]" style={TAJAWAL}>
+                        <button type="button" onClick={onChartDropdownToggle} className="flex h-[33px] min-h-11 min-w-[86px] items-center justify-end gap-2 rounded-[4px] bg-[#F6F5F8] dark:bg-gray-800 px-2.5 py-2 sm:px-[10px]">
+                            <ChevronDown className="h-4 w-4 shrink-0 text-[#111B18] dark:text-gray-100" strokeWidth={1.25} />
+                            <span className="text-[14px] font-medium text-[#111B18] dark:text-gray-100" style={TAJAWAL}>
                                 {CHART_PERIOD_OPTIONS.find((o) => o.id === chartPeriod)?.label}
                             </span>
                         </button>
@@ -643,13 +643,13 @@ function GeneralTabContent({
                     </div>
                 </div>
 
-                <div className={["w-full rounded-[16px] border border-[#E8ECEF] bg-white py-1.5 shadow-[0px_1.94334px_11.6601px_rgba(0,0,0,0.04)]", hasProducts ? "min-h-[249px]" : "min-h-[244px]"].join(" ")}>
+                <div className={["w-full rounded-[16px] border border-[#E8ECEF] dark:border-gray-700 bg-white dark:bg-gray-800 py-1.5 shadow-[0px_1.94334px_11.6601px_rgba(0,0,0,0.04)]", hasProducts ? "min-h-[249px]" : "min-h-[244px]"].join(" ")}>
                     <div className="flex items-start justify-between gap-3 px-3 pb-2 pt-2 sm:px-4">
                         <div className="min-w-0 flex flex-col items-start">
-                            <p className="text-[16px] font-bold text-[#1F2937]" style={TAJAWAL}>تحليل الإنفاق</p>
-                            <p className="text-[12px] font-normal text-[#6B7280]" style={TAJAWAL}>يونيو 2026</p>
+                            <p className="text-[16px] font-bold text-[#1F2937] dark:text-gray-100" style={TAJAWAL}>تحليل الإنفاق</p>
+                            <p className="text-[12px] font-normal text-[#6B7280] dark:text-gray-400" style={TAJAWAL}>يونيو 2026</p>
                         </div>
-                        <div className="flex shrink-0 flex-col items-center rounded-[9.72px] bg-[#E8F5E9] px-2 py-1 sm:px-[9.72px] sm:py-[4.86px]">
+                        <div className="flex shrink-0 flex-col items-center rounded-[9.72px] bg-[#E8F5E9] dark:bg-[#30913F]/15 px-2 py-1 sm:px-[9.72px] sm:py-[4.86px]">
                             <p className="text-center text-[10px] font-medium text-[#30913F] sm:text-[10.69px]" style={TAJAWAL}>إجمالي الإنفاق</p>
                             <div className="flex items-center gap-0.5 text-[#30913F]">
                                 <SarIcon width={13.72} height={15.36} />
@@ -665,13 +665,13 @@ function GeneralTabContent({
                 <div className="flex min-h-[33px] items-center justify-between gap-3">
                     <SectionTitle>المنتجات الأكثر شراء</SectionTitle>
                     <div className="flex shrink-0 items-center gap-2">
-                        <button type="button" aria-label="تبديل طريقة العرض" onClick={onLayoutToggle} className="flex h-10 w-10 items-center justify-center rounded-[4px] bg-[#EBFEEB] p-1 sm:h-11 sm:w-11">
+                        <button type="button" aria-label="تبديل طريقة العرض" onClick={onLayoutToggle} className="flex h-10 w-10 items-center justify-center rounded-[4px] bg-[#EBFEEB] dark:bg-[#30913F]/15 p-1 sm:h-11 sm:w-11">
                             <GridToggleIcon />
                         </button>
                         <div className="relative">
-                            <button type="button" onClick={onFilterDropdownToggle} className="flex h-[33px] min-h-11 min-w-[86px] items-center justify-end gap-2 rounded-[4px] bg-[#F6F5F8] px-2.5 py-2 sm:px-[10px]">
-                                {filterDropdownOpen ? <ChevronUp className="h-4 w-4 shrink-0 text-[#111B18]" strokeWidth={1.25} /> : <ChevronDown className="h-4 w-4 shrink-0 text-[#111B18]" strokeWidth={1.25} />}
-                                <span className="text-[14px] font-medium text-[#111B18]" style={TAJAWAL}>التكرار</span>
+                            <button type="button" onClick={onFilterDropdownToggle} className="flex h-[33px] min-h-11 min-w-[86px] items-center justify-end gap-2 rounded-[4px] bg-[#F6F5F8] dark:bg-gray-800 px-2.5 py-2 sm:px-[10px]">
+                                {filterDropdownOpen ? <ChevronUp className="h-4 w-4 shrink-0 text-[#111B18] dark:text-gray-100" strokeWidth={1.25} /> : <ChevronDown className="h-4 w-4 shrink-0 text-[#111B18] dark:text-gray-100" strokeWidth={1.25} />}
+                                <span className="text-[14px] font-medium text-[#111B18] dark:text-gray-100" style={TAJAWAL}>التكرار</span>
                             </button>
                             <DropdownMenu open={filterDropdownOpen} items={FILTER_OPTIONS} selected={filterValue} onSelect={onFilterChange} onClose={onFilterDropdownClose} className="h-[96px]" />
                         </div>
@@ -686,7 +686,7 @@ function GeneralTabContent({
                             ))}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4">
                             {products.map((product) => (
                                 <GridProductCard key={product.id} product={product} favorited={hearts[product.id] ?? false} pulsing={heartPulse === product.id} onToggleHeart={() => onToggleHeart(product.id)} />
                             ))}
@@ -697,7 +697,7 @@ function GeneralTabContent({
                         <div className="relative aspect-[188/204] w-full max-w-[188px]">
                             <Image src="/cart/emptyCart.png" alt="" fill className="object-contain" sizes="(max-width: 343px) 60vw, 188px" priority />
                         </div>
-                        <p className="text-center text-[16px] font-bold leading-[160%] text-[#111B18] sm:text-[18px]" style={TAJAWAL}>
+                        <p className="text-center text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[18px]" style={TAJAWAL}>
                             لا توجد منتجات للعرض
                         </p>
                     </div>
@@ -796,18 +796,18 @@ function RecordedTabContent({
 
             <section className="flex flex-col gap-3">
                 <SectionTitle>يوم الراتب والمدفوعات الشهرية</SectionTitle>
-                <div className="flex w-full items-center gap-3 rounded-[18px] border border-[#F6F5F8] bg-white px-4 py-3 shadow-[0px_1px_8px_rgba(0,0,0,0.04)]">
+                <div className="flex w-full items-center gap-3 rounded-[18px] border border-[#F6F5F8] dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 shadow-[0px_1px_8px_rgba(0,0,0,0.04)]">
                     <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[4px] bg-[#DFD3F5]">
-                        <Calendar className="h-7 w-7 text-[#111B18]" strokeWidth={1.5} />
+                        <Calendar className="h-7 w-7 text-[#111B18] dark:text-gray-100" strokeWidth={1.5} />
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col items-end gap-1">
-                        <span className="text-[11px] font-medium text-[#555555]" style={TAJAWAL}>يوم الراتب</span>
-                        <span className="text-[14px] font-bold text-[#1F2937]" style={TAJAWAL}>1 من كل شهر</span>
+                        <span className="text-[11px] font-medium text-[#555555] dark:text-gray-400" style={TAJAWAL}>يوم الراتب</span>
+                        <span className="text-[14px] font-bold text-[#1F2937] dark:text-gray-100" style={TAJAWAL}>1 من كل شهر</span>
                         <div className="flex h-[25px] items-center gap-1 rounded-[8px] px-2" style={{ background: "linear-gradient(99.16deg, #DFD3F5 -8.79%, #7861A6 90.77%)" }}>
                             <Clock className="h-3.5 w-3.5 text-white" strokeWidth={1.5} />
                             <span className="text-[12px] font-bold text-white" style={TAJAWAL}>بعد 0 يوم</span>
                         </div>
-                        <span className="text-[8px] font-medium text-[#555555]" style={TAJAWAL}>غير محدد</span>
+                        <span className="text-[8px] font-medium text-[#555555] dark:text-gray-400" style={TAJAWAL}>غير محدد</span>
                     </div>
                 </div>
             </section>
@@ -826,13 +826,13 @@ function RecordedTabContent({
                     <DuePaymentCard label="المتأخرة" count={qidhaCount(qidha?.overdueCount)} bg="#FFDCDC" textColor="#DB2626" iconBg="#DB2626" />
                 </div>
 
-                <div className="flex min-h-[69px] w-full flex-wrap items-center justify-between gap-2 rounded-[8px] border border-[#F6F5F8] bg-[#F6F5F8] px-4 py-3 shadow-[0px_1px_8px_rgba(0,0,0,0.04)]">
-                    <div className="flex flex-wrap items-center gap-1 text-[#111B18]">
+                <div className="flex min-h-[69px] w-full flex-wrap items-center justify-between gap-2 rounded-[8px] border border-[#F6F5F8] dark:border-gray-700 bg-[#F6F5F8] dark:bg-gray-800 px-4 py-3 shadow-[0px_1px_8px_rgba(0,0,0,0.04)]">
+                    <div className="flex flex-wrap items-center gap-1 text-[#111B18] dark:text-gray-100">
                         <span className="text-[16px] font-bold sm:text-[18px]" style={AFACAD}>{qidhaAmount(qidha?.dueTotal)}</span>
                         <span className="text-[14px] font-bold sm:text-[16px]" style={TAJAWAL}>من أصل</span>
                         <span className="text-[16px] font-bold sm:text-[18px]" style={AFACAD}>{qidhaAmount(qidha?.paidTotal)}</span>
                     </div>
-                    <span className="text-[12px] font-bold text-[#555555]" style={TAJAWAL}>المبلغ المستحق</span>
+                    <span className="text-[12px] font-bold text-[#555555] dark:text-gray-400" style={TAJAWAL}>المبلغ المستحق</span>
                 </div>
             </section>
         </div>
@@ -841,7 +841,7 @@ function RecordedTabContent({
 
 function BalanceStatCard({ label, amount, sublabel }: { label: string; amount: string; sublabel: string }) {
     return (
-        <div className="flex min-h-[85px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-[8px] bg-[#E8F5E9] px-1 py-2">
+        <div className="flex min-h-[85px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-[8px] bg-[#E8F5E9] dark:bg-[#30913F]/15 px-1 py-2">
             <span className="line-clamp-2 text-center text-[9px] font-medium leading-tight text-[#135017] sm:text-[10px]" style={TAJAWAL}>{label}</span>
             <div className="flex items-center gap-0.5 text-[#135017]">
                 <SarIcon width={15} height={16.8} />
@@ -854,10 +854,10 @@ function BalanceStatCard({ label, amount, sublabel }: { label: string; amount: s
 
 function QidhaSpendingCard({ label, amount, iconBg, icon }: { label: string; amount: string; iconBg: string; icon: React.ReactNode }) {
     return (
-        <div className="flex min-h-[93px] min-w-0 flex-col items-center justify-center gap-[2px] rounded-[8px] bg-[#F6F5F8] px-1.5 py-3 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] sm:px-2 sm:py-4">
+        <div className="flex min-h-[93px] min-w-0 flex-col items-center justify-center gap-[2px] rounded-[8px] bg-[#F6F5F8] dark:bg-gray-800 px-1.5 py-3 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] sm:px-2 sm:py-4">
             <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px]" style={{ backgroundColor: iconBg }}>{icon}</div>
-            <span className="line-clamp-2 text-center text-[7px] font-medium leading-tight text-[#555555] sm:text-[8px]" style={TAJAWAL}>{label}</span>
-            <div className="flex items-center gap-0.5 text-[#111B18]">
+            <span className="line-clamp-2 text-center text-[7px] font-medium leading-tight text-[#555555] dark:text-gray-400 sm:text-[8px]" style={TAJAWAL}>{label}</span>
+            <div className="flex items-center gap-0.5 text-[#111B18] dark:text-gray-100">
                 <SarIcon width={13} height={14.56} />
                 <span className="text-[clamp(14px,4vw,18px)] font-bold tabular-nums" style={AFACAD}>{amount}</span>
             </div>
@@ -867,17 +867,17 @@ function QidhaSpendingCard({ label, amount, iconBg, icon }: { label: string; amo
 
 function CategoryCard({ category }: { category: StatisticsCategory }) {
     return (
-        <div className="flex min-h-[72px] w-full items-center justify-between gap-3 rounded-[18px] border border-[#F6F5F8] bg-white px-4 py-3.5 shadow-[0px_1px_8px_rgba(0,0,0,0.04)]">
+        <div className="flex min-h-[72px] w-full items-center justify-between gap-3 rounded-[18px] border border-[#F6F5F8] dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3.5 shadow-[0px_1px_8px_rgba(0,0,0,0.04)]">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-                <div className="h-[42px] w-[42px] shrink-0 rounded-[14px] bg-[#F6F5F8]" />
+                <div className="h-[42px] w-[42px] shrink-0 rounded-[14px] bg-[#F6F5F8] dark:bg-gray-800" />
                 <div className="flex min-w-0 flex-col items-end gap-0.5">
-                    <span className="w-full truncate text-end text-[14px] font-bold text-[#1F2937]" style={TAJAWAL}>{category.name}</span>
-                    <span className="text-[11px] font-medium text-[#555555]" style={TAJAWAL}>{category.purchaseCount} عملية شراء</span>
+                    <span className="w-full truncate text-end text-[14px] font-bold text-[#1F2937] dark:text-gray-100" style={TAJAWAL}>{category.name}</span>
+                    <span className="text-[11px] font-medium text-[#555555] dark:text-gray-400" style={TAJAWAL}>{category.purchaseCount} عملية شراء</span>
                 </div>
             </div>
             <div className="flex shrink-0 flex-col items-start">
-                <span className="text-[15px] font-bold tabular-nums text-[#1F2937]" style={AFACAD}>{category.amount}</span>
-                <span className="text-[12px] font-medium text-[#707784]" style={TAJAWAL}>{category.percentage}</span>
+                <span className="text-[15px] font-bold tabular-nums text-[#1F2937] dark:text-gray-100" style={AFACAD}>{category.amount}</span>
+                <span className="text-[12px] font-medium text-[#707784] dark:text-gray-500" style={TAJAWAL}>{category.percentage}</span>
             </div>
         </div>
     );
@@ -890,14 +890,14 @@ function MonthTrendCard({ trend, isEmpty }: { trend: StatisticsMonthTrend; isEmp
     const totalColor = total === "0.00" ? "#111B18" : "#30913F";
 
     return (
-        <div className="flex h-[120px] w-[141px] shrink-0 flex-col items-end justify-center gap-0.5 rounded-[8px] border border-[#F6F5F8] bg-white px-3.5 py-2 shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)]">
-            <span className="text-[12px] font-bold text-[#111B18]" style={TAJAWAL}>{trend.month}</span>
+        <div className="flex h-[120px] w-[141px] shrink-0 flex-col items-end justify-center gap-0.5 rounded-[8px] border border-[#F6F5F8] dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2 shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)]">
+            <span className="text-[12px] font-bold text-[#111B18] dark:text-gray-100" style={TAJAWAL}>{trend.month}</span>
             <div className="flex items-center gap-0.5" style={{ color: totalColor }}>
                 <SarIcon width={13} height={14.56} />
                 <span className="text-[18px] font-bold" style={AFACAD}>{total}</span>
             </div>
-            <span className="text-[10px] font-medium text-[#555555]" style={TAJAWAL}>{count} عملية</span>
-            <div className="flex items-center gap-1 text-[#111B18]">
+            <span className="text-[10px] font-medium text-[#555555] dark:text-gray-400" style={TAJAWAL}>{count} عملية</span>
+            <div className="flex items-center gap-1 text-[#111B18] dark:text-gray-100">
                 <span className="text-[10px] font-medium" style={TAJAWAL}>متوسط</span>
                 <SarIcon width={9.53} height={10.68} />
                 <span className="text-[12px] font-semibold" style={AFACAD}>{average}</span>
@@ -908,7 +908,7 @@ function MonthTrendCard({ trend, isEmpty }: { trend: StatisticsMonthTrend; isEmp
 
 function DuePaymentCard({ label, count, bg, textColor, iconBg }: { label: string; count: string; bg: string; textColor: string; iconBg: string }) {
     return (
-        <div className="flex min-h-[69px] min-w-0 flex-1 items-center justify-between rounded-[8px] border border-[#F6F5F8] px-3 py-2 shadow-[0px_1px_8px_rgba(0,0,0,0.04)] sm:px-4" style={{ backgroundColor: bg }}>
+        <div className="flex min-h-[69px] min-w-0 flex-1 items-center justify-between rounded-[8px] border border-[#F6F5F8] dark:border-gray-700 px-3 py-2 shadow-[0px_1px_8px_rgba(0,0,0,0.04)] sm:px-4" style={{ backgroundColor: bg }}>
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[5.4px]" style={{ backgroundColor: iconBg }}>
                 <Calendar className="h-6 w-6 text-white" strokeWidth={1.5} />
             </div>
@@ -922,13 +922,13 @@ function DuePaymentCard({ label, count, bg, textColor, iconBg }: { label: string
 
 function StatSpendingCard({ label, amount }: { label: string; amount: string }) {
     return (
-        <div className="flex min-h-[93px] min-w-0 flex-col items-center justify-center gap-[2px] rounded-[8px] bg-[#F6F5F8] px-3 py-4 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] transition-[transform,opacity] duration-150 active:scale-[0.98] active:opacity-95 sm:px-[14px]">
+        <div className="flex min-h-[93px] min-w-0 flex-col items-center justify-center gap-[2px] rounded-[8px] bg-[#F6F5F8] dark:bg-gray-800 px-3 py-4 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] transition-[transform,opacity] duration-150 active:scale-[0.98] active:opacity-95 sm:px-[14px]">
             <div className="flex h-5 items-end justify-center gap-0.5 rounded-[4px] bg-[#FFDCDC] p-0.5">
-                <span className="text-[12px] font-medium text-[#111B18] sm:text-[14px]" style={TAJAWAL}>100.0%</span>
-                <TrendingUp className="h-4 w-4 rotate-180 text-[#111B18]" strokeWidth={2} />
+                <span className="text-[12px] font-medium text-[#111B18] dark:text-gray-100 sm:text-[14px]" style={TAJAWAL}>100.0%</span>
+                <TrendingUp className="h-4 w-4 rotate-180 text-[#111B18] dark:text-gray-100" strokeWidth={2} />
             </div>
-            <p className="line-clamp-2 text-center text-[12px] font-medium text-[#111B18] sm:text-[14px]" style={TAJAWAL}>{label}</p>
-            <div className="flex items-center gap-1 text-[#111B18]">
+            <p className="line-clamp-2 text-center text-[12px] font-medium text-[#111B18] dark:text-gray-100 sm:text-[14px]" style={TAJAWAL}>{label}</p>
+            <div className="flex items-center gap-1 text-[#111B18] dark:text-gray-100">
                 <SarIcon width={16} height={17.92} />
                 <span className="text-[clamp(18px,5vw,24px)] font-bold leading-8 tabular-nums" style={AFACAD}>{amount}</span>
             </div>
@@ -938,27 +938,27 @@ function StatSpendingCard({ label, amount }: { label: string; amount: string }) 
 
 function ListProductCard({ product, favorited, pulsing, onToggleHeart }: { product: StatisticsProduct; favorited: boolean; pulsing: boolean; onToggleHeart: () => void }) {
     return (
-        <article className="relative flex w-full items-center gap-2 rounded-[8px] bg-white p-2 shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)] transition-[transform,opacity] duration-150 active:scale-[0.98] active:opacity-95 sm:gap-[9px] sm:p-0">
+        <article className="relative flex w-full items-center gap-2 rounded-[8px] bg-white dark:bg-gray-800 p-2 shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)] transition-[transform,opacity] duration-150 active:scale-[0.98] active:opacity-95 sm:gap-[9px] sm:p-0">
             {product.discountPercent != null && (
                 <span className="absolute start-[3px] top-[3px] flex h-[15px] min-w-[31px] items-center justify-center rounded-s-[6.64px] rounded-e-none bg-[#FFDCDC] px-1">
                     <span className="text-[11px] font-bold leading-none text-[#DB2626] sm:text-[13px]" style={TAJAWAL}>-{product.discountPercent}%</span>
                 </span>
             )}
-            <div className="flex h-[66px] w-[66px] shrink-0 items-center justify-center rounded-[8px] bg-[#F6F5F8] sm:h-[66px] sm:w-[71px]">
+            <div className="flex h-[66px] w-[66px] shrink-0 items-center justify-center rounded-[8px] bg-[#F6F5F8] dark:bg-gray-800 sm:h-[66px] sm:w-[71px]">
                 <Image src={product.imageUrl} alt="" width={61} height={61} unoptimized={product.imageUrl.startsWith("data:")} className="h-[56px] w-[56px] object-contain sm:h-[61px] sm:w-[61px]" />
             </div>
             <div className="flex min-w-0 flex-1 flex-col items-end">
-                <p className="line-clamp-2 w-full text-end text-[13px] font-bold leading-[140%] text-[#111B18] sm:text-[14px]" style={TAJAWAL}>{product.title}</p>
-                <p className="text-end text-[13px] font-medium leading-snug text-[#111B18] sm:text-[14px]" style={TAJAWAL}>{product.weight}</p>
+                <p className="line-clamp-2 w-full text-end text-[13px] font-bold leading-[140%] text-[#111B18] dark:text-gray-100 sm:text-[14px]" style={TAJAWAL}>{product.title}</p>
+                <p className="text-end text-[13px] font-medium leading-snug text-[#111B18] dark:text-gray-100 sm:text-[14px]" style={TAJAWAL}>{product.weight}</p>
                 <div className="flex items-center justify-end gap-0.5 px-1 py-0.5">
                     {product.oldPrice && (
-                        <div className="relative flex items-center gap-0.5 text-[#707784]">
+                        <div className="relative flex items-center gap-0.5 text-[#707784] dark:text-gray-500">
                             <SarIcon width={8.89} height={9.96} />
                             <span className="text-[11px] font-medium leading-[120%] sm:text-[12px]" style={TAJAWAL}>{product.oldPrice}</span>
                             <span className="absolute inset-x-0 top-1/2 h-px bg-[#CD1625]" />
                         </div>
                     )}
-                    <div className="flex items-center gap-0.5 text-[#111B18]">
+                    <div className="flex items-center gap-0.5 text-[#111B18] dark:text-gray-100">
                         <SarIcon width={14.22} height={15.93} />
                         <span className="text-[15px] font-medium leading-[140%] sm:text-[16px]" style={TAJAWAL}>{product.currentPrice}</span>
                     </div>
@@ -967,7 +967,7 @@ function ListProductCard({ product, favorited, pulsing, onToggleHeart }: { produ
             <div className="flex shrink-0 flex-col items-center gap-1 sm:gap-4">
                 <button type="button" aria-label={favorited ? "إزالة من المفضلة" : "إضافة إلى المفضلة"} onClick={onToggleHeart} className="flex h-10 w-10 items-center justify-center sm:h-11 sm:w-11">
                     <span className={["flex h-8 w-8 items-center justify-center rounded-[35px] bg-[rgba(246,245,248,0.8)] transition-[transform] duration-200 sm:h-9 sm:w-9", pulsing ? "scale-[1.15]" : "scale-100"].join(" ")}>
-                        <Heart className={["h-5 w-5 transition-[fill,color] duration-200", favorited ? "fill-[#30913F] text-[#30913F]" : "fill-none text-[#111B18]"].join(" ")} strokeWidth={favorited ? 0 : 1.5} />
+                        <Heart className={["h-5 w-5 transition-[fill,color] duration-200", favorited ? "fill-[#30913F] text-[#30913F]" : "fill-none text-[#111B18] dark:text-gray-100"].join(" ")} strokeWidth={favorited ? 0 : 1.5} />
                     </span>
                 </button>
                 <button type="button" aria-label="إضافة إلى السلة" className="flex h-10 w-10 items-center justify-center active:scale-[0.92] sm:h-11 sm:w-11">
@@ -982,9 +982,9 @@ function ListProductCard({ product, favorited, pulsing, onToggleHeart }: { produ
 
 function GridProductCard({ product, favorited, pulsing, onToggleHeart }: { product: StatisticsProduct; favorited: boolean; pulsing: boolean; onToggleHeart: () => void }) {
     return (
-        <article className="relative rounded-[8px] bg-white p-3 shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)] transition-[transform,opacity] duration-150 active:scale-[0.98] active:opacity-95">
+        <article className="relative rounded-[8px] bg-white dark:bg-gray-800 p-3 shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)] transition-[transform,opacity] duration-150 active:scale-[0.98] active:opacity-95">
             <button type="button" aria-label={favorited ? "إزالة من المفضلة" : "إضافة إلى المفضلة"} onClick={onToggleHeart} className="absolute end-3 top-3 flex h-11 w-11 items-center justify-center">
-                <Heart className={["h-5 w-5 transition-[fill,color,transform] duration-200", favorited ? "fill-[#30913F] text-[#30913F]" : "fill-none text-[#707784]", pulsing ? "scale-[1.15]" : "scale-100"].join(" ")} strokeWidth={favorited ? 0 : 1.5} />
+                <Heart className={["h-5 w-5 transition-[fill,color,transform] duration-200", favorited ? "fill-[#30913F] text-[#30913F]" : "fill-none text-[#707784] dark:text-gray-500", pulsing ? "scale-[1.15]" : "scale-100"].join(" ")} strokeWidth={favorited ? 0 : 1.5} />
             </button>
             {product.discountPercent != null && (
                 <span className="absolute start-3 top-3 rounded bg-[#FFDCDC] px-1.5 py-0.5 text-[12px] font-bold text-[#DB2626]">-{product.discountPercent}%</span>
@@ -993,16 +993,16 @@ function GridProductCard({ product, favorited, pulsing, onToggleHeart }: { produ
                 <Image src={product.imageUrl} alt="" width={100} height={100} unoptimized={product.imageUrl.startsWith("data:")} className="h-full w-full object-contain" />
             </div>
             <div className="mt-2 text-end">
-                <p className="line-clamp-2 text-[14px] font-bold text-[#111B18]" style={TAJAWAL}>{product.title}</p>
-                <p className="text-[12px] text-[#707784]" style={TAJAWAL}>{product.weight}</p>
+                <p className="line-clamp-2 text-[14px] font-bold text-[#111B18] dark:text-gray-100" style={TAJAWAL}>{product.title}</p>
+                <p className="text-[12px] text-[#707784] dark:text-gray-500" style={TAJAWAL}>{product.weight}</p>
             </div>
             <div className="mt-2 flex items-end justify-between">
                 <button type="button" aria-label="إضافة إلى السلة" className="flex h-11 w-11 items-center justify-center rounded-full bg-[#30913F] active:scale-[0.92]">
                     <Plus className="h-4 w-4 text-white" strokeWidth={2} />
                 </button>
                 <div className="text-end">
-                    {product.oldPrice && <p className="text-[12px] text-[#707784] line-through" style={TAJAWAL}>{product.oldPrice}</p>}
-                    <p className="text-[16px] font-bold text-[#111B18]" style={TAJAWAL}>{product.currentPrice}</p>
+                    {product.oldPrice && <p className="text-[12px] text-[#707784] dark:text-gray-500 line-through" style={TAJAWAL}>{product.oldPrice}</p>}
+                    <p className="text-[16px] font-bold text-[#111B18] dark:text-gray-100" style={TAJAWAL}>{product.currentPrice}</p>
                 </div>
             </div>
         </article>

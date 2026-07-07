@@ -3,7 +3,6 @@
 import { Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { REFERRAL_STRINGS } from "@/features/profile/constants/referral.strings";
-import { REFERRAL_UI } from "@/features/profile/constants/referral.tokens";
 
 interface ReferralLinkBoxProps {
     link: string;
@@ -24,12 +23,12 @@ export function ReferralLinkBox({ link }: ReferralLinkBoxProps) {
 
     return (
         <div className="flex w-full flex-col gap-2">
-            <span className="text-start text-[14px] font-bold leading-none text-[#111B18]">
+            <span className="text-start text-[14px] font-bold leading-none text-[#111B18] dark:text-gray-100">
                 {REFERRAL_STRINGS.personalCodeLabel}
             </span>
-            <div className="flex h-[56px] w-full items-center justify-between rounded-[12px] border border-dashed border-[#C6C8CE] bg-[#F6F5F8] px-4 py-2">
+            <div className="flex min-h-[56px] w-full items-center justify-between rounded-[12px] border border-dashed border-[#C6C8CE] bg-[#F6F5F8] px-4 py-2 dark:border-gray-600 dark:bg-gray-800">
                 <span
-                    className="min-w-0 flex-1 truncate text-start text-[16px] font-bold text-[#111B18]"
+                    className="min-w-0 flex-1 truncate text-start text-[16px] font-bold text-[#111B18] dark:text-gray-100"
                     dir="ltr"
                 >
                     {link}
@@ -37,17 +36,13 @@ export function ReferralLinkBox({ link }: ReferralLinkBoxProps) {
                 <button
                     type="button"
                     onClick={handleCopy}
-                    aria-label={REFERRAL_STRINGS.copied}
-                    className="ms-3 flex shrink-0 items-center justify-center transition-opacity active:opacity-70"
+                    aria-label={copied ? REFERRAL_STRINGS.copied : "نسخ الرابط"}
+                    className="ms-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors active:bg-gray-200/60 dark:active:bg-gray-700/60"
                 >
                     {copied ? (
-                        <Check className="h-6 w-6 text-[#30913F]" strokeWidth={1.75} />
+                        <Check className="h-6 w-6 text-[#30913F] dark:text-[#4db860]" strokeWidth={1.75} />
                     ) : (
-                        <Copy
-                            className="h-6 w-6"
-                            style={{ color: REFERRAL_UI.copyIcon }}
-                            strokeWidth={1.75}
-                        />
+                        <Copy className="h-6 w-6 text-[#555555] dark:text-gray-400" strokeWidth={1.75} />
                     )}
                 </button>
             </div>

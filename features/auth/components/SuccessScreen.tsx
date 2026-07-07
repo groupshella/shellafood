@@ -18,10 +18,9 @@ interface SuccessScreenProps {
 const SuccessIllustration = memo(function SuccessIllustration() {
 	return (
 		<motion.svg
-			width="176"
-			height="176"
 			viewBox="0 0 176 176"
 			fill="none"
+			className="h-auto w-full max-w-[160px] sm:max-w-[176px]"
 			initial={{ scale: 0.6, opacity: 0 }}
 			animate={{ scale: 1, opacity: 1 }}
 			transition={{ type: "spring", stiffness: 200, damping: 14 }}
@@ -34,7 +33,6 @@ const SuccessIllustration = memo(function SuccessIllustration() {
 				</linearGradient>
 			</defs>
 
-			{/* Decorative particles */}
 			<g opacity="0.18" fill="url(#successGrad)">
 				<circle cx="26" cy="60" r="5" />
 				<circle cx="150" cy="54" r="6" />
@@ -45,10 +43,8 @@ const SuccessIllustration = memo(function SuccessIllustration() {
 				<rect x="150" y="96" width="9" height="9" rx="2" transform="rotate(-15 154 100)" />
 			</g>
 
-			{/* Main circle */}
 			<circle cx="88" cy="88" r="52" fill="url(#successGrad)" />
 
-			{/* Checkmark */}
 			<motion.path
 				d="M66 89 82 105 112 73"
 				stroke="#fff"
@@ -74,17 +70,21 @@ const SuccessScreen = memo(function SuccessScreen({
 		<div
 			dir="rtl"
 			lang="ar"
-			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col bg-white text-[#111B18]`}
+			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100`}
 		>
 			<div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center px-4 pb-8 pt-14 sm:pt-16">
-				<div className="flex flex-1 flex-col items-center justify-center">
+				<div
+					className="flex flex-1 flex-col items-center justify-center"
+					role="status"
+					aria-live="polite"
+				>
 					<SuccessIllustration />
 
 					<motion.h1
 						initial={{ y: 12, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ delay: 0.2, duration: 0.4 }}
-						className="mt-8 text-center text-[24px] font-bold leading-[29px] text-[#111B18]"
+						className="mt-8 text-center text-2xl font-bold leading-tight text-[#111B18] dark:text-gray-100 sm:text-[24px]"
 					>
 						{title}
 					</motion.h1>
@@ -93,13 +93,13 @@ const SuccessScreen = memo(function SuccessScreen({
 						initial={{ y: 8, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ delay: 0.25, duration: 0.4 }}
-						className="mt-2 max-w-[300px] text-center text-[16px] font-normal leading-relaxed text-[#555555]"
+						className="mt-2 max-w-xs text-center text-[15px] font-normal leading-relaxed text-[#555555] dark:text-gray-400 sm:max-w-sm sm:text-[16px]"
 					>
 						{subtitle}
 					</motion.p>
 				</div>
 
-				<div className="w-full">
+				<div className="w-full pt-4">
 					<PrimaryButton onClick={onAction}>{buttonLabel}</PrimaryButton>
 				</div>
 			</div>

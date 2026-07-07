@@ -41,16 +41,15 @@ export function PhotoConfirmClient() {
 
             const result = await updateProfile(
                 {
-                    f_name: draft.fullName,
-                    l_name: "",
+                    name: draft.fullName.trim(),
                     email: draft.email.trim(),
-                    gender: draft.gender,
+                    phone: draft.phone.trim(),
                 },
                 file,
             );
 
             if (!result.success) {
-                setError(result.message);
+                setError(result.fieldErrors?.general ?? result.message);
                 return;
             }
 
@@ -73,8 +72,8 @@ export function PhotoConfirmClient() {
             title={PROFILE_STRINGS.photoTitle}
             footer={<PrimaryButton onClick={handleSave} disabled={isSaving}>{PROFILE_STRINGS.save}</PrimaryButton>}
         >
-            <div className="flex flex-col items-center gap-6">
-                <div className="relative h-56 w-56 overflow-hidden rounded-full bg-gray-100">
+            <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-6 sm:max-w-2xl sm:gap-8 lg:max-w-3xl">
+                <div className="relative aspect-square w-full max-w-48 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 sm:max-w-56 md:max-w-64">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={photoSrc}
@@ -84,11 +83,11 @@ export function PhotoConfirmClient() {
                     />
                 </div>
 
-                <div className="flex w-full max-w-xs items-center gap-3">
+                <div className="flex w-full max-w-sm items-center gap-3 sm:gap-4">
                     <button
                         type="button"
                         onClick={() => adjustZoom(-0.1)}
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100"
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gray-100 text-[#111B18] transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:active:bg-gray-700 sm:h-12 sm:w-12"
                         aria-label="تصغير"
                     >
                         <Minus className="h-4 w-4" />
@@ -100,29 +99,34 @@ export function PhotoConfirmClient() {
                         step={0.1}
                         value={zoom}
                         onChange={(e) => setZoom(Number(e.target.value))}
-                        className="flex-1 accent-gray-900"
+                        className="min-w-0 flex-1 accent-[#30913F]"
+                        aria-label="تكبير الصورة"
                     />
                     <button
                         type="button"
                         onClick={() => adjustZoom(0.1)}
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-white"
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#30913F] text-white transition-colors active:bg-[#267332] sm:h-12 sm:w-12"
                         aria-label="تكبير"
                     >
                         <Plus className="h-4 w-4" />
                     </button>
                 </div>
 
-                <div className="w-full text-start">
-                    <p className="mb-3 text-[14px] font-bold text-gray-900">
+                <div className="w-full max-w-2xl text-start">
+                    <p className="mb-3 text-[14px] font-bold text-gray-900 dark:text-gray-100 sm:text-[15px]">
                         {PROFILE_STRINGS.photoGuidanceTitle}
                     </p>
-                    <ul className="space-y-2 text-[14px] leading-relaxed text-gray-700">
+                    <ul className="space-y-2 text-[14px] leading-relaxed text-gray-700 dark:text-gray-400 sm:text-[15px]">
                         <li>• {PROFILE_STRINGS.photoGuidance1}</li>
                         <li>• {PROFILE_STRINGS.photoGuidance2}</li>
                     </ul>
                 </div>
 
-                {error && <p className="text-[13px] text-red-600">{error}</p>}
+                {error && (
+                    <p className="w-full text-center text-[13px] text-red-600 dark:text-red-400" role="alert">
+                        {error}
+                    </p>
+                )}
             </div>
         </ProfileSubpageShell>
     );

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Heart, Star, Clock, Truck, Store } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
 import type { FavoriteStore } from "@/features/favorites/types/favorites.types";
 
@@ -19,8 +20,10 @@ export function StoreCard({
 }: StoreCardProps) {
     const [favorited, setFavorited] = useState(initialFavorited);
     const [pending, setPending] = useState(false);
+    const router = useRouter();
 
-    async function toggleFavorite() {
+    async function toggleFavorite(e: React.MouseEvent) {
+        e.stopPropagation();
         if (pending) return;
         setPending(true);
 
@@ -41,103 +44,95 @@ export function StoreCard({
     }
 
     return (
-        <article className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04]">
-            {/* Banner area */}
-            <div className="relative h-[140px] w-full bg-[#F6F5F8]">
+        <article
+            className="h-full min-w-0 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] dark:bg-gray-800 dark:ring-white/[0.06] lg:rounded-3xl"
+            onClick={() => router.push(`/stores/${store.id}`)}
+        >
+            <div className="relative h-32 w-full cursor-pointer bg-gray-100 dark:bg-gray-700 sm:h-36 md:h-40">
                 {store.cover_photo ? (
                     <Image
                         src={store.cover_photo}
                         alt=""
                         fill
                         className="object-cover"
-                        sizes="(max-width: 640px) 100vw, 600px"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 600px"
                         loading="lazy"
                     />
                 ) : (
                     <div className="flex h-full items-center justify-center">
-                        <Store className="h-12 w-12 text-gray-300" strokeWidth={1.2} aria-hidden />
+                        <Store className="h-10 w-10 text-gray-300 dark:text-gray-600 sm:h-12 sm:w-12" strokeWidth={1.2} aria-hidden />
                     </div>
                 )}
 
-                {/* Heart button — top left (LTR: start) */}
                 <button
                     type="button"
                     aria-label={favorited ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
                     onClick={toggleFavorite}
                     disabled={pending}
-                    className="absolute start-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#EBFEEB] shadow-sm transition-colors active:bg-[#DCF5DC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]"
+                    className="absolute end-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-colors active:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60 dark:bg-gray-900/80 sm:end-3 sm:top-3 sm:h-10 sm:w-10"
                 >
                     <Heart
                         className={[
                             "h-4 w-4 transition-colors",
                             favorited
                                 ? "fill-[#30913F] text-[#30913F]"
-                                : "fill-none text-[#30913F]",
+                                : "fill-none text-gray-500 dark:text-gray-400",
                         ].join(" ")}
                         strokeWidth={favorited ? 0 : 1.8}
                     />
                 </button>
 
-                {/* Rating pill — top right (LTR: end) */}
                 {store.avg_rating > 0 && (
-                    <div className="absolute end-3 top-3 flex items-center gap-1 rounded-full bg-[#EBFEEB] px-2 py-1 shadow-sm">
-                        <Star
-                            className="h-3 w-3 fill-[#30913F] text-[#30913F]"
-                            strokeWidth={0}
-                            aria-hidden
-                        />
-                        <span className="text-[11px] font-bold text-[#30913F]">
+                    <div className="absolute start-2.5 top-2.5 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 shadow-sm backdrop-blur-sm dark:bg-gray-900/80 sm:start-3 sm:top-3">
+                        <Star className="h-3 w-3 fill-amber-400 text-amber-400 sm:h-3.5 sm:w-3.5" strokeWidth={0} aria-hidden />
+                        <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200 sm:text-xs">
                             {store.avg_rating.toFixed(1)}
                         </span>
                     </div>
                 )}
 
-                {/* Bottom pills */}
-                <div className="absolute bottom-2.5 start-2.5 flex items-center gap-1.5">
+                <div className="absolute bottom-2 start-2 flex max-w-[calc(100%-1rem)] flex-wrap items-center gap-1.5 sm:bottom-2.5 sm:start-2.5 sm:gap-2">
                     {store.delivery_time && (
-                        <span className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur-sm">
-                            <Clock className="h-3 w-3 text-gray-500" strokeWidth={1.6} aria-hidden />
-                            <span className="text-[11px] font-medium text-gray-700">
+                        <span className="flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 shadow-sm backdrop-blur-sm dark:bg-gray-900/80 sm:px-2.5">
+                            <Clock className="h-3 w-3 text-gray-500 dark:text-gray-400" strokeWidth={1.6} aria-hidden />
+                            <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 sm:text-[11px]">
                                 {store.delivery_time}
                             </span>
                         </span>
                     )}
                     {store.free_delivery && (
-                        <span className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur-sm">
+                        <span className="flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 shadow-sm backdrop-blur-sm dark:bg-gray-900/80 sm:px-2.5">
                             <Truck className="h-3 w-3 text-[#30913F]" strokeWidth={1.6} aria-hidden />
-                            <span className="text-[11px] font-medium text-[#30913F]">توصيل مجاني</span>
+                            <span className="text-[10px] font-medium text-[#30913F] sm:text-[11px]">توصيل مجاني</span>
                         </span>
                     )}
                 </div>
             </div>
 
-            {/* Info row */}
-            <div className="flex items-center gap-3 px-4 py-3" dir="rtl">
-                {/* Logo */}
+            <div className="flex items-center gap-2.5 px-3 py-3 sm:gap-3 sm:px-4 sm:py-3.5" dir="rtl">
                 {store.logo ? (
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-[#F6F5F8]">
+                    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-700 sm:h-12 sm:w-12">
                         <Image
                             src={store.logo}
                             alt=""
                             fill
                             className="object-cover"
-                            sizes="48px"
+                            sizes="(max-width: 640px) 44px, 48px"
                             loading="lazy"
                         />
                     </div>
                 ) : (
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F6F5F8]">
-                        <Store className="h-5 w-5 text-gray-300" strokeWidth={1.4} aria-hidden />
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700 sm:h-12 sm:w-12">
+                        <Store className="h-5 w-5 text-gray-400 dark:text-gray-500" strokeWidth={1.4} aria-hidden />
                     </div>
                 )}
 
-                {/* Name + type */}
                 <div className="min-w-0 flex-1">
-                    <p className="truncate text-[15px] font-bold text-[#111B18]">
+                    <p className="truncate text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
                         {store.name}
                     </p>
                     {(store.module_type || store.module_id) && (
-                        <p className="truncate text-[12px] text-[#707784]">
+                        <p className="truncate text-xs text-gray-500 dark:text-gray-400 sm:text-[13px]">
                             {store.module_type ?? `قسم ${store.module_id}`}
                         </p>
                     )}

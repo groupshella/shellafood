@@ -29,9 +29,8 @@ export const StoreCategoryProducts = Object.assign(
 
         return (
             <div>
-                {/* Section heading */}
-                <div className="bg-white px-4 py-3">
-                    <h2 className="text-right text-lg font-bold leading-snug text-[#111B18]">
+                <div className="bg-white px-3 py-2.5 sm:px-4 sm:py-3 md:px-5 lg:mx-auto lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">
+                    <h2 className="text-right text-base font-bold leading-snug text-[#111B18] sm:text-lg md:text-xl">
                         {"كل المنتجات"}
                     </h2>
                 </div>

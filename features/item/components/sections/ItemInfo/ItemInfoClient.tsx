@@ -49,91 +49,99 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
     }
 
     return (
-        <div className="bg-white" dir="rtl">
-
-
-            <div className="relative mx-4 aspect-square overflow-hidden rounded-2xl bg-[#F7F9F7] sm:mx-5">
-                {discounted && (
-                    <span className="absolute start-3 top-3 z-10 rounded-lg bg-[#E53935] px-2 py-1 text-[11px] font-bold text-white">
-                        -{item.discount}%
-                    </span>
-                )}
-                {!imgError && item.image_full_url ? (
-                    <Image
-                        src={item.image_full_url}
-                        alt={item.name}
-                        fill
-                        className="object-contain p-6"
-                        sizes="(max-width: 768px) calc(100vw - 32px), 480px"
-                        priority
-                        onError={() => setImgError(true)}
-                    />
-                ) : (
-                    <div className="flex h-full items-center justify-center">
-                        <ShoppingBag className="h-16 w-16 text-gray-200" aria-hidden />
-                    </div>
-                )}
-            </div>
-
-            <div className="px-4 pb-4 pt-4 sm:px-5">
-
-                <div className="flex items-center justify-between">
-                    <h1 className="text-right text-lg font-bold leading-snug text-[#111B18] sm:text-xl">
-                        {item.name}
-                    </h1>
-                    <button
-                        type="button"
-                        onClick={toggleWishlist}
-                        disabled={wishlistPending}
-                        aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
-                        className="flex h-full items-center justify-center rounded-full bg-gray-100 p-3 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60"
-                    >
-                        <Heart
-                            className={[
-                                "h-6 w-6 transition-colors",
-                                wishlisted
-                                    ? "fill-[#30913F] text-[#30913F]"
-                                    : "fill-none text-[#111B18]",
-                            ].join(" ")}
-                            strokeWidth={wishlisted ? 0 : 1.8}
+        <div className="bg-white dark:bg-gray-900" dir="rtl">
+            <div className="md:grid md:grid-cols-2 md:items-start md:gap-6 md:px-5 md:pt-5 lg:gap-10 lg:px-6">
+                {/* Product image */}
+                <div className="relative mx-3 mt-3 aspect-square overflow-hidden rounded-2xl bg-gray-50 dark:bg-gray-800 sm:mx-5 md:mx-0 md:mt-0">
+                    {discounted && (
+                        <span className="absolute start-3 top-3 z-10 rounded-lg bg-red-500 px-2 py-1 text-[11px] font-bold text-white sm:text-xs">
+                            -{item.discount}%
+                        </span>
+                    )}
+                    {!imgError && item.image_full_url ? (
+                        <Image
+                            src={item.image_full_url}
+                            alt={item.name}
+                            fill
+                            className="object-contain p-5 sm:p-6 lg:p-8"
+                            sizes="(max-width: 640px) calc(100vw - 24px), (max-width: 768px) calc(100vw - 40px), (max-width: 1024px) 320px, 440px"
+                            priority
+                            onError={() => setImgError(true)}
                         />
-                    </button>
+                    ) : (
+                        <div className="flex h-full items-center justify-center">
+                            <ShoppingBag className="h-14 w-14 text-gray-300 dark:text-gray-600 sm:h-16 sm:w-16" aria-hidden />
+                        </div>
+                    )}
                 </div>
-                {item.description?.trim() && (
-                    <p className="mt-1.5 text-right block text-xs leading-relaxed text-gray-500">
-                        {item.description}
-                    </p>
-                )}
-                <div className="mt-4 flex items-center justify-between gap-4">
-                    <div className="flex flex-col items-end gap-0.5">
-                        {discounted && (
-                            <PriceTag
-                                amount={item.price}
-                                size="sm"
-                                className="text-[12px] text-gray-400 line-through"
+
+                {/* Info block */}
+                <div className="px-3 pb-6 pt-4 sm:px-5 md:flex md:min-h-full md:flex-col md:px-0 md:pb-8 md:pt-1">
+                    <div className="flex items-start justify-between gap-3">
+                        <h1 className="flex-1 text-right text-lg font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-xl lg:text-2xl">
+                            {item.name}
+                        </h1>
+                        <button
+                            type="button"
+                            onClick={toggleWishlist}
+                            disabled={wishlistPending}
+                            aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60 dark:bg-gray-800 dark:active:bg-gray-700 sm:h-11 sm:w-11"
+                        >
+                            <Heart
+                                className={[
+                                    "h-5 w-5 transition-colors",
+                                    wishlisted
+                                        ? "fill-[#30913F] text-[#30913F]"
+                                        : "fill-none text-gray-700 dark:text-gray-300",
+                                ].join(" ")}
+                                strokeWidth={wishlisted ? 0 : 1.8}
                             />
-                        )}
-                        <PriceTag amount={displayPrice} className="text-[#111B18]" />
+                        </button>
                     </div>
 
-                    <ProductAddControl
-                        product={product}
-                        isAvailable={item.is_available}
-                        size="md"
-                        variant="soft"
-                        onError={setAddError}
-                    />
+                    {item.description?.trim() && (
+                        <p className="mt-2 text-right text-sm leading-relaxed text-gray-500 dark:text-gray-400 lg:text-base">
+                            {item.description}
+                        </p>
+                    )}
+
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 md:mt-auto md:pt-6">
+                        <div className="flex flex-col items-end gap-1">
+                            {discounted && (
+                                <PriceTag
+                                    amount={item.price}
+                                    size="sm"
+                                    className="text-xs text-gray-400 line-through dark:text-gray-500"
+                                />
+                            )}
+                            <PriceTag
+                                amount={displayPrice}
+                                className="text-gray-900 dark:text-gray-50"
+                            />
+                        </div>
+
+                        <ProductAddControl
+                            product={product}
+                            isAvailable={item.is_available}
+                            size="md"
+                            variant="soft"
+                            onError={setAddError}
+                        />
+                    </div>
+
+                    {addError && (
+                        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-600 dark:bg-red-950/50 dark:text-red-400 sm:text-sm">
+                            {addError}
+                        </p>
+                    )}
+
+                    {!item.is_available && (
+                        <p className="mt-3 text-right text-xs font-semibold text-red-500 dark:text-red-400 sm:text-sm">
+                            غير متوفر حالياً
+                        </p>
+                    )}
                 </div>
-
-                {addError && (
-                    <p className="mt-2 text-center text-xs text-red-500">{addError}</p>
-                )}
-
-                {!item.is_available && (
-                    <p className="mt-2 text-right text-xs font-semibold text-red-500">
-                        غير متوفر
-                    </p>
-                )}
             </div>
         </div>
     );

@@ -16,6 +16,9 @@ const TABS: { id: CouponTab; label: string }[] = [
 	{ id: "expired", label: "منتهية الصلاحية" },
 ];
 
+const CONTENT_PADDING = "px-3 pb-8 pt-4 sm:px-4 sm:pb-10 sm:pt-5 md:px-5 lg:px-6";
+const COUPONS_GRID = "grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:gap-5";
+
 export function CouponsListClient({ available, expired }: CouponsListClientProps) {
 	const [activeTab, setActiveTab] = useState<CouponTab>("available");
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -33,20 +36,27 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 	const activeList = activeTab === "available" ? available : expired;
 
 	return (
-		<div dir="rtl" className="flex flex-col gap-4 px-4 pb-8 sm:px-6">
-			{/* tabs */}
-			<div className="flex gap-2 rounded-full bg-gray-50 p-1">
+		<div dir="rtl" className={`flex flex-col gap-4 sm:gap-5 ${CONTENT_PADDING}`}>
+			<div
+				role="tablist"
+				aria-label="تصفية الكوبونات"
+				className="flex gap-1.5 rounded-2xl bg-gray-100 p-1 dark:bg-gray-800 sm:gap-2 sm:p-1.5 lg:max-w-xl"
+			>
 				{TABS.map((tab) => {
 					const isActive = tab.id === activeTab;
 					return (
 						<button
 							key={tab.id}
 							type="button"
+							role="tab"
 							onClick={() => setActiveTab(tab.id)}
-							className={`flex-1 rounded-full py-2.5 text-sm font-bold transition-colors ${
-								isActive ? "bg-[#30913F] text-white shadow-sm" : "text-gray-500"
-							}`}
-							aria-pressed={isActive}
+							aria-selected={isActive}
+							className={[
+								"min-h-10 flex-1 rounded-xl py-2.5 text-sm font-bold transition-all duration-200 sm:min-h-11 sm:text-[15px]",
+								isActive
+									? "bg-[#30913F] text-white shadow-sm"
+									: "text-gray-500 dark:text-gray-400",
+							].join(" ")}
 						>
 							{tab.label}
 						</button>
@@ -54,7 +64,6 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 				})}
 			</div>
 
-			{/* list */}
 			{activeList.length === 0 ? (
 				<CouponsEmpty
 					message={
@@ -64,7 +73,7 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 					}
 				/>
 			) : (
-				<div className="flex flex-col gap-4">
+				<div className={COUPONS_GRID}>
 					{activeList.map((coupon, index) => (
 						<CouponCard
 							key={coupon.id}

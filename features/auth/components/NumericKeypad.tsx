@@ -18,14 +18,15 @@ const keys = [
 const BackspaceIcon = memo(function BackspaceIcon() {
 	return (
 		<svg
-			width="24"
-			height="24"
+			width="22"
+			height="22"
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"
 			strokeWidth="2"
 			strokeLinecap="round"
 			strokeLinejoin="round"
+			aria-hidden
 		>
 			<path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
 			<line x1="18" y1="9" x2="12" y2="15" />
@@ -38,17 +39,27 @@ const NumericKeypad = memo(function NumericKeypad({ onPress, onBackspace }: Nume
 	return (
 		<div
 			dir="ltr"
-			className="rounded-t-3xl border-t border-gray-200/50 bg-gray-100/80 p-4 pb-8 backdrop-blur-sm"
+			className="rounded-t-3xl border-t border-gray-200/60 bg-gray-100/90 p-4 pb-8 backdrop-blur-sm dark:border-gray-700/60 dark:bg-gray-800/95"
 		>
 			<div className="mx-auto grid max-w-sm grid-cols-3 gap-3">
 				{keys.flat().map((key, idx) => (
 					<motion.button
 						key={idx}
 						type="button"
-						whileTap={{ scale: 0.92, backgroundColor: "#e5e7eb" }}
+						whileTap={{ scale: 0.92 }}
 						onClick={() => (key.isBackspace ? onBackspace() : onPress(key.main))}
-						className={`flex h-14 flex-col items-center justify-center rounded-xl border border-gray-200/80 bg-white text-gray-900 shadow-sm transition-colors active:bg-gray-100 ${key.isBackspace ? "text-gray-500" : ""
-							}`}
+						className={[
+							"flex h-14 flex-col items-center justify-center rounded-xl border",
+							"bg-white text-gray-900 shadow-sm",
+							"border-gray-200/80 transition-colors",
+							"active:bg-gray-100",
+							"focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1",
+							"dark:border-gray-600/60 dark:bg-gray-700 dark:text-gray-100 dark:active:bg-gray-600",
+							"dark:focus-visible:ring-offset-gray-800",
+							key.isBackspace ? "text-gray-500 dark:text-gray-400" : "",
+						]
+							.filter(Boolean)
+							.join(" ")}
 						aria-label={key.isBackspace ? "مسح" : key.main}
 					>
 						{key.isBackspace ? (
@@ -56,12 +67,12 @@ const NumericKeypad = memo(function NumericKeypad({ onPress, onBackspace }: Nume
 						) : (
 							<>
 								<span
-									className={`font-semibold ${key.main === "0" ? "text-xl" : "text-lg"}`}
+									className={`font-semibold leading-tight ${key.main === "0" ? "text-xl" : "text-lg"}`}
 								>
 									{key.main}
 								</span>
 								{key.sub && (
-									<span className="-mt-0.5 text-[9px] font-bold tracking-wider text-gray-500 uppercase">
+									<span className="mt-0.5 text-[9px] font-bold tracking-wider text-gray-400 uppercase dark:text-gray-500">
 										{key.sub}
 									</span>
 								)}

@@ -24,15 +24,15 @@ export function SelectGenderClient() {
             title={PROFILE_STRINGS.genderPageTitle}
             footer={<PrimaryButton onClick={handleSave}>{PROFILE_STRINGS.save}</PrimaryButton>}
         >
-            <div className="flex flex-col gap-6">
+            <div className="mx-auto flex w-full max-w-lg flex-col gap-6 sm:max-w-2xl lg:max-w-3xl">
                 <div>
-                    <h2 className="text-[16px] font-bold text-gray-900">{PROFILE_STRINGS.chooseGender}</h2>
-                    <p className="mt-2 text-[14px] leading-relaxed text-gray-500">
+                    <h2 className="text-[16px] font-bold text-gray-900 dark:text-gray-100 sm:text-[17px]">{PROFILE_STRINGS.chooseGender}</h2>
+                    <p className="mt-2 text-[14px] leading-relaxed text-gray-500 dark:text-gray-400 sm:text-[15px]">
                         {PROFILE_STRINGS.genderHelper}
                     </p>
                 </div>
 
-                <div>
+                <div className="rounded-2xl bg-white px-3 dark:bg-gray-900 sm:px-4">
                     <ProfileRadioRow
                         label={PROFILE_STRINGS.genderMale}
                         selected={selected === "male"}

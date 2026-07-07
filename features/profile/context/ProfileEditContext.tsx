@@ -29,9 +29,12 @@ interface ProfileEditContextValue {
 const ProfileEditContext = createContext<ProfileEditContextValue | null>(null);
 
 function draftFromUser(user: AuthUser): ProfileEditDraft {
+    const fullName =
+        `${user.f_name} ${user.l_name}`.trim() || user.name?.trim() || "";
     return {
-        fullName: `${user.f_name} ${user.l_name}`.trim(),
+        fullName,
         email: user.email ?? "",
+        phone: user.phone ?? "",
         gender: user.gender ?? null,
         imagePreview: resolveProfileImageUrl(user.image),
         pendingPhotoDataUrl: null,

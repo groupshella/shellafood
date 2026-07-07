@@ -75,28 +75,27 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                 aria-modal="true"
                 aria-label="فلتر"
                 onClick={(e) => e.stopPropagation()}
-                className="flex w-full max-w-md flex-col overflow-y-auto rounded-t-3xl bg-white
-                           px-4 pb-6 pt-4 max-h-[92vh] sm:max-h-[90vh] sm:rounded-3xl"
+                className="flex max-h-[92dvh] w-full max-w-md flex-col overflow-y-auto rounded-t-3xl bg-white
+                           px-4 pt-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] dark:bg-gray-900 sm:max-h-[90dvh] sm:rounded-3xl sm:px-5 sm:pb-6"
             >
-                {/* Header */}
                 <div className="relative flex items-center justify-center pb-5">
                     <button
                         type="button"
                         onClick={onClose}
                         aria-label="إغلاق"
-                        className="absolute right-0 flex h-[25px] w-[25px] items-center justify-center
+                        className="absolute right-0 flex h-8 w-8 items-center justify-center
                                    rounded-full bg-[#F6F5F8] text-[#111B18]
                                    transition-colors hover:bg-[#ECECEF]
+                                   dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700
                                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]"
                     >
                         <X className="h-3.5 w-3.5" strokeWidth={1.5} />
                     </button>
-                    <h2 className="text-base font-bold text-[#111B18]">فلتر</h2>
+                    <h2 className="text-base font-bold text-[#111B18] dark:text-gray-50">فلتر</h2>
                 </div>
 
-                {/* Sort */}
                 <section className="pb-6">
-                    <h3 className="pb-3 text-[15px] font-bold text-[#111B18]">الترتيب حسب</h3>
+                    <h3 className="pb-3 text-[15px] font-bold text-[#111B18] dark:text-gray-200">الترتيب حسب</h3>
                     <div className="flex flex-wrap gap-2.5">
                         {SORT_OPTIONS.map((option) => (
                             <Chip
@@ -109,9 +108,8 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                     </div>
                 </section>
 
-                {/* Price range */}
                 <section className="pb-6">
-                    <h3 className="pb-3 text-[15px] font-bold text-[#111B18]">النطاق السعري</h3>
+                    <h3 className="pb-3 text-[15px] font-bold text-[#111B18] dark:text-gray-200">النطاق السعري</h3>
                     <div className="grid grid-cols-3 gap-2.5">
                         {PRICE_RANGES.slice(0, 9).map((option) => (
                             <Chip
@@ -137,14 +135,13 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                     )}
                 </section>
 
-                {/* Actions */}
                 <div className="flex flex-col gap-3 pt-2">
                     <button
                         type="button"
                         onClick={handleApply}
                         className="h-12 w-full rounded-xl bg-[#30913F] text-[15px] font-bold text-white
                                    transition-transform active:scale-[0.98]
-                                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+                                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                     >
                         تم
                     </button>
@@ -153,6 +150,7 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                         onClick={handleReset}
                         className="h-12 w-full rounded-xl bg-[#F6F6F6] text-[15px] font-bold text-[#43474F]
                                    transition-colors hover:bg-[#ECECEC] active:scale-[0.98]
+                                   dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700
                                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]"
                     >
                         إعادة الضبط
@@ -184,8 +182,8 @@ function Chip({
                 "text-[13px] font-medium whitespace-nowrap transition-colors",
                 fullWidth ? "w-full" : "",
                 selected
-                    ? "bg-[#EBFEEB] text-[#30913F]"
-                    : "bg-[#F6F5F8] text-[#43474F] hover:bg-[#ECECEF]",
+                    ? "bg-[#EBFEEB] text-[#30913F] dark:bg-[#30913F]/15 dark:text-[#4db860]"
+                    : "bg-[#F6F5F8] text-[#43474F] hover:bg-[#ECECEF] dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]",
             ].join(" ")}
         >

@@ -3,7 +3,9 @@ import Link from "next/link";
 import { Module } from "@/features/home/types/modules.types";
 import { MODULE_SPEC, ModuleSpecKey } from "@/features/home/components/shared/home.tokens";
 
-export function resolveSpecKey(module: Module): ModuleSpecKey {
+type ModuleCardModule = Pick<Module, "id" | "module_name" | "module_type" | "icon_full_url">;
+
+export function resolveSpecKey(module: ModuleCardModule): ModuleSpecKey {
 	const name = module.module_name.toLowerCase();
 	const type = module.module_type.toLowerCase();
 
@@ -17,112 +19,90 @@ export function resolveSpecKey(module: Module): ModuleSpecKey {
 	return "restaurants";
 }
 
-function ModuleIcon({
-	src,
-	disabled,
-	opacity,
-	rotate,
-	tall,
-}: {
-	src: string;
-	disabled?: boolean;
-	opacity: number;
-	rotate?: number;
-	tall: boolean;
-}) {
-	if (!src) return null;
-
-	const sizeClass = tall ? "h-[72px] w-[72px]" : "h-10 w-10";
-	const nudge = tall ? "translate(8px, 8px)" : "translate(4px, 4px)";
-	const transform = rotate ? `${nudge} rotate(${rotate}deg)` : nudge;
-
-	return (
-		<div
-			className={`pointer-events-none absolute bottom-0 end-0 z-0 ${sizeClass}`}
-			style={{ opacity, transform }}
-			aria-hidden
-		>
-			<Image
-				src={src}
-				alt=""
-				fill
-				className={`object-contain ${disabled ? "grayscale" : ""}`}
-				sizes={tall ? "72px" : "40px"}
-			/>
-		</div>
-	);
-}
-
-function CardContent({
-	specKey,
-	module,
-}: {
-	specKey: ModuleSpecKey;
-	module?: Module;
-}) {
-	const spec = MODULE_SPEC[specKey];
-	const label = module?.module_name || spec.label;
-	const isCentered = spec.textAlign === "center";
-	const textOpacity = spec.disabled ? 0.5 : 1;
-
-	return (
-		<>
-			<span
-				className={`absolute z-10 font-bold text-[18px] ${isCentered ? "inset-0 flex items-center justify-center leading-[1.4]" : spec.tall ? "start-3 top-3 leading-[1.2] text-right" : "start-3 top-1/2 -translate-y-1/2 leading-[1.83] text-right"}`}
-				style={{ color: spec.text, opacity: textOpacity }}
-			>
-				{label}
-			</span>
-			{module?.icon_full_url && (
-				<ModuleIcon
-					src={module.icon_full_url}
-					disabled={spec.disabled}
-					opacity={spec.iconOpacity}
-					rotate={"iconRotate" in spec ? spec.iconRotate : undefined}
-					tall={spec.tall}
-				/>
-			)}
-		</>
-	);
-}
-
-function cardClassName(specKey: ModuleSpecKey) {
-	const spec = MODULE_SPEC[specKey];
-	return [
-		"relative block w-full overflow-hidden rounded-lg outline-none",
-		spec.tall ? "h-[91px]" : "h-[58px]",
-		spec.disabled
-			? "cursor-default"
-			: "transition-transform duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
-	].join(" ");
+function getModuleHref(module: ModuleCardModule): string {
+	return module.id === 3
+		? "/hyper-market?module_id=3"
+		: `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
 }
 
 export function ModuleCard({
 	module,
 	specKey,
 }: {
-	module: Module;
+	module?: ModuleCardModule;
 	specKey?: ModuleSpecKey;
 }) {
-	const key = specKey ?? resolveSpecKey(module);
+	const key = specKey ?? (module ? resolveSpecKey(module) : "restaurants");
 	const spec = MODULE_SPEC[key];
+	const href = module && !spec.disabled ? getModuleHref(module) : null;
+	const iconSrc = ("iconSrc" in spec ? spec.iconSrc : undefined) ?? module?.icon_full_url;
+	const label = module?.module_name || spec.label;
+	const ariaLabel = "soonLabel" in spec ? `${label} ${spec.soonLabel}` : label;
+	const content = (
+		<>
+			<span
+				className={[
+					"absolute inset-y-0 z-10 flex flex-col items-center justify-center text-center font-bold leading-tight text-[var(--module-text)] dark:text-[var(--module-dark-text)]",
+					spec.tall
+						? "left-2.5 right-[4.25rem] text-sm sm:left-3 sm:right-20 sm:text-base md:text-lg lg:right-[5.5rem] lg:text-xl"
+						: "left-2 right-11 text-xs sm:left-3 sm:right-14 sm:text-sm md:text-base",
+					spec.disabled ? "opacity-80" : "",
+				].join(" ")}
+			>
+				<span>{label}</span>
+				{"soonLabel" in spec && (
+					<span className="mt-0.5 text-[10px] font-semibold leading-none opacity-75 sm:text-xs md:text-sm">
+						{spec.soonLabel}
+					</span>
+				)}
+			</span>
 
-	const href =
-		module.id === 3
-			? `/hyper-market?module_id=3`
-			: `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
+			{iconSrc && (
+				<span
+					className={[
+						"pointer-events-none absolute right-0 z-0",
+						spec.tall
+							? "bottom-0 h-12 w-12 translate-x-1 translate-y-1 sm:h-16 sm:w-16 sm:translate-x-2 sm:translate-y-2 md:h-[72px] md:w-[72px] lg:h-20 lg:w-20"
+							: "top-1/2 h-9 w-9 -translate-y-1/2 translate-x-0.5 sm:h-11 sm:w-11 sm:translate-x-1 md:h-12 md:w-12",
+					].join(" ")}
+					style={{ opacity: spec.iconOpacity }}
+					aria-hidden
+				>
+					<Image
+						src={iconSrc}
+						alt=""
+						fill
+						className={`object-contain ${spec.disabled ? "grayscale" : ""}`}
+						sizes={spec.tall ? "(max-width: 640px) 48px, 80px" : "(max-width: 640px) 36px, 48px"}
+						priority={key === "cafe"}
+					/>
+				</span>
+			)}
+		</>
+	);
+	const className = [
+		"relative block w-full min-w-0 overflow-hidden rounded-lg bg-[var(--module-bg)] outline-none dark:bg-[var(--module-dark-bg)]",
+		spec.tall ? "min-h-[76px] sm:min-h-[91px] md:min-h-[100px] lg:min-h-[110px]" : "min-h-[48px] sm:min-h-[58px] md:min-h-[64px] lg:min-h-[70px]",
+		href
+			? "transition-transform duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+			: "cursor-default select-none",
+	].join(" ");
+	const style = {
+		"--module-bg": spec.bg,
+		"--module-dark-bg": spec.darkBg,
+		"--module-text": spec.text,
+		"--module-dark-text": spec.darkText,
+	} as React.CSSProperties;
 
-	const label = module.module_name || spec.label;
-
-	if (spec.disabled) {
+	if (!href) {
 		return (
 			<div
-				className={cardClassName(key)}
-				style={{ backgroundColor: spec.bg }}
+				className={className}
+				style={style}
 				aria-disabled
-				aria-label={label}
+				aria-label={ariaLabel}
 			>
-				<CardContent specKey={key} module={module} />
+				{content}
 			</div>
 		);
 	}
@@ -130,26 +110,15 @@ export function ModuleCard({
 	return (
 		<Link
 			href={href}
-			className={cardClassName(key)}
-			style={{ backgroundColor: spec.bg }}
+			className={className}
+			style={style}
 			aria-label={label}
 		>
-			<CardContent specKey={key} module={module} />
+			{content}
 		</Link>
 	);
 }
 
 export function StaticModuleCard({ specKey }: { specKey: ModuleSpecKey }) {
-	const spec = MODULE_SPEC[specKey];
-
-	return (
-		<div
-			className={cardClassName(specKey)}
-			style={{ backgroundColor: spec.bg }}
-			aria-disabled
-			aria-label={spec.label}
-		>
-			<CardContent specKey={specKey} />
-		</div>
-	);
+	return <ModuleCard specKey={specKey} />;
 }

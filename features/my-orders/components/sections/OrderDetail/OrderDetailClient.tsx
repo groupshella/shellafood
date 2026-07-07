@@ -20,6 +20,15 @@ interface OrderDetailClientProps {
     order: OrderDetailView;
 }
 
+const SHELL_LAYOUT =
+    "mx-auto min-h-dvh w-full max-w-lg overflow-x-hidden bg-gray-100 dark:bg-gray-950 sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl";
+
+const HEADER_PADDING = "px-3 sm:px-4 md:px-5 lg:px-6";
+const CONTENT_PADDING = "px-3 py-4 pb-28 sm:px-4 sm:py-5 sm:pb-32 md:px-5 lg:px-6";
+
+const SHEET_LAYOUT =
+    "fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-[20px] bg-white px-4 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl dark:bg-gray-900 sm:max-w-2xl sm:px-5 md:max-w-xl lg:max-w-2xl";
+
 function useBottomSheet() {
     const [isOpen, setIsOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
@@ -55,7 +64,7 @@ function ReorderModal({ isOpen, isVisible, onClose, onConfirm }: ReorderModalPro
     return (
         <>
             <div
-                className="fixed inset-0 z-40 bg-black/25 transition-opacity duration-300"
+                className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 dark:bg-black/70"
                 style={{ opacity: isVisible ? 1 : 0 }}
                 onClick={onClose}
                 aria-hidden
@@ -65,44 +74,44 @@ function ReorderModal({ isOpen, isVisible, onClose, onConfirm }: ReorderModalPro
                 aria-modal
                 aria-label="أعد طلب الأوردر"
                 dir="rtl"
-                className="fixed inset-x-0 bottom-0 z-50 rounded-t-[20px] bg-white px-5 pb-10 pt-3 shadow-2xl"
+                className={SHEET_LAYOUT}
                 style={{
                     transform: isVisible ? "translateY(0)" : "translateY(100%)",
                     transition: "transform 350ms cubic-bezier(0.32, 0.72, 0, 1)",
                 }}
             >
-                <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-gray-200" />
+                <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-gray-200 dark:bg-gray-700" />
                 <div className="relative mb-2 flex items-center justify-center">
                     <button
                         type="button"
                         onClick={onClose}
                         aria-label="إغلاق"
-                        className="absolute start-0 flex h-8 w-8 items-center justify-center rounded-full bg-[#F6F5F8] text-gray-700 transition-colors active:bg-gray-200"
+                        className="absolute start-0 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:h-9 sm:w-9"
                     >
                         <X className="h-4 w-4" strokeWidth={2.5} />
                     </button>
-                    <h2 className="text-[16px] font-semibold text-gray-900">أعد طلب الأوردر</h2>
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-[16px]">أعد طلب الأوردر</h2>
                 </div>
                 <div className="mt-4 flex flex-col items-center">
-                    <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-[#EBFEEB]">
-                        <ShoppingBag className="h-8 w-8 text-[#30913F]" strokeWidth={1.6} />
+                    <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[#EBFEEB] dark:bg-[#0d2e12] sm:h-16 sm:w-16">
+                        <ShoppingBag className="h-7 w-7 text-[#30913F] dark:text-[#4db860] sm:h-8 sm:w-8" strokeWidth={1.6} />
                     </div>
-                    <p className="mt-3 px-2 text-center text-[14px] leading-relaxed text-gray-500">
+                    <p className="mt-3 max-w-sm px-2 text-center text-sm leading-relaxed text-gray-500 dark:text-gray-400 sm:text-[14px]">
                         هل تريد إعادة طلب نفس المنتجات وإضافتها إلى سلة التسوق؟
                     </p>
                 </div>
-                <div className="mt-6 flex gap-3">
+                <div className="mt-6 flex gap-2.5 sm:gap-3">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 rounded-xl bg-[#F6F5F8] py-3.5 text-[14px] font-semibold text-gray-700 transition-colors active:bg-gray-200"
+                        className="min-h-12 flex-1 rounded-xl bg-gray-100 py-3.5 text-sm font-semibold text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:text-[14px]"
                     >
                         إلغاء
                     </button>
                     <button
                         type="button"
                         onClick={onConfirm}
-                        className="flex-1 rounded-xl bg-[#30913F] py-3.5 text-[14px] font-semibold text-white transition-colors active:bg-[#267332]"
+                        className="min-h-12 flex-1 rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] sm:text-[14px]"
                     >
                         تأكيد
                     </button>
@@ -131,7 +140,7 @@ function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address }:
     return (
         <>
             <div
-                className="fixed inset-0 z-40 bg-black/25 transition-opacity duration-300"
+                className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 dark:bg-black/70"
                 style={{ opacity: isVisible ? 1 : 0 }}
                 onClick={onClose}
                 aria-hidden
@@ -141,47 +150,47 @@ function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address }:
                 aria-modal
                 aria-label="تأكيد العنوان"
                 dir="rtl"
-                className="fixed inset-x-0 bottom-0 z-50 rounded-t-[20px] bg-white px-5 pb-10 pt-3 shadow-2xl"
+                className={SHEET_LAYOUT}
                 style={{
                     transform: isVisible ? "translateY(0)" : "translateY(100%)",
                     transition: "transform 350ms cubic-bezier(0.32, 0.72, 0, 1)",
                 }}
             >
-                <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-gray-200" />
+                <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-gray-200 dark:bg-gray-700" />
                 <div className="relative mb-2 flex items-center justify-center">
                     <button
                         type="button"
                         onClick={onClose}
                         aria-label="إغلاق"
-                        className="absolute start-0 flex h-8 w-8 items-center justify-center rounded-full bg-[#F6F5F8] text-gray-700 transition-colors active:bg-gray-200"
+                        className="absolute start-0 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:h-9 sm:w-9"
                     >
                         <X className="h-4 w-4" strokeWidth={2.5} />
                     </button>
-                    <h2 className="text-[16px] font-semibold text-gray-900">تأكيد العنوان</h2>
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-[16px]">تأكيد العنوان</h2>
                 </div>
                 <div className="mt-4 flex flex-col items-center">
-                    <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-[#EBFEEB]">
-                        <MapPin className="h-8 w-8 text-[#30913F]" strokeWidth={1.6} />
+                    <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[#EBFEEB] dark:bg-[#0d2e12] sm:h-16 sm:w-16">
+                        <MapPin className="h-7 w-7 text-[#30913F] dark:text-[#4db860] sm:h-8 sm:w-8" strokeWidth={1.6} />
                     </div>
-                    <p className="mt-3 px-4 text-center text-[15px] font-semibold text-gray-900">
+                    <p className="mt-3 max-w-md px-3 text-center text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-[15px]">
                         {address}
                     </p>
-                    <p className="mt-1 text-center text-[13px] text-gray-400">
+                    <p className="mt-1 text-center text-xs text-gray-400 dark:text-gray-500 sm:text-[13px]">
                         هل هذا هو عنوان التوصيل الصحيح؟
                     </p>
                 </div>
-                <div className="mt-6 flex gap-3">
+                <div className="mt-6 flex gap-2.5 sm:gap-3">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 rounded-xl bg-[#F6F5F8] py-3.5 text-[14px] font-semibold text-gray-700 transition-colors active:bg-gray-200"
+                        className="min-h-12 flex-1 rounded-xl bg-gray-100 py-3.5 text-sm font-semibold text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:text-[14px]"
                     >
                         تغيير العنوان
                     </button>
                     <button
                         type="button"
                         onClick={onConfirm}
-                        className="flex-1 rounded-xl bg-[#30913F] py-3.5 text-[14px] font-semibold text-white transition-colors active:bg-[#267332]"
+                        className="min-h-12 flex-1 rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] sm:text-[14px]"
                     >
                         تأكيد الطلب
                     </button>
@@ -193,7 +202,7 @@ function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address }:
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
     return (
-        <p className="mb-3 text-right text-[15px] font-bold text-gray-900">
+        <p className="mb-3 text-right text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px] lg:text-base">
             {children}
         </p>
     );
@@ -211,19 +220,19 @@ function InvoiceRow({
     green?: boolean;
 }) {
     return (
-        <div className="flex items-center justify-between py-2" dir="rtl">
+        <div className="flex items-center justify-between py-2 sm:py-2.5" dir="rtl">
             <span
                 className={[
-                    bold ? "text-[14px] font-bold" : "text-[13px] font-medium",
-                    green ? "text-[#30913F]" : "text-gray-600",
+                    bold ? "text-sm font-bold sm:text-[14px]" : "text-xs font-medium sm:text-[13px]",
+                    green ? "text-[#30913F] dark:text-[#4db860]" : "text-gray-600 dark:text-gray-400",
                 ].join(" ")}
             >
                 {label}
             </span>
             <span
                 className={[
-                    bold ? "text-[14px] font-bold" : "text-[13px] font-medium",
-                    green ? "text-[#30913F]" : "text-gray-900",
+                    bold ? "text-sm font-bold sm:text-[14px]" : "text-xs font-medium sm:text-[13px]",
+                    green ? "text-[#30913F] dark:text-[#4db860]" : "text-gray-900 dark:text-gray-100",
                 ].join(" ")}
             >
                 {value}
@@ -234,8 +243,8 @@ function InvoiceRow({
 
 function OrderItemRow({ item }: { item: OrderItem }) {
     return (
-        <div className="flex items-start gap-3 border-b border-gray-100 py-3 last:border-b-0">
-            <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#F6F5F8]">
+        <div className="flex items-start gap-2.5 border-b border-gray-100 py-3 last:border-b-0 dark:border-gray-700 sm:gap-3 sm:py-3.5">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-700 sm:h-[60px] sm:w-[60px]">
                 {item.imageUrl ? (
                     <Image
                         src={item.imageUrl}
@@ -245,36 +254,36 @@ function OrderItemRow({ item }: { item: OrderItem }) {
                         className="h-full w-full object-cover"
                     />
                 ) : (
-                    <Package className="h-6 w-6 text-gray-300" strokeWidth={1.4} />
+                    <Package className="h-5 w-5 text-gray-300 dark:text-gray-500 sm:h-6 sm:w-6" strokeWidth={1.4} />
                 )}
             </div>
 
             <div className="min-w-0 flex-1">
-                <p className="text-right text-[14px] font-semibold text-gray-900 leading-snug">
+                <p className="text-right text-sm font-semibold leading-snug text-gray-900 dark:text-gray-50 sm:text-[14px]">
                     {item.name}
                 </p>
                 {item.description && (
-                    <p className="mt-0.5 text-right text-[12px] text-gray-400 leading-snug">
+                    <p className="mt-0.5 line-clamp-2 text-right text-xs leading-snug text-gray-400 dark:text-gray-500 sm:text-[12px]">
                         {item.description}
                     </p>
                 )}
-                <div className="mt-1.5 flex items-center gap-2">
-                    <span className="text-[13px] font-bold text-gray-900">{item.price}</span>
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <span className="text-xs font-bold text-gray-900 dark:text-gray-50 sm:text-[13px]">{item.price}</span>
                     {item.originalPrice && (
-                        <span className="text-[12px] text-gray-300 line-through">{item.originalPrice}</span>
+                        <span className="text-[11px] text-gray-300 line-through dark:text-gray-500 sm:text-[12px]">{item.originalPrice}</span>
                     )}
                 </div>
             </div>
 
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#30913F]">
-                <span className="text-[11px] font-bold text-white">{item.quantity}</span>
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#30913F] sm:h-7 sm:w-7">
+                <span className="text-[10px] font-bold text-white sm:text-[11px]">{item.quantity}</span>
             </div>
         </div>
     );
 }
 
 function Divider() {
-    return <div className="my-1 h-px bg-gray-100" />;
+    return <div className="my-1 h-px bg-gray-100 dark:bg-gray-700" />;
 }
 
 export function OrderDetailClient({ order }: OrderDetailClientProps) {
@@ -296,47 +305,47 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
 
     return (
         <>
-            <div className="mx-auto min-h-screen w-full max-w-lg bg-white" dir="rtl">
-                <header className="sticky top-0 z-20 bg-white shadow-sm">
-                    <div className="relative flex items-center justify-center px-5 py-4">
+            <div className={SHELL_LAYOUT} dir="rtl">
+                <header className="sticky top-0 z-20 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:bg-gray-900 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]">
+                    <div className={`relative flex items-center justify-center py-3.5 sm:py-4 ${HEADER_PADDING}`}>
                         <button
                             type="button"
                             onClick={() => router.back()}
-                            aria-label="العودة"
-                            className="absolute right-4 flex h-9 w-9 items-center justify-center rounded-full bg-[#F6F5F8] text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]"
+                            aria-label="رجوع"
+                            className="absolute end-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:end-4 sm:h-11 sm:w-11"
                         >
-                            <ChevronRight className="h-5 w-5" strokeWidth={2} />
+                            <ChevronRight className="h-5 w-5 sm:h-[22px] sm:w-[22px]" strokeWidth={2} />
                         </button>
 
-                        <h1 className="text-[17px] font-bold text-gray-900">تفاصيل طلبك</h1>
+                        <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-[17px] lg:text-lg">تفاصيل طلبك</h1>
 
                         <button
                             type="button"
                             aria-label="حفظ الطلب"
-                            className="absolute left-4 flex h-9 w-9 items-center justify-center rounded-full bg-[#F6F5F8] text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]"
+                            className="absolute start-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:start-4 sm:h-11 sm:w-11"
                         >
-                            <Bookmark className="h-[18px] w-[18px]" strokeWidth={1.8} />
+                            <Bookmark className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.8} />
                         </button>
                     </div>
                 </header>
 
-                <div className="px-4 py-4 pb-28">
-                    <div className="rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] overflow-hidden">
-                        <div className="px-4 pt-4 pb-2">
+                <div className={CONTENT_PADDING}>
+                    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] dark:bg-gray-800 dark:ring-white/[0.06] lg:rounded-3xl">
+                        <div className="px-3 pb-2 pt-3.5 sm:px-4 sm:pt-4 md:px-5 md:pt-5">
                             <SectionTitle>تفاصيل الطلب</SectionTitle>
 
-                            <div className="mb-4 flex items-center justify-between">
+                            <div className="mb-4 flex items-center justify-between gap-3">
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-right text-[15px] font-bold text-gray-900">
+                                    <p className="text-right text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px] lg:text-base">
                                         {order.storeName}
                                     </p>
                                     {order.storeDescription && (
-                                        <p className="text-right text-[13px] text-gray-400">
+                                        <p className="line-clamp-2 text-right text-xs text-gray-400 dark:text-gray-500 sm:text-[13px]">
                                             {order.storeDescription}
                                         </p>
                                     )}
                                 </div>
-                                <div className="mr-3 flex h-[56px] w-[56px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#F6F5F8]">
+                                <div className="ms-2 flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-700 sm:ms-3 sm:h-14 sm:w-14">
                                     {order.storeLogoUrl ? (
                                         <Image
                                             src={order.storeLogoUrl}
@@ -346,7 +355,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                                             className="h-full w-full object-cover"
                                         />
                                     ) : (
-                                        <ShoppingBag className="h-6 w-6 text-gray-300" strokeWidth={1.4} />
+                                        <ShoppingBag className="h-6 w-6 text-gray-300 dark:text-gray-500" strokeWidth={1.4} />
                                     )}
                                 </div>
                             </div>
@@ -358,7 +367,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                                     ))}
                                 </div>
                             ) : (
-                                <p className="py-4 text-center text-[13px] text-gray-400">
+                                <p className="py-4 text-center text-[13px] text-gray-400 dark:text-gray-500">
                                     لا توجد منتجات في هذا الطلب
                                 </p>
                             )}
@@ -366,7 +375,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
 
                         <Divider />
 
-                        <div className="px-4 py-3">
+                        <div className="px-3 py-3 sm:px-4 md:px-5">
                             <SectionTitle>تفاصيل الفاتورة</SectionTitle>
                             <InvoiceRow
                                 label="إجمالي المنتجات"
@@ -384,7 +393,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                                 label="كود خصم"
                                 value={`- ${formatOrderMoney(fees.couponDiscount)}`}
                             />
-                            <div className="my-2 h-px bg-gray-200" />
+                            <div className="my-2 h-px bg-gray-200 dark:bg-gray-700" />
                             <InvoiceRow
                                 label="إجمالي الطلب"
                                 value={formatOrderMoney(fees.total)}
@@ -395,16 +404,16 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
 
                         <Divider />
 
-                        <div className="px-4 py-3">
+                        <div className="px-3 py-3 sm:px-4 md:px-5">
                             <SectionTitle>طريقة الدفع</SectionTitle>
                             <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-1">
-                                    <CreditCard className="h-5 w-5 shrink-0 text-gray-500" strokeWidth={1.6} />
+                                    <CreditCard className="h-5 w-5 shrink-0 text-gray-500 dark:text-gray-400" strokeWidth={1.6} />
                                     {order.paymentMethod === "Credit Card" && (
                                         <span className="inline-block h-3 w-3 rounded-full bg-orange-500 opacity-80" />
                                     )}
                                 </div>
-                                <span className="text-right text-[13px] text-gray-700">
+                                <span className="text-right text-xs text-gray-700 dark:text-gray-300 sm:text-[13px]">
                                     {order.paymentMethod}
                                 </span>
                             </div>
@@ -412,11 +421,11 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
 
                         <Divider />
 
-                        <div className="px-4 py-3">
+                        <div className="px-3 py-3 sm:px-4 md:px-5">
                             <SectionTitle>عنوان توصيل</SectionTitle>
                             <div className="flex items-start gap-2">
-                                <MapPin className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[#30913F]" strokeWidth={1.8} />
-                                <span className="text-right text-[13px] leading-relaxed text-gray-700">
+                                <MapPin className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[#30913F] dark:text-[#4db860]" strokeWidth={1.8} />
+                                <span className="text-right text-xs leading-relaxed text-gray-700 dark:text-gray-300 sm:text-[13px]">
                                     {order.deliveryAddress}
                                 </span>
                             </div>
@@ -424,11 +433,11 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
 
                         <Divider />
 
-                        <div className="px-4 pt-3 pb-4">
+                        <div className="px-3 pb-4 pt-3 sm:px-4 md:px-5">
                             <SectionTitle>تاريخ الطلب</SectionTitle>
                             <div className="flex items-center gap-2">
-                                <Clock className="h-[18px] w-[18px] shrink-0 text-[#30913F]" strokeWidth={1.8} />
-                                <span className="text-right text-[13px] text-gray-700">
+                                <Clock className="h-[18px] w-[18px] shrink-0 text-[#30913F] dark:text-[#4db860]" strokeWidth={1.8} />
+                                <span className="text-right text-xs text-gray-700 dark:text-gray-300 sm:text-[13px]">
                                     {order.orderDate}
                                 </span>
                             </div>
@@ -437,9 +446,9 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                         {order.cancellationReason && (
                             <>
                                 <Divider />
-                                <div className="px-4 py-3 pb-4">
+                                <div className="px-3 py-3 pb-4 sm:px-4 md:px-5">
                                     <SectionTitle>سبب الإلغاء</SectionTitle>
-                                    <p className="text-right text-[13px] text-red-500">
+                                    <p className="text-right text-[13px] text-red-500 dark:text-red-400">
                                         {order.cancellationReason}
                                     </p>
                                 </div>
@@ -448,11 +457,11 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                     </div>
                 </div>
 
-                <div className="fixed inset-x-0 bottom-0 border-t border-gray-100 bg-white px-4 py-4">
+                <div className="fixed inset-x-0 bottom-0 border-t border-gray-100 bg-white px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:border-gray-800 dark:bg-gray-900 sm:px-4 sm:py-4 md:px-5 lg:px-6">
                     <button
                         type="button"
                         onClick={reorderSheet.open}
-                        className="w-full rounded-xl bg-[#30913F] py-3.5 text-[15px] font-semibold text-white transition-colors active:bg-[#267332]"
+                        className="w-full rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] sm:mx-auto sm:block sm:max-w-md sm:text-[15px] md:max-w-lg lg:py-4"
                     >
                         أعد طلب الأوردر
                     </button>

@@ -43,21 +43,23 @@ export function FormDropdown({
                 <button
                     type="button"
                     onClick={() => setOpen((prev) => !prev)}
-                    className={`${inputClassName} justify-between text-end`}
+                    aria-haspopup="listbox"
+                    aria-expanded={open}
+                    className={`${inputClassName} justify-between text-start`}
                 >
-                    <ChevronDown
-                        className={`h-5 w-5 shrink-0 text-[#555555] transition-transform ${open ? "rotate-180" : ""}`}
-                        strokeWidth={1.5}
-                    />
-                    <span className={value ? "font-medium text-[#111B18]" : "text-[#707784]"}>
+                    <span className={value ? "font-medium text-[#111B18] dark:text-gray-100" : "text-[#707784] dark:text-gray-500"}>
                         {value || placeholder}
                     </span>
+                    <ChevronDown
+                        className={`h-5 w-5 shrink-0 text-[#555555] transition-transform dark:text-gray-400 ${open ? "rotate-180" : ""}`}
+                        strokeWidth={1.5}
+                    />
                 </button>
 
                 {open && (
                     <ul
                         role="listbox"
-                        className="absolute inset-x-0 top-[calc(100%+6px)] z-20 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
+                        className="absolute inset-x-0 top-[calc(100%+6px)] z-20 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]"
                     >
                         {options.map((option, index) => (
                             <li key={option} role="option" aria-selected={value === option}>
@@ -67,11 +69,11 @@ export function FormDropdown({
                                         onChange(option);
                                         setOpen(false);
                                     }}
-                                    className={`w-full px-4 py-3.5 text-end text-[14px] transition-colors active:bg-gray-50 ${
+                                    className={`w-full px-4 py-3.5 text-end text-[14px] transition-colors active:bg-gray-50 dark:active:bg-gray-700 ${
                                         value === option
-                                            ? "font-semibold text-[#30913F]"
-                                            : "text-gray-900"
-                                    } ${index > 0 ? "border-t border-gray-100" : ""}`}
+                                            ? "font-semibold text-[#30913F] dark:text-[#4db860]"
+                                            : "text-gray-900 dark:text-gray-100"
+                                    } ${index > 0 ? "border-t border-gray-100 dark:border-gray-700" : ""}`}
                                 >
                                     {option}
                                 </button>

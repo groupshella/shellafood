@@ -26,15 +26,20 @@ export function LogoutConfirmSheet({
             onClose={onClose}
             ariaLabel={PROFILE_STRINGS.logoutConfirmTitle}
         >
-            <div className="px-2 pb-4 pt-2">
-                <h2 className="mb-6 text-center text-[17px] font-bold text-gray-900">
+            <div className="mx-auto w-full max-w-md px-2 pb-8 pt-2 sm:px-4">
+                <h2 className="mb-6 text-center text-[17px] font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
                     {PROFILE_STRINGS.logoutConfirmTitle}
                 </h2>
                 <div className="flex flex-col gap-3">
                     <PrimaryButton onClick={onConfirm} disabled={isLoading}>
                         {PROFILE_STRINGS.logoutConfirmYes}
                     </PrimaryButton>
-                    <PrimaryButton variant="danger-muted" onClick={onClose} disabled={isLoading}>
+                    <PrimaryButton
+                        variant="danger-muted"
+                        className="bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+                        onClick={onClose}
+                        disabled={isLoading}
+                    >
                         {PROFILE_STRINGS.cancel}
                     </PrimaryButton>
                 </div>

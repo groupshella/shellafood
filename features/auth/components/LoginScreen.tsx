@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 import {
@@ -30,7 +30,7 @@ interface LoginScreenProps {
 
 const AppleIcon = memo(function AppleIcon() {
 	return (
-		<svg width="20" height="20" viewBox="0 0 24 24" fill="#111B18">
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
 			<path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
 		</svg>
 	);
@@ -38,7 +38,7 @@ const AppleIcon = memo(function AppleIcon() {
 
 const GoogleIcon = memo(function GoogleIcon() {
 	return (
-		<svg width="20" height="20" viewBox="0 0 24 24">
+		<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
 			<path
 				d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
 				fill="#4285F4"
@@ -62,10 +62,10 @@ const GoogleIcon = memo(function GoogleIcon() {
 const GlobeIcon = memo(function GlobeIcon() {
 	return (
 		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-			<circle cx="12" cy="12" r="9" stroke="#111B18" strokeWidth="1.6" />
+			<circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
 			<path
 				d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"
-				stroke="#111B18"
+				stroke="currentColor"
 				strokeWidth="1.4"
 			/>
 		</svg>
@@ -103,33 +103,34 @@ const LoginScreen = memo(function LoginScreen({
 
 	return (
 		<AuthShell>
-			<motion.button
-				type="button"
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				transition={{ delay: 0.1 }}
-				onClick={onLanguageToggle}
-				className="absolute top-14 right-4 z-10 inline-flex items-center gap-1 rounded-2xl border border-[#C6C8CE] bg-white px-2 py-1 text-[14px] font-normal text-[#111B18] sm:top-16"
-				aria-label="Change language"
-			>
-				<GlobeIcon />
-				English
-			</motion.button>
+			{onLanguageToggle && (
+				<motion.button
+					type="button"
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					transition={{ delay: 0.1 }}
+					onClick={onLanguageToggle}
+					className="absolute top-14 right-4 z-10 inline-flex min-h-9 items-center gap-1 rounded-2xl border border-[#C6C8CE] bg-white px-2.5 py-1.5 text-[14px] font-normal text-[#111B18] transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus-visible:ring-offset-gray-900 sm:top-16"
+					aria-label="تغيير اللغة"
+				>
+					<GlobeIcon />
+					English
+				</motion.button>
+			)}
 
-			<div className="mt-10 flex flex-col items-center gap-6">
+			<div className="mt-8 flex flex-col items-center gap-6 sm:mt-10">
 				<motion.div
 					initial={{ scale: 0.8, opacity: 0 }}
 					animate={{ scale: 1, opacity: 1 }}
 					transition={{ type: "spring", stiffness: 200, damping: 15 }}
-					className="flex h-20 w-20 items-center justify-center rounded-full"
-					style={{ background: "rgba(235, 235, 235, 0.5)" }}
+					className="flex h-20 w-20 items-center justify-center rounded-full bg-[#ebebeb]/60 dark:bg-gray-800/80 sm:h-24 sm:w-24"
 				>
 					<Image
 						src="/favicon.ico"
 						alt="شلة"
 						width={64}
 						height={46}
-						className="h-[46px] w-16 object-contain"
+						className="h-auto w-14 object-contain sm:w-16"
 						priority
 					/>
 				</motion.div>
@@ -140,10 +141,10 @@ const LoginScreen = memo(function LoginScreen({
 					transition={{ delay: 0.15, duration: 0.4 }}
 					className="flex flex-col items-center gap-2"
 				>
-					<h1 className="text-center text-[25px] font-bold leading-[30px] text-[#111B18]">
+					<h1 className="text-center text-2xl font-bold leading-tight text-[#111B18] dark:text-gray-100 sm:text-[25px]">
 						مرحباً بك
 					</h1>
-					<p className="text-center text-[16px] font-normal text-[#555555]">
+					<p className="max-w-xs text-center text-[15px] font-normal leading-relaxed text-[#555555] dark:text-gray-400 sm:text-[16px]">
 						سجل دخول أو أنشئ حساب جديد للمتابعة
 					</p>
 				</motion.div>
@@ -168,11 +169,12 @@ const LoginScreen = memo(function LoginScreen({
 						disabled={isLoading}
 					/>
 
-					<div className="flex items-center flex-row-reverse justify-between">
+					<div className="flex flex-row-reverse items-center justify-between gap-3">
 						<button
 							type="button"
 							onClick={onForgotPassword}
-							className="text-[14px] font-medium text-[#555555] underline transition-colors hover:text-[#30913F]"
+							disabled={isLoading}
+							className="rounded px-1 py-0.5 text-[14px] font-medium text-[#555555] underline transition-colors hover:text-[#30913F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 disabled:opacity-50 dark:text-gray-400 dark:hover:text-[#4aba5a]"
 						>
 							نسيت كلمة المرور ؟
 						</button>
@@ -181,8 +183,12 @@ const LoginScreen = memo(function LoginScreen({
 								type="button"
 								role="checkbox"
 								aria-checked={remember}
+								aria-label="تذكرني"
+								disabled={isLoading}
 								onClick={() => setRemember((r) => !r)}
-								className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors ${remember ? "border-[#30913F] bg-[#30913F]" : "border-[#555555] bg-white"
+								className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-50 ${remember
+									? "border-[#30913F] bg-[#30913F]"
+									: "border-[#555555] bg-white dark:border-gray-500 dark:bg-gray-700"
 									}`}
 							>
 								{remember && (
@@ -197,14 +203,33 @@ const LoginScreen = memo(function LoginScreen({
 									</svg>
 								)}
 							</button>
-							<span className="text-[14px] font-medium text-[#111B18]">تذكرني</span>
-
+							<span className="text-[14px] font-medium text-[#111B18] dark:text-gray-200">تذكرني</span>
 						</label>
 					</div>
 				</div>
 
-				{infoMessage && <InfoMessage>{infoMessage}</InfoMessage>}
-				{error && <AuthErrorMessage error={error} />}
+				<AnimatePresence>
+					{infoMessage && (
+						<motion.div
+							initial={{ opacity: 0, y: -4 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -4 }}
+						>
+							<InfoMessage>{infoMessage}</InfoMessage>
+						</motion.div>
+					)}
+				</AnimatePresence>
+				<AnimatePresence>
+					{error && (
+						<motion.div
+							initial={{ opacity: 0, y: -4 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -4 }}
+						>
+							<AuthErrorMessage error={error} />
+						</motion.div>
+					)}
+				</AnimatePresence>
 			</motion.div>
 
 			<div className="mt-8 flex w-full flex-col gap-3">
@@ -217,36 +242,43 @@ const LoginScreen = memo(function LoginScreen({
 				</SecondaryButton>
 
 				<div className="flex items-center gap-3 py-1">
-					<div className="h-px flex-1 bg-[#C6C8CE]" />
-					<span className="text-[16px] font-normal text-[#555555]">أو المتابعة بحساب</span>
-					<div className="h-px flex-1 bg-[#C6C8CE]" />
+					<div className="h-px flex-1 bg-[#C6C8CE] dark:bg-gray-600" />
+					<span className="shrink-0 text-[15px] font-normal text-[#555555] dark:text-gray-400 sm:text-[16px]">
+						أو المتابعة بحساب
+					</span>
+					<div className="h-px flex-1 bg-[#C6C8CE] dark:bg-gray-600" />
 				</div>
 
 				<div className="flex gap-2">
 					<button
 						type="button"
 						onClick={onApple}
-						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-white transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+						disabled={isLoading}
+						aria-label="تسجيل الدخول بحساب Apple"
+						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-white text-[#111B18] transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus-visible:ring-gray-500"
 					>
 						<AppleIcon />
-						<span className="text-[14px] font-medium text-[#555555]">Apple</span>
+						<span className="text-[14px] font-medium text-[#555555] dark:text-gray-300">Apple</span>
 					</button>
 					<button
 						type="button"
 						onClick={onGoogle}
-						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-white transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+						disabled={isLoading}
+						aria-label="تسجيل الدخول بحساب Google"
+						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-white transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus-visible:ring-gray-500"
 					>
 						<GoogleIcon />
-						<span className="text-[14px] font-medium text-[#555555]">Google</span>
+						<span className="text-[14px] font-medium text-[#555555] dark:text-gray-300">Google</span>
 					</button>
 				</div>
 
-				<p className="pt-2 text-center text-[14px] font-medium text-[#111B18]">
+				<p className="pt-2 text-center text-[14px] font-medium text-[#111B18] dark:text-gray-300">
 					ليس لديك حساب؟{" "}
 					<button
 						type="button"
 						onClick={onRegister}
-						className="font-bold text-[#30913F] hover:text-[#2a8036]"
+						disabled={isLoading}
+						className="rounded font-bold text-[#30913F] transition-colors hover:text-[#2a8036] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 disabled:opacity-50 dark:hover:text-[#4aba5a]"
 					>
 						إنشاء حساب
 					</button>

@@ -38,9 +38,9 @@ function formatTime(seconds: number) {
 
 const ClockIcon = memo(function ClockIcon() {
 	return (
-		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-			<circle cx="12" cy="12" r="9" stroke="#555555" strokeWidth="1.6" />
-			<path d="M12 7v5l3 2" stroke="#555555" strokeWidth="1.6" strokeLinecap="round" />
+		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+			<circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
+			<path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
 		</svg>
 	);
 });
@@ -114,7 +114,7 @@ const OtpScreen = memo(function OtpScreen({
 		<div
 			dir="rtl"
 			lang="ar"
-			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col bg-white text-[#111B18]`}
+			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100`}
 		>
 			<div className="mx-auto flex w-full max-w-md flex-col px-4 pb-4 pt-14 sm:pt-16">
 				<BackHeader onBack={onBack} disabled={isLoading} />
@@ -125,10 +125,10 @@ const OtpScreen = memo(function OtpScreen({
 					initial={{ y: 8, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
 					transition={{ delay: 0.1, duration: 0.4 }}
-					className="mt-2 text-right text-[16px] font-normal leading-relaxed text-[#555555]"
+					className="mt-2 text-right text-[16px] font-normal leading-relaxed text-[#555555] dark:text-gray-400"
 				>
 					تم ارسال رمز التحقق الى الرقم الخاص بك{" "}
-					<span dir="ltr" className="inline-block font-medium text-[#111B18]">
+					<span dir="ltr" className="inline-block font-semibold text-[#111B18] dark:text-gray-100">
 						{formattedPhone}
 					</span>
 				</motion.p>
@@ -139,24 +139,30 @@ const OtpScreen = memo(function OtpScreen({
 					transition={{ delay: 0.2 }}
 					className="mt-8"
 					dir="ltr"
+					role="group"
+					aria-label="رمز التحقق المكون من 6 أرقام"
 				>
-					<div className="flex justify-center gap-2">
+					<div className="flex justify-center gap-2 sm:gap-3">
 						{[0, 1, 2, 3, 4, 5].map((i) => {
-							const isActive = i === code.length;
+							const isActive = i === code.length && !error;
 							const isFilled = i < code.length;
 							return (
 								<div
 									key={i}
 									onClick={handleClear}
-									className={`flex h-14 min-w-0 flex-1 items-center justify-center rounded-xl border-2 text-xl font-bold transition-all duration-200 ${
+									className={[
+										"flex h-14 min-w-0 flex-1 items-center justify-center rounded-xl border-2 text-xl font-bold transition-all duration-200",
+										error ? "cursor-pointer" : "",
 										isActive
-											? "border-[#30913F] text-[#111B18]"
+											? "border-[#30913F] bg-green-50/60 text-[#111B18] dark:bg-green-900/20 dark:text-gray-100"
 											: error
-												? "border-red-500 text-red-500"
+												? "border-red-400 bg-red-50 text-red-500 dark:border-red-500 dark:bg-red-900/20 dark:text-red-400"
 												: isFilled
-													? "border-[#30913F] text-[#111B18]"
-													: "border-[#C6C8CE] text-[#111B18]"
-									}`}
+													? "border-[#30913F] bg-green-50/30 text-[#111B18] dark:bg-green-900/10 dark:text-gray-100"
+													: "border-[#C6C8CE] bg-white text-[#111B18] dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100",
+									]
+										.filter(Boolean)
+										.join(" ")}
 								>
 									<AnimatePresence mode="popLayout">
 										{isFilled && (
@@ -176,18 +182,33 @@ const OtpScreen = memo(function OtpScreen({
 					</div>
 				</motion.div>
 
+				<AnimatePresence>
+					{error && (
+						<motion.p
+							key="otp-error"
+							initial={{ opacity: 0, y: -4 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -4 }}
+							role="alert"
+							className="mt-3 text-center text-sm font-medium text-red-500 dark:text-red-400"
+						>
+							{error}
+						</motion.p>
+					)}
+				</AnimatePresence>
+
 				<motion.div
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.4 }}
-					className="mt-6 flex flex-col items-center gap-2 text-center"
+					className="mt-6 flex flex-col items-center gap-1.5 text-center"
 				>
 					{timer > 0 ? (
 						<>
-							<p className="text-[16px] font-medium text-[#555555]">
+							<p className="text-[15px] font-medium text-[#555555] dark:text-gray-400">
 								في حال عدم وصول الرمز؟ إعادة الإرسال
 							</p>
-							<span className="inline-flex items-center gap-2 text-[16px] font-normal text-[#555555]">
+							<span className="inline-flex items-center gap-1.5 text-[15px] font-normal tabular-nums text-[#555555] dark:text-gray-400">
 								<ClockIcon />
 								{formatTime(timer)}
 							</span>
@@ -197,7 +218,7 @@ const OtpScreen = memo(function OtpScreen({
 							type="button"
 							onClick={handleResend}
 							disabled={isResending}
-							className="text-[16px] font-medium text-[#555555] disabled:opacity-50"
+							className="rounded-lg px-2 py-1 text-[15px] font-medium text-[#555555] transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:opacity-50 dark:text-gray-400 dark:focus-visible:ring-offset-gray-900"
 						>
 							في حال عدم وصول الرمز؟{" "}
 							<span className="font-bold text-[#30913F]">

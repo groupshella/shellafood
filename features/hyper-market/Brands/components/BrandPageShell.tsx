@@ -11,39 +11,48 @@ interface BrandPageShellProps {
     children: React.ReactNode;
 }
 
-const ICON_BTN =
-    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2";
+const ICON_BTN = [
+    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-gray-700",
+    "transition-colors hover:bg-gray-50 active:scale-95",
+    "dark:text-gray-300 dark:hover:bg-gray-800",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
+].join(" ");
 
 export function BrandPageShell({ brand, children }: BrandPageShellProps) {
     const [imgError, setImgError] = useState(false);
 
     return (
-        <div className="mx-auto min-h-screen w-full max-w-lg bg-[#F6F5F8] sm:max-w-2xl lg:max-w-4xl" dir="rtl">
-            <header className="sticky top-0 z-20 border-b border-black/[0.04] bg-white/95 backdrop-blur-md">
-                <div className="relative flex min-h-[3.25rem] items-center justify-center px-4 py-2.5">
+        <div
+            className="mx-auto min-h-dvh w-full max-w-lg overflow-x-hidden bg-[#F6F5F8] dark:bg-gray-950 sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl"
+            dir="rtl"
+        >
+            <header className="sticky top-0 z-20 border-b border-black/[0.04] bg-white/95 backdrop-blur-md dark:border-white/[0.06] dark:bg-gray-900/95">
+                <div className="relative flex min-h-[3.25rem] items-center justify-center px-3 py-2.5 sm:px-5">
                     <Link
                         href="/hyper-market/brands"
-                        className={`${ICON_BTN} absolute right-4`}
+                        className={`${ICON_BTN} absolute right-3 sm:right-5`}
                         aria-label="العودة إلى العلامات التجارية"
                     >
-                        <ArrowRight className="h-5 w-5 text-[#30913F]" strokeWidth={2} />
+                        <ArrowRight className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} />
                     </Link>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex max-w-[65%] min-w-0 items-center gap-2 sm:max-w-[70%]">
                         {!imgError && brand.image_full_url ? (
-                            <div className="relative h-7 w-7 overflow-hidden rounded-lg ring-1 ring-black/[0.06]">
+                            <div className="relative h-7 w-7 overflow-hidden rounded-lg ring-1 ring-black/[0.06] dark:ring-white/[0.08] sm:h-8 sm:w-8">
                                 <Image
                                     src={brand.image_full_url}
                                     alt=""
                                     fill
                                     className="object-contain p-0.5"
-                                    sizes="28px"
+                                    sizes="32px"
                                     priority
                                     onError={() => setImgError(true)}
                                 />
                             </div>
                         ) : null}
-                        <h1 className="text-base font-bold text-gray-900">{brand.name}</h1>
+                        <h1 className="truncate text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
+                            {brand.name}
+                        </h1>
                     </div>
                 </div>
             </header>

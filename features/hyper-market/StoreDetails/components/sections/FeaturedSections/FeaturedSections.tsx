@@ -7,20 +7,16 @@ import {
     Product,
 } from "@/features/hyper-market/StoreDetails/types/store-details.types";
 
-/* ─── Shared tokens ─────────────────────────────────────────────────────── */
-
 const H_SCROLL =
     "flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory scroll-smooth scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 
 const PRODUCT_ITEM =
-    "flex w-[calc((100%-1rem)/2.4)] max-w-[7rem] shrink-0 snap-start self-stretch sm:w-[calc((100%-1.5rem)/3.2)] sm:max-w-[8.5rem] md:max-w-[10rem]";
-
-/* ─── Store logo badge ──────────────────────────────────────────────────── */
+    "flex w-[calc((100%-1rem)/2.4)] min-w-[6rem] max-w-[7rem] shrink-0 snap-start self-stretch sm:w-[calc((100%-1.5rem)/3.2)] sm:max-w-[8.5rem] md:max-w-[10rem] lg:w-[calc((100%-2.5rem)/5.2)] lg:max-w-[11rem]";
 
 function StoreLogo({ logoUrl }: { logoUrl: string }) {
     if (!logoUrl) return null;
     return (
-        <div className="absolute -top-5 start-4 z-10 h-12 w-12 overflow-hidden rounded-xl border-2 border-white bg-white shadow-md sm:-top-6 sm:h-14 sm:w-14">
+        <div className="absolute -top-5 start-4 z-10 h-12 w-12 overflow-hidden rounded-xl border-2 border-white bg-white shadow-md dark:border-gray-700 dark:bg-gray-800 sm:-top-6 sm:h-14 sm:w-14">
             <Image
                 src={logoUrl}
                 alt=""
@@ -32,20 +28,17 @@ function StoreLogo({ logoUrl }: { logoUrl: string }) {
     );
 }
 
-/* ─── Section heading chip ──────────────────────────────────────────────── */
-
 function SectionSlogan({ text, light = false }: { text: string; light?: boolean }) {
     return (
         <p
-            className={`truncate text-sm font-bold leading-tight sm:text-[0.9375rem] ${light ? "text-white/90" : "text-white"
-                }`}
+            className={`truncate text-sm font-bold leading-tight sm:text-[0.9375rem] ${
+                light ? "text-white/90" : "text-white"
+            }`}
         >
             {text}
         </p>
     );
 }
-
-/* ─── Gradient overlay on card header ──────────────────────────────────── */
 
 function CardHeader({
     slogan,
@@ -64,8 +57,6 @@ function CardHeader({
     );
 }
 
-/* ─── Shared featured shell ─────────────────────────────────────────────── */
-
 function FeaturedShell({
     slogan,
     logoUrl,
@@ -80,17 +71,16 @@ function FeaturedShell({
     children: React.ReactNode;
 }) {
     return (
-        <div className="relative mx-3 mb-6 pt-5 sm:mx-4 sm:mb-7 sm:pt-6">
+        <div className="relative mx-3 mb-6 pt-5 sm:mx-4 sm:mb-7 sm:pt-6 lg:mx-6">
             <StoreLogo logoUrl={logoUrl} />
 
             <section
-                className="overflow-hidden rounded-2xl border border-black/[0.06] shadow-sm"
+                className="overflow-hidden rounded-2xl border border-black/[0.06] shadow-sm dark:border-white/[0.08]"
                 style={{ backgroundColor: bgColor }}
             >
                 <CardHeader slogan={slogan} accentColor={accentColor} />
 
-                {/* Subtle divider between header and product row */}
-                <div className="h-px w-full opacity-10 bg-white" />
+                <div className="h-px w-full bg-white opacity-10" aria-hidden />
 
                 <div className={`${H_SCROLL} px-3 py-3 sm:px-4 sm:py-4`} dir="ltr">
                     {children}
@@ -100,15 +90,13 @@ function FeaturedShell({
     );
 }
 
-/* ─── Discounted featured section ───────────────────────────────────────── */
-
 export function FeaturedDiscounted({ data }: { data: FeaturedStoreDiscounted }) {
     return (
         <FeaturedShell
             slogan={data.slogan}
             logoUrl={data.logo_url}
-            bgColor="#1A4731"     /* rich dark green surface */
-            accentColor="#15803D" /* vivid header stripe */
+            bgColor="#1A4731"
+            accentColor="#15803D"
         >
             {data.products.map((product: DiscountedProduct) => (
                 <div key={product.id} className={PRODUCT_ITEM}>
@@ -125,15 +113,13 @@ export function FeaturedDiscounted({ data }: { data: FeaturedStoreDiscounted }) 
     );
 }
 
-/* ─── Regular featured section ──────────────────────────────────────────── */
-
 export function FeaturedProducts({ data }: { data: FeaturedStoreProducts }) {
     return (
         <FeaturedShell
             slogan={data.slogan}
             logoUrl={data.logo_url}
-            bgColor="#7F1D1D"     /* deep crimson surface */
-            accentColor="#B91C1C" /* vivid header stripe */
+            bgColor="#7F1D1D"
+            accentColor="#B91C1C"
         >
             {data.products.map((product: Product) => (
                 <div key={product.id} className={PRODUCT_ITEM}>
@@ -148,8 +134,6 @@ export function FeaturedProducts({ data }: { data: FeaturedStoreProducts }) {
         </FeaturedShell>
     );
 }
-
-/* ─── Category products row ─────────────────────────────────────────────── */
 
 export function CategoryProductsRow({ products, title }: { products: Product[]; title: string }) {
     if (!products.length) return null;

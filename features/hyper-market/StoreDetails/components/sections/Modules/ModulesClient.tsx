@@ -13,7 +13,10 @@ export function ModulesClient({ modules, moduleId }: ModulesClientProps) {
     if (modules.length === 0) return null;
 
     return (
-        <section aria-label="خدماتنا" className="bg-white px-4 pb-4 pt-4 sm:px-6">
+        <section
+            aria-label="خدماتنا"
+            className="bg-white px-3 pb-4 pt-4 dark:bg-gray-900 sm:px-5 sm:pb-5 lg:px-6"
+        >
             <ScrollContainer className="-mx-1 px-1">
                 {modules.map((module, index) => (
                     <ModuleCard

@@ -14,7 +14,7 @@ export function MarketsShell({
 }) {
     return (
         <div
-            className="mx-auto flex min-h-screen w-full max-w-lg flex-col gap-4 pb-6 sm:max-w-2xl lg:max-w-4xl"
+            className="mx-auto flex min-h-dvh w-full max-w-lg flex-col gap-3 overflow-x-hidden bg-[#F6F5F8] pb-6 dark:bg-gray-950 sm:max-w-2xl sm:gap-4 lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl"
             dir="rtl"
         >
             <Topbar moduleName={moduleName} moduleId={moduleId} isAuthenticated={isAuthenticated} />

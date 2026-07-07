@@ -33,23 +33,13 @@ export function matchCartLine(
     items: CartItem[],
     product: ProductCartMeta
 ): CartItem | undefined {
-    // Primary: server items carry item_id — reliable, no price/name tolerance needed.
-    const byItemId = items.find(
-        (item) => item.item_id != null && item.item_id === product.id
-    );
-    if (byItemId) return byItemId;
-
-    // Fallback: optimistic items (id < 0) don't have item_id; match by name + price.
-    const expectedPrice = getDisplayPrice(product);
-    return items.find(
-        (item) =>
-            item.item_id == null &&
-            item.name === product.name &&
-            (Math.abs(item.price - expectedPrice) < 1 ||
-                Math.abs(item.price - product.price) < 1)
-    );
+    return items.find((item) => item.item_id === product.id);
 }
 
 export function getTotalCount(items: CartItem[]): number {
     return items.reduce((sum, item) => sum + item.quantity, 0);
+}
+
+export function getTotalPrice(items: CartItem[]): number {
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 }

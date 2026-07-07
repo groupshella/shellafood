@@ -47,11 +47,17 @@ function StepCircle({ state, Icon, size }: StepCircleProps) {
         state === "completed"
             ? "bg-[#30913F]"
             : state === "current"
-              ? "bg-[#E8F5EA] border-[2.13px] border-[#30913F]"
-              : "bg-[#F0F4F0] border-[2.13px] border-[#E8ECEF]";
+              ? "bg-[#E8F5EA] border-[2.13px] border-[#30913F] dark:bg-[#30913F]/15"
+              : "bg-[#F0F4F0] border-[2.13px] border-[#E8ECEF] dark:bg-gray-800 dark:border-gray-700";
 
     const iconColor =
-        state === "completed" ? "#FFFFFF" : state === "current" ? "#30913F" : "#B8C4B8";
+        state === "completed"
+            ? "#FFFFFF"
+            : state === "current"
+              ? "#30913F"
+              : undefined;
+
+    const iconMutedCls = state === "upcoming" ? "text-[#B8C4B8] dark:text-gray-600" : "";
 
     return (
         <div
@@ -60,23 +66,19 @@ function StepCircle({ state, Icon, size }: StepCircleProps) {
         >
             {state === "current" && (
                 <div
-                    className="absolute inset-0 rounded-full"
-                    style={{ backgroundColor: "rgba(48,145,63,0.14)" }}
+                    className="absolute inset-0 rounded-full bg-[#30913F]/14 dark:bg-[#30913F]/20"
+                    aria-hidden
                 />
             )}
             <div
                 className={`relative z-10 flex items-center justify-center rounded-full ${dim} ${circleCls}`}
             >
                 {state === "completed" ? (
-                    <Check
-                        className={iconDim}
-                        style={{ color: iconColor }}
-                        strokeWidth={2.5}
-                    />
+                    <Check className={iconDim} style={{ color: iconColor }} strokeWidth={2.5} />
                 ) : (
                     <Icon
-                        className={iconDim}
-                        style={{ color: iconColor }}
+                        className={`${iconDim} ${iconMutedCls}`}
+                        style={iconColor ? { color: iconColor } : undefined}
                         strokeWidth={1.75}
                     />
                 )}
@@ -109,21 +111,23 @@ export function WalletStepper({ currentStep, variant }: WalletStepperProps) {
         <div className="flex w-full items-start">
             {steps.map((step, index) => {
                 const state = getState(index);
-                const labelColor = state === "upcoming" ? "#555555" : "#30913F";
+                const labelCls =
+                    state === "upcoming"
+                        ? "text-[#555555] dark:text-gray-500"
+                        : "text-[#30913F] dark:text-[#4db860]";
                 return (
                     <React.Fragment key={step.label}>
                         <div className="flex flex-col items-center gap-1.5">
                             <StepCircle state={state} Icon={step.Icon} size={size} />
                             <span
-                                className={`${maxLabelWidth} text-center text-[12px] font-bold leading-[1.4]`}
-                                style={{ color: labelColor }}
+                                className={`${maxLabelWidth} text-center text-[12px] font-bold leading-[1.4] ${labelCls}`}
                             >
                                 {step.label}
                             </span>
                         </div>
                         {index < steps.length - 1 && (
                             <div
-                                className={`${lineMarginTop} h-[3px] flex-1 self-start bg-[#E8ECEF]`}
+                                className={`${lineMarginTop} h-[3px] flex-1 self-start bg-[#E8ECEF] dark:bg-gray-700`}
                             />
                         )}
                     </React.Fragment>

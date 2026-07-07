@@ -61,7 +61,7 @@ export function ProductAddControl({
             className={[
                 "flex shrink-0 items-center justify-center rounded-full transition-transform active:scale-90",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1",
-                isSm ? "h-7 w-7" : "h-11 w-11",
+                isSm ? "h-8 w-8 sm:h-7 sm:w-7" : "h-11 w-11 sm:h-12 sm:w-12",
                 isSoft
                     ? "bg-[#E8F8EA] shadow-[0_2px_10px_rgba(48,145,63,0.18)]"
                     : "bg-[#45C553] shadow-md",
@@ -71,7 +71,7 @@ export function ProductAddControl({
         >
             <Plus
                 className={[
-                    isSm ? "h-3.5 w-3.5" : "h-5 w-5",
+                    isSm ? "h-4 w-4 sm:h-3.5 sm:w-3.5" : "h-5 w-5 sm:h-[22px] sm:w-[22px]",
                     isDisabled
                         ? "text-gray-400"
                         : isSoft

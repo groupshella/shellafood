@@ -1,134 +1,150 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Check, X } from "lucide-react";
 import { formatAddressLine } from "../../lib/format-address-line";
 import { AddressListItem } from "../../types/address.types";
 
 interface AddressPickerSheetProps {
-    isOpen: boolean;
-    onClose: () => void;
-    addresses: AddressListItem[];
-    selectedId: number | null;
-    onSelect: (id: number) => void;
+	isOpen: boolean;
+	onClose: () => void;
+	addresses: AddressListItem[];
+	selectedId: number | null;
+	onSelect: (id: number) => void;
 }
 
+const primaryButtonClass =
+	"flex min-h-[48px] w-full items-center justify-center rounded-xl bg-[#30913F] text-sm font-semibold text-white transition-colors hover:bg-[#2a8036] active:bg-[#267332] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 sm:min-h-[52px]";
+
+const secondaryButtonClass =
+	"flex min-h-[48px] w-full items-center justify-center rounded-xl border border-[#30913F]/20 bg-white text-sm font-semibold text-[#30913F] transition-colors hover:bg-[#30913F]/5 active:bg-[#30913F]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:border-[#30913F]/30 dark:bg-gray-800 dark:text-[#3da84f] dark:hover:bg-[#30913F]/10 dark:focus-visible:ring-offset-gray-800 sm:min-h-[52px]";
+
 export function AddressPickerSheet({
-    isOpen,
-    onClose,
-    addresses,
-    selectedId,
-    onSelect,
+	isOpen,
+	onClose,
+	addresses,
+	selectedId,
+	onSelect,
 }: AddressPickerSheetProps) {
-    useEffect(() => {
-        if (isOpen) document.body.style.overflow = "hidden";
-        else document.body.style.overflow = "";
-        return () => {
-            document.body.style.overflow = "";
-        };
-    }, [isOpen]);
+	const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-    if (!isOpen) return null;
+	useEffect(() => {
+		if (isOpen) {
+			document.body.style.overflow = "hidden";
+			closeButtonRef.current?.focus();
+		} else {
+			document.body.style.overflow = "";
+		}
+		return () => {
+			document.body.style.overflow = "";
+		};
+	}, [isOpen]);
 
-    return (
-        <>
-            <div
-                className="fixed inset-0 z-40 bg-black/40 transition-opacity"
-                onClick={onClose}
-                aria-hidden
-            />
+	useEffect(() => {
+		if (!isOpen) return;
 
-            <div
-                role="dialog"
-                aria-modal
-                aria-label="إختار العنوان"
-                className="fixed inset-x-0 bottom-15 z-50 rounded-t-3xl bg-white px-5 pb-8 pt-5 shadow-xl sm:inset-x-auto sm:start-1/2 sm:top-1/2 sm:bottom-auto sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl"
-                dir="rtl"
-            >
-                <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-gray-200 sm:hidden" />
+		function handleKeyDown(e: KeyboardEvent) {
+			if (e.key === "Escape") onClose();
+		}
 
-                <div className="relative mb-5 flex items-center justify-center">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        aria-label="إغلاق"
-                        className="absolute start-0 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200"
-                    >
-                        <X className="h-4 w-4" strokeWidth={2.5} />
-                    </button>
-                    <h2 className="text-base font-bold text-gray-900">إختار العنوان</h2>
-                </div>
+		document.addEventListener("keydown", handleKeyDown);
+		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, [isOpen, onClose]);
 
-                <div className="mb-5 max-h-[min(50vh,320px)] space-y-2 overflow-y-auto">
-                    {addresses.length === 0 ? (
-                        <p className="rounded-xl bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
-                            لا توجد عناوين محفوظة بعد
-                        </p>
-                    ) : (
-                        addresses.map((address) => {
-                            const isSelected = address.id === selectedId;
+	if (!isOpen) return null;
 
-                            return (
-                                <button
-                                    key={address.id}
-                                    type="button"
-                                    onClick={() => {
-                                        onSelect(address.id);
-                                        onClose();
-                                    }}
-                                    className={[
-                                        "flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-right transition-colors",
-                                        isSelected
-                                            ? "bg-[#EEF8F0]"
-                                            : "bg-white hover:bg-gray-50",
-                                    ].join(" ")}
-                                >
+	return (
+		<>
+			<div
+				className="fixed inset-0 z-40 bg-black/40 transition-opacity dark:bg-black/60"
+				onClick={onClose}
+				aria-hidden
+			/>
 
+			<div
+				role="dialog"
+				aria-modal="true"
+				aria-label="إختار العنوان"
+				className="fixed inset-x-0 bottom-[calc(58px+env(safe-area-inset-bottom))] z-50 max-h-[85dvh] overflow-y-auto rounded-t-3xl bg-white px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4 shadow-xl dark:bg-gray-800 sm:px-5 sm:pb-[calc(2rem+env(safe-area-inset-bottom))] sm:pt-5 md:inset-x-auto md:bottom-auto md:start-1/2 md:top-1/2 md:w-full md:max-w-md md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-2xl md:pb-8 lg:max-w-lg"
+				dir="rtl"
+			>
+				<div className="mx-auto mb-4 h-1 w-10 rounded-full bg-gray-200 dark:bg-gray-600 md:hidden" aria-hidden />
 
-                                    <span className="min-w-0 flex-1">
-                                        <span className="block text-sm font-bold text-gray-900">
-                                            ({address.address_label})
-                                        </span>
-                                        <span className="mt-0.5 block text-xs leading-relaxed text-gray-600">
-                                            {formatAddressLine(address)}
-                                        </span>
-                                    </span>
-                                    <span
-                                        className={[
-                                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
-                                            isSelected
-                                                ? "bg-gray-900 text-white"
-                                                : "border-2 border-gray-200 bg-white",
-                                        ].join(" ")}
-                                        aria-hidden
-                                    >
-                                        {isSelected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
-                                    </span>
-                                </button>
-                            );
-                        })
-                    )}
-                </div>
+				<div className="relative mb-4 flex items-center justify-center sm:mb-5">
+					<button
+						ref={closeButtonRef}
+						type="button"
+						onClick={onClose}
+						aria-label="إغلاق"
+						className="absolute start-0 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 active:bg-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 sm:h-11 sm:w-11"
+					>
+						<X className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+					</button>
+					<h2 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">إختار العنوان</h2>
+				</div>
 
-                <div className="space-y-3">
-                    <Link
-                        href="/addresses/add"
-                        onClick={onClose}
-                        className="flex w-full items-center justify-center rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332]"
-                    >
-                        أضف عنوان جديد
-                    </Link>
+				<div className="mb-4 max-h-[min(50vh,320px)] space-y-2 overflow-y-auto sm:mb-5 md:max-h-[min(45vh,360px)]" role="listbox" aria-label="العناوين المحفوظة">
+					{addresses.length === 0 ? (
+						<p className="rounded-xl bg-gray-50 px-4 py-5 text-center text-sm text-gray-500 dark:bg-gray-700/50 dark:text-gray-400 sm:py-6">
+							لا توجد عناوين محفوظة بعد
+						</p>
+					) : (
+						addresses.map((address) => {
+							const isSelected = address.id === selectedId;
 
-                    <Link
-                        href="/addresses"
-                        onClick={onClose}
-                        className="flex w-full items-center justify-center rounded-xl border border-[#30913F]/20 bg-white py-3.5 text-sm font-semibold text-[#30913F] transition-colors active:bg-[#30913F]/5"
-                    >
-                        تعديل العناوين
-                    </Link>
-                </div>
-            </div>
-        </>
-    );
+							return (
+								<button
+									key={address.id}
+									type="button"
+									role="option"
+									aria-selected={isSelected}
+									onClick={() => {
+										onSelect(address.id);
+										onClose();
+									}}
+									className={[
+										"flex w-full min-h-[56px] items-center gap-2.5 rounded-xl px-3.5 py-3 text-right transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] sm:min-h-[60px] sm:gap-3 sm:px-4 sm:py-3.5",
+										isSelected
+											? "bg-[#EEF8F0] dark:bg-[#1a3d24]"
+											: "bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700/60",
+									].join(" ")}
+								>
+									<span className="min-w-0 flex-1">
+										<span className="block truncate text-sm font-bold text-gray-900 dark:text-gray-100">
+											({address.address_label})
+										</span>
+										<span className="mt-0.5 block text-xs leading-relaxed text-gray-600 dark:text-gray-400 sm:text-[13px]">
+											{formatAddressLine(address)}
+										</span>
+									</span>
+									<span
+										className={[
+											"flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
+											isSelected
+												? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
+												: "border-2 border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800",
+										].join(" ")}
+										aria-hidden
+									>
+										{isSelected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+									</span>
+								</button>
+							);
+						})
+					)}
+				</div>
+
+				<div className="space-y-2.5 sm:space-y-3">
+					<Link href="/addresses/add" onClick={onClose} className={primaryButtonClass}>
+						أضف عنوان جديد
+					</Link>
+
+					<Link href="/addresses" onClick={onClose} className={secondaryButtonClass}>
+						تعديل العناوين
+					</Link>
+				</div>
+			</div>
+		</>
+	);
 }
