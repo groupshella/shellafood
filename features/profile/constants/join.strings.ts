@@ -43,6 +43,13 @@ export const JOIN_STRINGS = {
     passwordMismatch: "كلمتا المرور غير متطابقتين",
     mustAgreeTerms: "يجب الموافقة على الشروط وسياسة الخصوصية",
 
+    invalidPhone: "صيغة رقم الهاتف غير صالحة",
+    invalidEmail: "صيغة البريد الإلكتروني غير صالحة",
+    minPassword: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+    alreadyRegistered: "هذا الحساب مسجل مسبقاً",
+    metaLoadError: "تعذر تحميل البيانات. اضغط لإعادة المحاولة",
+    networkError: "تعذر الاتصال بالخادم، تحقق من اتصالك وحاول مرة أخرى",
+
     dropdownPlaceholder: "مثال",
 } as const;
 
