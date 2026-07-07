@@ -17,9 +17,15 @@ export default async function RootLayout({
 }) {
 	return (
 		<html lang="ar" dir="rtl" suppressHydrationWarning>
-			<body
-			>
-				<main className="min-h-dvh">{children}</main>
+			<head>
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `(function(){try{var d=localStorage.getItem('shellafood-dark-mode')==='true';document.documentElement.classList.toggle('dark',d)}catch(e){}})()`,
+					}}
+				/>
+			</head>
+			<body>
+				<main className="min-h-dvh bg-white dark:bg-gray-900">{children}</main>
 			</body>
 		</html>
 	);
