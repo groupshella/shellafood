@@ -4,9 +4,9 @@ import { formatExpireDate, isCouponExpiringSoon } from "@/features/coupons/lib/c
 import type { AvailableCoupon, Coupon } from "@/features/coupons/types/coupon.types";
 
 const RIBBON_STYLES = [
-	{ stub: "bg-[#D1FDD2]", text: "text-[#30913F]", overlay: "bg-[#EBFEEB]/80" },
-	{ stub: "bg-[#DFD3F5]", text: "text-[#7861A6]", overlay: "bg-white/25" },
-	{ stub: "bg-[#FFDCDC]", text: "text-[#DB2626]", overlay: "bg-white/35" },
+	{ stub: "bg-[#D1FDD2] dark:bg-[#1a4d20]", text: "text-[#30913F] dark:text-[#4db860]", overlay: "bg-[#EBFEEB]/80 dark:bg-[#0d2e12]/80" },
+	{ stub: "bg-[#DFD3F5] dark:bg-[#2d1d4d]", text: "text-[#7861A6] dark:text-[#a98fe6]", overlay: "bg-white/25 dark:bg-black/25" },
+	{ stub: "bg-[#FFDCDC] dark:bg-[#4d1a1a]", text: "text-[#DB2626] dark:text-[#f87171]", overlay: "bg-white/35 dark:bg-black/25" },
 ] as const;
 
 type CouponCardProps = {
@@ -37,7 +37,7 @@ function StubDecoration({ overlayClass }: { overlayClass: string }) {
 				aria-hidden
 			>
 				{Array.from({ length: 4 }, (_, i) => (
-					<span key={i} className="h-[13px] w-[13px] rounded-full bg-white" />
+					<span key={i} className="h-[13px] w-[13px] rounded-full bg-white dark:bg-gray-900" />
 				))}
 			</div>
 		</>
@@ -51,70 +51,83 @@ export function CouponCard({ coupon, index, variant, isCopied, onCopyCode }: Cou
 	const expiryText = formatExpireDate(coupon);
 
 	let statusLabel = "تفعيل";
-	let statusClass = "font-bold text-[#30913F]";
+	let statusClass = "font-bold text-[#30913F] dark:text-[#4db860]";
 	if (variant === "expired") {
 		statusLabel = "منتهية الصلاحية";
-		statusClass = "font-bold text-gray-400";
+		statusClass = "font-bold text-gray-400 dark:text-gray-500";
 	} else if (expiringSoon) {
-		statusLabel = "قرب على الانتهاء";
-		statusClass = "font-bold text-[#30913F]";
+		statusLabel = "قارب على الانتهاء";
+		statusClass = "font-bold text-amber-500 dark:text-amber-400";
 	} else if (!isUsable) {
 		statusLabel = "مستخدم";
-		statusClass = "font-bold text-gray-400";
+		statusClass = "font-bold text-gray-400 dark:text-gray-500";
 	}
 
 	return (
 		<div
 			dir="ltr"
-			className={`relative flex h-[125px] w-full overflow-hidden ${
-				variant === "expired" || !isUsable ? "opacity-60" : ""
-			}`}
+			className={[
+				"relative flex h-full min-w-0 w-full overflow-hidden transition-opacity",
+				variant === "expired" || !isUsable ? "opacity-55" : "",
+			].join(" ")}
 		>
 			<div
-				className={`relative flex w-11 shrink-0 flex-col items-center justify-center rounded-l-2xl shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)] ${ribbon.stub}`}
+				className={[
+					"relative flex w-10 shrink-0 flex-col items-center justify-center rounded-l-2xl shadow-[0px_4px_16px_rgba(0,0,0,0.06)] dark:shadow-[0px_4px_16px_rgba(0,0,0,0.3)] sm:w-11 md:w-12",
+					ribbon.stub,
+				].join(" ")}
 			>
 				<StubDecoration overlayClass={ribbon.overlay} />
-				<span className={`whitespace-nowrap text-[16px] font-bold leading-[160%] [transform:rotate(-90deg)] ${ribbon.text}`}>
+				<span
+					className={`whitespace-nowrap text-sm font-bold leading-none [transform:rotate(-90deg)] sm:text-[15px] ${ribbon.text}`}
+				>
 					خصم
 				</span>
-				<span className={`whitespace-nowrap text-[20px] font-black leading-[160%] [transform:rotate(-90deg)] ${ribbon.text}`}>
+				<span
+					className={`mt-1 whitespace-nowrap text-base font-black leading-none [transform:rotate(-90deg)] sm:text-lg ${ribbon.text}`}
+				>
 					{discountValue(coupon)}
 				</span>
 			</div>
 
 			<div
 				dir="rtl"
-				className="relative flex h-[125px] min-w-0 flex-1 flex-col rounded-r-2xl border border-[#F6F5F8] border-s-0 bg-white shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)]"
+				className="relative flex min-w-0 flex-1 flex-col rounded-r-2xl border border-gray-100 border-s-0 bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.06)] dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0px_4px_16px_rgba(0,0,0,0.3)]"
 			>
-				<div className="flex flex-col gap-1 px-4 pt-2">
-					<div className="flex items-start justify-between gap-4">
-						<span className={`text-[16px] leading-[160%] ${statusClass}`}>{statusLabel}</span>
+				<div className="flex flex-col gap-1 px-3 pt-3 sm:gap-1.5 sm:px-4 sm:pt-3.5">
+					<div className="flex items-center justify-between gap-2 sm:gap-3">
+						<span className={`shrink-0 text-xs leading-snug sm:text-sm ${statusClass}`}>{statusLabel}</span>
+
 						<button
 							type="button"
 							onClick={() => onCopyCode(coupon.code)}
-							className="flex h-[26px] min-w-[100px] items-center justify-center gap-2 rounded-lg bg-[#F6F5F8] px-2 shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)] transition-colors active:opacity-80"
+							className="flex h-8 min-h-8 min-w-0 max-w-[45%] items-center justify-center gap-1.5 rounded-lg bg-gray-100 px-2 shadow-sm transition-colors active:bg-gray-200 dark:bg-gray-700 dark:active:bg-gray-600 sm:h-9 sm:max-w-[160px] sm:px-2.5"
 							aria-label={`نسخ الكود ${coupon.code}`}
 						>
 							{isCopied ? (
-								<Check className="h-4 w-4 text-[#111B18]" strokeWidth={1.25} />
+								<Check className="h-3.5 w-3.5 shrink-0 text-[#30913F] dark:text-[#4db860] sm:h-4 sm:w-4" strokeWidth={2} />
 							) : (
-								<Copy className="h-4 w-4 text-[#111B18]" strokeWidth={1.25} />
+								<Copy className="h-3.5 w-3.5 shrink-0 text-gray-600 dark:text-gray-400 sm:h-4 sm:w-4" strokeWidth={1.5} />
 							)}
-							<span className="text-[14px] font-bold leading-[160%] text-[#111B18]">{coupon.code}</span>
+							<span className="truncate text-[11px] font-bold text-gray-900 dark:text-gray-100 sm:text-xs">
+								{coupon.code}
+							</span>
 						</button>
 					</div>
 
-					<h3 className="text-end text-[16px] font-bold leading-[160%] text-[#111B18]">{coupon.title}</h3>
+					<h3 className="line-clamp-2 text-end text-sm font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-[15px]">
+						{coupon.title}
+					</h3>
 				</div>
 
-				<div className="my-1 border-t border-dashed border-[#F6F5F8]" aria-hidden />
+				<div className="my-2 border-t border-dashed border-gray-200 dark:border-gray-700 sm:my-2.5" aria-hidden />
 
-				<div className="relative flex-1 px-4 pb-2">
-					<p className="text-end text-[14px] font-medium leading-[160%] text-[#111B18]">
+				<div className="relative flex-1 px-3 pb-3 sm:px-4 sm:pb-4">
+					<p className="text-end text-[11px] font-medium leading-relaxed text-gray-600 dark:text-gray-400 sm:text-xs">
 						استخدم هذا الكوبون عند الدفع للحصول على الخصم تلقائيًا.
 					</p>
 					{expiryText && (
-						<span className="absolute bottom-0 start-3 text-[12px] font-medium leading-[160%] text-[#30913F]">
+						<span className="mt-1 block text-end text-[10px] font-medium text-[#30913F] dark:text-[#4db860] sm:text-[11px]">
 							{expiryText}
 						</span>
 					)}

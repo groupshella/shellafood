@@ -5,17 +5,17 @@ import EditAddressSkeleton from "./skeleton";
 export { EditAddressSkeleton as skeleton };
 
 export async function EditAddress({ id }: { id: string }) {
-  const address = await getAddressDetail(id);
+	const address = await getAddressDetail(id);
 
-  if (!address) {
-    return (
-      <div className="flex flex-col items-center justify-center flex-1 py-16 px-6">
-        <p className="text-sm text-gray-500 text-center">
-          لم يتم العثور على العنوان
-        </p>
-      </div>
-    );
-  }
+	if (!address) {
+		return (
+			<div className="flex flex-1 flex-col items-center justify-center px-4 py-14 sm:px-6 sm:py-20 md:py-24">
+				<p className="text-center text-sm text-gray-500 dark:text-gray-400 sm:text-base">
+					لم يتم العثور على العنوان
+				</p>
+			</div>
+		);
+	}
 
-  return <EditAddressClient address={address} />;
+	return <EditAddressClient address={address} />;
 }

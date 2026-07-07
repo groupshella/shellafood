@@ -1,18 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, ChevronLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { HyperMarketPopularBrand } from "@/features/hyper-market/StoreDetails/types/popular-brands.types";
 import { BrandCard } from "./BrandCard";
 
-const COLUMN_WIDTH = "calc((100% - 0.75rem) / 2.08)";
+const COLUMN_CLASS =
+    "flex w-[43vw] min-w-[8.5rem] max-w-[13rem] shrink-0 snap-start flex-col gap-2 sm:w-[30vw] sm:min-w-[10rem] sm:max-w-[14rem] sm:gap-2.5 lg:w-[22vw] lg:max-w-[15rem] xl:w-[18vw]";
 
 const H_SCROLL = [
     "flex gap-2.5 overflow-x-auto pb-1 sm:gap-3",
     "snap-x snap-mandatory scroll-smooth",
     "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
     "-mx-0.5 px-0.5",
+].join(" ");
+
+const VIEW_ALL_BTN = [
+    "inline-flex min-h-[36px] items-center gap-1 rounded-lg px-2.5 py-1.5",
+    "bg-[#EBFEEB] text-xs font-bold text-[#30913F]",
+    "dark:bg-[#30913F]/15 dark:text-[#4db860]",
+    "transition-colors active:bg-[#DCF5DC] dark:active:bg-[#30913F]/25",
+    "sm:gap-1.5 sm:px-3 sm:py-2 sm:text-sm",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900",
 ].join(" ");
 
 function chunkByTwo(items: HyperMarketPopularBrand[]): HyperMarketPopularBrand[][] {
@@ -33,34 +43,24 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
     return (
         <section
             aria-label="أشهر العلامات التجارية"
-            className="w-full bg-[#F5F5F5] px-4 pb-5 pt-3 sm:px-5"
+            className="w-full bg-[#F5F5F5] px-3 pb-5 pt-3 dark:bg-gray-950 sm:px-5 lg:px-6"
             dir="rtl"
         >
             <div className="mb-3 flex items-center justify-between gap-3">
-                <h2 className="text-base font-bold text-[#111B18] sm:text-lg">أشهر العلامات التجارية</h2>
+                <h2 className="text-base font-bold text-[#111B18] dark:text-gray-50 sm:text-lg">
+                    أشهر العلامات التجارية
+                </h2>
 
-                <div className="flex shrink-0 items-center gap-2">
-
-
-                    <Link
-                        href={viewAllHref}
-                        className={[
-                            "inline-flex items-center gap-1 rounded-lg bg-[#EBFEEB] px-2.5 py-1.5",
-                            "text-xs font-bold text-[#30913F] sm:gap-1.5 sm:px-3 sm:py-2 sm:text-sm",
-                            "transition-colors active:bg-[#DCF5DC]",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
-                        ].join(" ")}
-                    >
-                        <span>عرض الكل</span>
-                        <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
-                    </Link>
-                </div>
+                <Link href={viewAllHref} className={VIEW_ALL_BTN}>
+                    <span>عرض الكل</span>
+                    <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                </Link>
             </div>
 
             <div className="relative">
                 {hasMultipleColumns && (
                     <div
-                        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[#F5F5F5] via-[#F5F5F5]/80 to-transparent sm:w-12"
+                        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[#F5F5F5] via-[#F5F5F5]/80 to-transparent dark:from-gray-950 dark:via-gray-950/80 sm:w-12"
                         aria-hidden
                     />
                 )}
@@ -69,8 +69,7 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
                     {columns.map((column) => (
                         <div
                             key={column.map((brand) => brand.id).join("-")}
-                            className="flex shrink-0 snap-start flex-col gap-2 sm:gap-2.5"
-                            style={{ width: COLUMN_WIDTH }}
+                            className={COLUMN_CLASS}
                         >
                             {column.map((brand) => (
                                 <BrandCard key={brand.id} brand={brand} />

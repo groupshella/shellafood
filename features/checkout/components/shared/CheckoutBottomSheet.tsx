@@ -13,6 +13,9 @@ interface CheckoutBottomSheetProps {
     children: ReactNode;
 }
 
+const SHEET_LAYOUT =
+    "fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-3xl bg-white px-4 pt-3 shadow-2xl pb-[max(2.5rem,env(safe-area-inset-bottom))] dark:bg-gray-900 sm:max-w-2xl sm:px-5 md:max-w-xl lg:max-w-2xl";
+
 export function CheckoutBottomSheet({
     isOpen,
     isVisible,
@@ -34,7 +37,7 @@ export function CheckoutBottomSheet({
     return (
         <>
             <div
-                className="fixed inset-0 z-40 bg-black/25 transition-opacity duration-300"
+                className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 dark:bg-black/70"
                 style={{ opacity: isVisible ? 1 : 0 }}
                 onClick={onClose}
                 aria-hidden
@@ -44,13 +47,13 @@ export function CheckoutBottomSheet({
                 aria-modal
                 aria-label={ariaLabel}
                 dir="rtl"
-                className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-[20px] bg-white px-5 pt-3 shadow-2xl pb-[max(2.5rem,env(safe-area-inset-bottom))]"
+                className={SHEET_LAYOUT}
                 style={{
                     transform: isVisible ? "translateY(0)" : "translateY(100%)",
                     transition: "transform 350ms cubic-bezier(0.32, 0.72, 0, 1)",
                 }}
             >
-                <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-gray-200" />
+                <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-gray-200 dark:bg-gray-700" />
 
                 {(title || showCloseButton) && (
                     <div className="relative mb-4 flex items-center justify-center">
@@ -59,13 +62,13 @@ export function CheckoutBottomSheet({
                                 type="button"
                                 onClick={onClose}
                                 aria-label="إغلاق"
-                                className="absolute start-0 flex h-8 w-8 items-center justify-center rounded-full bg-[#F6F5F8] text-gray-700 transition-colors active:bg-gray-200"
+                                className="absolute start-0 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:h-10 sm:w-10"
                             >
-                                <X className="h-4 w-4" strokeWidth={2.5} />
+                                <X className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2.5} />
                             </button>
                         )}
                         {title && (
-                            <h2 className="text-[16px] font-semibold text-gray-900">{title}</h2>
+                            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-lg">{title}</h2>
                         )}
                     </div>
                 )}

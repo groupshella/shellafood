@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 import {
 	AuthCheckbox,
@@ -102,7 +102,8 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 				<TextField
 					label={
 						<>
-							البريد الالكتروني <span className="text-[#555555]">(اختياري)</span>
+							البريد الالكتروني{" "}
+							<span className="font-normal text-[#555555] dark:text-gray-400">(اختياري)</span>
 						</>
 					}
 					type="email"
@@ -135,11 +136,18 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 						disabled={isLoading}
 						error={passwordsMismatch}
 					/>
-					{passwordsMismatch && (
-						<p className="mt-1.5 text-right text-xs text-red-500">
-							كلمتا المرور غير متطابقتين
-						</p>
-					)}
+					<AnimatePresence>
+						{passwordsMismatch && (
+							<motion.p
+								initial={{ opacity: 0, y: -4 }}
+								animate={{ opacity: 1, y: 0 }}
+								exit={{ opacity: 0, y: -4 }}
+								className="mt-1.5 text-right text-xs text-red-500 dark:text-red-400"
+							>
+								كلمتا المرور غير متطابقتين
+							</motion.p>
+						)}
+					</AnimatePresence>
 				</div>
 
 				<AuthCheckbox
@@ -149,15 +157,23 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 					label="أوافق على الشروط وسياسة الخصوصية"
 				/>
 
-				{error && (
-					<AuthErrorMessage
-						error={error}
-						onLogin={isAccountExistsError(error) ? handleGoToLogin : undefined}
-						onForgotPassword={
-							isAccountExistsError(error) ? handleForgotPassword : undefined
-						}
-					/>
-				)}
+				<AnimatePresence>
+					{error && (
+						<motion.div
+							initial={{ opacity: 0, y: -4 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -4 }}
+						>
+							<AuthErrorMessage
+								error={error}
+								onLogin={isAccountExistsError(error) ? handleGoToLogin : undefined}
+								onForgotPassword={
+									isAccountExistsError(error) ? handleForgotPassword : undefined
+								}
+							/>
+						</motion.div>
+					)}
+				</AnimatePresence>
 			</motion.div>
 
 			<div className="mt-6 pt-2">

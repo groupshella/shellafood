@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { MapPin } from "lucide-react";
 
 import { AddressPickerSheet } from "../../shared/AddressPickerSheet";
 import { useSelectedAddress } from "../../../hooks/useSelectedAddress";
@@ -14,13 +15,8 @@ interface AddressTopbarBannerClientProps {
 	className?: string;
 }
 
-function LocationIcon() {
-	return (
-		<svg width="16" height="16" viewBox="0 0 24 24" fill="#292D32" aria-hidden>
-			<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" />
-		</svg>
-	);
-}
+const pillClass =
+	"inline-flex max-w-full min-h-[36px] items-center gap-1.5 rounded-lg bg-[#EBFEEB] px-2.5 py-1.5 text-right transition-colors hover:bg-[#dff8df] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 active:scale-[0.98] dark:bg-[#1a3d24] dark:hover:bg-[#224d2e] dark:focus-visible:ring-offset-gray-900 sm:min-h-[40px] sm:gap-2 sm:px-3 md:max-w-md lg:max-w-lg";
 
 function LocationPill({
 	children,
@@ -31,14 +27,14 @@ function LocationPill({
 	onClick?: () => void;
 	href?: string;
 }) {
-	const className =
-		"inline-flex max-w-full items-center gap-1 rounded bg-[#EBFEEB] px-1 py-1 text-right transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1";
-
 	const content = (
 		<>
-			<LocationIcon />
-
-			<span className="min-w-0 truncate text-[12px] font-bold leading-[1.83] text-[#111B18]">
+			<MapPin
+				className="h-4 w-4 shrink-0 text-[#292D32] dark:text-[#6fcf87] sm:h-[18px] sm:w-[18px]"
+				strokeWidth={2}
+				aria-hidden
+			/>
+			<span className="min-w-0 truncate text-xs font-bold leading-snug text-[#111B18] dark:text-gray-100 sm:text-[12px] md:text-sm">
 				{children}
 			</span>
 		</>
@@ -46,14 +42,14 @@ function LocationPill({
 
 	if (href) {
 		return (
-			<Link href={href} className={className}>
+			<Link href={href} className={pillClass}>
 				{content}
 			</Link>
 		);
 	}
 
 	return (
-		<button type="button" onClick={onClick} className={className}>
+		<button type="button" onClick={onClick} className={pillClass} aria-haspopup="dialog">
 			{content}
 		</button>
 	);
@@ -67,21 +63,21 @@ export function AddressTopbarBannerClient({
 	const [isOpen, setIsOpen] = useState(false);
 	const { selectedAddress, selectedId, setSelectedAddressId } = useSelectedAddress(addresses);
 
+	const placeholder = "الرياض ،اسم المنطقة ،اسم الشارع";
+
 	if (!isAuthenticated) {
 		return (
-			<div className={`flex justify-end ${className}`}>
-				<LocationPill href="/auth">الرياض ،اسم المنطقة ،اسم الشارع</LocationPill>
+			<div className={`flex min-w-0 justify-end ${className}`}>
+				<LocationPill href="/auth">{placeholder}</LocationPill>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className={`flex justify-start ${className}`}>
+			<div className={`flex min-w-0 justify-start ${className}`}>
 				<LocationPill onClick={() => setIsOpen(true)}>
-					{selectedAddress
-						? formatAddressLine(selectedAddress)
-						: "الرياض ،اسم المنطقة ،اسم الشارع"}
+					{selectedAddress ? formatAddressLine(selectedAddress) : placeholder}
 				</LocationPill>
 			</div>
 

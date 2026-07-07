@@ -18,28 +18,33 @@ function buildAllCategoriesHref(moduleId: string, moduleName?: string) {
     return `/modules/${moduleId}/categories${query ? `?${query}` : ""}`;
 }
 
+const VIEW_MORE_BTN = [
+    "inline-flex min-h-[36px] shrink-0 items-center rounded-lg px-3 py-1.5",
+    "bg-[#F0F0F0] text-xs font-medium text-gray-800",
+    "dark:bg-gray-800 dark:text-gray-200",
+    "transition-colors active:bg-[#E4E4E4] dark:active:bg-gray-700",
+    "sm:px-3.5 sm:py-2 sm:text-sm",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900",
+].join(" ");
+
 export function CategoriesClient({ categories, moduleId, moduleName }: CategoriesClientProps) {
     const allCategoriesHref = buildAllCategoriesHref(moduleId, moduleName);
 
     return (
-        <section aria-label="الأقسام" className="w-full space-y-4 bg-white py-4" dir="rtl">
-            <div className="flex items-center justify-between gap-3 px-4 sm:px-6">
-                <h2 className="text-base font-semibold text-gray-500 sm:text-lg">الأقسام</h2>
+        <section
+            aria-label="الأقسام"
+            className="w-full space-y-3 bg-white py-4 dark:bg-gray-900 sm:space-y-4 sm:py-5"
+            dir="rtl"
+        >
+            <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-3 px-3 sm:max-w-2xl sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">
+                <h2 className="text-base font-semibold text-gray-500 dark:text-gray-400 sm:text-lg">الأقسام</h2>
 
-                <Link
-                    href={allCategoriesHref}
-                    className={[
-                        "inline-flex shrink-0 items-center rounded-lg bg-[#F0F0F0] px-3 py-1.5",
-                        "text-xs font-medium text-gray-800 sm:px-3.5 sm:py-2 sm:text-sm",
-                        "transition-colors active:bg-[#E4E4E4]",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 focus-visible:ring-offset-black",
-                    ].join(" ")}
-                >
+                <Link href={allCategoriesHref} className={VIEW_MORE_BTN}>
                     تطلع على المزيد
                 </Link>
             </div>
 
-            <ScrollContainer className="px-4 sm:px-6">
+            <ScrollContainer className="px-3 sm:px-5 lg:px-6 [&>div]:mx-auto [&>div]:max-w-lg sm:[&>div]:max-w-2xl lg:[&>div]:max-w-4xl xl:[&>div]:max-w-5xl 2xl:[&>div]:max-w-6xl">
                 {categories.map((category) => (
                     <div key={category.id} className="snap-start">
                         <CategoryCard

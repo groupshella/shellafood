@@ -1,21 +1,24 @@
 export default function EditAddressSkeleton() {
-  return (
-    <div className="flex flex-col gap-4 px-4 pt-5 pb-8 animate-pulse">
-      {[1, 2].map((i) => (
-        <div key={i} className="bg-white rounded-2xl px-4 py-4 shadow-sm border border-gray-100 flex flex-col gap-4">
-          {[1, 2, 3].map((j) => (
-            <div key={j} className="flex flex-col gap-1.5">
-              <div className="h-3 w-20 bg-gray-200 rounded" />
-              <div className="h-11 bg-gray-100 rounded-xl" />
-            </div>
-          ))}
-        </div>
-      ))}
-      <div className="bg-white rounded-2xl px-4 py-4 shadow-sm border border-gray-100">
-        <div className="h-3 w-24 bg-gray-200 rounded mb-2" />
-        <div className="h-20 bg-gray-100 rounded-xl" />
-      </div>
-      <div className="h-14 bg-gray-200 rounded-2xl mt-2" />
-    </div>
-  );
+	return (
+		<div className="flex animate-pulse flex-col gap-3 px-3 pb-8 pt-4 sm:gap-4 sm:px-5 sm:pt-5 lg:gap-5 lg:px-6 lg:pb-10">
+			{[1, 2].map((i) => (
+				<div
+					key={i}
+					className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white px-3 py-3.5 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:gap-4 sm:px-4 sm:py-4 md:px-5"
+				>
+					{[1, 2, 3].map((j) => (
+						<div key={j} className="flex flex-col gap-1.5">
+							<div className="h-3 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+							<div className="h-11 rounded-xl bg-gray-100 dark:bg-gray-700/60" />
+						</div>
+					))}
+				</div>
+			))}
+			<div className="rounded-2xl border border-gray-100 bg-white px-3 py-3.5 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:px-4 sm:py-4 md:px-5">
+				<div className="mb-2 h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+				<div className="h-20 rounded-xl bg-gray-100 dark:bg-gray-700/60" />
+			</div>
+			<div className="mt-2 h-14 rounded-2xl bg-gray-200 dark:bg-gray-700 lg:max-w-md lg:ms-auto" />
+		</div>
+	);
 }

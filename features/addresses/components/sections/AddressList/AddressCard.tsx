@@ -2,79 +2,85 @@ import { Trash2, MapPin, Pencil } from "lucide-react";
 import { AddressListItem } from "@/features/addresses/types/address.types";
 
 interface AddressCardProps {
-  address: AddressListItem;
-  showDelete: boolean;
-  onClick: () => void;
-  onDelete: () => void;
-  onEdit: () => void;
-  isDeleting?: boolean;
+	address: AddressListItem;
+	showDelete: boolean;
+	onClick: () => void;
+	onDelete: () => void;
+	onEdit: () => void;
+	isDeleting?: boolean;
 }
 
+const actionButtonClass =
+	"flex h-10 w-10 items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-gray-800 sm:h-11 sm:w-11";
+
 export function AddressCard({
-  address,
-  showDelete,
-  onClick,
-  onDelete,
-  onEdit,
-  isDeleting = false,
+	address,
+	showDelete,
+	onClick,
+	onDelete,
+	onEdit,
+	isDeleting = false,
 }: AddressCardProps) {
-  return (
-    <div
-      className={`
-        bg-white rounded-2xl px-4 py-4 shadow-sm border border-gray-100
-        flex items-start justify-between gap-3
-        transition-opacity ${isDeleting ? "opacity-50 pointer-events-none" : ""}
-      `}
-    >
-      {/* Content — clickable area */}
-      <button
-        onClick={onClick}
-        className="flex items-start gap-3 flex-1 text-right"
-      >
-        <div className="mt-0.5 w-9 h-9 rounded-full bg-[#30913F]/10 flex items-center justify-center flex-shrink-0">
-          <MapPin className="w-4 h-4 text-[#30913F]" />
-        </div>
+	const addressLine = [address.city, address.region, address.street_name]
+		.filter(Boolean)
+		.join(" ، ");
 
-        <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-          <span className="text-sm font-semibold text-gray-900 truncate">
-            {address.address_label}
-          </span>
-          <span className="text-xs text-gray-500 leading-relaxed line-clamp-2">
-            {[address.city, address.region, address.street_name]
-              .filter(Boolean)
-              .join(" ، ")}
-          </span>
-        </div>
-      </button>
+	return (
+		<article
+			className={[
+				"flex h-full min-w-0 items-start justify-between gap-2.5 rounded-2xl border border-gray-100 bg-white px-3 py-3.5 shadow-sm transition-opacity dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.2)] sm:gap-3 sm:px-4 sm:py-4 md:px-5",
+				isDeleting ? "pointer-events-none opacity-50" : "",
+			].join(" ")}
+		>
+			<button
+				type="button"
+				onClick={onClick}
+				className="flex min-w-0 flex-1 items-start gap-2.5 text-right focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 rounded-xl dark:focus-visible:ring-offset-gray-800 sm:gap-3"
+				aria-label={`عرض تفاصيل عنوان ${address.address_label}`}
+			>
+				<div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#30913F]/10 dark:bg-[#30913F]/20 sm:h-11 sm:w-11">
+					<MapPin className="h-4 w-4 text-[#30913F] dark:text-[#3da84f]" aria-hidden />
+				</div>
 
-      {/* Action icons */}
-      <div className="flex flex-col items-center gap-1 flex-shrink-0">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
-          className="p-2 rounded-full text-[#30913F] hover:bg-[#30913F]/10 active:bg-[#30913F]/20 transition-colors"
-          aria-label={`تعديل عنوان ${address.address_label}`}
-          disabled={isDeleting}
-        >
-          <Pencil className="w-4 h-4" />
-        </button>
+				<div className="flex min-w-0 flex-1 flex-col gap-0.5">
+					<span className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100 sm:text-base">
+						{address.address_label}
+					</span>
+					<span className="line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400 sm:text-[13px]">
+						{addressLine}
+					</span>
+				</div>
+			</button>
 
-        {showDelete && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="p-2 rounded-full text-red-400 hover:bg-red-50 active:bg-red-100 transition-colors"
-            aria-label={`حذف عنوان ${address.address_label}`}
-            disabled={isDeleting}
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-    </div>
-  );
+			<div className="flex shrink-0 flex-col items-center gap-0.5">
+				<button
+					type="button"
+					onClick={(e) => {
+						e.stopPropagation();
+						onEdit();
+					}}
+					className={`${actionButtonClass} text-[#30913F] hover:bg-[#30913F]/10 active:bg-[#30913F]/20 dark:text-[#3da84f] dark:hover:bg-[#30913F]/20`}
+					aria-label={`تعديل عنوان ${address.address_label}`}
+					disabled={isDeleting}
+				>
+					<Pencil className="h-4 w-4" aria-hidden />
+				</button>
+
+				{showDelete && (
+					<button
+						type="button"
+						onClick={(e) => {
+							e.stopPropagation();
+							onDelete();
+						}}
+						className={`${actionButtonClass} text-red-400 hover:bg-red-50 active:bg-red-100 dark:text-red-400 dark:hover:bg-red-950/40 dark:active:bg-red-950/60`}
+						aria-label={`حذف عنوان ${address.address_label}`}
+						disabled={isDeleting}
+					>
+						<Trash2 className="h-4 w-4" aria-hidden />
+					</button>
+				)}
+			</div>
+		</article>
+	);
 }

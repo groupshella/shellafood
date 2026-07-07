@@ -19,11 +19,6 @@ interface Props {
     activeCategoryId: string;
 }
 
-/**
- * Main category bar — sticky at top (below any app header if present).
- * Text tabs with a mint-green underline on the active item.
- * Fixed height 44px so SubCategoryTabs can offset correctly below it.
- */
 export function CategoryTabsClient({ categories, activeCategoryId }: Props) {
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -37,7 +32,7 @@ export function CategoryTabsClient({ categories, activeCategoryId }: Props) {
         <nav
             dir="rtl"
             aria-label="تصنيفات المتجر"
-            className="sticky top-0 z-50 flex h-[44px] items-stretch border-b border-white/15 bg-[#30913F]"
+            className="sticky top-0 z-50 flex h-11 items-stretch border-b border-white/15 bg-[#30913F] sm:h-[44px]"
         >
             <Link
                 href={BACK_HREF}
@@ -49,7 +44,7 @@ export function CategoryTabsClient({ categories, activeCategoryId }: Props) {
 
             <div
                 ref={scrollRef}
-                className="flex min-w-0 flex-1 items-center gap-5 overflow-x-auto px-4 sm:px-5
+                className="flex min-w-0 flex-1 items-center gap-3.5 overflow-x-auto overscroll-x-contain px-3 sm:gap-5 sm:px-5
                            scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
                 {categories.map((cat) => {
@@ -77,8 +72,6 @@ export function CategoryTabsClient({ categories, activeCategoryId }: Props) {
                     );
                 })}
             </div>
-
-
 
             <Link
                 href={ALL_CATEGORIES_HREF}

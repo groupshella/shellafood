@@ -8,22 +8,21 @@ type CouponTicketIllustrationProps = {
  * scattering of soft blobs/dots behind it and a diagonal strike across it.
  * Pure presentational SVG, no fetch/state — safe to use in server components.
  */
-export function CouponTicketIllustration({ className, size = 220 }: CouponTicketIllustrationProps) {
+export function CouponTicketIllustration({ className, size }: CouponTicketIllustrationProps) {
 	return (
 		<svg
-			width={size}
-			height={size}
+			{...(size != null ? { width: size, height: size } : {})}
 			viewBox="0 0 220 220"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			className={className}
+			className={["h-auto w-full max-w-[220px]", className].filter(Boolean).join(" ")}
 			aria-hidden="true"
 		>
 			{/* soft background blobs */}
-			<rect x="28" y="34" width="150" height="120" rx="46" transform="rotate(-8 103 94)" fill="#E4F7E6" />
-			<rect x="46" y="70" width="130" height="104" rx="40" transform="rotate(10 111 122)" fill="#D9F3DC" />
-			<circle cx="52" cy="150" r="20" fill="#E4F7E6" />
-			<circle cx="176" cy="66" r="16" fill="#E4F7E6" />
+			<rect x="28" y="34" width="150" height="120" rx="46" transform="rotate(-8 103 94)" fill="#E4F7E6" className="dark:fill-[#1a4d20]" />
+			<rect x="46" y="70" width="130" height="104" rx="40" transform="rotate(10 111 122)" fill="#D9F3DC" className="dark:fill-[#163d1c]" />
+			<circle cx="52" cy="150" r="20" fill="#E4F7E6" className="dark:fill-[#1a4d20]" />
+			<circle cx="176" cy="66" r="16" fill="#E4F7E6" className="dark:fill-[#1a4d20]" />
 
 			{/* scattered dots + plus marks */}
 			<circle cx="46" cy="60" r="3" fill="#8FD39C" />
@@ -43,6 +42,7 @@ export function CouponTicketIllustration({ className, size = 220 }: CouponTicket
 				<path
 					d="M68 78a8 8 0 0 1 8-8h68a8 8 0 0 1 8 8v22a10 10 0 0 0 0 20v22a8 8 0 0 1-8 8H76a8 8 0 0 1-8-8v-22a10 10 0 0 0 0-20z"
 					fill="#FFFFFF"
+					className="dark:fill-gray-800"
 					stroke="#2F9A44"
 					strokeWidth="2.5"
 				/>

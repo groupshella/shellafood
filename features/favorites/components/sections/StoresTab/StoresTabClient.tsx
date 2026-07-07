@@ -6,6 +6,11 @@ import { EmptyFavorites } from "@/features/favorites/components/shared/EmptyFavo
 import { StoreCard } from "./StoreCard";
 import type { FavoriteStore } from "@/features/favorites/types/favorites.types";
 
+const CONTENT_PADDING = "px-3 py-4 sm:px-4 sm:py-5 md:px-5 lg:px-6";
+const ITEMS_GRID = "grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:gap-5";
+const SECTION_HEADING =
+    "mb-2.5 text-right text-sm font-semibold text-gray-500 dark:text-gray-400 sm:mb-3 sm:text-[15px]";
+
 interface StoresTabClientProps {
     stores: FavoriteStore[];
 }
@@ -24,13 +29,11 @@ export function StoresTabClient({ stores: initialStores }: StoresTabClientProps)
     const groups = groupByDate(stores);
 
     return (
-        <div className="space-y-6 px-4 py-4">
+        <div className={`space-y-5 sm:space-y-6 ${CONTENT_PADDING}`}>
             {groups.map((group) => (
                 <section key={group.key}>
-                    <p className="mb-2 text-right text-[13px] font-semibold text-[#707784]">
-                        {group.label}
-                    </p>
-                    <div className="space-y-3">
+                    <p className={SECTION_HEADING}>{group.label}</p>
+                    <div className={ITEMS_GRID}>
                         {group.items.map((store) => (
                             <StoreCard
                                 key={store.id}

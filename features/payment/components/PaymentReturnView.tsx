@@ -9,21 +9,15 @@ import { classifyPaymentResult } from "@/features/payment/types/payment.types";
 import type { PaymentResult } from "@/features/payment/types/payment.types";
 
 interface PaymentReturnViewProps {
-    /** invoiceId / paymentId from the URL — may be provided if the backend redirects here. */
     invoiceIdParam?: string;
     paymentIdParam?: string;
 }
 
-/**
- * Client component rendered on /checkout/payment/return.
- *
- * Resolution order for the invoice key:
- *   1. invoiceIdParam from URL search params (if backend redirects with ?invoiceId=…)
- *   2. paymentIdParam from URL search params (MyFatoorah may append paymentId on return)
- *   3. sessionStorage key set by HostedPaymentFlow before the redirect
- *
- * Verifies via POST /check-status (single call — no polling, mirrors the mobile app).
- */
+const ACTION_BTN = [
+    "min-h-[44px] rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition-opacity active:opacity-80",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
+].join(" ");
+
 export function PaymentReturnView({ invoiceIdParam, paymentIdParam }: PaymentReturnViewProps) {
     const router = useRouter();
     const { checkStatus } = useCheckPaymentStatus();
@@ -68,22 +62,22 @@ export function PaymentReturnView({ invoiceIdParam, paymentIdParam }: PaymentRet
 
     if (isChecking) {
         return (
-            <div className="flex flex-col items-center justify-center gap-3 py-20" dir="rtl">
-                <Loader2 className="h-8 w-8 animate-spin text-[#30913F]" />
-                <p className="text-[14px] text-gray-500">جاري التحقق من حالة الدفع...</p>
+            <div className="flex flex-col items-center justify-center gap-3 py-20 sm:py-24" dir="rtl" aria-busy="true">
+                <Loader2 className="h-8 w-8 animate-spin text-[#30913F] dark:text-[#4db860]" />
+                <p className="text-sm text-gray-500 dark:text-gray-400">جاري التحقق من حالة الدفع...</p>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="flex flex-col items-center gap-4 rounded-2xl bg-red-50 p-8" dir="rtl">
-                <AlertCircle className="h-12 w-12 text-red-500" />
-                <p className="text-center text-[14px] text-red-700">{error}</p>
+            <div className="flex flex-col items-center gap-4 rounded-2xl bg-red-50 p-6 sm:p-8 dark:bg-red-950/30" dir="rtl" role="alert">
+                <AlertCircle className="h-12 w-12 text-red-500 dark:text-red-400" />
+                <p className="text-center text-sm text-red-700 dark:text-red-300">{error}</p>
                 <button
                     type="button"
                     onClick={() => router.push("/")}
-                    className="rounded-xl bg-[#30913F] px-6 py-2.5 text-[14px] font-semibold text-white active:opacity-80"
+                    className={`${ACTION_BTN} bg-[#30913F] focus-visible:ring-[#30913F]`}
                 >
                     الرئيسية
                 </button>
@@ -93,16 +87,16 @@ export function PaymentReturnView({ invoiceIdParam, paymentIdParam }: PaymentRet
 
     if (result === "success") {
         return (
-            <div className="flex flex-col items-center gap-4 rounded-2xl bg-[#EBFEEB] p-8" dir="rtl">
-                <CheckCircle className="h-14 w-14 text-[#267332]" />
-                <h2 className="text-[18px] font-bold text-[#267332]">تمت عملية الدفع بنجاح</h2>
-                <p className="text-center text-[13px] text-gray-600">
+            <div className="flex flex-col items-center gap-4 rounded-2xl bg-[#EBFEEB] p-6 sm:p-8 dark:bg-[#0d2e12]/50" dir="rtl">
+                <CheckCircle className="h-14 w-14 text-[#267332] dark:text-[#4db860]" />
+                <h2 className="text-lg font-bold text-[#267332] dark:text-[#4db860] sm:text-xl">تمت عملية الدفع بنجاح</h2>
+                <p className="text-center text-[13px] text-gray-600 dark:text-gray-300">
                     تم تأكيد طلبك وسيتم معالجته قريباً
                 </p>
                 <button
                     type="button"
                     onClick={() => router.push("/orders")}
-                    className="mt-2 rounded-xl bg-[#267332] px-6 py-2.5 text-[14px] font-semibold text-white active:opacity-80"
+                    className={`${ACTION_BTN} mt-2 bg-[#267332] focus-visible:ring-[#267332]`}
                 >
                     تتبع طلبك
                 </button>
@@ -112,16 +106,16 @@ export function PaymentReturnView({ invoiceIdParam, paymentIdParam }: PaymentRet
 
     if (result === "pending") {
         return (
-            <div className="flex flex-col items-center gap-4 rounded-2xl bg-amber-50 p-8" dir="rtl">
-                <Clock className="h-14 w-14 text-amber-500" />
-                <h2 className="text-[18px] font-bold text-amber-700">الدفع قيد المعالجة</h2>
-                <p className="text-center text-[13px] text-gray-600">
+            <div className="flex flex-col items-center gap-4 rounded-2xl bg-amber-50 p-6 sm:p-8 dark:bg-amber-950/30" dir="rtl">
+                <Clock className="h-14 w-14 text-amber-500 dark:text-amber-400" />
+                <h2 className="text-lg font-bold text-amber-700 dark:text-amber-300 sm:text-xl">الدفع قيد المعالجة</h2>
+                <p className="text-center text-[13px] text-gray-600 dark:text-gray-300">
                     جاري معالجة عملية الدفع. سيتم تحديث حالة طلبك تلقائياً
                 </p>
                 <button
                     type="button"
                     onClick={() => router.push("/orders")}
-                    className="mt-2 rounded-xl bg-amber-500 px-6 py-2.5 text-[14px] font-semibold text-white active:opacity-80"
+                    className={`${ACTION_BTN} mt-2 bg-amber-500 focus-visible:ring-amber-500`}
                 >
                     عرض الطلبات
                 </button>
@@ -130,16 +124,16 @@ export function PaymentReturnView({ invoiceIdParam, paymentIdParam }: PaymentRet
     }
 
     return (
-        <div className="flex flex-col items-center gap-4 rounded-2xl bg-red-50 p-8" dir="rtl">
-            <AlertCircle className="h-14 w-14 text-red-500" />
-            <h2 className="text-[18px] font-bold text-red-700">فشلت عملية الدفع</h2>
-            <p className="text-center text-[13px] text-gray-600">
+        <div className="flex flex-col items-center gap-4 rounded-2xl bg-red-50 p-6 sm:p-8 dark:bg-red-950/30" dir="rtl">
+            <AlertCircle className="h-14 w-14 text-red-500 dark:text-red-400" />
+            <h2 className="text-lg font-bold text-red-700 dark:text-red-300 sm:text-xl">فشلت عملية الدفع</h2>
+            <p className="text-center text-[13px] text-gray-600 dark:text-gray-300">
                 لم تكتمل عملية الدفع. يرجى المحاولة مرة أخرى
             </p>
             <button
                 type="button"
                 onClick={() => router.back()}
-                className="mt-2 rounded-xl bg-red-500 px-6 py-2.5 text-[14px] font-semibold text-white active:opacity-80"
+                className={`${ACTION_BTN} mt-2 bg-red-500 focus-visible:ring-red-500`}
             >
                 حاول مجدداً
             </button>

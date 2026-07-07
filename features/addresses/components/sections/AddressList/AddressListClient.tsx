@@ -9,66 +9,72 @@ import { AddressCard } from "./AddressCard";
 import { DeleteConfirmSheet } from "../../shared/DeleteConfirmSheet";
 
 interface AddressListClientProps {
-  addresses: AddressListItem[];
+	addresses: AddressListItem[];
 }
 
+const primaryButtonClass =
+	"mt-2 flex w-full min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-[#30913F] text-sm font-semibold text-white transition-colors hover:bg-[#2a8036] active:bg-[#267332] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-offset-gray-900 sm:min-h-[56px] lg:max-w-md lg:ms-auto lg:me-0";
+
 export function AddressListClient({ addresses }: AddressListClientProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
-  const showDelete = addresses.length > 1;
+	const router = useRouter();
+	const [isPending, startTransition] = useTransition();
+	const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+	const showDelete = addresses.length > 1;
 
-  function handleDeleteRequest(id: number) {
-    setPendingDeleteId(id);
-  }
+	function handleDeleteRequest(id: number) {
+		setPendingDeleteId(id);
+	}
 
-  function handleCancelDelete() {
-    setPendingDeleteId(null);
-  }
+	function handleCancelDelete() {
+		setPendingDeleteId(null);
+	}
 
-  function handleConfirmDelete() {
-    if (pendingDeleteId === null) return;
-    const idToDelete = pendingDeleteId;
-    setPendingDeleteId(null);
+	function handleConfirmDelete() {
+		if (pendingDeleteId === null) return;
+		const idToDelete = pendingDeleteId;
+		setPendingDeleteId(null);
 
-    startTransition(async () => {
-      await deleteAddress(idToDelete);
-    });
-  }
+		startTransition(async () => {
+			await deleteAddress(idToDelete);
+		});
+	}
 
-  return (
-    <div className="flex flex-col gap-3 px-4 pt-4 pb-6">
-      {addresses.map((address) => (
-        <AddressCard
-          key={address.id}
-          address={address}
-          showDelete={showDelete}
-          onClick={() => router.push(`/addresses/${address.id}`)}
-          onEdit={() => router.push(`/addresses/${address.id}/edit`)}
-          onDelete={() => handleDeleteRequest(address.id)}
-          isDeleting={isPending && pendingDeleteId === null}
-        />
-      ))}
+	return (
+		<div className="flex flex-col gap-3 px-3 pb-6 pt-4 sm:gap-4 sm:px-5 sm:pt-5 lg:px-6 lg:pb-8">
+			<ul
+				className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2 lg:gap-5"
+				role="list"
+				aria-label="قائمة العناوين"
+			>
+				{addresses.map((address) => (
+					<li key={address.id}>
+						<AddressCard
+							address={address}
+							showDelete={showDelete}
+							onClick={() => router.push(`/addresses/${address.id}`)}
+							onEdit={() => router.push(`/addresses/${address.id}/edit`)}
+							onDelete={() => handleDeleteRequest(address.id)}
+							isDeleting={isPending && pendingDeleteId === null}
+						/>
+					</li>
+				))}
+			</ul>
 
-      <button
-        onClick={() => router.push("/addresses/add")}
-        className="
-          w-full mt-2 flex items-center justify-center gap-2
-          bg-[#30913F] text-white text-sm font-semibold
-          rounded-2xl py-4
-          active:bg-[#267332] transition-colors
-        "
-      >
-        <Plus className="w-4 h-4" />
-        <span>أضف عنوان آخر</span>
-      </button>
+			<button
+				type="button"
+				onClick={() => router.push("/addresses/add")}
+				className={primaryButtonClass}
+			>
+				<Plus className="h-4 w-4 shrink-0" aria-hidden />
+				<span>أضف عنوان آخر</span>
+			</button>
 
-      <DeleteConfirmSheet
-        isOpen={pendingDeleteId !== null}
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-        isDeleting={isPending}
-      />
-    </div>
-  );
+			<DeleteConfirmSheet
+				isOpen={pendingDeleteId !== null}
+				onConfirm={handleConfirmDelete}
+				onCancel={handleCancelDelete}
+				isDeleting={isPending}
+			/>
+		</div>
+	);
 }

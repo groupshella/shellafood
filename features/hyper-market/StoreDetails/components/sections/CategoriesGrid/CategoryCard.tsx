@@ -18,40 +18,38 @@ export function CategoryCard({ category }: CategoryCardProps) {
             className="
                 group relative flex aspect-square w-full shrink-0 flex-col
                 overflow-hidden rounded-2xl
-                bg-[#EBFEEB]
+                bg-[#EBFEEB] dark:bg-[#0d2e12]/50
                 outline-none
                 transition-transform duration-150
                 active:scale-[0.96]
-                focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2
+                focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900
             "
             aria-label={category.name}
         >
-            {/* Soft white diagonal blob — mimics the rotated rounded shape behind the product in the reference */}
             <div
                 aria-hidden
-                className="pointer-events-none absolute -right-6 bottom-0 h-[78%] w-[78%] rounded-[40%] bg-white/70 blur-[1px]"
+                className="pointer-events-none absolute -right-6 bottom-0 h-[78%] w-[78%] rounded-[40%] bg-white/70 blur-[1px] dark:bg-white/10"
                 style={{ transform: "rotate(-12deg)" }}
             />
 
-            {/* Bright mint accent peeking from the bottom-left corner, as in the reference */}
             <div
                 aria-hidden
-                className="pointer-events-none absolute -bottom-6 -left-6 h-16 w-16 rounded-full bg-[#9DF7A6]/70 blur-md"
+                className="pointer-events-none absolute -bottom-6 -left-6 h-16 w-16 rounded-full bg-[#9DF7A6]/70 blur-md dark:bg-[#30913F]/30"
             />
 
-            {/* Category name */}
-            <h3 className="
+            <h3
+                className="
                 relative z-10
                 line-clamp-2
                 px-2 pt-2.5
                 text-center text-[10px] font-bold leading-tight
-                text-[#166534]
-                sm:text-[11px]
-            ">
+                text-[#166534] dark:text-[#4db860]
+                sm:text-[11px] md:text-xs
+            "
+            >
                 {category.name}
             </h3>
 
-            {/* Product image — takes bottom 62% of the card */}
             <div className="absolute inset-x-0 bottom-0 z-10 h-[62%]">
                 {!imageError && category.full_image_url ? (
                     <Image

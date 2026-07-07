@@ -25,10 +25,8 @@ export function IconHome({ active, className }: SvgProps) {
 			strokeLinejoin="round"
 		>
 			{active ? (
-				/* Solid filled house — Optimized single path */
 				<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
 			) : (
-				/* Outline house — Structural paths */
 				<>
 					<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
 					<polyline points="9 22 9 12 15 12 15 22" />
@@ -105,10 +103,7 @@ export function IconReceipt({ active, className }: SvgProps) {
 			strokeWidth={active ? undefined : "1.75"}
 			strokeLinecap="round"
 		>
-			{/* Outer zigzag ticket border remains constant across states */}
 			<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z" />
-
-			{/* Inner horizontal details change stroke configuration dynamically */}
 			<path
 				d="M16 8H8M16 12H8M12 16H8"
 				stroke={active ? "white" : "currentColor"}
@@ -204,10 +199,10 @@ export default function Navbar() {
 	return (
 		<nav
 			dir="rtl"
-			className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white/90 pb-safe backdrop-blur-lg"
+			className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white/90 pb-safe backdrop-blur-lg dark:border-gray-700/80 dark:bg-gray-900/95"
 			aria-label="التنقل الرئيسي"
 		>
-			<div className="flex h-[68px] items-end justify-around pb-2 px-1">
+			<div className="mx-auto flex h-[64px] w-full max-w-lg items-end justify-around px-1 pb-2 sm:h-[68px] sm:max-w-xl sm:px-2 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
 				{NAV_ITEMS.map((item) => {
 					const active = isActive(pathname, item.path);
 					const { Icon } = item;
@@ -218,12 +213,18 @@ export default function Navbar() {
 							href={item.path}
 							aria-label={item.label}
 							aria-current={active ? "page" : undefined}
-							className={`flex min-w-[52px] flex-col items-center justify-end gap-1 pb-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] ${active ? "text-[#30913F]" : "text-gray-400 hover:text-gray-500"
-								}`}
+							className={[
+								"flex min-h-11 min-w-[44px] flex-1 flex-col items-center justify-end gap-1 rounded-lg pb-1 sm:min-w-[52px]",
+								"transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+								"dark:focus-visible:ring-offset-gray-900",
+								active
+									? "text-[#30913F]"
+									: "text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-300",
+							].join(" ")}
 						>
-							<Icon active={active} />
+							<Icon active={active} className="h-[22px] w-[22px] sm:h-6 sm:w-6" />
 							{active && (
-								<span className="text-[10px] font-bold leading-none tracking-wide">
+								<span className="text-[9px] font-bold leading-none tracking-wide sm:text-[10px]">
 									{item.label}
 								</span>
 							)}

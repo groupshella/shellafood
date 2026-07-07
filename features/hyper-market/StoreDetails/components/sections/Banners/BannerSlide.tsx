@@ -19,16 +19,19 @@ export function BannerSlide({ banner, priority = false }: { banner: HyperMarketB
             priority={priority}
             quality={85}
             className="object-cover object-center"
-            sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) calc(100vw - 48px), 960px"
+            sizes="(max-width: 640px) calc(100vw - 24px), (max-width: 1024px) calc(100vw - 48px), (max-width: 1536px) 960px, 1152px"
             placeholder="blur"
             blurDataURL="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iMzIwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
         />
     );
 
     const wrapper = (
-        <div className="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 shadow-sm ring-1 ring-black/[0.04] aspect-[21/7] sm:aspect-[21/6]">
+        <div className="group relative aspect-[21/8] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 shadow-sm ring-1 ring-black/[0.04] dark:from-gray-800 dark:to-gray-700 dark:ring-white/[0.06] sm:aspect-[21/7] md:aspect-[21/6] xl:aspect-[21/5.5]">
             {image}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" aria-hidden />
+            <div
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"
+                aria-hidden
+            />
         </div>
     );
 
@@ -38,7 +41,7 @@ export function BannerSlide({ banner, priority = false }: { banner: HyperMarketB
                 href={href}
                 target={banner.link ? "_blank" : undefined}
                 rel={banner.link ? "noopener noreferrer" : undefined}
-                className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+                className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
                 draggable={false}
             >
                 {wrapper}

@@ -19,22 +19,27 @@ function PaymentTab({ selected, onSelect, icon, label, subValue }: PaymentTabPro
         <button
             type="button"
             onClick={onSelect}
-            className={`flex min-w-[100px] shrink-0 flex-col items-center gap-1.5 rounded-xl border p-3 transition-all ${
+            aria-pressed={selected}
+            className={[
+                "flex min-h-[5.5rem] min-w-[6.5rem] shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border p-3 transition-all sm:min-h-24 sm:min-w-[7rem] sm:p-3.5 md:min-w-0 md:w-full",
                 selected
-                    ? "border-[#30913F] bg-[#EBFEEB]"
-                    : "border-gray-200 bg-white"
-            }`}
+                    ? "border-[#30913F] bg-[#EBFEEB] dark:bg-[#0d2e12]"
+                    : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800",
+            ].join(" ")}
         >
-            <span className={selected ? "text-[#30913F]" : "text-gray-500"}>{icon}</span>
+            <span className={selected ? "text-[#30913F]" : "text-gray-500 dark:text-gray-400"}>
+                {icon}
+            </span>
             <span
-                className={`text-center text-[12px] font-medium ${
-                    selected ? "text-[#30913F]" : "text-gray-700"
-                }`}
+                className={[
+                    "text-center text-xs font-medium sm:text-[13px]",
+                    selected ? "text-[#30913F]" : "text-gray-700 dark:text-gray-300",
+                ].join(" ")}
             >
                 {label}
             </span>
             {subValue !== undefined && (
-                <span className="text-[11px] text-gray-500">{subValue} ﷼</span>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400 sm:text-xs">{subValue} ﷼</span>
             )}
         </button>
     );
@@ -70,9 +75,11 @@ function ApplePayIcon() {
         <svg viewBox="0 0 72 24" fill="none" className="h-6 w-full" aria-hidden>
             <path
                 d="M14.2 6.2c-.5.6-1.3 1.1-2.1 1-.1-.8.3-1.6.8-2.1.5-.6 1.4-1 2.1-1 .1.8-.2 1.6-.8 2.1Zm-.7 1.2c-1.2-.1-2.2.7-2.8.7-.6 0-1.5-.7-2.5-.7-1.3 0-2.5.8-3.1 2-.9 1.5-.7 3.8.6 5.3.5.7 1.1 1.4 1.9 1.4.8 0 1.1-.5 2.1-.5 1 0 1.2.5 2.1.5.8 0 1.4-.7 1.9-1.4.6-.8.8-1.6.8-1.7-.1 0-1.6-.6-1.6-2.4 0-1.5 1.2-2.2 1.3-2.3-1.1-1.6-2.7-1.7-3.2-1.7Z"
-                fill="#111B18"
+                fill="currentColor"
+                className="text-gray-900 dark:text-gray-100"
             />
-            <text x="24" y="17" fill="#111B18" fontSize="14" fontWeight="600" fontFamily="Arial, sans-serif">
+            <text x="24" y="17" fill="currentColor" fontSize="14" fontWeight="600" fontFamily="Arial, sans-serif"
+                className="fill-gray-900 dark:fill-gray-100">
                 Pay
             </text>
         </svg>
@@ -118,67 +125,24 @@ function getSelectedPaymentLabel(
     return PAYMENT_METHOD_LABELS[selected];
 }
 
-interface EmptyWalletSheetProps {
-    isOpen: boolean;
-    isVisible: boolean;
-    onClose: () => void;
+interface WalletSheetContentProps {
+    title: string;
+    description: string;
+    actionLabel: string;
 }
 
-function EmptyWalletSheet({ isOpen, isVisible, onClose }: EmptyWalletSheetProps) {
+function WalletSheetContent({ title, description, actionLabel }: WalletSheetContentProps) {
     return (
-        <CheckoutBottomSheet
-            isOpen={isOpen}
-            isVisible={isVisible}
-            onClose={onClose}
-            ariaLabel="المحفظة فارغة من الرصيد"
-        >
-            <div className="px-2 pb-4 pt-2 text-center">
-                <h3 className="mb-3 text-[17px] font-bold text-gray-900">
-                    المحفظة فارغة من الرصيد
-                </h3>
-                <p className="mb-6 text-[14px] leading-relaxed text-gray-600">
-                    يمكنك إضافة رصيد فالمحفظة لتتمكن من إكمال مرحلة الدفع
-                </p>
-                <button
-                    type="button"
-                    className="w-full rounded-xl bg-[#30913F] py-3.5 text-[14px] font-semibold text-white transition-colors active:bg-[#267332]"
-                >
-                    إضافة رصيد
-                </button>
-            </div>
-        </CheckoutBottomSheet>
-    );
-}
-
-interface QidhaWalletSheetProps {
-    isOpen: boolean;
-    isVisible: boolean;
-    onClose: () => void;
-}
-
-function QidhaWalletSheet({ isOpen, isVisible, onClose }: QidhaWalletSheetProps) {
-    return (
-        <CheckoutBottomSheet
-            isOpen={isOpen}
-            isVisible={isVisible}
-            onClose={onClose}
-            ariaLabel="الاشتراك في قيدها المطلوب"
-        >
-            <div className="px-2 pb-4 pt-2 text-center">
-                <h3 className="mb-3 text-[17px] font-bold text-gray-900">
-                    الاشتراك في قيدها المطلوب
-                </h3>
-                <p className="mb-6 text-[14px] leading-relaxed text-gray-600">
-                    لاستخدام محفظة قيدها ، يجب الاشتراك وتفعيل المحفظة أولاً
-                </p>
-                <button
-                    type="button"
-                    className="w-full rounded-xl bg-[#30913F] py-3.5 text-[14px] font-semibold text-white transition-colors active:bg-[#267332]"
-                >
-                    اشترك الآن
-                </button>
-            </div>
-        </CheckoutBottomSheet>
+        <div className="px-1 pb-4 pt-2 text-center sm:px-2">
+            <h3 className="mb-3 text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg">{title}</h3>
+            <p className="mb-6 text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:text-[15px]">{description}</p>
+            <button
+                type="button"
+                className="w-full rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] sm:py-4 sm:text-[15px]"
+            >
+                {actionLabel}
+            </button>
+        </div>
     );
 }
 
@@ -210,9 +174,9 @@ function ElectronicPaymentSheet({
             title="اختر طريقة الدفع الالكتروني"
             showCloseButton
         >
-            <p className="mb-5 text-center text-[28px] font-bold text-[#30913F]">{total}</p>
+            <p className="mb-5 text-center text-2xl font-bold text-[#30913F] sm:text-3xl">{total}</p>
 
-            <div className="mb-6 grid grid-cols-3 gap-3">
+            <div className="mb-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
                 {ELECTRONIC_OPTIONS.map((option) => {
                     const isSelected = selected === option.id;
 
@@ -221,16 +185,18 @@ function ElectronicPaymentSheet({
                             key={option.id}
                             type="button"
                             onClick={() => onSelect(option.id)}
-                            className={`flex aspect-square flex-col items-center justify-center gap-2 rounded-xl border p-2 transition-colors ${
+                            aria-pressed={isSelected}
+                            className={[
+                                "flex aspect-square min-h-[5.5rem] flex-col items-center justify-center gap-2 rounded-xl border p-2 transition-colors sm:min-h-24 sm:p-2.5",
                                 isSelected
-                                    ? "border-[#30913F] bg-[#EBFEEB]"
-                                    : "border-gray-200 bg-white"
-                            }`}
+                                    ? "border-[#30913F] bg-[#EBFEEB] dark:bg-[#0d2e12]"
+                                    : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800",
+                            ].join(" ")}
                         >
                             <div className="flex h-8 w-full items-center justify-center">
                                 {option.icon}
                             </div>
-                            <span className="text-center text-[11px] font-medium text-gray-700">
+                            <span className="text-center text-[11px] font-medium text-gray-700 dark:text-gray-300">
                                 {option.label}
                             </span>
                         </button>
@@ -241,7 +207,7 @@ function ElectronicPaymentSheet({
             <button
                 type="button"
                 onClick={onConfirm}
-                className="w-full rounded-xl bg-[#30913F] py-3.5 text-[14px] font-semibold text-white transition-colors active:bg-[#267332]"
+                className="w-full rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] sm:py-4 sm:text-[15px]"
             >
                 اختيار طريقة الدفع
             </button>
@@ -289,55 +255,71 @@ export function PaymentMethodClient() {
 
     return (
         <div dir="rtl">
-            <h2 className="mb-3 text-[15px] font-bold text-gray-900">طريقة الدفع</h2>
+            <h2 className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">طريقة الدفع</h2>
 
-            <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
+            <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] sm:gap-2.5 md:mx-0 md:grid md:grid-cols-3 md:gap-3 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
                 <PaymentTab
                     selected={selected === "my-wallet"}
                     onSelect={() => handleSelectPayment("my-wallet")}
-                    icon={<Wallet className="h-6 w-6" strokeWidth={1.8} />}
+                    icon={<Wallet className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.8} />}
                     label="محفظتي"
                     subValue={data.myWalletBalance}
                 />
                 <PaymentTab
                     selected={selected === "qidha-wallet"}
                     onSelect={() => handleSelectPayment("qidha-wallet")}
-                    icon={<CreditCard className="h-6 w-6" strokeWidth={1.8} />}
+                    icon={<CreditCard className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.8} />}
                     label="محفظة قيدها"
                     subValue={data.walletBalance}
                 />
                 <PaymentTab
                     selected={selected === "electronic"}
                     onSelect={() => handleSelectPayment("electronic")}
-                    icon={<CreditCard className="h-6 w-6" strokeWidth={1.8} />}
+                    icon={<CreditCard className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.8} />}
                     label="دفع الكتروني"
                 />
             </div>
 
             {selectedLabel ? (
-                <div className="mt-3 flex items-center gap-2 rounded-xl bg-[#EBFEEB] p-3">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-[#30913F]" strokeWidth={2} />
-                    <p className="flex-1 text-[13px] font-medium text-[#267332]">{selectedLabel}</p>
+                <div className="mt-3 flex items-center gap-2 rounded-xl bg-[#EBFEEB] p-3 dark:bg-[#0d2e12] sm:mt-4 sm:p-3.5">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-[#30913F] sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
+                    <p className="flex-1 text-xs font-medium text-[#267332] dark:text-[#4db860] sm:text-[13px]">{selectedLabel}</p>
                 </div>
             ) : (
                 showPaymentWarning && (
-                    <div className="mt-3 flex items-center gap-2 rounded-xl bg-[#FFF8ED] p-3">
-                        <AlertCircle className="h-4 w-4 shrink-0 text-gray-900" strokeWidth={2} />
-                        <p className="flex-1 text-[13px] text-gray-700">بالرجاء تحديد طريقة الدفع</p>
+                    <div className="mt-3 flex items-center gap-2 rounded-xl bg-amber-50 p-3 dark:bg-amber-950/40 sm:mt-4 sm:p-3.5">
+                        <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
+                        <p className="flex-1 text-xs text-amber-800 dark:text-amber-300 sm:text-[13px]">بالرجاء تحديد طريقة الدفع</p>
                     </div>
                 )
             )}
 
-            <EmptyWalletSheet
+            <CheckoutBottomSheet
                 isOpen={emptyWalletSheet.isOpen}
                 isVisible={emptyWalletSheet.isVisible}
                 onClose={emptyWalletSheet.close}
-            />
-            <QidhaWalletSheet
+                ariaLabel="المحفظة فارغة من الرصيد"
+            >
+                <WalletSheetContent
+                    title="المحفظة فارغة من الرصيد"
+                    description="يمكنك إضافة رصيد فالمحفظة لتتمكن من إكمال مرحلة الدفع"
+                    actionLabel="إضافة رصيد"
+                />
+            </CheckoutBottomSheet>
+
+            <CheckoutBottomSheet
                 isOpen={qidhaSheet.isOpen}
                 isVisible={qidhaSheet.isVisible}
                 onClose={qidhaSheet.close}
-            />
+                ariaLabel="الاشتراك في قيدها المطلوب"
+            >
+                <WalletSheetContent
+                    title="الاشتراك في قيدها المطلوب"
+                    description="لاستخدام محفظة قيدها ، يجب الاشتراك وتفعيل المحفظة أولاً"
+                    actionLabel="اشترك الآن"
+                />
+            </CheckoutBottomSheet>
+
             <ElectronicPaymentSheet
                 isOpen={electronicSheet.isOpen}
                 isVisible={electronicSheet.isVisible}

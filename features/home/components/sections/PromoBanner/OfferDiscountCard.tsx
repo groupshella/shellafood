@@ -15,7 +15,7 @@ interface OfferDiscountCardProps {
 
 function TagIcon() {
 	return (
-		<svg width="7.11" height="7.11" viewBox="0 0 8 8" fill="none" aria-hidden>
+		<svg className="h-[45%] w-[45%]" viewBox="0 0 8 8" fill="none" aria-hidden>
 			<path
 				d="M1.5 4.5 3 6l3.5-4"
 				stroke="rgba(223, 211, 245, 0.9)"
@@ -29,14 +29,7 @@ function TagIcon() {
 
 function CtaArrowIcon() {
 	return (
-		<svg
-			width="9.54"
-			height="9.54"
-			viewBox="0 0 10 10"
-			fill="none"
-			className="-scale-x-100"
-			aria-hidden
-		>
+		<svg viewBox="0 0 10 10" fill="none" className="h-2.5 w-2.5 -scale-x-100 sm:h-[9.5px] sm:w-[9.5px]" aria-hidden>
 			<path
 				d="M3 2.5 7 5 3 7.5"
 				stroke="#FFFFFF"
@@ -52,26 +45,23 @@ export function OfferDiscountCard({ percent, href }: OfferDiscountCardProps) {
 	return (
 		<Link
 			href={href}
-			className={`${cairo.className} relative block h-[110.53px] w-[270.79px] shrink-0 overflow-visible rounded-[18.9474px] bg-white shadow-[0px_1.57895px_6.31579px_rgba(120,97,166,0.06)] outline-none transition-transform duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2`}
+			className={`${cairo.className} relative block aspect-[271/111] w-[min(78vw,300px)] min-w-[220px] shrink-0 overflow-visible rounded-[7%] bg-white shadow-[0px_1px_4px_rgba(120,97,166,0.06)] outline-none transition-transform duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:bg-gray-800 dark:shadow-[0px_1.57895px_6.31579px_rgba(120,97,166,0.06)] sm:w-[min(72vw,290px)] sm:min-w-[250px] md:w-[270px] lg:w-[290px] xl:w-[300px]`}
 			aria-label={`خصومات حصرية حتى ${percent}% على آلاف المنتجات المختارة`}
 		>
-			{/* Decorative circle A — purple, top-left bleed */}
 			<div
-				className="pointer-events-none absolute left-[-14.21px] top-[-14.21px] h-[50.53px] w-[50.53px] rounded-[25.2632px]"
+				className="pointer-events-none absolute left-[-5.25%] top-[-12.9%] aspect-square w-[18.7%] rounded-full"
 				style={{ background: "rgba(223, 211, 245, 0.55)" }}
 				aria-hidden
 			/>
 
-			{/* Decorative circle B — green tint, bottom-left */}
 			<div
-				className="pointer-events-none absolute left-[43.42px] top-[93.16px] h-[34.74px] w-[34.74px] rounded-[17.3684px]"
+				className="pointer-events-none absolute left-[16%] top-[84.3%] aspect-square w-[12.8%] rounded-full"
 				style={{ background: "rgba(62, 200, 86, 0.07)" }}
 				aria-hidden
 			/>
 
-			{/* Large green gradient circle */}
 			<div
-				className="pointer-events-none absolute left-[160.26px] top-[-7.11px] flex h-[124.74px] w-[124.74px] items-center justify-center rounded-[62.3684px] shadow-[0px_4.73684px_18.9474px_rgba(48,145,63,0.38)]"
+				className="pointer-events-none absolute left-[59.2%] top-[-6.4%] flex aspect-square w-[46%] items-center justify-center rounded-full shadow-[0px_4.73684px_18.9474px_rgba(48,145,63,0.38)]"
 				style={{
 					background: "linear-gradient(145deg, #3EC856 6.17%, #30913F 58.77%, #22702E 93.83%)",
 					boxShadow:
@@ -79,35 +69,23 @@ export function OfferDiscountCard({ percent, href }: OfferDiscountCardProps) {
 				}}
 				aria-hidden
 			>
-				{/* Inner white border ring */}
-				<div className="absolute left-[7.9px] top-[7.9px] h-[108.95px] w-[108.95px] rounded-[54.4737px] border-[0.631579px] border-[rgba(255,255,255,0.18)]" />
+				<div className="absolute inset-[6.3%] rounded-full border border-[rgba(255,255,255,0.18)]" />
 
-				{/* Discount text stack */}
-				<div className="relative z-10 flex w-[61.06px] flex-col items-center">
-					<span
-						className="text-right text-[11px] font-semibold leading-[8px] text-white"
-						style={{ opacity: 0.88, letterSpacing: "0.315789px" }}
-					>
+				<div className="relative z-10 flex w-[49%] flex-col items-center">
+					<span className="text-right text-[clamp(8px,2.2vw,11px)] font-semibold leading-none text-white/90">
 						خصم حتى
 					</span>
-					<span
-						className="text-center text-[37.8947px] font-black leading-[38px] text-white"
-						style={{ letterSpacing: "-1.57895px" }}
-					>
+					<span className="text-center text-[clamp(1.5rem,9vw,2.375rem)] font-black leading-none tracking-tight text-white">
 						{percent}%
 					</span>
-					<span
-						className="text-center text-[10px] font-medium leading-[7px] text-white"
-						style={{ opacity: 0.82, letterSpacing: "0.236842px" }}
-					>
+					<span className="text-center text-[clamp(7px,2vw,10px)] font-medium leading-none text-white/80">
 						لفترة محدودة
 					</span>
 				</div>
 			</div>
 
-			{/* Exclusive badge */}
 			<div
-				className="pointer-events-none absolute left-[201.79px] top-[4.26px] flex h-[17px] items-center gap-[3.16px] rounded-[0px_8px] px-[5.53px] pe-[7.11px] py-[2.37px] text-white"
+				className="pointer-events-none absolute left-[74.5%] top-[3.9%] flex h-[15.4%] items-center gap-[3%] rounded-e-lg px-[2%] pe-[2.6%] text-white"
 				style={{
 					background: "rgba(120, 97, 166, 0.82)",
 					border: "0.631579px solid rgba(223, 211, 245, 0.45)",
@@ -117,34 +95,28 @@ export function OfferDiscountCard({ percent, href }: OfferDiscountCardProps) {
 				aria-hidden
 			>
 				<TagIcon />
-				<span
-					className="text-[7.10526px] font-bold leading-[11px] text-white"
-					style={{ letterSpacing: "0.315789px" }}
-				>
+				<span className="text-[clamp(6px,1.8vw,7px)] font-bold leading-none text-white">
 					خصم حصري
 				</span>
 			</div>
 
-			{/* Left content area — Tajawal inherited from HomeShell */}
-			<div className="absolute left-0 top-0 flex h-[110.53px] w-[163.42px] flex-col items-end gap-[14px] px-[11.05px] pb-[11.05px] pe-[12.63px] pt-4">
-				<div className="flex w-[139.74px] flex-col items-start">
-					<p className="text-[12px] font-extrabold leading-[14px] text-[#1A1A2E]">
+			<div className="absolute inset-y-0 left-0 flex w-[60.4%] flex-col items-end justify-between px-[4%] py-[10%] pe-[4.7%]">
+				<div className="flex w-full flex-col items-start">
+					<p className="text-[clamp(10px,2.8vw,12px)] font-extrabold leading-snug text-[#1A1A2E] dark:text-gray-100">
 						خصومات حصرية حتى {percent}%
 					</p>
-					<p className="pt-[2.37px] text-[10px] font-medium leading-3 text-[#52526A]">
+					<p className="pt-[2%] text-[clamp(8px,2.4vw,10px)] font-medium leading-snug text-[#52526A] dark:text-gray-400">
 						على آلاف المنتجات المختارة
 					</p>
-					<div className="flex w-full items-center justify-end gap-[3.16px] pt-[3.16px]">
-						<span
-							className={`${cairo.className} text-[8px] font-semibold leading-[7px] text-[#30913F]`}
-						>
+					<div className="flex w-full items-center justify-end gap-[2%] pt-[3%]">
+						<span className={`${cairo.className} text-[clamp(7px,2vw,8px)] font-semibold leading-tight text-[#30913F]`}>
 							أكثر من 6,800 منتج ضمن العروض
 						</span>
-						<span className="h-[3.95px] w-[3.95px] shrink-0 rounded-[1.97368px] bg-[#30913F]" />
+						<span className="aspect-square w-[1.5%] min-w-[3px] shrink-0 rounded-full bg-[#30913F]" />
 					</div>
 				</div>
 
-				<span className="inline-flex h-[25px] w-[98.13px] items-center justify-end gap-[1.59px] rounded bg-[#30913F] px-2.5 py-1.5 text-[8px] font-bold leading-[13px] text-white">
+				<span className="inline-flex h-[clamp(22px,6.5vw,25px)] min-h-[22px] w-[60%] min-w-[88px] max-w-[98px] items-center justify-center gap-0.5 rounded bg-[#30913F] px-2 text-[clamp(7px,2vw,8px)] font-bold leading-none text-white sm:px-2.5">
 					استكشف العروض
 					<CtaArrowIcon />
 				</span>

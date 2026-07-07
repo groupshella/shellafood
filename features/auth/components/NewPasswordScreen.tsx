@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 import {
 	AuthShell,
@@ -74,16 +74,33 @@ const NewPasswordScreen = memo(function NewPasswordScreen({
 						disabled={isLoading}
 						error={passwordsMismatch}
 					/>
-					{passwordsMismatch && (
-						<p className="mt-1.5 text-right text-xs text-red-500">
-							كلمتا المرور غير متطابقتين
-						</p>
-					)}
+					<AnimatePresence>
+						{passwordsMismatch && (
+							<motion.p
+								initial={{ opacity: 0, y: -4 }}
+								animate={{ opacity: 1, y: 0 }}
+								exit={{ opacity: 0, y: -4 }}
+								className="mt-1.5 text-right text-xs text-red-500 dark:text-red-400"
+							>
+								كلمتا المرور غير متطابقتين
+							</motion.p>
+						)}
+					</AnimatePresence>
 				</div>
 
 				<HelperRow>يجب أن تتكون كلمة المرور من 8 أحرف على الأقل</HelperRow>
 
-				{error && <ErrorMessage>{error}</ErrorMessage>}
+				<AnimatePresence>
+					{error && (
+						<motion.div
+							initial={{ opacity: 0, y: -4 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -4 }}
+						>
+							<ErrorMessage>{error}</ErrorMessage>
+						</motion.div>
+					)}
+				</AnimatePresence>
 			</motion.div>
 
 			<div className="mt-auto pt-8">

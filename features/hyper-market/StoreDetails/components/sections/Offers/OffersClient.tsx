@@ -10,8 +10,10 @@ import { OfferSlide } from "./OfferSlide";
 export function OffersClient({ offers }: { offers: HyperMarketOffer[] }) {
     const canLoop = offers.length >= 2;
     return (
-        <section className="w-full overflow-hidden px-4 sm:px-5" aria-label="العروض">
-            <h2 className="text-lg font-bold text-gray-800 mb-4">عروض وخصومات</h2>
+        <section className="w-full min-w-0 overflow-hidden px-3 pb-2 sm:px-5 lg:px-6" aria-label="العروض">
+            <h2 className="mb-3 text-base font-bold text-gray-800 dark:text-gray-100 sm:mb-4 sm:text-lg">
+                عروض وخصومات
+            </h2>
             {canLoop ? (
                 <Swiper
                     dir="rtl"

@@ -9,7 +9,7 @@ import { BannerSlide } from "./BannerSlide";
 
 export function BannersClient({ banners }: { banners: HyperMarketBanner[] }) {
     return (
-        <section aria-label="العروض المميزة" className="w-full px-4 sm:px-5">
+        <section aria-label="العروض المميزة" className="w-full min-w-0 px-3 sm:px-5 lg:px-6">
             <Swiper
                 className="banner-swiper"
                 modules={[Autoplay, Pagination]}

@@ -19,28 +19,22 @@ export function SearchBar({ value, onChange, onSubmit }: SearchBarProps) {
     };
 
     return (
-        <div className="flex w-full items-center gap-3" dir="rtl">
+        <div className="flex w-full min-w-0 items-center gap-2 sm:gap-2.5 lg:gap-3" dir="rtl">
             <button
                 type="button"
                 onClick={() => router.back()}
-                className={[
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                    "transition-transform active:scale-95",
-                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
-                ].join(" ")}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:active:bg-gray-800 sm:h-11 sm:w-11"
                 aria-label="العودة للصفحة السابقة"
             >
-                <ChevronRight
-                    className="h-7 w-7 object-contain text-gray-400"
-                    aria-hidden
-                />
+                <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-400 sm:h-6 sm:w-6" aria-hidden />
             </button>
 
             <form
                 onSubmit={handleSubmit}
-                className="flex min-w-0 flex-1 items-center gap-2.5 rounded-full bg-[#EAEAEA] px-4 py-3.5"
+                role="search"
+                className="flex min-w-0 flex-1 items-center gap-2 rounded-full bg-gray-100 px-3 py-2.5 dark:bg-gray-800 sm:gap-2.5 sm:px-4 sm:py-3 lg:px-5"
             >
-                <Search className="h-5 w-5 shrink-0 text-gray-400" strokeWidth={2} aria-hidden />
+                <Search className="h-[18px] w-[18px] shrink-0 text-gray-400 dark:text-gray-500 sm:h-5 sm:w-5" strokeWidth={2} aria-hidden />
 
                 <input
                     type="search"
@@ -50,8 +44,9 @@ export function SearchBar({ value, onChange, onSubmit }: SearchBarProps) {
                     placeholder="البحث"
                     aria-label="البحث"
                     className={[
-                        "min-w-0 flex-1 bg-transparent text-right text-[15px] text-gray-900",
-                        "placeholder:text-gray-400 outline-none",
+                        "min-w-0 flex-1 bg-transparent text-right text-sm text-gray-900 dark:text-gray-100",
+                        "placeholder:text-gray-400 dark:placeholder:text-gray-500",
+                        "outline-none sm:text-[15px] lg:text-base",
                         "[&::-webkit-search-cancel-button]:appearance-none",
                         "[&::-webkit-search-decoration]:appearance-none",
                     ].join(" ")}
@@ -62,9 +57,9 @@ export function SearchBar({ value, onChange, onSubmit }: SearchBarProps) {
                         type="button"
                         onClick={() => onChange("")}
                         aria-label="مسح البحث"
-                        className="flex h-5 w-5 shrink-0 items-center justify-center text-gray-400"
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-300 text-gray-600 transition-colors active:bg-gray-400 dark:bg-gray-600 dark:text-gray-300 sm:h-8 sm:w-8"
                     >
-                        <X className="h-4 w-4" />
+                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </button>
                 )}
             </form>
