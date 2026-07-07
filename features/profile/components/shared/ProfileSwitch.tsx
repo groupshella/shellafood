@@ -16,12 +16,13 @@ export function ProfileSwitch({ checked, onChange, ariaLabel }: ProfileSwitchPro
             onClick={() => onChange(!checked)}
             className={[
                 "relative h-[25px] w-[50px] shrink-0 rounded-[32px] transition-colors",
-                checked ? "bg-[#30913F]" : "bg-[#D1D5DB]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900",
+                checked ? "bg-[#30913F]" : "bg-[#D1D5DB] dark:bg-gray-600",
             ].join(" ")}
         >
             <span
                 className={[
-                    "absolute top-[2px] h-5 w-5 rounded-full bg-white transition-all",
+                    "absolute top-[2px] h-5 w-5 rounded-full bg-white shadow-sm transition-all",
                     checked ? "start-[26.5px]" : "start-[2px]",
                 ].join(" ")}
             />

@@ -21,7 +21,7 @@ export function LanguageClient() {
 
     return (
         <ProfileSubpageShell title={PROFILE_STRINGS.language}>
-            <div>
+            <div className="mx-auto w-full max-w-lg rounded-2xl bg-white px-3 dark:bg-gray-900 sm:max-w-2xl sm:px-4 lg:max-w-3xl">
                 {LANGUAGE_OPTIONS.map((opt) => (
                     <ProfileRadioRow
                         key={opt.code}

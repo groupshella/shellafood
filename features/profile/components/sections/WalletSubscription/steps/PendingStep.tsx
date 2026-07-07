@@ -11,57 +11,52 @@ interface PendingStepProps {
 
 export function PendingStep({ onViewContract, onContactSupport }: PendingStepProps) {
     return (
-        <div className="flex flex-col items-center gap-6 py-6">
-            {/* Hourglass illustration */}
+        <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-6 py-6 sm:max-w-2xl lg:max-w-3xl">
             <div className="flex items-center justify-center">
                 <Image
                     src="/profile/wallet-hourglass.png"
                     alt="قيد المراجعة"
                     width={188}
                     height={196}
-                    className="object-contain"
+                    className="h-auto w-40 object-contain sm:w-[188px] md:w-52"
                 />
             </div>
 
-            {/* Headline */}
-            <div className="flex flex-col items-center gap-3 px-4">
-                <h2 className="text-center text-[18px] font-bold text-[#111B18]">
+            <div className="flex max-w-xl flex-col items-center gap-3 px-4">
+                <h2 className="text-center text-[18px] font-bold text-[#111B18] dark:text-gray-100 sm:text-xl">
                     طلبك قيد المراجعة النهائية
                 </h2>
-                <p className="text-center text-[16px] font-medium leading-relaxed text-[#111B18]">
+                <p className="text-center text-[15px] font-medium leading-relaxed text-[#111B18] dark:text-gray-300 sm:text-[16px]">
                     سيتم تحديد الحد الائتماني وتفعيل المحفظة خلال 24 - 48 ساعة
                     سنقوم باشعارك فور الانتهاء
                 </p>
             </div>
 
-            {/* Pending stepper */}
-            <div className="w-full px-2">
+            <div className="w-full px-0 sm:px-2">
                 <WalletStepper currentStep="pending" variant="pending" />
             </div>
 
-            {/* Remaining time */}
-            <div className="flex items-center gap-2">
-                <Clock className="h-6 w-6 text-[#555555]" strokeWidth={1.5} />
-                <span className="text-[16px] font-medium text-[#555555]">
+            <div className="flex flex-wrap items-center justify-center gap-2 text-center">
+                <Clock className="h-6 w-6 text-[#555555] dark:text-gray-400" strokeWidth={1.5} />
+                <span className="text-[15px] font-medium text-[#555555] dark:text-gray-400 sm:text-[16px]">
                     الوقت المتبقي 24 - 48 ساعة عمل
                 </span>
             </div>
 
-            {/* Buttons */}
-            <div className="flex w-full flex-col gap-3">
+            <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
                 <button
                     type="button"
                     onClick={onViewContract}
-                    className="h-12 w-full rounded-xl bg-[#30913F] text-[16px] font-bold text-white active:bg-[#267332]"
+                    className="min-h-[48px] w-full rounded-xl bg-[#30913F] px-4 text-[16px] font-bold text-white active:bg-[#267332] sm:min-h-[52px]"
                 >
                     استعراض العقد
                 </button>
                 <button
                     type="button"
                     onClick={onContactSupport}
-                    className="flex h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-[#F6F6F6] text-[16px] font-bold text-[#43474F] active:bg-gray-200"
+                    className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-[#F6F6F6] px-4 text-[16px] font-bold text-[#43474F] active:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:active:bg-gray-700"
                 >
-                    <Phone className="h-6 w-6 text-[#43474F]" strokeWidth={1.5} />
+                    <Phone className="h-6 w-6 text-[#43474F] dark:text-gray-300" strokeWidth={1.5} />
                     <span>تواصل مع خدمة العملاء</span>
                 </button>
             </div>

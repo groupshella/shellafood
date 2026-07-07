@@ -12,13 +12,13 @@ export function FormField({ label, required, hint, children }: FormFieldProps) {
     return (
         <div className="flex w-full flex-col items-start gap-1.5">
             {hint ? (
-                <div className="flex items-center justify-start gap-1">
-                    <span className="text-[14px] font-bold leading-[160%] text-[#111B18]">{label}</span>
-                    <span className="text-[12px] font-medium leading-[160%] text-[#555555]">{hint}</span>
+                <div className="flex flex-wrap items-center justify-start gap-x-1 gap-y-0.5">
+                    <span className="text-[14px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[15px]">{label}</span>
+                    <span className="text-[12px] font-medium leading-[160%] text-[#555555] dark:text-gray-400">{hint}</span>
                 </div>
             ) : (
                 <div className="flex items-center justify-start gap-1">
-                    <span className="text-[14px] font-bold leading-[160%] text-[#111B18]">{label}</span>
+                    <span className="text-[14px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[15px]">{label}</span>
                     {required && <RequiredMark />}
                 </div>
             )}

@@ -18,11 +18,11 @@ export function QidhaSubscribeSheet({ isOpen, isVisible, onClose }: QidhaSubscri
             onClose={onClose}
             ariaLabel={PROFILE_STRINGS.qidhaSubscribeTitle}
         >
-            <div className="px-2 pb-4 pt-2 text-center">
-                <h3 className="mb-3 text-[17px] font-bold text-gray-900">
+            <div className="mx-auto w-full max-w-md px-2 pb-4 pt-2 text-center sm:px-4">
+                <h3 className="mb-3 text-[17px] font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
                     {PROFILE_STRINGS.qidhaSubscribeTitle}
                 </h3>
-                <p className="mb-6 text-[14px] leading-relaxed text-gray-600">
+                <p className="mb-6 text-[14px] leading-relaxed text-gray-600 dark:text-gray-300 sm:text-[15px]">
                     {PROFILE_STRINGS.qidhaSubscribeBody}
                 </p>
                 <PrimaryButton onClick={onClose}>{PROFILE_STRINGS.subscribeNow}</PrimaryButton>

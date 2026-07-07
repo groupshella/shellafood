@@ -27,17 +27,16 @@ const CONTRACT_TEXT = `أهلاً بك في عائلة قيدها، ونهنئك
 
 export function ContractStep({ onViewContract, onCheckStatus, onVerify }: ContractStepProps) {
     return (
-        <div className="flex flex-col gap-4 pb-6">
+        <div className="grid grid-cols-1 gap-4 pb-6 lg:grid-cols-[minmax(260px,0.8fr)_minmax(0,1.2fr)] lg:items-start">
             {/* Nafath Code Card */}
-            <div className="rounded-2xl bg-[#F6F5F8] p-4">
-                <h2 className="mb-4 text-center text-[16px] font-bold text-[#555555]">
+            <div className="rounded-2xl bg-[#F6F5F8] p-3 dark:bg-gray-800/50 sm:p-4">
+                <h2 className="mb-4 text-center text-[16px] font-bold text-[#555555] dark:text-gray-400">
                     كود تطبيق نفاذ
                 </h2>
-                <div className="flex flex-col items-center gap-4 rounded-2xl bg-white p-6 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)]">
+                <div className="flex flex-col items-center gap-4 rounded-2xl bg-white p-4 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] dark:bg-gray-900 dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.2)] sm:p-6">
                     {/* Circular gauge */}
                     <svg
-                        width="178"
-                        height="178"
+                        className="h-40 w-40 sm:h-[178px] sm:w-[178px]"
                         viewBox="0 0 178 178"
                         aria-label={`كود نفاذ: ${NAFATH_CODE}`}
                     >
@@ -88,16 +87,16 @@ export function ContractStep({ onViewContract, onCheckStatus, onVerify }: Contra
                             {NAFATH_CODE}
                         </text>
                     </svg>
-                    <p className="text-center text-[14px] font-bold text-[#111B18]">
+                    <p className="text-center text-[14px] font-bold text-[#111B18] dark:text-gray-100">
                         قم بأدخال هذا الكود إلى تطبيق نفاذ
                     </p>
                 </div>
             </div>
 
             {/* Contract instructions card */}
-            <div className="rounded-2xl bg-white p-4 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)]">
+            <div className="rounded-2xl bg-white p-4 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] dark:bg-gray-900 dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.2)] sm:p-5">
                 <p
-                    className="whitespace-pre-line text-end text-[14px] font-bold leading-[180%] text-[#111B18]"
+                    className="whitespace-pre-line text-end text-[14px] font-bold leading-[180%] text-[#111B18] dark:text-gray-200 sm:text-[15px]"
                     dir="rtl"
                 >
                     {CONTRACT_TEXT}
@@ -105,28 +104,28 @@ export function ContractStep({ onViewContract, onCheckStatus, onVerify }: Contra
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-col gap-3 pt-2">
+            <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-3">
                 <button
                     type="button"
                     onClick={onViewContract}
-                    className="h-12 w-full rounded-xl bg-[#30913F] text-[16px] font-bold text-white active:bg-[#267332]"
+                    className="min-h-[48px] w-full rounded-xl bg-[#30913F] px-4 text-[16px] font-bold text-white active:bg-[#267332] sm:min-h-[52px]"
                 >
                     استعراض العقد قبل التوقيع
                 </button>
                 <button
                     type="button"
                     onClick={onCheckStatus}
-                    className="h-[50px] w-full rounded-xl bg-[#F6F6F6] text-[16px] font-bold text-[#43474F] active:bg-gray-200"
+                    className="min-h-[50px] w-full rounded-xl bg-[#F6F6F6] px-4 text-[16px] font-bold text-[#43474F] active:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:active:bg-gray-700"
                 >
                     تحقق من الحالة
                 </button>
                 <button
                     type="button"
                     onClick={onVerify}
-                    className="flex h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-[#F6F6F6] text-[16px] font-bold text-[#43474F] active:bg-gray-200"
+                    className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-[#F6F6F6] px-4 text-[16px] font-bold text-[#43474F] active:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:active:bg-gray-700 sm:col-span-2 lg:col-span-1"
                 >
                     <Phone
-                        className="h-6 w-6 text-[#43474F]"
+                        className="h-6 w-6 text-[#43474F] dark:text-gray-300"
                         strokeWidth={1.5}
                     />
                     <span>التحقق من المصادقة</span>

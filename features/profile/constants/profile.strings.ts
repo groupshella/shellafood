@@ -70,6 +70,9 @@ export const PROFILE_STRINGS = {
     deleteError: "تعذر حذف الحساب، حاول مرة أخرى",
     requiredField: "هذا الحقل مطلوب",
     invalidPhoto: "يرجى اختيار صورة JPG أو PNG بحجم أقل من 5 ميجابايت",
+    invalidEmail: "يرجى إدخال بريد إلكتروني صحيح",
+    invalidName: "يرجى إدخال الاسم",
+    missingPhone: "رقم الهاتف غير متوفر في حسابك",
 } as const;
 
 export const LOCALE_COOKIE = "app_locale";

@@ -50,10 +50,10 @@ export function LiveChatClient() {
             showHeaderBorder={false}
             showFooterBorder={false}
             mainClassName="flex flex-col px-0 pb-0 pt-0"
-            footerClassName="pt-8 pb-[max(1rem,env(safe-area-inset-bottom))]"
+            footerClassName="pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-6"
             footer={<ChatInputBar value={draft} onChange={setDraft} onSend={handleSend} />}
         >
-            <div className="flex min-h-full flex-col justify-end gap-4 px-4 pt-4">
+            <div className="mx-auto flex min-h-full w-full max-w-lg flex-col justify-end gap-4 px-4 pt-4 sm:max-w-2xl sm:px-5 lg:max-w-3xl">
                 <ChatBotAvatar />
 
                 <div className="flex flex-col gap-4">

@@ -7,7 +7,7 @@ import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpag
 import { SupportInfoCard } from "@/features/profile/components/shared/support/SupportInfoCard";
 import { SUPPORT_STRINGS } from "@/features/profile/constants/support.strings";
 
-const iconClass = "h-6 w-6 text-[#555555]";
+const iconClass = "h-6 w-6 text-[#555555] dark:text-gray-400";
 
 export function HelpSupportClient() {
     const router = useRouter();
@@ -19,17 +19,17 @@ export function HelpSupportClient() {
             relaxedHeader
             mainClassName="px-0"
         >
-            <div className="flex flex-col items-center gap-12">
+            <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-8 px-4 sm:max-w-2xl sm:gap-10 sm:px-5 lg:max-w-4xl lg:px-6">
                 <Image
                     src="/favicon.ico"
                     alt={SUPPORT_STRINGS.logoAlt}
                     width={165}
                     height={118}
-                    className="h-[118px] w-[165px] object-contain"
+                    className="h-auto w-[140px] object-contain sm:w-[165px] md:w-[190px]"
                     priority
                 />
 
-                <div className="flex w-full flex-col gap-4 rounded-2xl bg-[#F6F5F8] p-4">
+                <div className="grid w-full grid-cols-1 gap-3 rounded-2xl bg-[#F6F5F8] p-3 dark:bg-gray-900/50 sm:gap-4 sm:p-4 md:grid-cols-2">
                     <SupportInfoCard
                         icon={<MessageCircle className={iconClass} strokeWidth={1.5} />}
                         title={SUPPORT_STRINGS.liveChatTitle}

@@ -66,40 +66,39 @@ export function WalletSubscriptionClient() {
     const stepperLabel = STEP_TITLES[currentStep];
 
     return (
-        <div className="flex min-h-screen flex-col bg-white" dir="rtl">
-            {/* Header */}
-            <header className="sticky top-0 z-10 grid grid-cols-[auto_1fr_auto] items-center border-b border-[#F6F5F8] bg-white px-4 py-5 shadow-[0px_6px_25.1px_rgba(0,0,0,0.05)]">
+        <div className="flex min-h-dvh flex-col overflow-x-hidden bg-white dark:bg-gray-950" dir="rtl">
+            <header className="sticky top-0 z-10 grid grid-cols-[auto_1fr_auto] items-center border-b border-[#F6F5F8] bg-white px-4 py-5 shadow-[0px_6px_25.1px_rgba(0,0,0,0.05)] dark:border-gray-800 dark:bg-gray-900 dark:shadow-[0px_6px_25.1px_rgba(0,0,0,0.25)] sm:px-5 md:px-6">
                 <button
                     type="button"
                     onClick={handleBack}
                     aria-label="رجوع"
-                    className="-me-1 flex h-9 w-9 items-center justify-center rounded-full transition-colors active:bg-gray-100"
+                    className="-me-1 flex h-9 w-9 items-center justify-center rounded-full transition-colors active:bg-gray-100 dark:active:bg-gray-800"
                 >
                     <ChevronRight
-                        className="h-6 w-6 text-[#111B18]"
+                        className="h-6 w-6 text-[#111B18] dark:text-gray-100"
                         strokeWidth={1.5}
                     />
                 </button>
-                <h1 className="truncate text-center text-[18px] font-bold leading-[160%] text-[#111B18]">
+                <h1 className="truncate text-center text-[18px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100">
                     محفظة قيدها
                 </h1>
                 <div className="w-9" aria-hidden />
             </header>
 
-            {/* Stepper section (only on form steps) */}
             {showStepper && (
-                <div className="border-b border-[#F6F5F8] bg-white px-4 py-4">
+                <div className="border-b border-[#F6F5F8] bg-white px-4 py-4 dark:border-gray-800 dark:bg-gray-900 sm:px-5 md:px-6">
+                    <div className="mx-auto w-full max-w-lg sm:max-w-2xl lg:max-w-3xl">
                     {stepperLabel && (
-                        <p className="mb-3 text-center text-[14px] font-bold text-[#111B18]">
+                        <p className="mb-3 text-center text-[14px] font-bold text-[#111B18] dark:text-gray-100">
                             {stepperLabel}
                         </p>
                     )}
                     <WalletStepper currentStep={currentStep} variant="form" />
+                    </div>
                 </div>
             )}
 
-            {/* Scrollable content */}
-            <main className="flex-1 overflow-y-auto px-4 pt-4">
+            <main className="mx-auto w-full max-w-lg flex-1 overflow-y-auto px-4 pt-4 sm:max-w-2xl sm:px-5 lg:max-w-3xl lg:px-6">
                 {currentStep === "personal-info" && (
                     <PersonalInfoStep
                         data={formData}

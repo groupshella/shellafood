@@ -24,7 +24,7 @@ export function ProfileAvatar({ src, alt, size = 64, className = "" }: ProfileAv
 
     return (
         <div
-            className={`relative shrink-0 overflow-hidden rounded-full bg-[#F6F5F8] ${className}`}
+            className={`relative shrink-0 overflow-hidden rounded-full bg-[#F6F5F8] dark:bg-gray-800 ${className}`}
             style={{ width: size, height: size }}
         >
             {showImage ? (
@@ -39,9 +39,10 @@ export function ProfileAvatar({ src, alt, size = 64, className = "" }: ProfileAv
             ) : (
                 <div className="flex h-full w-full items-center justify-center">
                     <User
-                        className="text-[#555555]"
+                        className="text-[#555555] dark:text-gray-400"
                         style={{ width: size * 0.5, height: size * 0.5 }}
                         strokeWidth={1.5}
+                        aria-hidden
                     />
                 </div>
             )}
