@@ -13,6 +13,7 @@ import {
 	PrimaryButton,
 	SecondaryButton,
 } from "@/features/auth/components/shared/AuthPrimitives";
+import { getGuestId } from "@/features/auth/lib/auth.lib";
 
 interface LoginScreenProps {
 	isLoading?: boolean;
@@ -72,6 +73,35 @@ const GlobeIcon = memo(function GlobeIcon() {
 	);
 });
 
+const GuestIcon = memo(function GuestIcon() {
+	return (
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+			<circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.8" />
+			<path
+				d="M5 20c0-3.314 3.134-6 7-6s7 2.686 7 6"
+				stroke="currentColor"
+				strokeWidth="1.8"
+				strokeLinecap="round"
+			/>
+		</svg>
+	);
+});
+
+const GuestActiveIcon = memo(function GuestActiveIcon() {
+	return (
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+			<circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+			<path
+				d="M8.5 12.5 11 15l4.5-5"
+				stroke="currentColor"
+				strokeWidth="1.8"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+});
+
 const LoginScreen = memo(function LoginScreen({
 	isLoading = false,
 	error,
@@ -89,10 +119,15 @@ const LoginScreen = memo(function LoginScreen({
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [remember, setRemember] = useState(false);
+	const [hasGuestId, setHasGuestId] = useState(false);
 
 	useEffect(() => {
 		if (prefillPhone) setPhone(prefillPhone);
 	}, [prefillPhone]);
+
+	useEffect(() => {
+		void getGuestId().then((guestId) => setHasGuestId(Boolean(guestId)));
+	}, []);
 
 	const isValid = phone.length === 9 && password.length > 0;
 
@@ -237,8 +272,23 @@ const LoginScreen = memo(function LoginScreen({
 					{isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
 				</PrimaryButton>
 
-				<SecondaryButton onClick={onGuest} disabled={isLoading}>
-					المتابعة كزائر
+				<SecondaryButton
+					onClick={onGuest}
+					disabled={isLoading || hasGuestId}
+					aria-label={hasGuestId ? "أنت تتصفح بالفعل كزائر" : "المتابعة كزائر"}
+				>
+					<span className="inline-flex items-center justify-center gap-2">
+						<span
+							className={
+								hasGuestId
+									? "text-[#30913F] dark:text-[#4aba5a]"
+									: "text-[#43474F] dark:text-gray-200"
+							}
+						>
+							{hasGuestId ? <GuestActiveIcon /> : <GuestIcon />}
+						</span>
+						{hasGuestId ? "أنت تتصفح كزائر" : "المتابعة كزائر"}
+					</span>
 				</SecondaryButton>
 
 				<div className="flex items-center gap-3 py-1">
