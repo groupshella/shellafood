@@ -73,9 +73,10 @@ export default async function SearchRoute({
 	searchParams: Promise<{ module_id?: string }>;
 }) {
 	const { module_id } = await searchParams;
+	const activeModuleId = module_id && !Number.isNaN(Number(module_id)) ? module_id : "3";
 
 	return (
-		<SearchShell moduleId={module_id ?? "3"}>
+		<SearchShell moduleId={activeModuleId}>
 			<div className="mt-8 flex flex-col gap-8">
 				<Suspense fallback={<Modules.skeleton />}>
 					<Modules />
@@ -84,11 +85,11 @@ export default async function SearchRoute({
 				<RecentSearches />
 
 				<Suspense fallback={<PopularSearch.skeleton />}>
-					<PopularSearch />
+					<PopularSearch moduleId={activeModuleId} />
 				</Suspense>
 
 				<Suspense fallback={<PopularBrands.skeleton />}>
-					<PopularBrands moduleId={module_id} />
+					<PopularBrands moduleId={activeModuleId} />
 				</Suspense>
 			</div>
 		</SearchShell>
