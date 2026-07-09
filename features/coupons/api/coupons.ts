@@ -36,7 +36,6 @@ export async function getCoupons(): Promise<Coupon[]> {
 			next: { tags: ["coupons"] },
 		}
 	);
-
 	if (!res.ok) {
 		throw new Error(`Failed to fetch coupons: ${res.status}`);
 	}

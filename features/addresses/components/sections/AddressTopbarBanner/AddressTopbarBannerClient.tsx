@@ -30,7 +30,7 @@ function LocationPill({
 	const content = (
 		<>
 			<MapPin
-				className="h-4 w-4 shrink-0 text-[#292D32] dark:text-[#6fcf87] sm:h-[18px] sm:w-[18px]"
+				className="h-4 w-4 shrink-0 text-[#292D32]  dark:text-[#6fcf87] sm:h-[18px] sm:w-[18px]"
 				strokeWidth={2}
 				aria-hidden
 			/>
@@ -63,11 +63,10 @@ export function AddressTopbarBannerClient({
 	const [isOpen, setIsOpen] = useState(false);
 	const { selectedAddress, selectedId, setSelectedAddressId } = useSelectedAddress(addresses);
 
-	const placeholder = "الرياض ،اسم المنطقة ،اسم الشارع";
-
+	const placeholder = "انضم إلينا ، واستمتع بخدمات شلة"
 	if (!isAuthenticated) {
 		return (
-			<div className={`flex min-w-0 justify-end ${className}`}>
+			<div className={`flex min-w-0 justify-start ${className}`}>
 				<LocationPill href="/auth">{placeholder}</LocationPill>
 			</div>
 		);

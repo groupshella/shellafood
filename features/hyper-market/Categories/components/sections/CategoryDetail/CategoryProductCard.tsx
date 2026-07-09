@@ -91,14 +91,14 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                 dir="rtl"
                 className="flex h-full w-full min-w-0 flex-row-reverse items-center gap-2.5 rounded-2xl bg-white px-2.5 py-2.5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] dark:bg-gray-800 dark:shadow-[0_1px_4px_rgba(0,0,0,0.2)] dark:ring-white/[0.06] sm:gap-3 sm:px-4 sm:py-3"
             >
-                <div className="flex shrink-0 flex-col items-center justify-between gap-3 self-stretch py-0.5">
+                <div className="flex shrink-0 flex-col items-center justify-between gap-3 self-stretch p-0.5">
                     {WishlistButton}
                     <ProductAddControl
                         product={cartProduct}
                         isAvailable={true}
                         size="sm"
                         variant="soft"
-                        className="h-9 w-9 !bg-[#D1FDD2] !shadow-none dark:!bg-[#30913F]/20"
+                        className="h-9 w-9"
                     />
                 </div>
 
@@ -216,7 +216,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                 </div>
             </Link>
 
-            <div className="mx-3 flex h-full w-9 shrink-0 flex-col items-center justify-between py-4 sm:mx-4 sm:py-[18px]">
+            <div className="flex shrink-0 flex-col items-center justify-between gap-3 self-stretch p-0.5">
                 {WishlistButton}
                 <ProductAddControl
                     product={cartProduct}

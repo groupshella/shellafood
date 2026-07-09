@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function NotificationsEmpty() {
     return (
-        <div className="flex flex-col items-center justify-center px-4 py-12 sm:px-6 sm:py-16 lg:py-24">
+        <div className="flex min-h-[calc(100dvh-8.5rem)] flex-col items-center justify-center px-4 text-center sm:min-h-[calc(100dvh-9.5rem)] sm:px-6">
             <div className="relative mb-6 aspect-square w-full max-w-[12rem] sm:mb-8 sm:max-w-[14rem] md:max-w-[16rem]">
                 <Image
                     src="/notifications/notifications-empty.png"
@@ -14,13 +14,13 @@ export function NotificationsEmpty() {
                 />
             </div>
 
-            <div className="space-y-1.5 text-center">
+            <div className="space-y-1.5">
                 <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200 sm:text-xl">
                     لا يوجد لديك إشعارات
                 </h2>
-                <p className="text-base font-medium text-gray-500 dark:text-gray-400 sm:text-[17px]">
+                <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">
                     في الوقت الحالي
-                </p>
+                </h2>
             </div>
         </div>
     );

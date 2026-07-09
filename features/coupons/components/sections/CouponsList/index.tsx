@@ -1,5 +1,6 @@
 import { getCoupons } from "@/features/coupons/api/coupons";
 import { CouponsListClient } from "@/features/coupons/components/sections/CouponsList/CouponsListClient";
+import { CouponsEmpty } from "@/features/coupons/components/sections/CouponsList/CouponsEmpty";
 import CouponsListSkeleton from "@/features/coupons/components/sections/CouponsList/skeleton";
 import {
 	couponsExpiredByDate,
@@ -9,12 +10,24 @@ import {
 
 export const CouponsList = Object.assign(
 	async function CouponsList() {
-		const coupons = await getCoupons();
+		try {
+			const coupons = await getCoupons();
 
-		const available = sortCouponsForFirstTab(couponsNotExpiredByDate(coupons));
-		const expired = couponsExpiredByDate(coupons);
+			if (coupons.length === 0) {
+				return <CouponsEmpty />;
+			}
 
-		return <CouponsListClient available={available} expired={expired} />;
+			const available = sortCouponsForFirstTab(couponsNotExpiredByDate(coupons));
+			const expired = couponsExpiredByDate(coupons);
+
+			if (available.length === 0 && expired.length === 0) {
+				return <CouponsEmpty />;
+			}
+
+			return <CouponsListClient available={available} expired={expired} />;
+		} catch {
+			return <CouponsEmpty message="لا يوجد كوبونات في الوقت الحالي" />;
+		}
 	},
 	{ skeleton: CouponsListSkeleton }
 );

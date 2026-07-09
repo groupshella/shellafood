@@ -71,15 +71,16 @@ export function OrderCard({ order }: { order: ApiOrder }) {
             </div>
 
             <div className="flex min-w-0 flex-1 flex-col gap-1.5 px-3 py-3 sm:gap-2 sm:px-4 sm:py-3.5" dir="rtl">
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-end ">
+                    <span className="text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
+                        #{order.id}
+                    </span>
                     <Heart
                         aria-hidden
                         className="h-4 w-4 shrink-0 fill-[#30913F] text-[#30913F]"
                         strokeWidth={0}
                     />
-                    <span className="text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
-                        #{order.id}
-                    </span>
+
                 </div>
 
                 <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100 sm:text-[15px]">
@@ -99,7 +100,7 @@ export function OrderCard({ order }: { order: ApiOrder }) {
                 <div className="flex min-w-0 items-center gap-1.5">
                     <Clock className="h-3 w-3 shrink-0 text-gray-400 dark:text-gray-500 sm:h-3.5 sm:w-3.5" strokeWidth={1.6} aria-hidden />
                     <p className="truncate text-xs text-gray-500 dark:text-gray-400 sm:text-[13px]">
-                        تاريخ الطلب {formatDate(order.wishlisted_at)}
+                        تاريخ الطلب {order.order_time}
                     </p>
                 </div>
 

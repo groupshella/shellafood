@@ -66,6 +66,7 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 
 			{activeList.length === 0 ? (
 				<CouponsEmpty
+					fullPage={false}
 					message={
 						activeTab === "available"
 							? "لا يوجد كوبونات في الوقت الحالي"

@@ -10,9 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CartPage() {
-  if (!(await isAuthenticated())) {
-    return <AuthRequiredScreen page="cart" />;
-  }
+
 
   return (
     <CartShell title="السلة">

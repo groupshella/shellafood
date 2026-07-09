@@ -23,10 +23,10 @@ export function NotificationsShell({ children }: NotificationsShellProps) {
                     <button
                         type="button"
                         onClick={() => router.back()}
-                        className="absolute end-3 flex h-10 w-10 items-center justify-center rounded-full transition-colors active:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:active:bg-gray-800 sm:end-4 sm:h-11 sm:w-11"
+                        className="absolute start-3 flex h-10 w-10 items-center justify-center rounded-full transition-colors active:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:active:bg-gray-800 sm:end-4 sm:h-11 sm:w-11"
                         aria-label="رجوع"
                     >
-                        <ChevronRight className="h-5 w-5 text-gray-900 dark:text-gray-100 sm:h-[22px] sm:w-[22px]" strokeWidth={2} />
+                        <ChevronRight className="h-6 w-6 text-gray-900 dark:text-gray-100 sm:h-[22px] sm:w-[22px]" strokeWidth={2} />
                     </button>
                     <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg lg:text-xl">الإشعارات</h1>
                 </div>

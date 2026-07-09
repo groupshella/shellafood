@@ -1,12 +1,22 @@
 export default function ModulesSkeleton() {
     return (
-        <div className="space-y-3 bg-white px-3 pb-4 pt-4 dark:bg-gray-900 sm:px-5 sm:pb-5 lg:px-6">
-            <div className="h-5 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-            <div className="flex gap-3 overflow-hidden">
-                {Array.from({ length: 5 }).map((_, i) => (
+        <div className="space-y-2.5 bg-transparent px-3 pb-3 pt-3 sm:space-y-3.5 sm:px-5 sm:pb-4 sm:pt-4 lg:px-6">
+            <div className="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700 sm:h-5 sm:w-24" />
+
+            <div className="flex gap-2 overflow-hidden sm:gap-2.5 md:hidden">
+                {Array.from({ length: 4 }).map((_, i) => (
                     <div
                         key={i}
-                        className="h-12 w-32 shrink-0 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-700 sm:h-14 sm:w-36"
+                        className="h-10 w-[8.25rem] shrink-0 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800 sm:h-12 sm:w-36 sm:rounded-2xl"
+                    />
+                ))}
+            </div>
+
+            <div className="hidden gap-2.5 md:grid md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-3.5 xl:grid-cols-5 xl:gap-4 2xl:grid-cols-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                    <div
+                        key={i}
+                        className="h-12 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-800 sm:h-14"
                     />
                 ))}
             </div>
