@@ -11,12 +11,13 @@ export function Topbar() {
 				مرحباً بك
 			</h1>
 			<nav aria-label="إجراءات سريعة" className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3">
-				<Link href="/notifications" className={iconButtonClass} aria-label="الإشعارات">
-					<Bell className="h-[18px] w-[18px] text-gray-700 dark:text-gray-300 sm:h-5 sm:w-5" strokeWidth={1.8} aria-hidden />
-				</Link>
 				<Link href="/search" className={iconButtonClass} aria-label="بحث">
 					<Search className="h-[18px] w-[18px] text-gray-700 dark:text-gray-300 sm:h-5 sm:w-5" strokeWidth={1.8} aria-hidden />
 				</Link>
+				<Link href="/notifications" className={iconButtonClass} aria-label="الإشعارات">
+					<Bell className="h-[18px] w-[18px] text-gray-700 dark:text-gray-300 sm:h-5 sm:w-5" strokeWidth={1.8} aria-hidden />
+				</Link>
+
 			</nav>
 		</header>
 	);

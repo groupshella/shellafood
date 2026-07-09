@@ -62,7 +62,7 @@ export function ModuleCard({
 					className={[
 						"pointer-events-none absolute right-0 z-0",
 						spec.tall
-							? "bottom-0 h-12 w-12 translate-x-1 translate-y-1 sm:h-16 sm:w-16 sm:translate-x-2 sm:translate-y-2 md:h-[72px] md:w-[72px] lg:h-20 lg:w-20"
+							? "bottom-3 h-15 w-15 translate-x-1 translate-y-1 sm:h-16 sm:w-16 sm:translate-x-2 sm:translate-y-2 md:h-[72px] md:w-[72px] lg:h-20 lg:w-20"
 							: "top-1/2 h-9 w-9 -translate-y-1/2 translate-x-0.5 sm:h-11 sm:w-11 sm:translate-x-1 md:h-12 md:w-12",
 					].join(" ")}
 					style={{ opacity: spec.iconOpacity }}

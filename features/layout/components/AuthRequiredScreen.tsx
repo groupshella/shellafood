@@ -8,12 +8,13 @@ const tajawal = Tajawal({
 	weight: ["400", "700"],
 });
 
-export type AuthRequiredPage = "cart" | "favorites" | "orders";
+export type AuthRequiredPage = "cart" | "favorites" | "orders" | "notifications";
 
 const PAGE_TITLES: Record<AuthRequiredPage, string> = {
 	cart: "السلة",
 	favorites: "مفضلاتي",
 	orders: "طلباتي",
+	notifications: "الإشعارات",
 };
 
 interface AuthRequiredScreenProps {
