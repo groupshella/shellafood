@@ -43,7 +43,7 @@ export const AuthShell = memo(function AuthShell({
 			lang="ar"
 			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100 ${className}`}
 		>
-			<div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-8 pt-14 sm:pt-16">
+			<div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-8 pt-4 sm:pt-16">
 				{children}
 			</div>
 		</div>

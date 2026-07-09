@@ -14,6 +14,7 @@ import {
 	SecondaryButton,
 } from "@/features/auth/components/shared/AuthPrimitives";
 import { getGuestId } from "@/features/auth/lib/auth.lib";
+import { useRouter } from "next/navigation";
 
 interface LoginScreenProps {
 	isLoading?: boolean;
@@ -120,7 +121,7 @@ const LoginScreen = memo(function LoginScreen({
 	const [showPassword, setShowPassword] = useState(false);
 	const [remember, setRemember] = useState(false);
 	const [hasGuestId, setHasGuestId] = useState(false);
-
+	const router = useRouter();
 	useEffect(() => {
 		if (prefillPhone) setPhone(prefillPhone);
 	}, [prefillPhone]);
@@ -273,8 +274,8 @@ const LoginScreen = memo(function LoginScreen({
 				</PrimaryButton>
 
 				<SecondaryButton
-					onClick={onGuest}
-					disabled={isLoading || hasGuestId}
+					onClick={hasGuestId ? () => router.push("/home") : onGuest}
+					disabled={isLoading}
 					aria-label={hasGuestId ? "أنت تتصفح بالفعل كزائر" : "المتابعة كزائر"}
 				>
 					<span className="inline-flex items-center justify-center gap-2">
