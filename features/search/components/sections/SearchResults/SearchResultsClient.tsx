@@ -86,13 +86,14 @@ export function SearchResultsClient() {
 
                     {hasMore && (
                         <button
+                            type="button"
                             onClick={loadMore}
                             disabled={isLoadingMore}
-                            className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl border border-[#30913F] py-3 text-sm font-semibold text-[#30913F] transition-colors active:bg-[#30913F]/5 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#4db860] dark:text-[#4db860] dark:active:bg-[#30913F]/10 sm:mx-auto sm:max-w-md sm:py-3.5 sm:text-[15px] md:max-w-lg lg:max-w-xl"
+                            className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl border border-[#30913F] py-3 text-sm font-semibold text-[#30913F] transition-colors active:bg-[#30913F]/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#4db860] dark:text-[#4db860] dark:active:bg-[#30913F]/10 dark:focus-visible:ring-offset-gray-950 sm:mx-auto sm:max-w-md sm:py-3.5 sm:text-[15px] md:max-w-lg lg:max-w-xl"
                         >
                             {isLoadingMore ? (
                                 <>
-                                    <Loader2 className="h-4 w-4 animate-spin sm:h-[18px] sm:w-[18px]" />
+                                    <Loader2 className="h-4 w-4 animate-spin sm:h-[18px] sm:w-[18px]" aria-hidden />
                                     <span>جاري التحميل...</span>
                                 </>
                             ) : (

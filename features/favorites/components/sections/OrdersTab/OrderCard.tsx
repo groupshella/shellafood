@@ -1,9 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { memo } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { Heart, Clock, ChevronLeft, Store } from "lucide-react";
 import type { ApiOrder } from "@/features/favorites/types/favorites.types";
-import Image from "next/image";
 
 const STATUS_LABEL: Record<string, string> = {
     pending: "قيد الانتظار",
@@ -29,35 +30,23 @@ function getStyle(status: string) {
     return STATUS_STYLE[status] ?? { bg: "bg-gray-100 dark:bg-gray-700", text: "text-gray-600 dark:text-gray-400" };
 }
 
-function formatDate(dateStr: string) {
-    try {
-        return new Date(dateStr).toLocaleString("ar-SA", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-        });
-    } catch {
-        return dateStr;
-    }
-}
-
-export function OrderCard({ order }: { order: ApiOrder }) {
-    const router = useRouter();
+export const OrderCard = memo(function OrderCard({ order }: { order: ApiOrder }) {
     const storeName = order.restaurant?.name ?? order.store?.name ?? "المتجر";
     const logoUrl = order.restaurant?.logo_full_url ?? order.store?.logo_full_url;
     const style = getStyle(order.order_status);
     const statusLabel = STATUS_LABEL[order.order_status] ?? order.order_status;
 
     return (
-        <article
-            onClick={() => router.push(`/my-orders/${order.id}`)}
-            className="flex h-full min-w-0 cursor-pointer items-stretch overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] transition-transform active:scale-[0.99] dark:bg-gray-800 dark:ring-white/[0.06]"
+        <Link
+            href={`/my-orders/${order.id}`}
+            aria-label={`طلب ${storeName} رقم ${order.id}`}
+            className="flex h-full min-w-0 items-stretch overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:bg-gray-800 dark:ring-white/[0.06] dark:focus-visible:ring-offset-gray-950"
         >
             <div className="relative w-16 shrink-0 self-stretch bg-gray-100 dark:bg-gray-700 sm:w-[4.5rem] md:w-20">
                 {logoUrl ? (
                     <Image
                         src={logoUrl}
-                        alt=""
+                        alt={storeName}
                         fill
                         className="object-cover"
                         sizes="(max-width: 640px) 64px, 80px"
@@ -71,19 +60,18 @@ export function OrderCard({ order }: { order: ApiOrder }) {
             </div>
 
             <div className="flex min-w-0 flex-1 flex-col gap-1.5 px-3 py-3 sm:gap-2 sm:px-4 sm:py-3.5" dir="rtl">
-                <div className="flex items-center justify-end ">
+                <div className="flex items-center justify-end gap-1.5">
                     <span className="text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
                         #{order.id}
                     </span>
                     <Heart
                         aria-hidden
-                        className="h-4 w-4 shrink-0 fill-[#30913F] text-[#30913F]"
+                        className="h-4 w-4 shrink-0 fill-[#30913F] text-[#30913F] dark:fill-[#4db860] dark:text-[#4db860]"
                         strokeWidth={0}
                     />
-
                 </div>
 
-                <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100 sm:text-[15px]">
+                <p className="truncate text-start text-sm font-semibold text-gray-800 dark:text-gray-100 sm:text-[15px]">
                     {storeName}
                 </p>
 
@@ -104,7 +92,7 @@ export function OrderCard({ order }: { order: ApiOrder }) {
                     </p>
                 </div>
 
-                <p className="text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
+                <p className="text-start text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
                     إجمالي التكلفة {order.order_amount?.toFixed(2) ?? 0} ﷼
                 </p>
             </div>
@@ -112,6 +100,6 @@ export function OrderCard({ order }: { order: ApiOrder }) {
             <div className="flex w-9 shrink-0 items-center justify-center self-stretch sm:w-10 md:w-11">
                 <ChevronLeft className="h-4 w-4 text-gray-400 dark:text-gray-500 sm:h-[18px] sm:w-[18px]" strokeWidth={2} aria-hidden />
             </div>
-        </article>
+        </Link>
     );
-}
+});

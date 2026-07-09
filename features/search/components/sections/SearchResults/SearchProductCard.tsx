@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
@@ -12,7 +12,9 @@ interface SearchProductCardProps {
     product: SearchProduct;
 }
 
-export function SearchProductCard({ product }: SearchProductCardProps) {
+export const SearchProductCard = memo(function SearchProductCard({
+    product,
+}: SearchProductCardProps) {
     const [imgErr, setImgErr] = useState(false);
     const hasDiscount = product.discounted_price < product.price;
     const displayPrice = hasDiscount ? product.discounted_price : product.price;
@@ -23,6 +25,20 @@ export function SearchProductCard({ product }: SearchProductCardProps) {
                 ? Math.round((1 - product.discounted_price / product.price) * 100)
                 : 0;
     const isAvailable = product.availability?.is_available ?? true;
+
+    const cartProduct = useMemo(
+        () => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            discount: discountPercent,
+        }),
+        [product.id, product.name, product.price, discountPercent],
+    );
+
+    const handleImgError = useCallback(() => {
+        setImgErr(true);
+    }, []);
 
     return (
         <Link
@@ -48,12 +64,12 @@ export function SearchProductCard({ product }: SearchProductCardProps) {
                     {!imgErr && product.image_full_url ? (
                         <Image
                             src={product.image_full_url}
-                            alt=""
+                            alt={product.name}
                             fill
                             className="object-contain p-1 sm:p-1.5"
                             sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 180px"
                             loading="lazy"
-                            onError={() => setImgErr(true)}
+                            onError={handleImgError}
                         />
                     ) : (
                         <div className="flex h-full items-center justify-center">
@@ -64,12 +80,7 @@ export function SearchProductCard({ product }: SearchProductCardProps) {
 
                 <div className="absolute end-1.5 top-1/2 z-10 -translate-y-1/4 sm:end-2">
                     <ProductAddControl
-                        product={{
-                            id: product.id,
-                            name: product.name,
-                            price: product.price,
-                            discount: discountPercent,
-                        }}
+                        product={cartProduct}
                         isAvailable={isAvailable}
                         size="sm"
                         variant="soft"
@@ -79,7 +90,7 @@ export function SearchProductCard({ product }: SearchProductCardProps) {
             </div>
 
             <div className="flex flex-1 flex-col gap-1.5 px-2.5 pb-2.5 sm:gap-2 sm:px-3 sm:pb-3">
-                <p className="line-clamp-2 min-h-[2.4em] text-right text-xs font-bold leading-snug text-gray-900 dark:text-gray-50 sm:min-h-[2.6em] sm:text-[13px] md:text-sm">
+                <p className="line-clamp-2 min-h-[2.4em] text-start text-xs font-bold leading-snug text-gray-900 dark:text-gray-50 sm:min-h-[2.6em] sm:text-[13px] md:text-sm">
                     {product.name}
                 </p>
 
@@ -100,4 +111,4 @@ export function SearchProductCard({ product }: SearchProductCardProps) {
             </div>
         </Link>
     );
-}
+});

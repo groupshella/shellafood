@@ -29,7 +29,7 @@ export function CouponsEmpty({
 			>
 				<Image
 					src="/coupons/coupons-empty.png"
-					alt=""
+					alt="لا يوجد كوبونات"
 					fill
 					className="object-contain"
 					sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, 256px"

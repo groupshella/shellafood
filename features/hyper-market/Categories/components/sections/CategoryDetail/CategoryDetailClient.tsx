@@ -164,7 +164,7 @@ function SubCategorySection({
             className="pb-3"
         >
             <div className="bg-white px-3 pt-3 dark:bg-gray-900 sm:px-5 lg:px-6">
-                <h2 className="text-right text-base font-bold text-[#111B18] dark:text-gray-50 sm:text-lg">
+                <h2 className="text-start text-base font-bold text-[#111B18] dark:text-gray-50 sm:text-lg">
                     {subCategory.name}
                 </h2>
             </div>

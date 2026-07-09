@@ -19,7 +19,7 @@ function StoreLogo({ logoUrl }: { logoUrl: string }) {
         <div className="absolute -top-5 start-4 z-10 h-12 w-12 overflow-hidden rounded-xl border-2 border-white bg-white shadow-md dark:border-gray-700 dark:bg-gray-800 sm:-top-6 sm:h-14 sm:w-14">
             <Image
                 src={logoUrl}
-                alt=""
+                alt="شعار المتجر"
                 fill
                 className="object-contain p-1"
                 sizes="56px"

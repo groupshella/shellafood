@@ -30,10 +30,10 @@ export function BrandPageShell({ brand, children }: BrandPageShellProps) {
                 <div className="relative flex min-h-[3.25rem] items-center justify-center px-3 py-2.5 sm:px-5">
                     <Link
                         href="/hyper-market/brands"
-                        className={`${ICON_BTN} absolute right-3 sm:right-5`}
+                        className={`${ICON_BTN} absolute start-3 sm:start-5`}
                         aria-label="العودة إلى العلامات التجارية"
                     >
-                        <ArrowRight className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} />
+                        <ArrowRight className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} aria-hidden />
                     </Link>
 
                     <div className="flex max-w-[65%] min-w-0 items-center gap-2 sm:max-w-[70%]">

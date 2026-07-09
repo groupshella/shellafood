@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { Module } from "@/features/home/types/modules.types";
 import { MODULE_SPEC, ModuleSpecKey } from "@/features/home/components/shared/home.tokens";
 
@@ -25,7 +26,7 @@ function getModuleHref(module: ModuleCardModule): string {
 		: `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
 }
 
-export function ModuleCard({
+export const ModuleCard = memo(function ModuleCard({
 	module,
 	specKey,
 }: {
@@ -43,9 +44,10 @@ export function ModuleCard({
 			<span
 				className={[
 					"absolute inset-y-0 z-10 flex flex-col items-center justify-center text-center font-bold leading-tight text-[var(--module-text)] dark:text-[var(--module-dark-text)]",
+					// Icon sits on the start edge; text inset leaves room for it
 					spec.tall
-						? "left-2.5 right-[4.25rem] text-sm sm:left-3 sm:right-20 sm:text-base md:text-lg lg:right-[5.5rem] lg:text-xl"
-						: "left-2 right-11 text-xs sm:left-3 sm:right-14 sm:text-sm md:text-base",
+						? "end-2.5 start-[4.25rem] text-sm sm:end-3 sm:start-20 sm:text-base md:text-lg lg:start-[5.5rem] lg:text-xl"
+						: "end-2 start-11 text-xs sm:end-3 sm:start-14 sm:text-sm md:text-base",
 					spec.disabled ? "opacity-80" : "",
 				].join(" ")}
 			>
@@ -60,7 +62,7 @@ export function ModuleCard({
 			{iconSrc && (
 				<span
 					className={[
-						"pointer-events-none absolute right-0 z-0",
+						"pointer-events-none absolute start-0 z-0",
 						spec.tall
 							? "bottom-3 h-15 w-15 translate-x-1 translate-y-1 sm:h-16 sm:w-16 sm:translate-x-2 sm:translate-y-2 md:h-[72px] md:w-[72px] lg:h-20 lg:w-20"
 							: "top-1/2 h-9 w-9 -translate-y-1/2 translate-x-0.5 sm:h-11 sm:w-11 sm:translate-x-1 md:h-12 md:w-12",
@@ -117,7 +119,7 @@ export function ModuleCard({
 			{content}
 		</Link>
 	);
-}
+});
 
 export function StaticModuleCard({ specKey }: { specKey: ModuleSpecKey }) {
 	return <ModuleCard specKey={specKey} />;

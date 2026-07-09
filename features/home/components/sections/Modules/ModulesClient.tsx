@@ -14,7 +14,7 @@ function pickModule(modules: Module[], key: ModuleSpecKey): Module | null {
 export function ModulesClient({ modules }: { modules: Module[] }) {
 	return (
 		<section aria-label="خدماتنا" className="flex w-full min-w-0 flex-col items-start gap-2 sm:gap-3 lg:gap-4">
-			<h2 className="text-right text-base font-bold leading-tight text-[#111B18] dark:text-gray-100 sm:text-lg md:text-xl lg:text-[1.375rem]">
+			<h2 className="text-start text-base font-bold leading-tight text-[#111B18] dark:text-gray-100 sm:text-lg md:text-xl lg:text-[1.375rem]">
 				خدماتنا
 			</h2>
 

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { Star, Clock, Bike } from "lucide-react";
 import { DiscountedStore } from "@/features/home/types/discounted-stores.types";
 
@@ -8,7 +9,7 @@ function formatDiscount(store: DiscountedStore): string | null {
 	return "عرض خاص";
 }
 
-export function StoreCard({ store }: { store: DiscountedStore }) {
+export const StoreCard = memo(function StoreCard({ store }: { store: DiscountedStore }) {
 	const discountLabel = formatDiscount(store);
 	const isOpen = store.is_open;
 
@@ -19,16 +20,17 @@ export function StoreCard({ store }: { store: DiscountedStore }) {
 				"group flex w-[min(72vw,300px)] min-w-[220px] shrink-0 flex-col overflow-hidden rounded-xl bg-white",
 				"shadow-sm ring-1 ring-black/[0.04] outline-none",
 				"transition-transform duration-150 active:scale-[0.98]",
-				"focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+				"focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900",
+				"dark:bg-gray-800 dark:ring-white/[0.06]",
 				"sm:w-[260px] sm:min-w-[260px] md:w-[280px] lg:w-[300px] xl:w-[320px]",
 				"sm:rounded-2xl",
 			].join(" ")}
 			aria-label={store.name}
 		>
-			<div className="relative aspect-[16/9] w-full bg-gray-100">
+			<div className="relative aspect-[16/9] w-full bg-gray-100 dark:bg-gray-700">
 				<Image
 					src={store.cover_photo_full_url}
-					alt=""
+					alt={store.name}
 					fill
 					className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
 					sizes="(max-width: 640px) 72vw, 320px"
@@ -49,27 +51,38 @@ export function StoreCard({ store }: { store: DiscountedStore }) {
 			</div>
 
 			<div className="relative flex flex-1 flex-col gap-1.5 p-2.5 sm:gap-2 sm:p-3">
-				<div className="absolute -top-4 start-2.5 h-9 w-9 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-black/[0.06] sm:-top-5 sm:start-3 sm:h-10 sm:w-10 sm:rounded-xl">
-					<Image src={store.logo_full_url} alt="" fill className="object-cover" sizes="40px" loading="lazy" />
+				<div className="absolute -top-4 start-2.5 h-9 w-9 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-black/[0.06] dark:bg-gray-700 dark:ring-white/[0.08] sm:-top-5 sm:start-3 sm:h-10 sm:w-10 sm:rounded-xl">
+					<Image
+						src={store.logo_full_url}
+						alt=""
+						fill
+						className="object-cover"
+						sizes="40px"
+						loading="lazy"
+					/>
 				</div>
-				<h3 className="line-clamp-1 pe-10 text-xs font-bold text-gray-900 sm:pe-12 sm:text-sm">{store.name}</h3>
-				<div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-gray-500 sm:gap-x-3 sm:text-xs">
+				<h3 className="line-clamp-1 pe-10 text-xs font-bold text-gray-900 dark:text-gray-50 sm:pe-12 sm:text-sm">
+					{store.name}
+				</h3>
+				<div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-gray-500 dark:text-gray-400 sm:gap-x-3 sm:text-xs">
 					{store.avg_rating > 0 && (
-						<span className="inline-flex items-center gap-0.5 font-medium text-gray-700">
-							<Star className="h-3 w-3 fill-amber-400 text-amber-400 sm:h-3.5 sm:w-3.5" />
+						<span className="inline-flex items-center gap-0.5 font-medium text-gray-700 dark:text-gray-300">
+							<Star className="h-3 w-3 fill-amber-400 text-amber-400 sm:h-3.5 sm:w-3.5" aria-hidden />
 							{store.avg_rating.toFixed(1)}
-							{store.rating_count > 0 && <span className="text-gray-400">({store.rating_count})</span>}
+							{store.rating_count > 0 && (
+								<span className="text-gray-400 dark:text-gray-500">({store.rating_count})</span>
+							)}
 						</span>
 					)}
 					{store.delivery_time && (
 						<span className="inline-flex items-center gap-0.5">
-							<Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+							<Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" aria-hidden />
 							{store.delivery_time}
 						</span>
 					)}
 					{store.free_delivery && (
-						<span className="inline-flex items-center gap-0.5 font-medium text-[#30913F]">
-							<Bike className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+						<span className="inline-flex items-center gap-0.5 font-medium text-[#30913F] dark:text-[#4db860]">
+							<Bike className="h-3 w-3 sm:h-3.5 sm:w-3.5" aria-hidden />
 							توصيل مجاني
 						</span>
 					)}
@@ -77,4 +90,4 @@ export function StoreCard({ store }: { store: DiscountedStore }) {
 			</div>
 		</Link>
 	);
-}
+});

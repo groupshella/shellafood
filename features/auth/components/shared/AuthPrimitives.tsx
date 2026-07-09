@@ -8,16 +8,11 @@ import {
 	type ReactNode,
 } from "react";
 import { motion } from "framer-motion";
-import { Tajawal } from "next/font/google";
 import { isAccountExistsError } from "@/features/auth/lib/auth.lib";
 
-export const tajawal = Tajawal({
-	subsets: ["arabic", "latin"],
-	weight: ["400", "500", "700"],
-	variable: "--font-tajawal",
-});
+// TODO: font-tajawal utility not yet defined in tailwind config — load Tajawal once in root layout
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
+// ─── Design tokens (local hex map until theme tokens exist) ───────────────────
 export const AUTH_COLORS = {
 	primary: "#30913F",
 	textPrimary: "#111B18",
@@ -41,7 +36,8 @@ export const AuthShell = memo(function AuthShell({
 		<div
 			dir="rtl"
 			lang="ar"
-			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100 ${className}`}
+			// TODO: font-tajawal utility not yet defined in tailwind config
+			className={`relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100 ${className}`}
 		>
 			<div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-8 pt-4 sm:pt-16">
 				{children}
@@ -66,7 +62,7 @@ export const BackHeader = memo(function BackHeader({
 			onClick={onBack}
 			disabled={disabled}
 			aria-label="رجوع"
-			className="mb-4 -mr-2 flex h-10 w-10 items-center justify-center self-start rounded-full transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-50 dark:hover:bg-gray-700 dark:focus-visible:ring-gray-500"
+			className="mb-4 -me-2 flex h-10 w-10 items-center justify-center self-start rounded-full transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-50 dark:hover:bg-gray-700 dark:focus-visible:ring-gray-500"
 		>
 			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
 				<path
@@ -88,7 +84,7 @@ export function AuthTitle({ children }: { children: ReactNode }) {
 			initial={{ y: 12, opacity: 0 }}
 			animate={{ y: 0, opacity: 1 }}
 			transition={{ duration: 0.4 }}
-			className="text-right text-[28px] font-bold leading-tight text-[#111B18] dark:text-gray-100 sm:text-[32px]"
+			className="text-start text-[28px] font-bold leading-tight text-[#111B18] dark:text-gray-100 sm:text-[32px]"
 		>
 			{children}
 		</motion.h1>
@@ -101,7 +97,7 @@ export function AuthSubtitle({ children }: { children: ReactNode }) {
 			initial={{ y: 8, opacity: 0 }}
 			animate={{ y: 0, opacity: 1 }}
 			transition={{ delay: 0.1, duration: 0.4 }}
-			className="mt-2 text-right text-[16px] font-normal leading-relaxed text-[#555555] dark:text-gray-400"
+			className="mt-2 text-start text-[16px] font-normal leading-relaxed text-[#555555] dark:text-gray-400"
 		>
 			{children}
 		</motion.p>
@@ -111,7 +107,7 @@ export function AuthSubtitle({ children }: { children: ReactNode }) {
 // ─── Field label ──────────────────────────────────────────────────────────────
 export function FieldLabel({ children }: { children: ReactNode }) {
 	return (
-		<label className="mb-1.5 block text-right text-[14px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100">
+		<label className="mb-1.5 block text-start text-[14px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100">
 			{children}
 		</label>
 	);
@@ -127,7 +123,7 @@ export const TextField = forwardRef<
 			<FieldLabel>{label}</FieldLabel>
 			<input
 				ref={ref}
-				className={`box-border h-14 w-full rounded-xl border border-[#C6C8CE] bg-white px-4 text-right text-[14px] text-[#111B18] outline-none transition-all placeholder:text-[#707784] focus:border-[#30913F] focus:ring-1 focus:ring-[#30913F] disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-[#30913F] ${className}`}
+				className={`box-border h-14 w-full rounded-xl border border-[#C6C8CE] bg-white px-4 text-start text-[14px] text-[#111B18] outline-none transition-all placeholder:text-[#707784] focus:border-[#30913F] focus:ring-1 focus:ring-[#30913F] disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-[#30913F] ${className}`}
 				{...props}
 			/>
 		</div>
@@ -139,13 +135,13 @@ export const SaudiFlag = memo(function SaudiFlag() {
 	return (
 		<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
 			<rect width="24" height="24" rx="4" fill="#0C7A2F" />
+			{/* TODO: font-tajawal utility not yet defined in tailwind config */}
 			<text
 				x="12"
 				y="11"
 				textAnchor="middle"
 				fontSize="5"
 				fill="#fff"
-				fontFamily="'Tajawal', sans-serif"
 			>
 				لا اله
 			</text>
@@ -173,7 +169,7 @@ export const PhoneField = memo(function PhoneField({
 		<div>
 			<FieldLabel>{label}</FieldLabel>
 			<div className="box-border flex h-14 w-full items-center gap-3 rounded-xl border border-[#C6C8CE] bg-white px-4 transition-all focus-within:border-[#30913F] focus-within:ring-1 focus-within:ring-[#30913F] dark:border-gray-600 dark:bg-gray-800 dark:focus-within:border-[#30913F]">
-				<div className="flex shrink-0 items-center gap-2 border-l border-[#C6C8CE] pl-3 dark:border-gray-600">
+				<div className="flex shrink-0 items-center gap-2 border-e border-[#C6C8CE] pe-3 dark:border-gray-600">
 					<SaudiFlag />
 					<span
 						dir="ltr"
@@ -192,7 +188,7 @@ export const PhoneField = memo(function PhoneField({
 					placeholder="12 234 5678"
 					disabled={disabled}
 					aria-label={label}
-					className="min-w-0 flex-1 bg-transparent text-left text-[14px] text-[#343434] outline-none placeholder:text-[#707784] dark:text-gray-100 dark:placeholder:text-gray-500"
+					className="min-w-0 flex-1 bg-transparent text-start text-[14px] text-[#343434] outline-none placeholder:text-[#707784] dark:text-gray-100 dark:placeholder:text-gray-500"
 				/>
 			</div>
 		</div>
@@ -260,7 +256,7 @@ export const PasswordField = memo(function PasswordField({
 				<button
 					type="button"
 					onClick={onToggle}
-					className="shrink-0 text-[#555555] dark:text-gray-400"
+					className="shrink-0 rounded text-[#555555] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:text-gray-400"
 					aria-label={show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
 				>
 					{show ? <EyeIcon /> : <EyeSlashIcon />}
@@ -273,7 +269,7 @@ export const PasswordField = memo(function PasswordField({
 					placeholder={placeholder}
 					disabled={disabled}
 					aria-label={typeof label === "string" ? label : "كلمة المرور"}
-					className="min-w-0 flex-1 bg-transparent text-right text-[14px] text-[#111B18] outline-none placeholder:text-[#555555] dark:text-gray-100 dark:placeholder:text-gray-500"
+					className="min-w-0 flex-1 bg-transparent text-start text-[14px] text-[#111B18] outline-none placeholder:text-[#555555] dark:text-gray-100 dark:placeholder:text-gray-500"
 				/>
 			</div>
 		</div>
@@ -354,7 +350,7 @@ export const AuthCheckbox = memo(function AuthCheckbox({
 				aria-checked={checked}
 				disabled={disabled}
 				onClick={() => onChange(!checked)}
-				className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors ${checked
+				className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] ${checked
 					? "border-[#30913F] bg-[#30913F]"
 					: "border-[#555555] bg-white dark:border-gray-500 dark:bg-gray-700"
 					}`}
@@ -371,7 +367,7 @@ export const AuthCheckbox = memo(function AuthCheckbox({
 					</svg>
 				)}
 			</button>
-			<span className="text-right text-[14px] font-normal text-[#111B18] dark:text-gray-200">{label}</span>
+			<span className="text-start text-[14px] font-normal text-[#111B18] dark:text-gray-200">{label}</span>
 		</label>
 	);
 });
@@ -389,7 +385,7 @@ export const HelperRow = memo(function HelperRow({ children }: { children: React
 					strokeLinecap="round"
 				/>
 			</svg>
-			<span className="text-right text-[14px] font-normal text-[#111B18] dark:text-gray-200">{children}</span>
+			<span className="text-start text-[14px] font-normal text-[#111B18] dark:text-gray-200">{children}</span>
 		</div>
 	);
 });
@@ -397,7 +393,7 @@ export const HelperRow = memo(function HelperRow({ children }: { children: React
 // ─── Inline messages ──────────────────────────────────────────────────────────
 export function ErrorMessage({ children }: { children: ReactNode }) {
 	return (
-		<p className="rounded-lg bg-red-50 px-3 py-2 text-right text-[14px] text-red-600 dark:bg-red-950/60 dark:text-red-400">
+		<p className="rounded-lg bg-red-50 px-3 py-2 text-start text-[14px] text-red-600 dark:bg-red-950/60 dark:text-red-400">
 			{children}
 		</p>
 	);
@@ -413,7 +409,7 @@ export function AccountExistsErrorMessage({
 	return (
 		<div
 			role="alert"
-			className="rounded-lg bg-red-50 px-3 py-3 text-right text-[14px] leading-relaxed text-red-600 dark:bg-red-950/60 dark:text-red-400"
+			className="rounded-lg bg-red-50 px-3 py-3 text-start text-[14px] leading-relaxed text-red-600 dark:bg-red-950/60 dark:text-red-400"
 		>
 			<p>
 				يوجد حساب مرتبط بهذا الرقم بالفعل. يمكنك تسجيل الدخول أو استعادة كلمة
@@ -423,14 +419,14 @@ export function AccountExistsErrorMessage({
 				<button
 					type="button"
 					onClick={onForgotPassword}
-					className="text-[14px] font-medium text-[#555555] underline transition-colors hover:text-[#30913F] dark:text-gray-400 dark:hover:text-[#30913F]"
+					className="rounded text-[14px] font-medium text-[#555555] underline transition-colors hover:text-[#30913F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 dark:text-gray-400 dark:hover:text-[#30913F]"
 				>
 					استعادة كلمة المرور
 				</button>
 				<button
 					type="button"
 					onClick={onLogin}
-					className="rounded-lg bg-[#30913F] px-4 py-2 text-[14px] font-bold text-white transition-colors hover:bg-[#2a8036]"
+					className="rounded-lg bg-[#30913F] px-4 py-2 text-[14px] font-bold text-white transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
 				>
 					تسجيل الدخول
 				</button>
@@ -462,7 +458,7 @@ export function AuthErrorMessage({
 
 export function InfoMessage({ children }: { children: ReactNode }) {
 	return (
-		<p className="rounded-lg bg-green-50 px-3 py-2 text-right text-[14px] text-[#2a8036] dark:bg-green-950/60 dark:text-green-400">
+		<p className="rounded-lg bg-green-50 px-3 py-2 text-start text-[14px] text-[#2a8036] dark:bg-green-950/60 dark:text-green-400">
 			{children}
 		</p>
 	);

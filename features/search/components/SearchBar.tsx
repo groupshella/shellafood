@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent } from "react";
+import { FormEvent, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Search, X } from "lucide-react";
 
@@ -13,17 +13,28 @@ interface SearchBarProps {
 export function SearchBar({ value, onChange, onSubmit }: SearchBarProps) {
     const router = useRouter();
 
-    const handleSubmit = (event: FormEvent) => {
-        event.preventDefault();
-        onSubmit(value);
-    };
+    const handleBack = useCallback(() => {
+        router.back();
+    }, [router]);
+
+    const handleSubmit = useCallback(
+        (event: FormEvent) => {
+            event.preventDefault();
+            onSubmit(value);
+        },
+        [onSubmit, value],
+    );
+
+    const handleClear = useCallback(() => {
+        onChange("");
+    }, [onChange]);
 
     return (
         <div className="flex w-full min-w-0 items-center gap-2 sm:gap-2.5 lg:gap-3" dir="rtl">
             <button
                 type="button"
-                onClick={() => router.back()}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:active:bg-gray-800 sm:h-11 sm:w-11"
+                onClick={handleBack}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950 dark:active:bg-gray-800 sm:h-11 sm:w-11"
                 aria-label="العودة للصفحة السابقة"
             >
                 <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-400 sm:h-6 sm:w-6" aria-hidden />
@@ -44,7 +55,7 @@ export function SearchBar({ value, onChange, onSubmit }: SearchBarProps) {
                     placeholder="البحث"
                     aria-label="البحث"
                     className={[
-                        "min-w-0 flex-1 bg-transparent text-right text-sm text-gray-900 dark:text-gray-100",
+                        "min-w-0 flex-1 bg-transparent text-start text-sm text-gray-900 dark:text-gray-100",
                         "placeholder:text-gray-400 dark:placeholder:text-gray-500",
                         "outline-none sm:text-[15px] lg:text-base",
                         "[&::-webkit-search-cancel-button]:appearance-none",
@@ -55,11 +66,11 @@ export function SearchBar({ value, onChange, onSubmit }: SearchBarProps) {
                 {value && (
                     <button
                         type="button"
-                        onClick={() => onChange("")}
+                        onClick={handleClear}
                         aria-label="مسح البحث"
-                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-300 text-gray-600 transition-colors active:bg-gray-400 dark:bg-gray-600 dark:text-gray-300 sm:h-8 sm:w-8"
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-300 text-gray-600 transition-colors active:bg-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-600 dark:text-gray-300 sm:h-8 sm:w-8"
                     >
-                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
                     </button>
                 )}
             </form>

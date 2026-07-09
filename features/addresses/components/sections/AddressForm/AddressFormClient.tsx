@@ -279,7 +279,7 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 
 function inputClass(hasError: boolean) {
 	return [
-		"w-full min-h-[44px] rounded-xl border px-3 py-2.5 text-right text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-[#30913F] focus:ring-2 focus:ring-[#30913F]/30 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-[#30913F] sm:min-h-[48px] sm:py-3",
+		"w-full min-h-[44px] rounded-xl border px-3 py-2.5 text-start text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-[#30913F] focus:ring-2 focus:ring-[#30913F]/30 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-[#30913F] sm:min-h-[48px] sm:py-3",
 		hasError
 			? "border-red-400 bg-red-50/30 dark:border-red-500 dark:bg-red-950/30"
 			: "border-gray-200 bg-gray-50 dark:border-gray-600",

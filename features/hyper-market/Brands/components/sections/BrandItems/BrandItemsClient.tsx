@@ -52,7 +52,7 @@ function ProductsToolbar({
                     {hasActiveFilter && (
                         <span
                             aria-hidden
-                            className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#30913F] ring-2 ring-white dark:ring-gray-900"
+                            className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#30913F] ring-2 ring-white dark:ring-gray-900"
                         />
                     )}
                 </div>

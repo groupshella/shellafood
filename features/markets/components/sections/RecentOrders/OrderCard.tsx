@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { RecentOrder } from "@/features/markets/types/recent-orders.types";
 
-export function OrderCard({ order }: { order: RecentOrder }) {
+export const OrderCard = memo(function OrderCard({ order }: { order: RecentOrder }) {
     return (
         <Link
             href={`/my-orders?reorder=${order.id}`}
@@ -33,4 +34,4 @@ export function OrderCard({ order }: { order: RecentOrder }) {
             </h3>
         </Link>
     );
-}
+});

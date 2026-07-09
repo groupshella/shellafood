@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { StoreCategory } from "@/features/hyper-market/Categories/types/categories.types";
@@ -9,8 +9,12 @@ interface CategoryCardProps {
     category: StoreCategory;
 }
 
-export function CategoryCard({ category }: CategoryCardProps) {
+export const CategoryCard = memo(function CategoryCard({ category }: CategoryCardProps) {
     const [imageError, setImageError] = useState(false);
+
+    const handleImageError = useCallback(() => {
+        setImageError(true);
+    }, []);
 
     return (
         <Link
@@ -28,13 +32,13 @@ export function CategoryCard({ category }: CategoryCardProps) {
         >
             <div
                 aria-hidden
-                className="pointer-events-none absolute -right-6 bottom-0 h-[78%] w-[78%] rounded-[40%] bg-white/70 blur-[1px] dark:bg-white/10"
+                className="pointer-events-none absolute -end-6 bottom-0 h-[78%] w-[78%] rounded-[40%] bg-white/70 blur-[1px] dark:bg-white/10"
                 style={{ transform: "rotate(-12deg)" }}
             />
 
             <div
                 aria-hidden
-                className="pointer-events-none absolute -bottom-6 -left-6 h-16 w-16 rounded-full bg-[#9DF7A6]/70 blur-md dark:bg-[#30913F]/30"
+                className="pointer-events-none absolute -bottom-6 -start-6 h-16 w-16 rounded-full bg-[#9DF7A6]/70 blur-md dark:bg-[#30913F]/30"
             />
 
             <h3
@@ -63,7 +67,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
                         "
                         sizes="(max-width: 640px) 22vw, 112px"
                         loading="lazy"
-                        onError={() => setImageError(true)}
+                        onError={handleImageError}
                     />
                 ) : (
                     <div
@@ -76,4 +80,4 @@ export function CategoryCard({ category }: CategoryCardProps) {
             </div>
         </Link>
     );
-}
+});

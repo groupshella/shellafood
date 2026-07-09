@@ -1,16 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { Brand } from "@/features/hyper-market/Brands/types/brands.types";
 
 interface BrandGridCardProps {
     brand: Brand;
 }
 
-export function BrandGridCard({ brand }: BrandGridCardProps) {
+export const BrandGridCard = memo(function BrandGridCard({ brand }: BrandGridCardProps) {
     const [imageError, setImageError] = useState(false);
     const name = brand.name?.trim() || "";
+
+    const handleImageError = useCallback(() => {
+        setImageError(true);
+    }, []);
 
     return (
         <div
@@ -30,7 +34,7 @@ export function BrandGridCard({ brand }: BrandGridCardProps) {
                         className="object-contain p-1.5"
                         sizes="56px"
                         loading="lazy"
-                        onError={() => setImageError(true)}
+                        onError={handleImageError}
                     />
                 ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gray-100 text-xs font-bold text-gray-400 dark:bg-gray-600 dark:text-gray-300">
@@ -39,9 +43,9 @@ export function BrandGridCard({ brand }: BrandGridCardProps) {
                 )}
             </div>
 
-            <h3 className="line-clamp-2 min-w-0 flex-1 text-xs font-bold text-gray-900 dark:text-gray-50 sm:text-sm">
+            <h3 className="line-clamp-2 min-w-0 flex-1 text-start text-xs font-bold text-gray-900 dark:text-gray-50 sm:text-sm">
                 {name}
             </h3>
         </div>
     );
-}
+});

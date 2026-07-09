@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { memo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { Heart, ShoppingBag } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
@@ -19,6 +19,26 @@ export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCard
     const displayPrice = hasDiscount ? item.discounted_price : item.price;
     const showImage = !imgError && !!item.image_full_url;
 
+    const cartProduct = useMemo(
+        () => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            discount: item.discount_percentage,
+        }),
+        [item.id, item.name, item.price, item.discount_percentage],
+    );
+
+    const handleImgError = useCallback(() => {
+        setImgError(true);
+    }, []);
+
+    const handleToggleWishlist = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setWishlisted((prev) => !prev);
+    }, []);
+
     return (
         <div
             dir="rtl"
@@ -31,7 +51,7 @@ export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCard
                 tabIndex={-1}
             >
                 {hasDiscount && (
-                    <span className="absolute start-0 top-0 z-10 rounded-br-md bg-[#E53935] px-1.5 py-0.5 text-[9px] font-bold leading-none text-white">
+                    <span className="absolute start-0 top-0 z-10 rounded-ee-md rounded-es-none bg-[#E53935] px-1.5 py-0.5 text-[9px] font-bold leading-none text-white">
                         -{Math.round(item.discount_percentage)}%
                     </span>
                 )}
@@ -39,12 +59,12 @@ export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCard
                 {showImage ? (
                     <Image
                         src={item.image_full_url}
-                        alt=""
+                        alt={item.name}
                         fill
                         className="object-contain p-1.5"
                         sizes="72px"
                         loading="lazy"
-                        onError={() => setImgError(true)}
+                        onError={handleImgError}
                     />
                 ) : (
                     <div className="flex h-full items-center justify-center">
@@ -58,12 +78,12 @@ export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCard
                 aria-label={item.name}
                 className="min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
             >
-                <p className="line-clamp-2 text-right text-sm font-semibold leading-snug text-[#111B18] dark:text-gray-50 sm:text-[14px]">
+                <p className="line-clamp-2 text-start text-sm font-semibold leading-snug text-[#111B18] dark:text-gray-50 sm:text-[14px]">
                     {item.name}
                 </p>
 
                 {item.description && (
-                    <p className="mt-0.5 line-clamp-1 text-right text-xs leading-snug text-gray-400 dark:text-gray-500 sm:text-[12px]">
+                    <p className="mt-0.5 line-clamp-1 text-start text-xs leading-snug text-gray-400 dark:text-gray-500 sm:text-[12px]">
                         {item.description}
                     </p>
                 )}
@@ -88,12 +108,9 @@ export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCard
                 <button
                     type="button"
                     aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setWishlisted((prev) => !prev);
-                    }}
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EBFEEB] transition-colors active:bg-[#DCF5DC] dark:bg-[#30913F]/15 dark:active:bg-[#30913F]/25 sm:h-8 sm:w-8"
+                    aria-pressed={wishlisted}
+                    onClick={handleToggleWishlist}
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EBFEEB] transition-colors active:bg-[#DCF5DC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-[#30913F]/15 dark:active:bg-[#30913F]/25 sm:h-8 sm:w-8"
                 >
                     <Heart
                         className={[
@@ -103,16 +120,12 @@ export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCard
                                 : "fill-none text-gray-400 dark:text-gray-500",
                         ].join(" ")}
                         strokeWidth={wishlisted ? 0 : 1.8}
+                        aria-hidden
                     />
                 </button>
 
                 <ProductAddControl
-                    product={{
-                        id: item.id,
-                        name: item.name,
-                        price: item.price,
-                        discount: item.discount_percentage,
-                    }}
+                    product={cartProduct}
                     isAvailable={item.available ?? true}
                     size="sm"
                 />

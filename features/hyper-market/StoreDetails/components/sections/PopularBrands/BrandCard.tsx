@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { HyperMarketPopularBrand } from "@/features/hyper-market/StoreDetails/types/popular-brands.types";
 
-export function BrandCard({ brand }: { brand: HyperMarketPopularBrand }) {
+export const BrandCard = memo(function BrandCard({ brand }: { brand: HyperMarketPopularBrand }) {
     const name = brand.name?.trim() || "";
 
     return (
@@ -33,9 +34,9 @@ export function BrandCard({ brand }: { brand: HyperMarketPopularBrand }) {
                 )}
             </div>
 
-            <h3 className="line-clamp-2 min-w-0 flex-1 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
+            <h3 className="line-clamp-2 min-w-0 flex-1 text-start text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
                 {name}
             </h3>
         </Link>
     );
-}
+});

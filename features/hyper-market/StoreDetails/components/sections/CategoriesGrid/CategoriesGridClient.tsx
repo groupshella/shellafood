@@ -66,7 +66,7 @@ export function CategoriesGridClient({ categories }: CategoriesGridClientProps) 
             <div className="relative">
                 {hasMultipleColumns && (
                     <div
-                        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-gray-900 dark:via-gray-900/80 sm:w-12"
+                        className="pointer-events-none absolute inset-y-0 start-0 z-10 w-10 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-gray-900 dark:via-gray-900/80 sm:w-12"
                         aria-hidden
                     />
                 )}

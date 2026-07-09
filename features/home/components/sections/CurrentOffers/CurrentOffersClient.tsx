@@ -7,7 +7,7 @@ import { OfferCard } from "./OfferCard";
 export function CurrentOffersClient({ offers }: { offers: CurrentOffer[] }) {
 	return (
 		<section aria-label="العروض الحالية" className="w-full min-w-0 space-y-2.5 sm:space-y-3 lg:space-y-4">
-			<h2 className="text-right text-base font-bold text-gray-800 dark:text-gray-100 sm:text-lg md:text-xl">
+			<h2 className="text-start text-base font-bold text-gray-800 dark:text-gray-100 sm:text-lg md:text-xl">
 				العروض الحالية
 			</h2>
 			<ScrollContainer

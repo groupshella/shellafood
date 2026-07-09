@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { Heart, ShoppingBag } from "lucide-react";
 import { formatPrice, PriceTag } from "@/features/home/components/shared/PriceTag";
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
@@ -39,12 +39,15 @@ export const CategoryProductCard = memo(function CategoryProductCard({
     const showImage = !imgError && !!product.full_image_url;
     const discountPercent = product.discount_percentage ?? 0;
 
-    const cartProduct = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        discount: discountPercent,
-    };
+    const cartProduct = useMemo(
+        () => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            discount: discountPercent,
+        }),
+        [product.id, product.name, product.price, discountPercent],
+    );
 
     const itemHref = `/items/${product.id}?module_id=3`;
 
@@ -69,6 +72,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
         <button
             type="button"
             aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+            aria-pressed={wishlisted}
             onClick={toggleWishlist}
             disabled={wishlistPending}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(246,245,248,0.8)] transition-colors active:bg-[#F6F5F8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60 dark:bg-gray-800/80 dark:active:bg-gray-700"
@@ -81,6 +85,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                         : "fill-none text-[#30913F] dark:text-[#4db860]",
                 ].join(" ")}
                 strokeWidth={wishlisted ? 0 : 1.5}
+                aria-hidden
             />
         </button>
     );
@@ -107,7 +112,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                     aria-label={product.name}
                     className="min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
                 >
-                    <p className="line-clamp-2 text-right text-sm font-bold leading-snug text-[#111B18] dark:text-gray-50">
+                    <p className="line-clamp-2 text-start text-sm font-bold leading-snug text-[#111B18] dark:text-gray-50">
                         {product.name}
                     </p>
                     <div className="mt-2 flex items-center gap-2">
@@ -133,14 +138,14 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                     className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#F6F5F8] outline-none dark:bg-gray-700 sm:h-20 sm:w-20"
                 >
                     {hasDiscount && (
-                        <span className="absolute right-0 top-0 z-10 rounded-bl-[6.6px] rounded-tl-[6.6px] bg-[#FFDCDC] px-1.5 py-0.5 text-[11px] font-bold leading-none text-[#DB2626] dark:bg-red-900/40 dark:text-red-300">
+                        <span className="absolute end-0 top-0 z-10 rounded-ss-md rounded-es-md bg-[#FFDCDC] px-1.5 py-0.5 text-[11px] font-bold leading-none text-[#DB2626] dark:bg-red-900/40 dark:text-red-300">
                             -{Math.round(discountPercent)}%
                         </span>
                     )}
                     {showImage ? (
                         <Image
                             src={product.full_image_url}
-                            alt=""
+                            alt={product.name}
                             fill
                             className="object-contain p-1.5"
                             sizes="80px"
@@ -163,7 +168,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
             className="relative flex min-h-[172px] w-full min-w-0 flex-row items-center gap-2 overflow-hidden rounded-lg bg-white shadow-[0_7px_19.8px_rgba(0,0,0,0.04)] dark:bg-gray-800 dark:shadow-[0_7px_19.8px_rgba(0,0,0,0.2)] sm:min-h-[190px]"
         >
             {hasDiscount && (
-                <span className="absolute right-0 top-[5px] z-10 flex min-w-[38px] items-center justify-center rounded-bl-[6.6px] rounded-tl-[6.6px] bg-[#FFDCDC] px-[11px] py-0.5 text-[13px] font-bold leading-[1] text-[#DB2626] dark:bg-red-900/40 dark:text-red-300">
+                <span className="absolute end-0 top-[5px] z-10 flex min-w-[38px] items-center justify-center rounded-ss-md rounded-es-md bg-[#FFDCDC] px-[11px] py-0.5 text-[13px] font-bold leading-[1] text-[#DB2626] dark:bg-red-900/40 dark:text-red-300">
                     -{Math.round(discountPercent)}%
                 </span>
             )}
@@ -178,7 +183,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                         <div className="relative h-full w-full">
                             <Image
                                 src={product.full_image_url}
-                                alt=""
+                                alt={product.name}
                                 fill
                                 className="object-contain"
                                 sizes="60px"
@@ -192,7 +197,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                 </div>
 
                 <div className="flex w-full flex-col items-start justify-between gap-3 px-1 sm:gap-4">
-                    <p className="line-clamp-2 w-full text-right text-[13px] font-bold leading-[1.4] text-[#111B18] dark:text-gray-50 sm:text-[14px]">
+                    <p className="line-clamp-2 w-full text-start text-[13px] font-bold leading-[1.4] text-[#111B18] dark:text-gray-50 sm:text-[14px]">
                         {product.name}
                     </p>
 
@@ -207,8 +212,8 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                                 {formatPrice(product.price)}
                                 <SarIcon size={10} />
                                 <span
-                                    className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2"
-                                    style={{ background: "#CD1625" }}
+                                    className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[#CD1625]"
+                                    aria-hidden
                                 />
                             </span>
                         )}

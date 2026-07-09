@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -18,6 +19,10 @@ const HEADER_PADDING = "px-3 py-3 sm:px-4 sm:py-3.5 md:px-5 lg:px-6";
 export function CouponsShell({ children }: CouponsShellProps) {
 	const router = useRouter();
 
+	const handleBack = useCallback(() => {
+		router.back();
+	}, [router]);
+
 	return (
 		<div className={SHELL_LAYOUT}>
 			<header
@@ -29,11 +34,11 @@ export function CouponsShell({ children }: CouponsShellProps) {
 				</h1>
 				<button
 					type="button"
-					onClick={() => router.back()}
+					onClick={handleBack}
 					aria-label="رجوع"
 					className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition-colors active:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:text-gray-400 dark:active:bg-gray-800 sm:h-11 sm:w-11"
 				>
-					<ChevronRight className="h-5 w-5 sm:h-[22px] sm:w-[22px]" />
+					<ChevronRight className="h-5 w-5 sm:h-[22px] sm:w-[22px]" aria-hidden />
 				</button>
 			</header>
 

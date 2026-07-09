@@ -10,7 +10,7 @@ export function CartEmpty() {
         <div className="relative aspect-[13/14] w-full max-w-[13rem] shrink-0 sm:max-w-[15rem] md:max-w-[16rem]">
           <Image
             src="/cart/emptyCart.png"
-            alt=""
+            alt="سلة فارغة"
             fill
             className="object-contain"
             sizes="(min-width: 768px) 256px, (min-width: 640px) 240px, 208px"

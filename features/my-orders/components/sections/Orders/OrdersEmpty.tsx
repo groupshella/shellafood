@@ -11,7 +11,7 @@ export function OrdersEmpty({ filtered = false }: OrdersEmptyProps) {
             <div className="relative mb-6 aspect-square w-full max-w-[11rem] sm:mb-8 sm:max-w-[13rem] md:max-w-[15rem]">
                 <Image
                     src="/my-orders/orders-empty.png"
-                    alt=""
+                    alt={filtered ? "لا توجد طلبات بهذه الفلاتر" : "لا توجد طلبات"}
                     fill
                     className="object-contain"
                     sizes="(max-width: 640px) 176px, (max-width: 768px) 208px, 240px"

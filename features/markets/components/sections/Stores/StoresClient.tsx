@@ -115,7 +115,7 @@ function CategorySheet({
                                 className="rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                                 aria-label="إغلاق"
                             >
-                                <X className="h-4 w-4" />
+                                <X className="h-4 w-4" aria-hidden />
                             </button>
                         </div>
 
@@ -129,7 +129,7 @@ function CategorySheet({
                                         onSelect(null);
                                         onClose();
                                     }}
-                                    className="flex min-h-[52px] w-full items-center justify-between px-4 py-3.5 text-right transition-colors hover:bg-gray-50 active:bg-gray-100 dark:hover:bg-gray-800 dark:active:bg-gray-700 sm:px-5 sm:py-4"
+                                    className="flex min-h-[52px] w-full items-center justify-between px-4 py-3.5 text-start transition-colors hover:bg-gray-50 active:bg-gray-100 dark:hover:bg-gray-800 dark:active:bg-gray-700 sm:px-5 sm:py-4"
                                 >
                                     <span className="text-sm font-medium text-gray-900 dark:text-gray-50">جميع التصنيفات</span>
                                     <span
@@ -156,7 +156,7 @@ function CategorySheet({
                                             onSelect(cat.id);
                                             onClose();
                                         }}
-                                        className="flex min-h-[52px] w-full items-center justify-between px-4 py-3.5 text-right transition-colors hover:bg-gray-50 active:bg-gray-100 dark:hover:bg-gray-800 dark:active:bg-gray-700 sm:px-5 sm:py-4"
+                                        className="flex min-h-[52px] w-full items-center justify-between px-4 py-3.5 text-start transition-colors hover:bg-gray-50 active:bg-gray-100 dark:hover:bg-gray-800 dark:active:bg-gray-700 sm:px-5 sm:py-4"
                                     >
                                         <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{cat.name}</span>
                                         <span

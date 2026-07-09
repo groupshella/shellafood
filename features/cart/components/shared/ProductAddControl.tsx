@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { QuantityPill } from "./QuantityPill";
 import { ProductCartMeta } from "../../lib/match-cart-line";
@@ -15,7 +15,7 @@ interface ProductAddControlProps {
     onError?: (message: string | null) => void;
 }
 
-export function ProductAddControl({
+export const ProductAddControl = memo(function ProductAddControl({
     product,
     isAvailable = true,
     size = "sm",
@@ -79,7 +79,8 @@ export function ProductAddControl({
                             : "text-white",
                 ].join(" ")}
                 strokeWidth={2.5}
+                aria-hidden
             />
         </button>
     );
-}
+});

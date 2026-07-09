@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { AddressListItem } from "@/features/addresses/types/address.types";
@@ -21,15 +21,29 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 	const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 	const showDelete = addresses.length > 1;
 
-	function handleDeleteRequest(id: number) {
+	const handleSelect = useCallback(
+		(id: number) => {
+			router.push(`/addresses/${id}`);
+		},
+		[router],
+	);
+
+	const handleEdit = useCallback(
+		(id: number) => {
+			router.push(`/addresses/${id}/edit`);
+		},
+		[router],
+	);
+
+	const handleDeleteRequest = useCallback((id: number) => {
 		setPendingDeleteId(id);
-	}
+	}, []);
 
-	function handleCancelDelete() {
+	const handleCancelDelete = useCallback(() => {
 		setPendingDeleteId(null);
-	}
+	}, []);
 
-	function handleConfirmDelete() {
+	const handleConfirmDelete = useCallback(() => {
 		if (pendingDeleteId === null) return;
 		const idToDelete = pendingDeleteId;
 		setPendingDeleteId(null);
@@ -37,7 +51,11 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 		startTransition(async () => {
 			await deleteAddress(idToDelete);
 		});
-	}
+	}, [pendingDeleteId]);
+
+	const handleAddAddress = useCallback(() => {
+		router.push("/addresses/add");
+	}, [router]);
 
 	return (
 		<div className="flex flex-col gap-3 px-3 pb-6 pt-4 sm:gap-4 sm:px-5 sm:pt-5 lg:px-6 lg:pb-8">
@@ -51,9 +69,9 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 						<AddressCard
 							address={address}
 							showDelete={showDelete}
-							onClick={() => router.push(`/addresses/${address.id}`)}
-							onEdit={() => router.push(`/addresses/${address.id}/edit`)}
-							onDelete={() => handleDeleteRequest(address.id)}
+							onClick={handleSelect}
+							onEdit={handleEdit}
+							onDelete={handleDeleteRequest}
 							isDeleting={isPending && pendingDeleteId === null}
 						/>
 					</li>
@@ -62,7 +80,7 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 
 			<button
 				type="button"
-				onClick={() => router.push("/addresses/add")}
+				onClick={handleAddAddress}
 				className={primaryButtonClass}
 			>
 				<Plus className="h-4 w-4 shrink-0" aria-hidden />

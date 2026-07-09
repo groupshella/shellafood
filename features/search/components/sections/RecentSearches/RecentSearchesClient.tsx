@@ -22,7 +22,7 @@ export function RecentSearchesClient() {
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:text-gray-500 dark:active:bg-gray-800 sm:h-10 sm:w-10"
                     aria-label="مسح عمليات البحث الأخيرة"
                 >
-                    <Trash2 className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
+                    <Trash2 className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2} aria-hidden />
                 </button>
             </div>
 

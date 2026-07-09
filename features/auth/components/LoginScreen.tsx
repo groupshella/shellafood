@@ -137,6 +137,10 @@ const LoginScreen = memo(function LoginScreen({
 		onLogin(`+966${phone}`, password);
 	}, [phone, password, isValid, onLogin]);
 
+	const handleTogglePassword = useCallback(() => {
+		setShowPassword((s) => !s);
+	}, []);
+
 	return (
 		<AuthShell>
 			{onLanguageToggle && (
@@ -146,7 +150,7 @@ const LoginScreen = memo(function LoginScreen({
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.1 }}
 					onClick={onLanguageToggle}
-					className="absolute top-14 right-4 z-10 inline-flex min-h-9 items-center gap-1 rounded-2xl border border-[#C6C8CE] bg-white px-2.5 py-1.5 text-[14px] font-normal text-[#111B18] transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus-visible:ring-offset-gray-900 sm:top-16"
+					className="absolute top-14 end-4 z-10 inline-flex min-h-9 items-center gap-1 rounded-2xl border border-[#C6C8CE] bg-white px-2.5 py-1.5 text-[14px] font-normal text-[#111B18] transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus-visible:ring-offset-gray-900 sm:top-16"
 					aria-label="تغيير اللغة"
 				>
 					<GlobeIcon />
@@ -166,6 +170,7 @@ const LoginScreen = memo(function LoginScreen({
 						alt="شلة"
 						width={64}
 						height={46}
+						sizes="64px"
 						className="h-auto w-14 object-contain sm:w-16"
 						priority
 					/>
@@ -201,7 +206,7 @@ const LoginScreen = memo(function LoginScreen({
 						onChange={setPassword}
 						onEnter={handleSubmit}
 						show={showPassword}
-						onToggle={() => setShowPassword((s) => !s)}
+						onToggle={handleTogglePassword}
 						disabled={isLoading}
 					/>
 

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
@@ -12,12 +12,28 @@ interface RelatedProductCardProps {
     product: RelatedItem;
 }
 
-export function RelatedProductCard({ product }: RelatedProductCardProps) {
+export const RelatedProductCard = memo(function RelatedProductCard({
+    product,
+}: RelatedProductCardProps) {
     const [imgErr, setImgErr] = useState(false);
     const discounted = product.discount > 0;
     const displayPrice = discounted
         ? product.price * (1 - product.discount / 100)
         : product.price;
+
+    const cartProduct = useMemo(
+        () => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            discount: product.discount,
+        }),
+        [product.id, product.name, product.price, product.discount],
+    );
+
+    const handleImgError = useCallback(() => {
+        setImgErr(true);
+    }, []);
 
     return (
         <Link
@@ -42,12 +58,7 @@ export function RelatedProductCard({ product }: RelatedProductCardProps) {
 
                 <div className="absolute bottom-1.5 end-1.5 z-10">
                     <ProductAddControl
-                        product={{
-                            id: product.id,
-                            name: product.name,
-                            price: product.price,
-                            discount: product.discount,
-                        }}
+                        product={cartProduct}
                         isAvailable={product.is_available}
                         size="sm"
                         variant="soft"
@@ -57,12 +68,12 @@ export function RelatedProductCard({ product }: RelatedProductCardProps) {
                 {!imgErr && product.image_full_url ? (
                     <Image
                         src={product.image_full_url}
-                        alt=""
+                        alt={product.name}
                         fill
                         className="object-contain p-2 sm:p-2.5"
                         sizes="(max-width: 640px) 30vw, (max-width: 1024px) 20vw, 160px"
                         loading="lazy"
-                        onError={() => setImgErr(true)}
+                        onError={handleImgError}
                     />
                 ) : (
                     <div className="flex h-full items-center justify-center">
@@ -73,7 +84,7 @@ export function RelatedProductCard({ product }: RelatedProductCardProps) {
 
             {/* Body */}
             <div className="flex flex-1 flex-col gap-1 px-1.5 pb-2 pt-1.5 sm:px-2 sm:pb-2.5">
-                <p className="line-clamp-2 min-h-[2.4em] text-right text-[11px] font-medium leading-snug text-gray-900 dark:text-gray-100 sm:text-xs lg:text-[13px]">
+                <p className="line-clamp-2 min-h-[2.4em] text-start text-[11px] font-medium leading-snug text-gray-900 dark:text-gray-100 sm:text-xs lg:text-[13px]">
                     {product.name}
                 </p>
 
@@ -94,4 +105,4 @@ export function RelatedProductCard({ product }: RelatedProductCardProps) {
             </div>
         </Link>
     );
-}
+});

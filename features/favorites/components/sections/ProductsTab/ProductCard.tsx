@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { Heart, ShoppingBag, Plus } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
@@ -14,7 +14,7 @@ interface ProductCardProps {
     onRemove?: (itemId: number) => void;
 }
 
-export function ProductCard({
+export const ProductCard = memo(function ProductCard({
     product,
     initialFavorited = true,
     onRemove,
@@ -32,27 +32,34 @@ export function ProductCard({
     const imageUrl = product.image_full_url || product.image;
     const showImage = !imgError && !!imageUrl;
 
-    async function toggleFavorite(e: React.MouseEvent) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (pending) return;
-        setPending(true);
+    const handleImgError = useCallback(() => {
+        setImgError(true);
+    }, []);
 
-        const wasLiked = favorited;
-        setFavorited(!wasLiked);
+    const toggleFavorite = useCallback(
+        async (e: React.MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (pending) return;
+            setPending(true);
 
-        const result = wasLiked
-            ? await removeFromWishlist({ itemId: product.id })
-            : await addToWishlist({ itemId: product.id });
+            const wasLiked = favorited;
+            setFavorited(!wasLiked);
 
-        if (!result.success) {
-            setFavorited(wasLiked);
-        } else if (wasLiked && onRemove) {
-            onRemove(product.id);
-        }
+            const result = wasLiked
+                ? await removeFromWishlist({ itemId: product.id })
+                : await addToWishlist({ itemId: product.id });
 
-        setPending(false);
-    }
+            if (!result.success) {
+                setFavorited(wasLiked);
+            } else if (wasLiked && onRemove) {
+                onRemove(product.id);
+            }
+
+            setPending(false);
+        },
+        [pending, favorited, product.id, onRemove],
+    );
 
     return (
         <div
@@ -73,12 +80,12 @@ export function ProductCard({
                 {showImage ? (
                     <Image
                         src={imageUrl}
-                        alt=""
+                        alt={product.name}
                         fill
                         className="object-contain p-1.5"
                         sizes="(max-width: 640px) 64px, (max-width: 768px) 72px, 80px"
                         loading="lazy"
-                        onError={() => setImgError(true)}
+                        onError={handleImgError}
                     />
                 ) : (
                     <div className="flex h-full items-center justify-center">
@@ -92,11 +99,11 @@ export function ProductCard({
                 aria-label={product.name}
                 className="min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
             >
-                <p className="line-clamp-2 text-sm font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-[15px]">
+                <p className="line-clamp-2 text-start text-sm font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-[15px]">
                     {product.name}
                 </p>
                 {product.unit_type && (
-                    <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400 sm:text-[13px]">
+                    <p className="mt-0.5 truncate text-start text-xs text-gray-500 dark:text-gray-400 sm:text-[13px]">
                         {product.unit_type}
                     </p>
                 )}
@@ -120,6 +127,7 @@ export function ProductCard({
                 <button
                     type="button"
                     aria-label={favorited ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                    aria-pressed={favorited}
                     onClick={toggleFavorite}
                     disabled={pending}
                     className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EBFEEB] transition-colors active:bg-[#DCF5DC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60 dark:bg-[#0d2e12] dark:active:bg-[#163d1c] sm:h-10 sm:w-10"
@@ -128,10 +136,11 @@ export function ProductCard({
                         className={[
                             "h-4 w-4 transition-colors",
                             favorited
-                                ? "fill-[#30913F] text-[#30913F]"
-                                : "fill-none text-[#30913F]",
+                                ? "fill-[#30913F] text-[#30913F] dark:fill-[#4db860] dark:text-[#4db860]"
+                                : "fill-none text-[#30913F] dark:text-[#4db860]",
                         ].join(" ")}
                         strokeWidth={favorited ? 0 : 1.8}
+                        aria-hidden
                     />
                 </button>
 
@@ -140,9 +149,9 @@ export function ProductCard({
                     aria-label={`إضافة ${product.name} إلى السلة`}
                     className="flex h-9 w-9 items-center justify-center rounded-full bg-[#D1FDD2] transition-colors active:bg-[#BBF7C4] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-[#163d1c] dark:active:bg-[#1a4d20] sm:h-10 sm:w-10"
                 >
-                    <Plus className="h-4 w-4 text-[#30913F] sm:h-[18px] sm:w-[18px]" strokeWidth={2.5} aria-hidden />
+                    <Plus className="h-4 w-4 text-[#30913F] dark:text-[#4db860] sm:h-[18px] sm:w-[18px]" strokeWidth={2.5} aria-hidden />
                 </button>
             </div>
         </div>
     );
-}
+});

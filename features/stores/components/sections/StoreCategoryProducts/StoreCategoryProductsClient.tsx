@@ -31,7 +31,7 @@ export function StoreCategoryProductsClient({ detail, moduleId }: StoreCategoryP
                 return (
                     <section key={sc.id} className="mb-4 last:mb-0 sm:mb-5">
                         {detail.sub_categories.length > 1 && (
-                            <h2 className="mb-2.5 text-right text-sm font-bold text-gray-900 dark:text-gray-50 sm:mb-3 sm:text-base">
+                            <h2 className="mb-2.5 text-start text-sm font-bold text-gray-900 dark:text-gray-50 sm:mb-3 sm:text-base">
                                 {sc.name}
                             </h2>
                         )}

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { ChevronDown, Clock, Star, Truck } from "lucide-react";
 import { Store } from "@/features/markets/types/stores.types";
 
@@ -14,7 +15,7 @@ function storeSubtitle(store: Store): string {
     return "متجر متاح للطلب";
 }
 
-export function StoreCard({ store }: { store: Store }) {
+export const StoreCard = memo(function StoreCard({ store }: { store: Store }) {
     return (
         <Link
             href={`/stores/${store.id}?module_id=${store.module_id}`}
@@ -45,7 +46,9 @@ export function StoreCard({ store }: { store: Store }) {
 
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <div className="flex items-center justify-between gap-2">
-                    <h3 className="truncate text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">{store.name}</h3>
+                    <h3 className="truncate text-start text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
+                        {store.name}
+                    </h3>
                     <span
                         className={[
                             "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-[11px]",
@@ -93,4 +96,4 @@ export function StoreCard({ store }: { store: Store }) {
             />
         </Link>
     );
-}
+});

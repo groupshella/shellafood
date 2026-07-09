@@ -15,7 +15,7 @@ export function SearchEmptyState({ query: _query }: SearchEmptyStateProps = {}) 
                 <div className="relative aspect-square w-full max-w-[180px] sm:max-w-[200px] md:max-w-[260px]">
                     <Image
                         src="/search/search-empty.png"
-                        alt=""
+                        alt="لا توجد نتائج مطابقة"
                         fill
                         priority={false}
                         className="object-contain"

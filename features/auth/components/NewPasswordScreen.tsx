@@ -41,6 +41,14 @@ const NewPasswordScreen = memo(function NewPasswordScreen({
 		onSubmit(password, confirmPassword);
 	}, [password, confirmPassword, isValid, onSubmit]);
 
+	const handleTogglePassword = useCallback(() => {
+		setShowPassword((s) => !s);
+	}, []);
+
+	const handleToggleConfirm = useCallback(() => {
+		setShowConfirm((s) => !s);
+	}, []);
+
 	return (
 		<AuthShell>
 			<BackHeader onBack={onBack} disabled={isLoading} />
@@ -59,7 +67,7 @@ const NewPasswordScreen = memo(function NewPasswordScreen({
 					value={password}
 					onChange={setPassword}
 					show={showPassword}
-					onToggle={() => setShowPassword((s) => !s)}
+					onToggle={handleTogglePassword}
 					disabled={isLoading}
 				/>
 
@@ -70,7 +78,7 @@ const NewPasswordScreen = memo(function NewPasswordScreen({
 						onChange={setConfirmPassword}
 						onEnter={handleSubmit}
 						show={showConfirm}
-						onToggle={() => setShowConfirm((s) => !s)}
+						onToggle={handleToggleConfirm}
 						disabled={isLoading}
 						error={passwordsMismatch}
 					/>
@@ -80,7 +88,7 @@ const NewPasswordScreen = memo(function NewPasswordScreen({
 								initial={{ opacity: 0, y: -4 }}
 								animate={{ opacity: 1, y: 0 }}
 								exit={{ opacity: 0, y: -4 }}
-								className="mt-1.5 text-right text-xs text-red-500 dark:text-red-400"
+								className="mt-1.5 text-start text-xs text-red-500 dark:text-red-400"
 							>
 								كلمتا المرور غير متطابقتين
 							</motion.p>

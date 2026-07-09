@@ -1,3 +1,4 @@
+import { memo } from "react";
 import Image from "next/image";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { formatPrice } from "@/features/home/components/shared/PriceTag";
@@ -41,7 +42,7 @@ function CurrencyIcon({ size }: { size: "sm" | "md" }) {
   );
 }
 
-export function CartItemCard({
+export const CartItemCard = memo(function CartItemCard({
   item,
   onIncrease,
   onDecrease,
@@ -64,7 +65,7 @@ export function CartItemCard({
           />
         ) : (
           <div className="flex h-full items-center justify-center opacity-30">
-            <ShoppingBag className="h-7 w-7 text-gray-400 dark:text-gray-500 sm:h-8 sm:w-8" />
+            <ShoppingBag className="h-7 w-7 text-gray-400 dark:text-gray-500 sm:h-8 sm:w-8" aria-hidden />
           </div>
         )}
       </div>
@@ -90,10 +91,10 @@ export function CartItemCard({
           <button
             type="button"
             onClick={onRemove}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors active:bg-gray-100 active:text-red-500 dark:text-gray-500 dark:active:bg-gray-800 dark:active:text-red-400 sm:h-10 sm:w-10"
-            aria-label="حذف المنتج"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 active:text-red-500 dark:text-gray-500 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 dark:active:text-red-400 sm:h-10 sm:w-10"
+            aria-label={`حذف ${item.name}`}
           >
-            <Trash2 className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={1.5} />
+            <Trash2 className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={1.5} aria-hidden />
           </button>
         </div>
 
@@ -121,10 +122,10 @@ export function CartItemCard({
             <button
               type="button"
               onClick={onDecrease}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors active:bg-gray-100 dark:text-gray-400 dark:active:bg-gray-800 sm:h-9 sm:w-9"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 dark:text-gray-400 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 sm:h-9 sm:w-9"
               aria-label="تقليل الكمية"
             >
-              <Minus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <Minus className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
             </button>
             <span className="min-w-[1.75rem] text-center text-sm font-bold text-gray-900 dark:text-gray-50 sm:min-w-8 sm:text-[15px]">
               {item.quantity}
@@ -132,14 +133,14 @@ export function CartItemCard({
             <button
               type="button"
               onClick={onIncrease}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors active:bg-gray-100 dark:text-gray-400 dark:active:bg-gray-800 sm:h-9 sm:w-9"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 dark:text-gray-400 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 sm:h-9 sm:w-9"
               aria-label="زيادة الكمية"
             >
-              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
             </button>
           </div>
         </div>
       </div>
     </div>
   );
-}
+});

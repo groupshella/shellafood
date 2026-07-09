@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import Image from "next/image";
 import { PopularBrand } from "@/features/search/types/popular-brands.types";
 
@@ -9,14 +9,22 @@ interface BrandCardProps {
     onSelect: (name: string) => void;
 }
 
-export function BrandCard({ brand, onSelect }: BrandCardProps) {
+export const BrandCard = memo(function BrandCard({ brand, onSelect }: BrandCardProps) {
     const [logoError, setLogoError] = useState(false);
     const name = brand.name?.trim() || "";
+
+    const handleSelect = useCallback(() => {
+        onSelect(name);
+    }, [onSelect, name]);
+
+    const handleLogoError = useCallback(() => {
+        setLogoError(true);
+    }, []);
 
     return (
         <button
             type="button"
-            onClick={() => onSelect(name)}
+            onClick={handleSelect}
             className={[
                 "flex aspect-square w-full min-w-0 items-center justify-center rounded-xl bg-white p-2",
                 "shadow-sm ring-1 ring-black/[0.04] dark:bg-gray-800 dark:ring-white/[0.06]",
@@ -35,7 +43,7 @@ export function BrandCard({ brand, onSelect }: BrandCardProps) {
                         className="object-contain"
                         sizes="(max-width: 640px) 18vw, (max-width: 1024px) 10vw, 80px"
                         loading="lazy"
-                        onError={() => setLogoError(true)}
+                        onError={handleLogoError}
                     />
                 ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs font-bold text-gray-400 dark:text-gray-500 sm:text-sm">
@@ -45,4 +53,4 @@ export function BrandCard({ brand, onSelect }: BrandCardProps) {
             </div>
         </button>
     );
-}
+});
