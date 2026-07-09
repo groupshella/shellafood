@@ -22,7 +22,7 @@ import {
     Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import { clearSession } from "@/features/auth/lib/auth.lib";
 import { useBottomSheet } from "@/features/checkout/components/shared/useBottomSheet";
@@ -121,7 +121,11 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
     };
 
     const handleQidhaTap = () => {
-        if (!qidhaActive) qidhaSheet.open();
+        if (qidhaActive) {
+            router.push("/profile/qidha");
+            return;
+        }
+        qidhaSheet.open();
     };
 
     return (
@@ -159,12 +163,14 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                     variant="points"
                     title={PROFILE_STRINGS.yourPoints}
                     value={user.loyalty_point}
+                    onClick={() => router.push("/profile/points")}
                 />
                 <StatCard
                     variant="wallet"
                     title={PROFILE_STRINGS.myWallet}
                     value={user.wallet_balance}
                     showCurrency
+                    onClick={() => router.push("/profile/wallet")}
                 />
                 <StatCard
                     variant="qidha"

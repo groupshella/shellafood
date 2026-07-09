@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { CheckoutBottomSheet } from "@/features/checkout/components/shared/CheckoutBottomSheet";
-import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 import { PrimaryButton } from "@/features/profile/components/shared/PrimaryButton";
+import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 
 interface QidhaSubscribeSheetProps {
     isOpen: boolean;
@@ -11,6 +13,13 @@ interface QidhaSubscribeSheetProps {
 }
 
 export function QidhaSubscribeSheet({ isOpen, isVisible, onClose }: QidhaSubscribeSheetProps) {
+    const router = useRouter();
+
+    const handleSubscribe = () => {
+        onClose();
+        router.push("/profile/wallet-subscription");
+    };
+
     return (
         <CheckoutBottomSheet
             isOpen={isOpen}
@@ -25,7 +34,9 @@ export function QidhaSubscribeSheet({ isOpen, isVisible, onClose }: QidhaSubscri
                 <p className="mb-6 text-[14px] leading-relaxed text-gray-600 dark:text-gray-300 sm:text-[15px]">
                     {PROFILE_STRINGS.qidhaSubscribeBody}
                 </p>
-                <PrimaryButton onClick={onClose}>{PROFILE_STRINGS.subscribeNow}</PrimaryButton>
+                <PrimaryButton onClick={handleSubscribe}>
+                    {PROFILE_STRINGS.subscribeNow}
+                </PrimaryButton>
             </div>
         </CheckoutBottomSheet>
     );
