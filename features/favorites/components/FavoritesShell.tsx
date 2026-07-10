@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "@/features/layout/components/Navbar";
 import type { FavoritesTab } from "@/features/favorites/types/favorites.types";
 
 const TABS: { id: FavoritesTab; label: string }[] = [
@@ -70,8 +69,6 @@ export function FavoritesShell({
                 <div hidden={activeTab !== "stores"}>{storesContent}</div>
                 <div hidden={activeTab !== "orders"}>{ordersContent}</div>
             </main>
-
-            <Navbar />
         </div>
     );
 }

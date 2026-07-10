@@ -1,12 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Tajawal } from "next/font/google";
-import Navbar from "@/features/layout/components/Navbar";
-
-const tajawal = Tajawal({
-	subsets: ["arabic", "latin"],
-	weight: ["400", "700"],
-});
 
 export type AuthRequiredPage = "cart" | "favorites" | "orders" | "notifications";
 
@@ -26,7 +19,7 @@ export function AuthRequiredScreen({ page }: AuthRequiredScreenProps) {
 		<div
 			dir="rtl"
 			lang="ar"
-			className={`${tajawal.className} relative mx-auto flex min-h-dvh w-full max-w-lg flex-col bg-white text-[#111B18] pb-[calc(68px+env(safe-area-inset-bottom))] dark:bg-gray-900 dark:text-gray-100 sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl`}
+			className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col bg-white text-[#111B18] pb-[calc(68px+env(safe-area-inset-bottom))] dark:bg-gray-900 dark:text-gray-100 sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl"
 		>
 			<header className="flex items-center justify-center px-4 pb-2 pt-4 sm:px-6 sm:pt-6">
 				<h1 className="text-lg font-bold leading-[1.6] sm:text-xl md:text-2xl">{PAGE_TITLES[page]}</h1>
@@ -66,8 +59,6 @@ export function AuthRequiredScreen({ page }: AuthRequiredScreenProps) {
 					تسجيل دخول
 				</Link>
 			</div>
-
-			<Navbar />
 		</div>
 	);
 }

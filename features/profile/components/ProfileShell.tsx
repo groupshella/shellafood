@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "@/features/layout/components/Navbar";
 import type { ReactNode } from "react";
 
 interface ProfileShellProps {
@@ -24,8 +23,6 @@ export function ProfileShell({ children }: ProfileShellProps) {
                     {children}
                 </div>
             </div>
-
-            <Navbar />
         </div>
     );
 }
