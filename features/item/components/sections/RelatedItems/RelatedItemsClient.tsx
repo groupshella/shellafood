@@ -13,7 +13,7 @@ export function RelatedItemsClient({ items }: RelatedItemsClientProps) {
             className="bg-white px-3 pt-5 dark:bg-gray-900 sm:px-5 md:pt-6 lg:px-6 pb-[calc(7rem+env(safe-area-inset-bottom))]"
             dir="rtl"
         >
-            <h2 className="mb-3 text-right text-base font-bold text-gray-900 dark:text-gray-50 sm:mb-4 sm:text-lg md:text-xl">
+            <h2 className="mb-3 text-start text-base font-bold text-gray-900 dark:text-gray-50 sm:mb-4 sm:text-lg md:text-xl">
                 يُباع معها أيضاً
             </h2>
 

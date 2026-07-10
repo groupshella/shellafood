@@ -11,7 +11,6 @@ const ICON_BTN = [
 export function Topbar({
     moduleName,
     moduleId,
-    isAuthenticated,
 }: {
     moduleName: string;
     moduleId: string;
@@ -22,7 +21,7 @@ export function Topbar({
             <div className="relative mx-auto flex min-h-11 w-full max-w-lg items-center justify-center px-3 py-2.5 sm:min-h-12 sm:max-w-2xl sm:px-5 sm:py-3.5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">
                 <Link
                     href="/home"
-                    className={`${ICON_BTN} absolute right-3 sm:right-5 lg:right-6`}
+                    className={`${ICON_BTN} absolute start-3 sm:start-5 lg:start-6`}
                     aria-label="العودة إلى الرئيسية"
                 >
                     <ArrowRight className="h-5 w-5" strokeWidth={2} aria-hidden />
@@ -34,7 +33,7 @@ export function Topbar({
 
                 <Link
                     href={`/search?module_id=${moduleId}`}
-                    className={`${ICON_BTN} absolute left-3 sm:left-5 lg:left-6`}
+                    className={`${ICON_BTN} absolute end-3 sm:end-5 lg:end-6`}
                     aria-label="بحث"
                 >
                     <Search className="h-5 w-5" strokeWidth={2} aria-hidden />

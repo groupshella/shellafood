@@ -1,0 +1,38 @@
+import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
+import { SarIcon } from "../shared/SarIcon";
+
+export function BalanceStatCard({
+    label,
+    amount,
+    sublabel,
+}: {
+    label: string;
+    amount: string;
+    sublabel: string;
+}) {
+    return (
+        <div className="flex min-h-[92px] min-w-0 flex-col items-center justify-center gap-1 rounded-[12px] border border-[#F0EEF3] bg-white px-1.5 py-2.5 shadow-[0px_1px_8px_rgba(0,0,0,0.04)] dark:border-gray-700 dark:bg-gray-800">
+            <span
+                className="line-clamp-2 text-center text-[10px] font-medium leading-tight text-[#555555] dark:text-gray-400 sm:text-[11px]"
+                style={TAJAWAL}
+            >
+                {label}
+            </span>
+            <div className="flex items-center gap-0.5 text-[#111B18] dark:text-gray-100">
+                <SarIcon width={14} height={15.7} />
+                <span
+                    className="text-[clamp(15px,4.2vw,18px)] font-bold tabular-nums"
+                    style={TAJAWAL}
+                >
+                    {amount}
+                </span>
+            </div>
+            <span
+                className="line-clamp-2 text-center text-[8px] font-medium leading-tight text-[#8A8F98] dark:text-gray-500 sm:text-[9px]"
+                style={TAJAWAL}
+            >
+                {sublabel}
+            </span>
+        </div>
+    );
+}

@@ -21,8 +21,9 @@ import {
     UserPlus,
     Users,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import { clearSession } from "@/features/auth/lib/auth.lib";
 import { useBottomSheet } from "@/features/checkout/components/shared/useBottomSheet";
@@ -121,7 +122,7 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
     };
 
     const handleQidhaTap = () => {
-        if (!qidhaActive) qidhaSheet.open();
+        qidhaSheet.open();
     };
 
     return (
@@ -136,9 +137,8 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                             size={60}
                             className="border border-[#F6F5F8] dark:border-gray-700"
                         />
-                        <button
-                            type="button"
-                            onClick={() => router.push("/profile/edit")}
+                        <Link
+                            href="/profile/edit"
                             className="flex min-w-0 flex-1 flex-col items-start gap-1 text-start"
                         >
                             <p className="w-full text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[17px] lg:text-lg">
@@ -148,7 +148,7 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                                 <Settings className="h-5 w-5 shrink-0 text-[#30913F] sm:h-6 sm:w-6" strokeWidth={2} />
                                 {PROFILE_STRINGS.accountSettings}
                             </span>
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </section>
@@ -159,19 +159,22 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                     variant="points"
                     title={PROFILE_STRINGS.yourPoints}
                     value={user.loyalty_point}
+                    href="/profile/points"
                 />
                 <StatCard
                     variant="wallet"
                     title={PROFILE_STRINGS.myWallet}
                     value={user.wallet_balance}
                     showCurrency
+                    href="/profile/wallet"
                 />
                 <StatCard
                     variant="qidha"
                     title={PROFILE_STRINGS.qidhaWallet}
                     value={qidhaActive ? qidhaBalance : 0}
                     showCurrency
-                    onClick={handleQidhaTap}
+                    href={qidhaActive ? "/profile/qidha" : undefined}
+                    onClick={qidhaActive ? undefined : handleQidhaTap}
                 />
             </section>
 
@@ -179,13 +182,13 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                 <ProfileListRow
                     icon={<MapPin strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.deliveryAddresses}
-                    onClick={() => router.push("/addresses")}
+                    href="/addresses"
                 />
                 <ProfileListRow
                     icon={<Globe strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.language}
                     subLabel={LOCALE_LABELS["ar"]}
-                    onClick={() => router.push("/profile/language")}
+                    href="/profile/language"
                 />
                 <ToggleRow
                     icon={<Moon strokeWidth={1.5} />}
@@ -205,27 +208,27 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                 <ProfileListRow
                     icon={<Tag strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.coupons}
-                    onClick={() => router.push("/coupons")}
+                    href="/coupons"
                 />
                 <ProfileListRow
                     icon={<BarChart3 strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.statistics}
-                    onClick={() => router.push("/profile/statistics")}
+                    href="/profile/statistics"
                 />
                 <ProfileListRow
                     icon={<Users strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.earnWithFriends}
-                    onClick={() => router.push("/profile/referral")}
+                    href="/profile/referral"
                 />
                 <ProfileListRow
                     icon={<Truck strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.joinAsDriver}
-                    onClick={() => router.push("/profile/join-driver")}
+                    href="/profile/join-driver"
                 />
                 <ProfileListRow
                     icon={<UserPlus strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.voucherRep}
-                    onClick={() => router.push("/profile/join-voucher-rep")}
+                    href="/profile/join-voucher-rep"
                 />
             </ProfileSection>
 
@@ -233,12 +236,12 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                 <ProfileListRow
                     icon={<MessageCircle strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.liveChat}
-                    onClick={() => router.push("/profile/live-chat")}
+                    href="/profile/live-chat"
                 />
                 <ProfileListRow
                     icon={<Headphones strokeWidth={1.25} />}
                     label={PROFILE_STRINGS.technicalSupport}
-                    onClick={() => router.push("/profile/help-support")}
+                    href="/profile/help-support"
                 />
                 <ProfileListRow
                     icon={<RefreshCw strokeWidth={1.5} />}
@@ -248,7 +251,7 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                 <ProfileListRow
                     icon={<Info strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.aboutUs}
-                    onClick={() => router.push("/profile/about-us")}
+                    href="/profile/about-us"
                 />
             </ProfileSection>
 
@@ -256,17 +259,17 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                 <ProfileListRow
                     icon={<Shield strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.privacy}
-                    onClick={() => router.push("/profile/privacy-policy")}
+                    href="/profile/privacy-policy"
                 />
                 <ProfileListRow
                     icon={<FileText strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.terms}
-                    onClick={() => router.push("/profile/terms-and-conditions")}
+                    href="/profile/terms-and-conditions"
                 />
                 <ProfileListRow
                     icon={<HelpCircle strokeWidth={1.5} />}
                     label={PROFILE_STRINGS.refundPolicy}
-                    onClick={() => router.push("/profile/refund-policy")}
+                    href="/profile/refund-policy"
                 />
             </ProfileSection>
 

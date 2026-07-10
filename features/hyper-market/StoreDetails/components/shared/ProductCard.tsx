@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { Plus } from "lucide-react";
 
 interface ProductCardProps {
@@ -10,7 +11,13 @@ interface ProductCardProps {
     originalPrice?: number | null;
 }
 
-export function ProductCard({ productId, name, imageUrl, price, originalPrice }: ProductCardProps) {
+export const ProductCard = memo(function ProductCard({
+    productId,
+    name,
+    imageUrl,
+    price,
+    originalPrice,
+}: ProductCardProps) {
     const hasDiscount = originalPrice != null && originalPrice > price;
 
     return (
@@ -21,17 +28,24 @@ export function ProductCard({ productId, name, imageUrl, price, originalPrice }:
         >
             <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-xl bg-[#F7F9F7] dark:bg-gray-700">
                 {imageUrl ? (
-                    <Image src={imageUrl} alt="" fill className="object-cover" sizes="120px" loading="lazy" />
+                    <Image
+                        src={imageUrl}
+                        alt={name}
+                        fill
+                        className="object-cover"
+                        sizes="120px"
+                        loading="lazy"
+                    />
                 ) : null}
                 <span
                     className="absolute bottom-1.5 start-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-[#45C553] shadow-sm sm:h-7 sm:w-7"
                     aria-hidden
                 >
-                    <Plus className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+                    <Plus className="h-3.5 w-3.5 text-white" strokeWidth={2.5} aria-hidden />
                 </span>
             </div>
             <div className="flex flex-1 flex-col gap-0.5 p-2 sm:p-2.5">
-                <p className="line-clamp-2 text-[11px] font-semibold leading-tight text-[#111B18] dark:text-gray-50 sm:text-xs">
+                <p className="line-clamp-2 text-start text-[11px] font-semibold leading-tight text-[#111B18] dark:text-gray-50 sm:text-xs">
                     {name}
                 </p>
                 <div className="mt-auto flex items-center gap-1.5">
@@ -45,4 +59,4 @@ export function ProductCard({ productId, name, imageUrl, price, originalPrice }:
             </div>
         </Link>
     );
-}
+});

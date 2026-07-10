@@ -1,58 +1,85 @@
 import Image from "next/image";
-import Link from "next/link";
 import { SearchModule } from "@/features/search/types/modules.types";
 
 const PALETTE = [
-    { bg: "#E8F5EE", text: "#2D7A4F", darkBg: "#0d2a1a", darkText: "#6ee89b" },
-    { bg: "#FEF0E6", text: "#D4724A", darkBg: "#2a1608", darkText: "#f0956a" },
-    { bg: "#EAF4F6", text: "#3A96A0", darkBg: "#071e21", darkText: "#5bc8d4" },
-    { bg: "#F3E8FF", text: "#7C3AED", darkBg: "#1a0d30", darkText: "#b47ef5" },
-    { bg: "#FFF4E6", text: "#EA580C", darkBg: "#291205", darkText: "#f5894d" },
-    { bg: "#E8F0FE", text: "#2563EB", darkBg: "#071228", darkText: "#6b9bf5" },
+    { bg: "#E8F5EE", text: "#2D7A4F", darkBg: "#163528", darkText: "#7BE0A0" },
+    { bg: "#FEF0E6", text: "#D4724A", darkBg: "#3A2214", darkText: "#F0A57A" },
+    { bg: "#EAF4F6", text: "#3A96A0", darkBg: "#123338", darkText: "#6FD4DE" },
+    { bg: "#F3E8FF", text: "#7C3AED", darkBg: "#2A1848", darkText: "#C4A0F8" },
+    { bg: "#FFF4E6", text: "#EA580C", darkBg: "#3A1F10", darkText: "#F59A5C" },
+    { bg: "#E8F0FE", text: "#2563EB", darkBg: "#142748", darkText: "#7BA8F7" },
 ] as const;
 
-function getModuleHref(module: SearchModule): string {
-    if (module.id === 3) return `/hyper-market?module_id=3`;
-    return `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
+interface ModuleCardProps {
+    module: SearchModule;
+    colorIndex: number;
+    isActive: boolean;
+    isDisabled: boolean;
+    onSelect: (moduleId: string) => void;
 }
 
-export function ModuleCard({ module, colorIndex }: { module: SearchModule; colorIndex: number }) {
+export function ModuleCard({
+    module,
+    colorIndex,
+    isActive,
+    isDisabled,
+    onSelect,
+}: ModuleCardProps) {
     const { bg, text, darkBg, darkText } = PALETTE[colorIndex % PALETTE.length];
 
     return (
-        <Link
-            href={getModuleHref(module)}
-            className={[
-                "flex shrink-0 snap-start items-center justify-between gap-2.5",
-                "min-w-[9rem] rounded-2xl bg-[var(--module-bg)] px-3.5 py-2.5",
-                "transition-transform duration-150 active:scale-[0.97]",
-                "outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:bg-[var(--module-dark-bg)] dark:focus-visible:ring-offset-gray-900",
-                "sm:min-w-[9.5rem] sm:gap-3 sm:px-4 sm:py-3",
-                "md:min-w-0 md:w-full",
-            ].join(" ")}
-            style={{
-                "--module-bg": bg,
-                "--module-dark-bg": darkBg,
-                "--module-text": text,
-                "--module-dark-text": darkText,
-            } as React.CSSProperties}
+        <button
+            type="button"
+            onClick={() => onSelect(String(module.id))}
+            disabled={isActive}
+            aria-pressed={isActive}
             aria-label={module.module_name}
+            className={[
+                "flex shrink-0 snap-start items-center justify-between gap-2",
+                "min-w-[8.25rem] max-w-[11rem] rounded-xl px-3 py-2.5",
+                "bg-[var(--module-bg)] text-[var(--module-text)]",
+                "transition-[transform,opacity,filter,box-shadow] duration-150",
+                "outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+                "dark:bg-[var(--module-dark-bg)] dark:text-[var(--module-dark-text)] dark:focus-visible:ring-offset-gray-950",
+                "sm:min-w-[9rem] sm:max-w-none sm:gap-2.5 sm:rounded-2xl sm:px-3.5 sm:py-3",
+                "md:min-w-0 md:w-full md:max-w-none md:gap-3 md:px-4",
+                isActive
+                    ? [
+                        "ring-2 ring-[var(--module-text)] ring-offset-1 ring-offset-white",
+                        "dark:ring-[var(--module-dark-text)] dark:ring-offset-gray-950",
+                        "shadow-sm dark:shadow-[0_2px_10px_rgba(0,0,0,0.35)]",
+                    ].join(" ")
+                    : "active:scale-[0.97]",
+                isDisabled
+                    ? "cursor-pointer opacity-40 grayscale dark:opacity-35 dark:grayscale"
+                    : "opacity-100",
+            ].join(" ")}
+            style={
+                {
+                    "--module-bg": bg,
+                    "--module-dark-bg": darkBg,
+                    "--module-text": text,
+                    "--module-dark-text": darkText,
+                } as React.CSSProperties
+            }
         >
-            <span className="min-w-0 truncate text-sm font-bold leading-tight text-[var(--module-text)] dark:text-[var(--module-dark-text)] sm:text-[15px]">
-                {module.module_name}
-            </span>
-
-            {module.icon_full_url && (
-                <div className="relative h-7 w-7 shrink-0 opacity-80 sm:h-8 sm:w-8" aria-hidden>
+            {module.icon_full_url ? (
+                <div
+                    className="relative h-6 w-6 shrink-0 opacity-85 sm:h-7 sm:w-7 md:h-8 md:w-8"
+                    aria-hidden
+                >
                     <Image
                         src={module.icon_full_url}
                         alt=""
                         fill
                         className="object-contain"
-                        sizes="(max-width: 640px) 28px, 32px"
+                        sizes="(max-width: 640px) 24px, (max-width: 768px) 28px, 32px"
                     />
                 </div>
-            )}
-        </Link>
+            ) : null}
+            <span className="min-w-0 flex-1 truncate text-start text-xs font-bold leading-tight sm:text-sm md:text-[15px]">
+                {module.module_name}
+            </span>
+        </button>
     );
 }

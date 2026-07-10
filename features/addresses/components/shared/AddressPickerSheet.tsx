@@ -56,10 +56,11 @@ export function AddressPickerSheet({
 
 	return (
 		<>
-			<div
-				className="fixed inset-0 z-40 bg-black/40 transition-opacity dark:bg-black/60"
+			<button
+				type="button"
+				className="fixed inset-0 z-40 cursor-default bg-black/40 transition-opacity dark:bg-black/60"
 				onClick={onClose}
-				aria-hidden
+				aria-label="إغلاق"
 			/>
 
 			<div
@@ -104,7 +105,7 @@ export function AddressPickerSheet({
 										onClose();
 									}}
 									className={[
-										"flex w-full min-h-[56px] items-center gap-2.5 rounded-xl px-3.5 py-3 text-right transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] sm:min-h-[60px] sm:gap-3 sm:px-4 sm:py-3.5",
+										"flex w-full min-h-[56px] items-center gap-2.5 rounded-xl px-3.5 py-3 text-start transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] sm:min-h-[60px] sm:gap-3 sm:px-4 sm:py-3.5",
 										isSelected
 											? "bg-[#EEF8F0] dark:bg-[#1a3d24]"
 											: "bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700/60",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 import { unwrap, type ApiResponse } from "@/shared/lib/api-response";
 import type { OfferItem, OfferItemsResult } from "../types/offer.types";
 
@@ -20,16 +21,39 @@ export function useOfferSearch(offerId: string, moduleId = "3"): UseOfferSearchR
     const [total, setTotal] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
     const abortRef = useRef<AbortController | null>(null);
-    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const doSearch = useCallback(
+    const runSearch = useDebouncedCallback(async (q: string) => {
+        abortRef.current?.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
+
+        try {
+            const res = await fetch(
+                `/api/offers/${offerId}/search?query=${encodeURIComponent(q)}&offset=1&limit=50&module_id=${moduleId}`,
+                { signal: controller.signal },
+            );
+            const json = (await res.json()) as ApiResponse<OfferItemsResult>;
+            const data = unwrap(json);
+            setResults(data.items);
+            setTotal(data.total);
+        } catch (err) {
+            if ((err as Error).name === "AbortError") return;
+            setError("حدث خطأ أثناء البحث");
+            setResults([]);
+            setTotal(0);
+        } finally {
+            if (!controller.signal.aborted) setLoading(false);
+        }
+    }, 300);
+
+    const setQuery = useCallback(
         (q: string) => {
-            abortRef.current?.abort();
-            if (timerRef.current) clearTimeout(timerRef.current);
+            setQueryRaw(q);
 
             if (!q.trim()) {
+                runSearch.cancel();
+                abortRef.current?.abort();
                 setResults(null);
                 setTotal(null);
                 setLoading(false);
@@ -39,57 +63,27 @@ export function useOfferSearch(offerId: string, moduleId = "3"): UseOfferSearchR
 
             setLoading(true);
             setError(null);
-
-            timerRef.current = setTimeout(async () => {
-                const controller = new AbortController();
-                abortRef.current = controller;
-
-                try {
-                    const res = await fetch(
-                        `/api/offers/${offerId}/search?query=${encodeURIComponent(q)}&offset=1&limit=50&module_id=${moduleId}`,
-                        { signal: controller.signal }
-                    );
-                    const json = (await res.json()) as ApiResponse<OfferItemsResult>;
-                    const data = unwrap(json);
-                    setResults(data.items);
-                    setTotal(data.total);
-                } catch (err) {
-                    if ((err as Error).name === "AbortError") return;
-                    setError("حدث خطأ أثناء البحث");
-                    setResults([]);
-                    setTotal(0);
-                } finally {
-                    if (!controller.signal.aborted) setLoading(false);
-                }
-            }, 300);
+            void runSearch(q);
         },
-        [offerId, moduleId]
-    );
-
-    const setQuery = useCallback(
-        (q: string) => {
-            setQueryRaw(q);
-            doSearch(q);
-        },
-        [doSearch]
+        [runSearch],
     );
 
     const clearSearch = useCallback(() => {
+        runSearch.cancel();
         abortRef.current?.abort();
-        if (timerRef.current) clearTimeout(timerRef.current);
         setQueryRaw("");
         setResults(null);
         setTotal(null);
         setLoading(false);
         setError(null);
-    }, []);
+    }, [runSearch]);
 
     useEffect(() => {
         return () => {
+            runSearch.cancel();
             abortRef.current?.abort();
-            if (timerRef.current) clearTimeout(timerRef.current);
         };
-    }, []);
+    }, [runSearch]);
 
     return { query, setQuery, results, total, loading, error, clearSearch };
 }

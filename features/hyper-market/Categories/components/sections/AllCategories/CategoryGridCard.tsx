@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { StoreCategory } from "@/features/hyper-market/Categories/types/categories.types";
@@ -9,8 +9,12 @@ interface CategoryGridCardProps {
     category: StoreCategory;
 }
 
-export function CategoryGridCard({ category }: CategoryGridCardProps) {
+export const CategoryGridCard = memo(function CategoryGridCard({ category }: CategoryGridCardProps) {
     const [imageError, setImageError] = useState(false);
+
+    const handleImageError = useCallback(() => {
+        setImageError(true);
+    }, []);
 
     return (
         <Link
@@ -44,7 +48,7 @@ export function CategoryGridCard({ category }: CategoryGridCardProps) {
                         className="object-contain object-bottom px-1 pb-1"
                         sizes="(max-width: 640px) 28vw, 120px"
                         loading="lazy"
-                        onError={() => setImageError(true)}
+                        onError={handleImageError}
                     />
                 ) : (
                     <div className="flex h-full items-end justify-center pb-2 text-xl opacity-30" aria-hidden>
@@ -54,4 +58,4 @@ export function CategoryGridCard({ category }: CategoryGridCardProps) {
             </div>
         </Link>
     );
-}
+});

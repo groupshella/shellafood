@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { memo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { Heart, ShoppingBag } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
@@ -23,12 +23,26 @@ export const ProductCard = memo(function ProductCard({ product, moduleId }: Prod
     const showImage = !imgError && !!product.full_image_url;
     const discountPercent = product.discount_percentage ?? 0;
 
-    const cartProduct = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        discount: discountPercent,
-    };
+    // Stable reference so memoized ProductAddControl isn't busted every render
+    const cartProduct = useMemo(
+        () => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            discount: discountPercent,
+        }),
+        [product.id, product.name, product.price, discountPercent],
+    );
+
+    const handleToggleWishlist = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setWishlisted((p) => !p);
+    }, []);
+
+    const handleImgError = useCallback(() => {
+        setImgError(true);
+    }, []);
 
     return (
         <div
@@ -49,12 +63,12 @@ export const ProductCard = memo(function ProductCard({ product, moduleId }: Prod
                 {showImage ? (
                     <Image
                         src={product.full_image_url}
-                        alt=""
+                        alt={product.name}
                         fill
                         className="object-contain p-1.5"
                         sizes="(max-width: 640px) 72px, 80px"
                         loading="lazy"
-                        onError={() => setImgError(true)}
+                        onError={handleImgError}
                     />
                 ) : (
                     <div className="flex h-full items-center justify-center">
@@ -66,9 +80,9 @@ export const ProductCard = memo(function ProductCard({ product, moduleId }: Prod
             <Link
                 href={`/items/${product.id}?module_id=${moduleId}`}
                 aria-label={product.name}
-                className="min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+                className="min-w-0 flex-1 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
             >
-                <p className="line-clamp-2 text-right text-sm font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-[15px]">
+                <p className="line-clamp-2 text-start text-sm font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-[15px]">
                     {product.name}
                 </p>
 
@@ -92,21 +106,19 @@ export const ProductCard = memo(function ProductCard({ product, moduleId }: Prod
                 <button
                     type="button"
                     aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setWishlisted((p) => !p);
-                    }}
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white transition-colors active:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:active:bg-gray-600 sm:h-10 sm:w-10"
+                    aria-pressed={wishlisted}
+                    onClick={handleToggleWishlist}
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:focus-visible:ring-offset-gray-800 dark:active:bg-gray-600 sm:h-10 sm:w-10"
                 >
                     <Heart
                         className={[
                             "h-4 w-4 transition-colors",
                             wishlisted
-                                ? "fill-[#30913F] text-[#30913F]"
+                                ? "fill-[#30913F] text-[#30913F] dark:fill-[#4db860] dark:text-[#4db860]"
                                 : "fill-none text-gray-500 dark:text-gray-400",
                         ].join(" ")}
                         strokeWidth={wishlisted ? 0 : 1.8}
+                        aria-hidden
                     />
                 </button>
 

@@ -1,16 +1,45 @@
-import { CouponTicketIllustration } from "@/features/coupons/components/shared/CouponTicketIllustration";
+import Image from "next/image";
 
 type CouponsEmptyProps = {
 	message?: string;
+	/** Full viewport empty/error page vs. tab-level empty */
+	fullPage?: boolean;
 };
 
-export function CouponsEmpty({ message = "لا يوجد كوبونات في الوقت الحالي" }: CouponsEmptyProps) {
+export function CouponsEmpty({
+	message = "لا يوجد كوبونات في الوقت الحالي",
+	fullPage = true,
+}: CouponsEmptyProps) {
 	return (
-		<div className="flex flex-col items-center justify-center gap-4 px-4 py-12 text-center sm:gap-5 sm:px-6 sm:py-16 lg:py-24">
-			<CouponTicketIllustration className="h-32 w-32 sm:h-40 sm:w-40 md:h-44 md:w-44" />
-			<p className="max-w-[220px] text-sm font-bold leading-6 text-gray-700 dark:text-gray-300 sm:max-w-xs sm:text-[15px] sm:leading-7">
+		<div
+			className={[
+				"flex flex-col items-center justify-center px-4 text-center sm:px-6",
+				fullPage
+					? "min-h-[calc(100dvh-8.5rem)] sm:min-h-[calc(100dvh-9.5rem)]"
+					: "min-h-[16rem] py-10 sm:min-h-[18rem] sm:py-14",
+			].join(" ")}
+		>
+			<div
+				className={[
+					"relative mb-6 aspect-square w-full sm:mb-8",
+					fullPage
+						? "max-w-[12rem] sm:max-w-[14rem] md:max-w-[16rem]"
+						: "max-w-[10rem] sm:max-w-[12rem]",
+				].join(" ")}
+			>
+				<Image
+					src="/coupons/coupons-empty.png"
+					alt="لا يوجد كوبونات"
+					fill
+					className="object-contain"
+					sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, 256px"
+					priority={fullPage}
+				/>
+			</div>
+
+			<h2 className="max-w-[240px] text-lg font-bold leading-snug text-gray-800 dark:text-gray-100 sm:max-w-xs sm:text-xl">
 				{message}
-			</p>
+			</h2>
 		</div>
 	);
 }

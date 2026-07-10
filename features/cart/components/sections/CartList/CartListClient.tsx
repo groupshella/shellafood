@@ -1,38 +1,38 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useCart } from "@/features/cart/context/CartContext";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { CartItemRow } from "./CartItemRow";
 import { CartEmpty } from "./CartEmpty";
-import Navbar from "@/features/layout/components/Navbar";
 
 const CONTENT_PADDING = "px-3 pb-40 pt-4 sm:px-4 sm:pb-44 sm:pt-5 md:px-5 lg:px-6";
 const FOOTER_PADDING = "px-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 sm:px-4 sm:pt-4 md:px-5 lg:px-6";
 
+const checkoutButtonClass =
+  "block w-full rounded-2xl bg-[#30913F] py-3.5 text-center text-sm font-semibold text-white shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 active:bg-[#267332] dark:focus-visible:ring-offset-gray-900 sm:py-4 sm:text-[15px] lg:ms-auto lg:max-w-md";
+
 export function CartListClient() {
-  const router = useRouter();
   const { items, totalCount, totalPrice } = useCart();
 
   if (items.length === 0) {
-    return (
-      <>
-        <CartEmpty />
-        <Navbar />
-      </>
-    );
+    return <CartEmpty />;
   }
 
   return (
     <>
       <div className={`flex flex-1 flex-col bg-white dark:bg-gray-900 ${CONTENT_PADDING}`}>
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-0 divide-y divide-gray-100 dark:divide-gray-800 lg:max-w-4xl">
+        <ul
+          className="mx-auto flex w-full max-w-3xl flex-col gap-0 divide-y divide-gray-100 dark:divide-gray-800 lg:max-w-4xl"
+          role="list"
+          aria-label="منتجات السلة"
+        >
           {items.map((item) => (
-            <div key={item.id} className="py-4 first:pt-0 last:pb-0 sm:py-5">
+            <li key={item.id} className="py-4 first:pt-0 last:pb-0 sm:py-5">
               <CartItemRow item={item} />
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-10 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:bg-gray-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
@@ -47,14 +47,9 @@ export function CartListClient() {
             <PriceTag amount={totalPrice} className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg" />
           </div>
 
-          <button
-            type="button"
-            onClick={() => router.push("/checkout")}
-            className="w-full rounded-2xl bg-[#30913F] py-3.5 text-sm font-semibold text-white shadow-sm transition-colors active:bg-[#267332] disabled:cursor-not-allowed disabled:opacity-60 sm:py-4 sm:text-[15px] lg:max-w-md lg:ms-auto lg:block"
-            disabled={totalCount === 0}
-          >
+          <Link href="/checkout" className={checkoutButtonClass}>
             الدفع
-          </button>
+          </Link>
         </div>
       </div>
     </>

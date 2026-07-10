@@ -45,10 +45,12 @@ export function DeleteConfirmSheet({
 
 	return (
 		<>
-			<div
-				className="fixed inset-0 z-40 bg-black/40 transition-opacity dark:bg-black/60"
+			<button
+				type="button"
+				className="fixed inset-0 z-40 cursor-default bg-black/40 transition-opacity dark:bg-black/60"
 				onClick={isDeleting ? undefined : onCancel}
-				aria-hidden
+				aria-label="إغلاق"
+				disabled={isDeleting}
 			/>
 
 			<div

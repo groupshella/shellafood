@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef } from "react";
 import Link from "next/link";
@@ -38,7 +38,7 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
 
     const columns = chunkByTwo(brands);
     const hasMultipleColumns = columns.length > 3;
-    const viewAllHref = "/hyper-market/brands";
+    const viewAllHref = "/brands";
 
     return (
         <section
@@ -60,7 +60,7 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
             <div className="relative">
                 {hasMultipleColumns && (
                     <div
-                        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[#F5F5F5] via-[#F5F5F5]/80 to-transparent dark:from-gray-950 dark:via-gray-950/80 sm:w-12"
+                        className="pointer-events-none absolute inset-y-0 start-0 z-10 w-10 bg-gradient-to-r from-[#F5F5F5] via-[#F5F5F5]/80 to-transparent dark:from-gray-950 dark:via-gray-950/80 sm:w-12"
                         aria-hidden
                     />
                 )}

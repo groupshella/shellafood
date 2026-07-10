@@ -25,10 +25,10 @@ export function AllCategoriesClient({ categories }: AllCategoriesClientProps) {
                 <div className="relative flex min-h-[3.25rem] items-center justify-center px-3 py-2.5 sm:px-5">
                     <Link
                         href="/hyper-market"
-                        className={`${ICON_BTN} absolute right-3 sm:right-5`}
+                        className={`${ICON_BTN} absolute start-3 sm:start-5`}
                         aria-label="العودة إلى هايبر ماركت"
                     >
-                        <ChevronRight className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} />
+                        <ChevronRight className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} aria-hidden />
                     </Link>
 
                     <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg md:text-xl">الأقسام</h1>

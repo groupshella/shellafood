@@ -1,35 +1,121 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Offer } from "@/features/markets/types/offers.types";
 
-const SLIDE_CLASS = [
-    "group relative w-full overflow-hidden rounded-2xl",
-    "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700",
-    "shadow-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06]",
-    "aspect-[16/9] sm:aspect-[21/8] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5.5]",
-    "outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
-].join(" ");
+function TagIcon() {
+    return (
+        <svg className="h-2.5 w-2.5 shrink-0 sm:h-3 sm:w-3" viewBox="0 0 12 12" fill="none" aria-hidden>
+            <path
+                d="M2.1 6.8 5.2 9.9c.3.3.8.3 1.1 0l3.6-3.6c.2-.2.3-.4.3-.7V2.8c0-.5-.4-.9-.9-.9H6.4c-.3 0-.5.1-.7.3L2.1 5.7c-.3.3-.3.8 0 1.1Z"
+                stroke="currentColor"
+                strokeWidth="1.1"
+                strokeLinejoin="round"
+            />
+            <circle cx="7.6" cy="4.2" r="0.85" fill="currentColor" />
+        </svg>
+    );
+}
 
-export function OfferSlide({ offer, priority = false }: { offer: Offer; priority?: boolean }) {
+function CtaArrowIcon() {
+    return (
+        <svg viewBox="0 0 10 10" fill="none" className="h-2.5 w-2.5 shrink-0 -scale-x-100 sm:h-3 sm:w-3" aria-hidden>
+            <path
+                d="M3 2.5 7 5 3 7.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+}
+
+function formatItemsCount(count: number): string {
+    return count.toLocaleString("en-US");
+}
+
+export function OfferSlide({ offer }: { offer: Offer; priority?: boolean }) {
+    const percent = Math.max(0, Math.round(offer.discount_max || offer.discount_min || 0));
+    const itemsLabel =
+        offer.items_count > 0
+            ? `أكثر من ${formatItemsCount(offer.items_count)} منتج ضمن العروض`
+            : "على آلاف المنتجات المختارة";
+
     return (
         <Link
             href={`/offers/${offer.id}?module_id=${offer.module_id}`}
-            className={SLIDE_CLASS}
-            aria-label={offer.name || "عرض"}
+            className={[
+                "group relative mx-auto block w-full max-w-lg overflow-hidden",
+                "aspect-[343/148] sm:max-w-2xl sm:aspect-[680/168] lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl",
+                "rounded-2xl sm:rounded-[1.25rem] md:rounded-3xl",
+                "bg-white shadow-[0_2px_10px_rgba(120,97,166,0.08)]",
+                "ring-1 ring-[#E8E0F5]/70",
+                "transition-transform duration-200 active:scale-[0.99]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+                "dark:bg-gray-900 dark:shadow-[0_2px_14px_rgba(0,0,0,0.35)]",
+                "dark:ring-white/10 dark:focus-visible:ring-offset-gray-950",
+            ].join(" ")}
+            aria-label={offer.name || `خصومات حصرية حتى ${percent}%`}
         >
-            <Image
-                src={offer.banner_full_url}
-                alt=""
-                fill
-                priority={priority}
-                quality={85}
-                className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                sizes="(max-width: 640px) calc(100vw - 24px), (max-width: 1024px) calc(100vw - 48px), (max-width: 1536px) 960px, 1152px"
+            <div
+                aria-hidden
+                className="pointer-events-none absolute -left-4 -top-4 size-14 rounded-full bg-[#DFD3F5]/55 sm:-left-5 sm:-top-5 sm:size-16 md:size-[4.5rem] dark:bg-[#7C5EC8]/25"
             />
             <div
-                className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/10 via-transparent to-transparent"
                 aria-hidden
+                className="pointer-events-none absolute bottom-1 left-10 size-9 rounded-full bg-[#3EC856]/[0.08] sm:left-12 sm:size-11 md:size-12 dark:bg-[#3EC856]/15"
             />
+
+            <div
+                aria-hidden
+                className={[
+                    "pointer-events-none absolute -right-[6%] top-0",
+                    "flex h-full aspect-square items-center justify-center rounded-full",
+                    "bg-[linear-gradient(145deg,#3EC856_6%,#30913F_59%,#22702E_94%)]",
+                    "shadow-[0_5px_20px_rgba(48,145,63,0.38),inset_0_1px_0_rgba(255,255,255,0.18)]",
+                    "dark:shadow-[0_5px_22px_rgba(48,145,63,0.28),inset_0_1px_0_rgba(255,255,255,0.12)]",
+                ].join(" ")}
+            >
+                <div className="absolute inset-[7%] rounded-full border border-white/20" />
+
+                <span className="absolute -top-0.5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full border border-[#DFD3F5]/45 bg-[#7861A6]/90 px-2 py-0.5 text-[0.5rem] font-bold tracking-wide text-white shadow-sm sm:top-0 sm:px-2.5 sm:py-1 sm:text-[0.5625rem] md:text-[0.625rem] dark:border-[#DFD3F5]/25 dark:bg-[#6B5299]">
+                    <TagIcon />
+                    خصم حصري
+                </span>
+
+                <div className="relative z-10 flex flex-col items-center text-center text-white">
+                    <span className="text-[0.625rem] font-semibold tracking-wide text-white/90 sm:text-[0.6875rem] md:text-xs">
+                        خصم حتى
+                    </span>
+                    <span className="text-[2rem] font-black leading-none tracking-tight sm:text-[2.35rem] md:text-[2.75rem]">
+                        {percent}%
+                    </span>
+                    <span className="text-[0.5625rem] font-medium text-white/85 sm:text-[0.625rem] md:text-[0.6875rem]">
+                        لفترة محدودة
+                    </span>
+                </div>
+            </div>
+
+            <div
+                dir="rtl"
+                className="absolute inset-y-0 start-0 z-10 flex w-[58%] flex-col justify-between px-3.5 py-3.5 sm:w-[56%] sm:px-4 sm:py-4 md:w-[55%] md:px-5 md:py-5"
+            >
+                <div className="flex flex-col gap-1 text-start sm:gap-1.5">
+                    <h3 className="text-[0.8125rem] font-bold leading-snug text-[#1A1A1A] sm:text-[0.9375rem] md:text-base dark:text-gray-50">
+                        خصومات حصرية حتى {percent}%
+                    </h3>
+                    <p className="text-[0.6875rem] font-medium leading-snug text-[#6B7280] sm:text-xs md:text-[0.8125rem] dark:text-gray-400">
+                        على آلاف المنتجات المختارة
+                    </p>
+                    <p className="mt-0.5 text-[0.6875rem] font-semibold leading-snug text-[#30913F] sm:text-xs md:text-[0.8125rem] dark:text-[#4aba5a]">
+                        • {itemsLabel}
+                    </p>
+                </div>
+
+                <span className="inline-flex w-fit items-center gap-1.5 rounded-md bg-[#30913F] px-3 py-1.5 text-[0.625rem] font-bold text-white transition-colors group-hover:bg-[#267332] sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-[0.6875rem] md:text-xs dark:bg-[#2f9e45] dark:group-hover:bg-[#278a3a]">
+                    استكشف العروض
+                    <CtaArrowIcon />
+                </span>
+            </div>
         </Link>
     );
 }

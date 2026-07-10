@@ -1,7 +1,5 @@
 "use client";
 
-import Navbar from "@/features/layout/components/Navbar";
-
 interface StoreShellProps {
     children: React.ReactNode;
 }
@@ -13,7 +11,6 @@ export function StoreShell({ children }: StoreShellProps) {
             dir="rtl"
         >
             {children}
-            <Navbar />
         </div>
     );
 }

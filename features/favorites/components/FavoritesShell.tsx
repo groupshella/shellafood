@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "@/features/layout/components/Navbar";
 import type { FavoritesTab } from "@/features/favorites/types/favorites.types";
 
 const TABS: { id: FavoritesTab; label: string }[] = [
@@ -51,7 +50,7 @@ export function FavoritesShell({
                                     onClick={() => setActiveTab(tab.id)}
                                     aria-selected={isActive}
                                     className={[
-                                        "min-h-10 flex-1 rounded-xl py-2 text-sm font-semibold transition-all duration-200 sm:min-h-11 sm:text-[15px]",
+                                        "min-h-10 flex-1 rounded-xl py-2 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 sm:min-h-11 sm:text-[15px]",
                                         isActive
                                             ? "bg-[#30913F] text-white shadow-sm"
                                             : "text-gray-500 dark:text-gray-400",
@@ -70,8 +69,6 @@ export function FavoritesShell({
                 <div hidden={activeTab !== "stores"}>{storesContent}</div>
                 <div hidden={activeTab !== "orders"}>{ordersContent}</div>
             </main>
-
-            <Navbar />
         </div>
     );
 }

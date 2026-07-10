@@ -39,11 +39,19 @@ function ProductsToolbar({ total, onSearchOpen }: ToolbarProps) {
         >
             <div className="flex items-center gap-2 sm:gap-2.5">
                 <button type="button" className={TOOLBAR_ICON_BTN} aria-label="عرض القائمة">
-                    <List className="h-[18px] w-[18px] sm:h-4 sm:w-4" strokeWidth={2.25} />
+                    <List
+                        className="h-[18px] w-[18px] sm:h-4 sm:w-4"
+                        strokeWidth={2.25}
+                        aria-hidden
+                    />
                 </button>
 
                 <button type="button" className={TOOLBAR_ICON_BTN} aria-label="ترتيب المنتجات">
-                    <TrendingUp className="h-[18px] w-[18px] sm:h-4 sm:w-4" strokeWidth={2.25} />
+                    <TrendingUp
+                        className="h-[18px] w-[18px] sm:h-4 sm:w-4"
+                        strokeWidth={2.25}
+                        aria-hidden
+                    />
                 </button>
 
                 <button
@@ -52,7 +60,11 @@ function ProductsToolbar({ total, onSearchOpen }: ToolbarProps) {
                     className={TOOLBAR_ICON_BTN}
                     aria-label="البحث في المنتجات"
                 >
-                    <Search className="h-[18px] w-[18px] sm:h-4 sm:w-4" strokeWidth={2.25} />
+                    <Search
+                        className="h-[18px] w-[18px] sm:h-4 sm:w-4"
+                        strokeWidth={2.25}
+                        aria-hidden
+                    />
                 </button>
             </div>
 
@@ -112,9 +124,13 @@ function SearchBar({ value, onChange, onClose }: SearchBarProps) {
                 type="button"
                 onClick={onClose}
                 aria-label="إغلاق البحث"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-gray-100 text-gray-600 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:h-9 sm:w-9"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-gray-100 text-gray-600 transition-colors active:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 dark:focus-visible:ring-offset-gray-950 sm:h-9 sm:w-9"
             >
-                <X className="h-[18px] w-[18px] sm:h-4 sm:w-4" strokeWidth={2.25} />
+                <X
+                    className="h-[18px] w-[18px] sm:h-4 sm:w-4"
+                    strokeWidth={2.25}
+                    aria-hidden
+                />
             </button>
         </div>
     );
@@ -152,6 +168,10 @@ export function OfferItemsClient({
     const isSearchActive = search.query.trim().length > 0;
     const visibleItems = search.results ?? displayItems;
     const visibleTotal = search.total ?? displayTotal;
+
+    const openSearch = useCallback(() => {
+        setSearchOpen(true);
+    }, []);
 
     const closeSearch = useCallback(() => {
         search.clearSearch();
@@ -194,11 +214,14 @@ export function OfferItemsClient({
                     onClose={closeSearch}
                 />
             ) : (
-                <ProductsToolbar total={visibleTotal} onSearchOpen={() => setSearchOpen(true)} />
+                <ProductsToolbar total={visibleTotal} onSearchOpen={openSearch} />
             )}
 
             {(search.error ?? loadMoreError) && (
-                <p className={`py-2 text-center text-[13px] font-medium text-red-600 dark:text-red-400 sm:text-sm ${SECTION_PADDING}`}>
+                <p
+                    role="alert"
+                    className={`py-2 text-center text-[13px] font-medium text-red-600 dark:text-red-400 sm:text-sm ${SECTION_PADDING}`}
+                >
                     {search.error ?? loadMoreError}
                 </p>
             )}
@@ -223,7 +246,7 @@ export function OfferItemsClient({
                         type="button"
                         onClick={loadMore}
                         disabled={loadingMore}
-                        className="w-full rounded-xl bg-white py-3 text-sm font-semibold text-[#30913F] shadow-[0_2px_8px_rgba(0,0,0,0.07)] transition-colors active:bg-gray-50 disabled:opacity-60 dark:bg-gray-800 dark:text-[#4db860] dark:active:bg-gray-700 sm:mx-auto sm:block sm:max-w-md sm:text-[14px] md:max-w-lg lg:py-3.5 lg:text-[15px]"
+                        className="w-full rounded-xl bg-white py-3 text-sm font-semibold text-[#30913F] shadow-[0_2px_8px_rgba(0,0,0,0.07)] transition-colors active:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:opacity-60 dark:bg-gray-800 dark:text-[#4db860] dark:active:bg-gray-700 dark:focus-visible:ring-offset-gray-950 sm:mx-auto sm:block sm:max-w-md sm:text-[14px] md:max-w-lg lg:py-3.5 lg:text-[15px]"
                     >
                         {loadingMore ? "جارٍ التحميل…" : "تحميل المزيد"}
                     </button>

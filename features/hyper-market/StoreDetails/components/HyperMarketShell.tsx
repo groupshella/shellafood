@@ -1,9 +1,7 @@
 import { Topbar } from "./Topbar";
-import Navbar from "@/features/layout/components/Navbar";
 
 export function HyperMarketShell({
     children,
-    isAuthenticated,
 }: {
     children: React.ReactNode;
     isAuthenticated: boolean;
@@ -16,7 +14,6 @@ export function HyperMarketShell({
             <Topbar />
 
             {children}
-            <Navbar />
         </div>
     );
 }

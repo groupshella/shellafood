@@ -3,7 +3,6 @@
 import {
 	memo,
 	useCallback,
-	useMemo,
 	useState,
 	type CSSProperties,
 	type ReactNode,
@@ -11,13 +10,7 @@ import {
 import Image from "next/image";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Tajawal } from "next/font/google";
 import { useRouter } from "next/navigation";
-
-const tajawal = Tajawal({
-	subsets: ["arabic", "latin"],
-	weight: ["500", "700"],
-});
 
 const STAGE_W = 306;
 const STAGE_H = 390;
@@ -28,7 +21,13 @@ const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 const INNER_BTN = 63;
 
-const STEPS = [
+const LANGUAGE_STEP = {
+	id: "language",
+	title: "اختر لغتك",
+	description: "",
+} as const;
+
+const CONTENT_STEPS = [
 	{
 		id: "shopping",
 		title: "كل احتياجاتك في تطبيق واحد",
@@ -44,12 +43,11 @@ const STEPS = [
 		title: "تجربة أسرع",
 		description: "اطلب، احجز، وتابع كل شيء بسهولة.",
 	},
-	{
-		id: "language",
-		title: "اختر لغتك",
-		description: "",
-	},
 ] as const;
+
+const STEPS = [LANGUAGE_STEP, ...CONTENT_STEPS] as const;
+const CONTENT_COUNT = CONTENT_STEPS.length;
+const LAST_STEP = STEPS.length - 1;
 
 type StepId = (typeof STEPS)[number]["id"];
 type LanguageCode = "ar" | "en";
@@ -453,38 +451,35 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 	const [language, setLanguage] = useState<LanguageCode>("ar");
 	const router = useRouter();
 
-	const isLast = step === STEPS.length - 1;
 	const current = STEPS[step];
+	const isLanguageStep = current.id === "language";
+	const isLast = step === LAST_STEP;
+	const progress = isLanguageStep ? 0 : step / CONTENT_COUNT;
 
-	const progress = useMemo(() => {
-		if (isLast) return 1;
-		return (step + 1) / 3;
-	}, [step, isLast]);
+	const finish = useCallback(() => {
+		router.replace("/auth");
+	}, [router]);
 
-	const goToLanguage = useCallback(() => {
-		setStep(STEPS.length - 1);
-	}, []);
-
-	const handleAction = useCallback(() => {
+	const handleNext = useCallback(() => {
 		if (isLast) {
-			router.replace("/auth");
-		} else {
-			setStep((prev) => prev + 1);
+			finish();
+			return;
 		}
-	}, [isLast, router]);
+		setStep((prev) => prev + 1);
+	}, [finish, isLast]);
 
 	return (
 		<div
-			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col overflow-hidden bg-white`}
+			className="relative flex min-h-dvh w-full flex-col overflow-hidden bg-white"
 			dir="rtl"
 			lang="ar"
 		>
 			<BlurredGradientBackground />
 
-			{!isLast && (
+			{!isLanguageStep && (
 				<motion.button
 					type="button"
-					onClick={goToLanguage}
+					onClick={finish}
 					className="absolute top-6 z-20 rounded-full border border-[#F6F5F8] bg-white/25 px-6 py-2.5 text-[14px] font-medium text-[#2D2F35] backdrop-blur-sm start-6"
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
@@ -517,24 +512,24 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 							<h1 className="w-full text-[20px] font-bold leading-6 text-black sm:text-[22px]">
 								{current.title}
 							</h1>
-							{current.description && (
+							{current.description ? (
 								<p className="w-full whitespace-pre-line text-[15px] font-medium leading-[18px] text-black">
 									{current.description}
 								</p>
-							)}
+							) : null}
 						</TextEntrance>
 
-						{current.id === "language" && (
+						{isLanguageStep ? (
 							<LanguageSelector value={language} onChange={setLanguage} />
-						)}
+						) : null}
 					</motion.div>
 				</AnimatePresence>
 
 				<div className="mt-auto flex flex-col items-center pt-8 sm:pt-10">
-					{isLast ? (
+					{isLanguageStep ? (
 						<motion.button
 							type="button"
-							onClick={handleAction}
+							onClick={handleNext}
 							className="w-full max-w-[343px] rounded-xl bg-[#30913F] py-3 text-[16px] font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
@@ -543,7 +538,7 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 							التالي
 						</motion.button>
 					) : (
-						<ProgressRingButton progress={progress} onClick={handleAction} />
+						<ProgressRingButton progress={progress} onClick={handleNext} />
 					)}
 				</div>
 			</div>

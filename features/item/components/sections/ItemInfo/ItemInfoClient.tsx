@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { ShoppingBag, Heart } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
@@ -23,12 +23,16 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
         ? item.price * (1 - item.discount / 100)
         : item.price;
 
-    const product = {
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        discount: item.discount,
-    };
+    // Stable reference so memoized ProductAddControl isn't busted every render
+    const product = useMemo(
+        () => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            discount: item.discount,
+        }),
+        [item.id, item.name, item.price, item.discount],
+    );
 
     async function toggleWishlist() {
         if (wishlistPending) return;
@@ -78,7 +82,7 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                 {/* Info block */}
                 <div className="px-3 pb-6 pt-4 sm:px-5 md:flex md:min-h-full md:flex-col md:px-0 md:pb-8 md:pt-1">
                     <div className="flex items-start justify-between gap-3">
-                        <h1 className="flex-1 text-right text-lg font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-xl lg:text-2xl">
+                        <h1 className="flex-1 text-start text-lg font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-xl lg:text-2xl">
                             {item.name}
                         </h1>
                         <button
@@ -86,22 +90,24 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                             onClick={toggleWishlist}
                             disabled={wishlistPending}
                             aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                            aria-pressed={wishlisted}
                             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60 dark:bg-gray-800 dark:active:bg-gray-700 sm:h-11 sm:w-11"
                         >
                             <Heart
                                 className={[
                                     "h-5 w-5 transition-colors",
                                     wishlisted
-                                        ? "fill-[#30913F] text-[#30913F]"
+                                        ? "fill-[#30913F] text-[#30913F] dark:fill-[#4db860] dark:text-[#4db860]"
                                         : "fill-none text-gray-700 dark:text-gray-300",
                                 ].join(" ")}
                                 strokeWidth={wishlisted ? 0 : 1.8}
+                                aria-hidden
                             />
                         </button>
                     </div>
 
                     {item.description?.trim() && (
-                        <p className="mt-2 text-right text-sm leading-relaxed text-gray-500 dark:text-gray-400 lg:text-base">
+                        <p className="mt-2 text-start text-sm leading-relaxed text-gray-500 dark:text-gray-400 lg:text-base">
                             {item.description}
                         </p>
                     )}
@@ -137,7 +143,7 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                     )}
 
                     {!item.is_available && (
-                        <p className="mt-3 text-right text-xs font-semibold text-red-500 dark:text-red-400 sm:text-sm">
+                        <p className="mt-3 text-start text-xs font-semibold text-red-500 dark:text-red-400 sm:text-sm">
                             غير متوفر حالياً
                         </p>
                     )}

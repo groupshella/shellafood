@@ -1,6 +1,6 @@
 const SLIDE_CLASS = [
-    "relative w-full overflow-hidden rounded-2xl",
-    "aspect-[16/9] sm:aspect-[21/8] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5.5]",
+    "relative w-full overflow-hidden rounded-2xl sm:rounded-[1.25rem] md:rounded-3xl",
+    "aspect-[343/148] sm:aspect-[680/168]",
 ].join(" ");
 
 export default function OffersSkeleton() {

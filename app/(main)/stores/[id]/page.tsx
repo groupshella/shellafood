@@ -1,8 +1,11 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { getStoreDetails } from "@/features/stores/api/store-details";
+import { resolveStoreCategoryId } from "@/features/stores/types/store.types";
 import { StoreShell } from "@/features/stores/components/StoreShell";
 import { StoreHeader } from "@/features/stores/components/sections/StoreHeader";
 import { StoreCategoryProducts } from "@/features/stores/components/sections/StoreCategoryProducts";
+import { AddToCart } from "@/features/cart/components/shared/AddToCart";
 
 interface StorePageProps {
     params: Promise<{ id: string }>;
@@ -18,23 +21,29 @@ export default async function StorePage({ params, searchParams }: StorePageProps
     const { id: storeId } = await params;
     const { module_id: moduleId = "3", categoryId } = await searchParams;
 
+    const store = await getStoreDetails(storeId);
+    const resolvedCategoryId = resolveStoreCategoryId(store, categoryId);
+
     return (
         <StoreShell>
-            <Suspense fallback={<StoreHeader.skeleton />}>
-                <StoreHeader
-                    storeId={storeId}
-                    moduleId={moduleId}
-                    activeCategoryId={categoryId}
-                />
-            </Suspense>
+            <StoreHeader
+                store={store}
+                storeId={storeId}
+                moduleId={moduleId}
+                activeCategoryId={resolvedCategoryId}
+            />
 
-            <Suspense key={categoryId ?? "default"} fallback={<StoreCategoryProducts.skeleton />}>
+            <Suspense key={resolvedCategoryId || "default"} fallback={<StoreCategoryProducts.skeleton />}>
                 <StoreCategoryProducts
                     storeId={storeId}
                     moduleId={moduleId}
-                    categoryId={categoryId}
+                    categoryId={resolvedCategoryId}
+                    categoryProducts={store.category_products}
+                    scrollIntoView={Boolean(categoryId)}
                 />
             </Suspense>
+
+            <AddToCart moduleId={moduleId} />
         </StoreShell>
     );
 }

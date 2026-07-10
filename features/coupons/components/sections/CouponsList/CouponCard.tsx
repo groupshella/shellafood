@@ -1,3 +1,6 @@
+"use client";
+
+import { memo } from "react";
 import { Check, Copy } from "lucide-react";
 
 import { formatExpireDate, isCouponExpiringSoon } from "@/features/coupons/lib/coupon-utils";
@@ -44,7 +47,13 @@ function StubDecoration({ overlayClass }: { overlayClass: string }) {
 	);
 }
 
-export function CouponCard({ coupon, index, variant, isCopied, onCopyCode }: CouponCardProps) {
+export const CouponCard = memo(function CouponCard({
+	coupon,
+	index,
+	variant,
+	isCopied,
+	onCopyCode,
+}: CouponCardProps) {
 	const isUsable = "isUsable" in coupon ? coupon.isUsable : variant === "expired" ? false : !coupon.is_used;
 	const expiringSoon = variant === "available" && isCouponExpiringSoon(coupon);
 	const ribbon = RIBBON_STYLES[index % RIBBON_STYLES.length];
@@ -101,13 +110,13 @@ export function CouponCard({ coupon, index, variant, isCopied, onCopyCode }: Cou
 						<button
 							type="button"
 							onClick={() => onCopyCode(coupon.code)}
-							className="flex h-8 min-h-8 min-w-0 max-w-[45%] items-center justify-center gap-1.5 rounded-lg bg-gray-100 px-2 shadow-sm transition-colors active:bg-gray-200 dark:bg-gray-700 dark:active:bg-gray-600 sm:h-9 sm:max-w-[160px] sm:px-2.5"
-							aria-label={`نسخ الكود ${coupon.code}`}
+							className="flex h-8 min-h-8 min-w-0 max-w-[45%] items-center justify-center gap-1.5 rounded-lg bg-gray-100 px-2 shadow-sm transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-700 dark:active:bg-gray-600 sm:h-9 sm:max-w-[160px] sm:px-2.5"
+							aria-label={isCopied ? `تم نسخ الكود ${coupon.code}` : `نسخ الكود ${coupon.code}`}
 						>
 							{isCopied ? (
-								<Check className="h-3.5 w-3.5 shrink-0 text-[#30913F] dark:text-[#4db860] sm:h-4 sm:w-4" strokeWidth={2} />
+								<Check className="h-3.5 w-3.5 shrink-0 text-[#30913F] dark:text-[#4db860] sm:h-4 sm:w-4" strokeWidth={2} aria-hidden />
 							) : (
-								<Copy className="h-3.5 w-3.5 shrink-0 text-gray-600 dark:text-gray-400 sm:h-4 sm:w-4" strokeWidth={1.5} />
+								<Copy className="h-3.5 w-3.5 shrink-0 text-gray-600 dark:text-gray-400 sm:h-4 sm:w-4" strokeWidth={1.5} aria-hidden />
 							)}
 							<span className="truncate text-[11px] font-bold text-gray-900 dark:text-gray-100 sm:text-xs">
 								{coupon.code}
@@ -115,7 +124,7 @@ export function CouponCard({ coupon, index, variant, isCopied, onCopyCode }: Cou
 						</button>
 					</div>
 
-					<h3 className="line-clamp-2 text-end text-sm font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-[15px]">
+					<h3 className="line-clamp-2 text-start text-sm font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-[15px]">
 						{coupon.title}
 					</h3>
 				</div>
@@ -123,11 +132,11 @@ export function CouponCard({ coupon, index, variant, isCopied, onCopyCode }: Cou
 				<div className="my-2 border-t border-dashed border-gray-200 dark:border-gray-700 sm:my-2.5" aria-hidden />
 
 				<div className="relative flex-1 px-3 pb-3 sm:px-4 sm:pb-4">
-					<p className="text-end text-[11px] font-medium leading-relaxed text-gray-600 dark:text-gray-400 sm:text-xs">
+					<p className="text-start text-[11px] font-medium leading-relaxed text-gray-600 dark:text-gray-400 sm:text-xs">
 						استخدم هذا الكوبون عند الدفع للحصول على الخصم تلقائيًا.
 					</p>
 					{expiryText && (
-						<span className="mt-1 block text-end text-[10px] font-medium text-[#30913F] dark:text-[#4db860] sm:text-[11px]">
+						<span className="mt-1 block text-start text-[10px] font-medium text-[#30913F] dark:text-[#4db860] sm:text-[11px]">
 							{expiryText}
 						</span>
 					)}
@@ -135,4 +144,4 @@ export function CouponCard({ coupon, index, variant, isCopied, onCopyCode }: Cou
 			</div>
 		</div>
 	);
-}
+});

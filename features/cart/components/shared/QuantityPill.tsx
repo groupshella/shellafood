@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Minus, Plus } from "lucide-react";
 
 interface QuantityPillProps {
@@ -12,7 +13,7 @@ interface QuantityPillProps {
     className?: string;
 }
 
-export function QuantityPill({
+export const QuantityPill = memo(function QuantityPill({
     quantity,
     onIncrease,
     onDecrease,
@@ -47,7 +48,7 @@ export function QuantityPill({
                     isSm ? "h-6 w-6 sm:h-5 sm:w-5" : "h-7 w-7 sm:h-8 sm:w-8",
                 ].join(" ")}
             >
-                <Minus className={isSm ? "h-3.5 w-3.5 sm:h-3 sm:w-3" : "h-4 w-4 sm:h-[18px] sm:w-[18px]"} strokeWidth={2.5} />
+                <Minus className={isSm ? "h-3.5 w-3.5 sm:h-3 sm:w-3" : "h-4 w-4 sm:h-[18px] sm:w-[18px]"} strokeWidth={2.5} aria-hidden />
             </button>
 
             <span
@@ -75,8 +76,8 @@ export function QuantityPill({
                     isSm ? "h-6 w-6 sm:h-5 sm:w-5" : "h-7 w-7 sm:h-8 sm:w-8",
                 ].join(" ")}
             >
-                <Plus className={isSm ? "h-3.5 w-3.5 sm:h-3 sm:w-3" : "h-4 w-4 sm:h-[18px] sm:w-[18px]"} strokeWidth={2.5} />
+                <Plus className={isSm ? "h-3.5 w-3.5 sm:h-3 sm:w-3" : "h-4 w-4 sm:h-[18px] sm:w-[18px]"} strokeWidth={2.5} aria-hidden />
             </button>
         </div>
     );
-}
+});

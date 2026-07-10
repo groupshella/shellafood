@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { PromoBannerItem } from "./promo-banners.config";
 
 interface PromoBannerCardProps {
@@ -7,7 +8,10 @@ interface PromoBannerCardProps {
 	priority?: boolean;
 }
 
-export function PromoBannerCard({ banner, priority = false }: PromoBannerCardProps) {
+export const PromoBannerCard = memo(function PromoBannerCard({
+	banner,
+	priority = false,
+}: PromoBannerCardProps) {
 	const card = (
 		<div
 			className={[
@@ -55,4 +59,4 @@ export function PromoBannerCard({ banner, priority = false }: PromoBannerCardPro
 			{card}
 		</Link>
 	);
-}
+});

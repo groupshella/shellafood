@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import Image from "next/image";
-import { SlidersHorizontal, X, ShoppingBag, Store, Clock, ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { SlidersHorizontal, X, Store, Clock, ChevronLeft } from "lucide-react";
 import type { ApiOrder, OrderStatus, FilterState, DateGroupLabel } from "@/features/my-orders/types/orders.types";
+import { OrdersEmpty } from "./OrdersEmpty";
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 
@@ -152,72 +153,74 @@ export function OrdersClient({ orders }: Props) {
         return () => { document.body.style.overflow = ""; };
     }, [filterOpen]);
 
+    const hasNoOrders = orders.length === 0;
+
     return (
         <>
             <header className="sticky top-0 z-20 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:bg-gray-900 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]">
                 <div className={`relative flex items-center justify-center py-3.5 sm:py-4 ${HEADER_PADDING}`}>
-                    <button
-                        type="button"
-                        onClick={openFilter}
-                        aria-label="فلتر"
-                        className="absolute start-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 transition-colors active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:active:bg-gray-700 sm:start-4 sm:h-11 sm:w-11"
-                    >
-                        <SlidersHorizontal className="h-[18px] w-[18px] text-gray-700 dark:text-gray-300 sm:h-5 sm:w-5" strokeWidth={1.8} />
-                        {hasActiveFilters && (
-                            <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#30913F] ring-2 ring-white dark:ring-gray-900" />
-                        )}
-                    </button>
+                    {!hasNoOrders ? (
+                        <button
+                            type="button"
+                            onClick={openFilter}
+                            aria-label="فلتر"
+                            className="absolute end-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 transition-colors active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:active:bg-gray-700 sm:end-4 sm:h-11 sm:w-11"
+                        >
+                            <SlidersHorizontal className="h-[18px] w-[18px] text-gray-700 dark:text-gray-300 sm:h-5 sm:w-5" strokeWidth={1.8} aria-hidden />
+                            {hasActiveFilters && (
+                                <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#30913F] ring-2 ring-white dark:ring-gray-900" />
+                            )}
+                        </button>
+                    ) : null}
                     <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-[17px] lg:text-lg">طلباتي</h1>
                 </div>
 
-                <div
-                    role="tablist"
-                    aria-label="تصفية حسب القسم"
-                    className={`flex gap-2 overflow-x-auto pb-3 pt-1 sm:gap-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${HEADER_PADDING}`}
-                >
-                    <button
-                        type="button"
-                        role="tab"
-                        aria-selected={activeModuleId === "all"}
-                        onClick={() => setActiveModuleId("all")}
-                        className={[
-                            TAB_CHIP,
-                            activeModuleId === "all"
-                                ? "bg-[#30913F] text-white shadow-sm"
-                                : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700",
-                        ].join(" ")}
+                {!hasNoOrders ? (
+                    <div
+                        role="tablist"
+                        aria-label="تصفية حسب القسم"
+                        className={`flex gap-2 overflow-x-auto pb-3 pt-1 sm:gap-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${HEADER_PADDING}`}
                     >
-                        الكل
-                    </button>
-                    {moduleTabs.map((tab) => (
                         <button
-                            key={tab.id}
                             type="button"
                             role="tab"
-                            aria-selected={activeModuleId === tab.id}
-                            onClick={() => setActiveModuleId(tab.id)}
+                            aria-selected={activeModuleId === "all"}
+                            onClick={() => setActiveModuleId("all")}
                             className={[
                                 TAB_CHIP,
-                                activeModuleId === tab.id
+                                activeModuleId === "all"
                                     ? "bg-[#30913F] text-white shadow-sm"
                                     : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700",
                             ].join(" ")}
                         >
-                            {tab.label}
+                            الكل
                         </button>
-                    ))}
-                </div>
+                        {moduleTabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                type="button"
+                                role="tab"
+                                aria-selected={activeModuleId === tab.id}
+                                onClick={() => setActiveModuleId(tab.id)}
+                                className={[
+                                    TAB_CHIP,
+                                    activeModuleId === tab.id
+                                        ? "bg-[#30913F] text-white shadow-sm"
+                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700",
+                                ].join(" ")}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+                ) : null}
             </header>
 
             <main className={`space-y-1 ${CONTENT_PADDING}`}>
-                {filteredOrders.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center px-4 py-16 text-center sm:py-20 lg:py-24">
-                        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 sm:mb-5 sm:h-[4.5rem] sm:w-[4.5rem]">
-                            <ShoppingBag className="h-8 w-8 text-gray-400 dark:text-gray-500 sm:h-9 sm:w-9" strokeWidth={1.5} />
-                        </div>
-                        <p className="text-base font-semibold text-gray-700 dark:text-gray-200 sm:text-lg">لا توجد طلبات</p>
-                        <p className="mt-1 max-w-xs text-sm text-gray-400 dark:text-gray-500 sm:mt-1.5 sm:max-w-sm">لم يتم العثور على طلبات بهذه الفلاتر</p>
-                    </div>
+                {hasNoOrders ? (
+                    <OrdersEmpty />
+                ) : filteredOrders.length === 0 ? (
+                    <OrdersEmpty filtered />
                 ) : (
                     groupedOrders.map(({ label, orders: groupOrders }) => (
                         <section key={label} className="space-y-3 sm:space-y-4">
@@ -261,9 +264,9 @@ export function OrdersClient({ orders }: Props) {
                                 type="button"
                                 onClick={closeFilter}
                                 aria-label="إغلاق"
-                                className="absolute start-0 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:h-9 sm:w-9"
+                                className="absolute start-0 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:h-9 sm:w-9"
                             >
-                                <X className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2.5} />
+                                <X className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2.5} aria-hidden />
                             </button>
                             <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-[16px]">فلتر</h2>
                         </div>
@@ -338,7 +341,7 @@ export function OrdersClient({ orders }: Props) {
                         <button
                             type="button"
                             onClick={applyFilter}
-                            className="w-full rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] sm:text-[15px] lg:py-4"
+                            className="w-full rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 sm:text-[15px] lg:py-4"
                         >
                             تم
                         </button>
@@ -351,8 +354,7 @@ export function OrdersClient({ orders }: Props) {
 
 // ── OrderCard ─────────────────────────────────────────────────────────────────
 
-function OrderCard({ order }: { order: ApiOrder }) {
-    const router = useRouter();
+const OrderCard = memo(function OrderCard({ order }: { order: ApiOrder }) {
     const statusInfo = STATUS_STYLES[order.order_status] ?? {
         bg: "bg-gray-100 dark:bg-gray-800",
         text: "text-gray-500 dark:text-gray-400",
@@ -365,26 +367,18 @@ function OrderCard({ order }: { order: ApiOrder }) {
         : 0;
 
     return (
-        <article
-            onClick={() => router.push(`/my-orders/${order.id}`)}
-            onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    router.push(`/my-orders/${order.id}`);
-                }
-            }}
-            role="button"
-            tabIndex={0}
+        <Link
+            href={`/my-orders/${order.id}`}
             aria-label={`طلب ${storeName} رقم ${order.id}`}
-            className="flex h-full min-w-0 cursor-pointer flex-row-reverse overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:ring-white/[0.06]"
+            className="flex h-full min-w-0 flex-row-reverse overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:bg-gray-800 dark:ring-white/[0.06] dark:focus-visible:ring-offset-gray-950"
         >
             <div className="flex w-16 shrink-0 items-center justify-center self-stretch sm:w-[4.5rem] md:w-20">
-                <ChevronLeft className="h-6 w-6 text-gray-400 dark:text-gray-500 sm:h-7 sm:w-7 md:h-8 md:w-8" strokeWidth={1.4} />
+                <ChevronLeft className="h-6 w-6 text-gray-400 dark:text-gray-500 sm:h-7 sm:w-7 md:h-8 md:w-8" strokeWidth={1.4} aria-hidden />
             </div>
 
             <div className="flex min-w-0 flex-1 flex-col gap-1.5 px-3 py-3 sm:gap-2 sm:px-4 sm:py-3.5">
                 <div className="flex items-center justify-between gap-2">
-                    <p className="min-w-0 truncate text-right text-[13px] font-semibold text-gray-900 dark:text-gray-50 sm:text-sm">{storeName}</p>
+                    <p className="min-w-0 truncate text-start text-[13px] font-semibold text-gray-900 dark:text-gray-50 sm:text-sm">{storeName}</p>
                     <p className="shrink-0 text-[12px] font-semibold text-gray-500 dark:text-gray-400 sm:text-[13px]">#{order.id}</p>
                 </div>
 
@@ -399,13 +393,13 @@ function OrderCard({ order }: { order: ApiOrder }) {
                 </span>
 
                 <div className="flex min-w-0 items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400 sm:h-[13px] sm:w-[13px]" strokeWidth={1.6} />
+                    <Clock className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400 sm:h-[13px] sm:w-[13px]" strokeWidth={1.6} aria-hidden />
                     <span className="truncate text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-[13px]">
                         تاريخ الطلب: {order.order_time}
                     </span>
                 </div>
 
-                <p className="text-right text-[13px] font-semibold text-gray-900 dark:text-gray-50 sm:text-sm">
+                <p className="text-start text-[13px] font-semibold text-gray-900 dark:text-gray-50 sm:text-sm">
                     إجمالي التكلفة: {amount}
                 </p>
             </div>
@@ -420,9 +414,9 @@ function OrderCard({ order }: { order: ApiOrder }) {
                         className="h-11 w-11 rounded-xl object-cover sm:h-12 sm:w-12 md:h-14 md:w-14"
                     />
                 ) : (
-                    <Store className="h-7 w-7 text-gray-300 dark:text-gray-500 sm:h-8 sm:w-8" strokeWidth={1.4} />
+                    <Store className="h-7 w-7 text-gray-300 dark:text-gray-500 sm:h-8 sm:w-8" strokeWidth={1.4} aria-hidden />
                 )}
             </div>
-        </article>
+        </Link>
     );
-}
+});

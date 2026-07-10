@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     SearchItemsResponse,
     SearchProduct,
@@ -28,76 +28,79 @@ export function useSearch(moduleId: string) {
     const [error, setError] = useState<string | null>(null);
     const [hasSearched, setHasSearched] = useState(false);
 
-    // Pagination state for items
     const [currentPage, setCurrentPage] = useState(1);
     const [totalItemSize, setTotalItemSize] = useState(0);
     const accumulatedProducts = useRef<SearchProduct[]>([]);
     const currentQuery = useRef<string>("");
-
+    const moduleIdRef = useRef(moduleId);
     const abortRef = useRef<AbortController | null>(null);
 
-    const search = useCallback(
-        async (query: string) => {
-            const trimmed = query.trim();
-            if (!trimmed) return;
+    useEffect(() => {
+        moduleIdRef.current = moduleId;
+    }, [moduleId]);
 
-            abortRef.current?.abort();
-            const controller = new AbortController();
-            abortRef.current = controller;
+    const search = useCallback(async (query: string, nextModuleId?: string) => {
+        const trimmed = query.trim();
+        if (!trimmed) return;
 
-            setIsSearching(true);
-            setError(null);
-            setHasSearched(true);
+        const activeModuleId = nextModuleId ?? moduleIdRef.current;
+        if (nextModuleId) moduleIdRef.current = nextModuleId;
 
-            // Reset pagination on new search
-            currentQuery.current = trimmed;
-            accumulatedProducts.current = [];
+        abortRef.current?.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
+
+        setIsSearching(true);
+        setError(null);
+        setHasSearched(true);
+
+        currentQuery.current = trimmed;
+        accumulatedProducts.current = [];
+        setCurrentPage(1);
+        setTotalItemSize(0);
+
+        try {
+            const params = new URLSearchParams({
+                name: trimmed,
+                module_id: activeModuleId,
+                offset: "1",
+                limit: String(ITEMS_PER_PAGE),
+            });
+
+            const [itemsData, storesData] = await Promise.all([
+                fetchSearchEndpoint<SearchItemsResponse>(
+                    "/api/search/items",
+                    params,
+                    controller.signal,
+                ),
+                fetchSearchEndpoint<SearchStoresResponse>(
+                    "/api/search/stores",
+                    new URLSearchParams({ name: trimmed, module_id: activeModuleId }),
+                    controller.signal,
+                ),
+            ]);
+
+            accumulatedProducts.current = itemsData.products ?? [];
+            setTotalItemSize(itemsData.total_size ?? 0);
             setCurrentPage(1);
-            setTotalItemSize(0);
 
-            try {
-                const params = new URLSearchParams({
-                    name: trimmed,
-                    offset: "1",
-                    limit: String(ITEMS_PER_PAGE),
-                });
-
-                const [itemsData, storesData] = await Promise.all([
-                    fetchSearchEndpoint<SearchItemsResponse>(
-                        "/api/search/items",
-                        params,
-                        controller.signal,
-                    ),
-                    fetchSearchEndpoint<SearchStoresResponse>(
-                        "/api/search/stores",
-                        new URLSearchParams({ name: trimmed }),
-                        controller.signal,
-                    ),
-                ]);
-
-                accumulatedProducts.current = itemsData.products ?? [];
-                setTotalItemSize(itemsData.total_size ?? 0);
-                setCurrentPage(1);
-
-                setResults({
-                    items: {
-                        ...itemsData,
-                        products: accumulatedProducts.current,
-                    },
-                    stores: storesData,
-                });
-            } catch (err) {
-                if ((err as Error).name === "AbortError") return;
-                setError(err instanceof Error ? err.message : "Failed to search");
-                setResults(null);
-            } finally {
-                if (!controller.signal.aborted) {
-                    setIsSearching(false);
-                }
+            setResults({
+                items: {
+                    ...itemsData,
+                    products: accumulatedProducts.current,
+                },
+                stores: storesData,
+            });
+        } catch (err) {
+            if ((err as Error).name === "AbortError") return;
+            setError(err instanceof Error ? err.message : "Failed to search");
+            setResults(null);
+        } finally {
+            if (!controller.signal.aborted) {
+                setIsSearching(false);
             }
-        },
-        [moduleId],
-    );
+        }
+    }, []);
 
     const loadMore = useCallback(async () => {
         if (!currentQuery.current || isLoadingMore) return;
@@ -110,6 +113,7 @@ export function useSearch(moduleId: string) {
         try {
             const params = new URLSearchParams({
                 name: currentQuery.current,
+                module_id: moduleIdRef.current,
                 offset: String(nextPage),
                 limit: String(ITEMS_PER_PAGE),
             });
@@ -118,7 +122,6 @@ export function useSearch(moduleId: string) {
                 "/api/search/items",
                 params,
             );
-            console.log(itemsData);
             const newProducts = itemsData.products ?? [];
             accumulatedProducts.current = [...accumulatedProducts.current, ...newProducts];
             setCurrentPage(nextPage);
@@ -126,12 +129,12 @@ export function useSearch(moduleId: string) {
             setResults((prev) =>
                 prev
                     ? {
-                        ...prev,
-                        items: {
-                            ...prev.items,
-                            products: accumulatedProducts.current,
-                        },
-                    }
+                          ...prev,
+                          items: {
+                              ...prev.items,
+                              products: accumulatedProducts.current,
+                          },
+                      }
                     : prev,
             );
         } catch (err) {

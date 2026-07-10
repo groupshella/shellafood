@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import type { AppLocale } from "@/features/profile/constants/profile.strings";
 import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
@@ -12,13 +11,6 @@ const LANGUAGE_OPTIONS: { code: AppLocale; label: string }[] = [
 ];
 
 export function LanguageClient() {
-    const router = useRouter();
-
-    const handleSelect = (code: AppLocale) => {
-        // setLocale(code);
-        router.back();
-    };
-
     return (
         <ProfileSubpageShell title={PROFILE_STRINGS.language}>
             <div className="mx-auto w-full max-w-lg rounded-2xl bg-white px-3 dark:bg-gray-900 sm:max-w-2xl sm:px-4 lg:max-w-3xl">
@@ -27,7 +19,7 @@ export function LanguageClient() {
                         key={opt.code}
                         label={opt.label}
                         selected={false}
-                        onSelect={() => handleSelect(opt.code)}
+                        href="/profile"
                     />
                 ))}
             </div>

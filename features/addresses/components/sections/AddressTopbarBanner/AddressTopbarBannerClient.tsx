@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 
@@ -16,16 +16,18 @@ interface AddressTopbarBannerClientProps {
 }
 
 const pillClass =
-	"inline-flex max-w-full min-h-[36px] items-center gap-1.5 rounded-lg bg-[#EBFEEB] px-2.5 py-1.5 text-right transition-colors hover:bg-[#dff8df] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 active:scale-[0.98] dark:bg-[#1a3d24] dark:hover:bg-[#224d2e] dark:focus-visible:ring-offset-gray-900 sm:min-h-[40px] sm:gap-2 sm:px-3 md:max-w-md lg:max-w-lg";
+	"inline-flex max-w-full min-h-[36px] items-center gap-1.5 rounded-lg bg-[#EBFEEB] px-2.5 py-1.5 text-start transition-colors hover:bg-[#dff8df] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 active:scale-[0.98] dark:bg-[#1a3d24] dark:hover:bg-[#224d2e] dark:focus-visible:ring-offset-gray-900 sm:min-h-[40px] sm:gap-2 sm:px-3 md:max-w-md lg:max-w-lg";
 
 function LocationPill({
 	children,
 	onClick,
 	href,
+	ariaLabel,
 }: {
 	children: React.ReactNode;
 	onClick?: () => void;
 	href?: string;
+	ariaLabel: string;
 }) {
 	const content = (
 		<>
@@ -42,14 +44,20 @@ function LocationPill({
 
 	if (href) {
 		return (
-			<Link href={href} className={pillClass}>
+			<Link href={href} className={pillClass} aria-label={ariaLabel}>
 				{content}
 			</Link>
 		);
 	}
 
 	return (
-		<button type="button" onClick={onClick} className={pillClass} aria-haspopup="dialog">
+		<button
+			type="button"
+			onClick={onClick}
+			className={pillClass}
+			aria-haspopup="dialog"
+			aria-label={ariaLabel}
+		>
 			{content}
 		</button>
 	);
@@ -63,27 +71,44 @@ export function AddressTopbarBannerClient({
 	const [isOpen, setIsOpen] = useState(false);
 	const { selectedAddress, selectedId, setSelectedAddressId } = useSelectedAddress(addresses);
 
-	const placeholder = "الرياض ،اسم المنطقة ،اسم الشارع";
+	const placeholder = "انضم إلينا ، واستمتع بخدمات شلة";
+
+	const handleOpen = useCallback(() => {
+		setIsOpen(true);
+	}, []);
+
+	const handleClose = useCallback(() => {
+		setIsOpen(false);
+	}, []);
 
 	if (!isAuthenticated) {
 		return (
-			<div className={`flex min-w-0 justify-end ${className}`}>
-				<LocationPill href="/auth">{placeholder}</LocationPill>
+			<div className={`flex min-w-0 justify-start ${className}`}>
+				<LocationPill href="/auth" ariaLabel={placeholder}>
+					{placeholder}
+				</LocationPill>
 			</div>
 		);
 	}
 
+	const selectedLine = selectedAddress
+		? formatAddressLine(selectedAddress)
+		: placeholder;
+
 	return (
 		<>
 			<div className={`flex min-w-0 justify-start ${className}`}>
-				<LocationPill onClick={() => setIsOpen(true)}>
-					{selectedAddress ? formatAddressLine(selectedAddress) : placeholder}
+				<LocationPill
+					onClick={handleOpen}
+					ariaLabel={selectedAddress ? `العنوان المحدد: ${selectedLine}` : "اختر عنوان التوصيل"}
+				>
+					{selectedLine}
 				</LocationPill>
 			</div>
 
 			<AddressPickerSheet
 				isOpen={isOpen}
-				onClose={() => setIsOpen(false)}
+				onClose={handleClose}
 				addresses={addresses}
 				selectedId={selectedId}
 				onSelect={setSelectedAddressId}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Category } from "@/features/markets/types/categories.types";
@@ -19,7 +19,7 @@ function scrollToStores() {
     document.getElementById(STORES_SECTION_ID)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-export function CategoryCard({
+export const CategoryCard = memo(function CategoryCard({
     category,
     moduleId,
     layout = "scroll",
@@ -31,6 +31,10 @@ export function CategoryCard({
     const isFilterMode = mode === "filter" && storeContext !== null;
     const isSelected =
         isFilterMode && storeContext.filters.categoryId === category.id;
+
+    const handleImageError = useCallback(() => {
+        setImageError(true);
+    }, []);
 
     const sharedClassName = [
         "group flex flex-col items-center gap-2 sm:gap-2.5",
@@ -65,7 +69,7 @@ export function CategoryCard({
                         className="object-contain p-2 transition-transform duration-200 group-active:scale-95"
                         sizes="80px"
                         loading="lazy"
-                        onError={() => setImageError(true)}
+                        onError={handleImageError}
                     />
                 ) : (
                     <div
@@ -111,4 +115,4 @@ export function CategoryCard({
             {content}
         </Link>
     );
-}
+});

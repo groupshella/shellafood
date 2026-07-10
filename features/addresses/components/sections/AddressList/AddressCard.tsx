@@ -1,19 +1,20 @@
+import { memo } from "react";
 import { Trash2, MapPin, Pencil } from "lucide-react";
 import { AddressListItem } from "@/features/addresses/types/address.types";
 
 interface AddressCardProps {
 	address: AddressListItem;
 	showDelete: boolean;
-	onClick: () => void;
-	onDelete: () => void;
-	onEdit: () => void;
+	onClick: (id: number) => void;
+	onDelete: (id: number) => void;
+	onEdit: (id: number) => void;
 	isDeleting?: boolean;
 }
 
 const actionButtonClass =
 	"flex h-10 w-10 items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-gray-800 sm:h-11 sm:w-11";
 
-export function AddressCard({
+export const AddressCard = memo(function AddressCard({
 	address,
 	showDelete,
 	onClick,
@@ -34,8 +35,8 @@ export function AddressCard({
 		>
 			<button
 				type="button"
-				onClick={onClick}
-				className="flex min-w-0 flex-1 items-start gap-2.5 text-right focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 rounded-xl dark:focus-visible:ring-offset-gray-800 sm:gap-3"
+				onClick={() => onClick(address.id)}
+				className="flex min-w-0 flex-1 items-start gap-2.5 text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 rounded-xl dark:focus-visible:ring-offset-gray-800 sm:gap-3"
 				aria-label={`عرض تفاصيل عنوان ${address.address_label}`}
 			>
 				<div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#30913F]/10 dark:bg-[#30913F]/20 sm:h-11 sm:w-11">
@@ -57,7 +58,7 @@ export function AddressCard({
 					type="button"
 					onClick={(e) => {
 						e.stopPropagation();
-						onEdit();
+						onEdit(address.id);
 					}}
 					className={`${actionButtonClass} text-[#30913F] hover:bg-[#30913F]/10 active:bg-[#30913F]/20 dark:text-[#3da84f] dark:hover:bg-[#30913F]/20`}
 					aria-label={`تعديل عنوان ${address.address_label}`}
@@ -71,7 +72,7 @@ export function AddressCard({
 						type="button"
 						onClick={(e) => {
 							e.stopPropagation();
-							onDelete();
+							onDelete(address.id);
 						}}
 						className={`${actionButtonClass} text-red-400 hover:bg-red-50 active:bg-red-100 dark:text-red-400 dark:hover:bg-red-950/40 dark:active:bg-red-950/60`}
 						aria-label={`حذف عنوان ${address.address_label}`}
@@ -83,4 +84,4 @@ export function AddressCard({
 			</div>
 		</article>
 	);
-}
+});

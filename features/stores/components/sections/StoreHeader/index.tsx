@@ -1,29 +1,25 @@
-import { getStoreDetails } from "@/features/stores/api/store-details";
-import { getStoreCategories } from "@/features/stores/api/store-categories";
+import {
+    resolveStoreCategoryId,
+    type StoreDetails,
+} from "@/features/stores/types/store.types";
 import { StoreHeaderClient } from "./StoreHeaderClient";
 import StoreHeaderSkeleton from "./skeleton";
 
 interface StoreHeaderProps {
+    store: StoreDetails;
     storeId: string;
     moduleId: string;
-    /** Pre-resolved active category ID from URL param; auto-selects first if absent. */
     activeCategoryId?: string;
 }
 
 export const StoreHeader = Object.assign(
-    async function StoreHeader({ storeId, moduleId, activeCategoryId }: StoreHeaderProps) {
-        const [store, categories] = await Promise.all([
-            getStoreDetails(storeId),
-            getStoreCategories(storeId),
-        ]);
-
-        const resolvedCategoryId =
-            activeCategoryId || (categories[0] ? String(categories[0].id) : "");
+    function StoreHeader({ store, storeId, moduleId, activeCategoryId }: StoreHeaderProps) {
+        const resolvedCategoryId = resolveStoreCategoryId(store, activeCategoryId);
 
         return (
             <StoreHeaderClient
                 store={store}
-                categories={categories}
+                categories={store.categories}
                 activeCategoryId={resolvedCategoryId}
                 storeId={storeId}
                 moduleId={moduleId}

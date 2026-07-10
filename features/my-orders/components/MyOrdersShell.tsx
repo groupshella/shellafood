@@ -1,5 +1,3 @@
-import Navbar from "@/features/layout/components/Navbar";
-
 interface MyOrdersShellProps {
     children: React.ReactNode;
 }
@@ -11,7 +9,6 @@ export function MyOrdersShell({ children }: MyOrdersShellProps) {
     return (
         <div className={SHELL_LAYOUT} dir="rtl">
             {children}
-            <Navbar />
         </div>
     );
 }

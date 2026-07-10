@@ -83,7 +83,7 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                         type="button"
                         onClick={onClose}
                         aria-label="إغلاق"
-                        className="absolute right-0 flex h-8 w-8 items-center justify-center
+                        className="absolute end-0 flex h-8 w-8 items-center justify-center
                                    rounded-full bg-[#F6F5F8] text-[#111B18]
                                    transition-colors hover:bg-[#ECECEF]
                                    dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700

@@ -64,7 +64,7 @@ export function PopularBrandsClient({ brands }: { brands: PopularBrand[] }) {
             <div className="relative">
                 {hasMultipleColumns && canScrollMore && (
                     <div
-                        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-14 bg-gradient-to-r from-[#F6F5F8] via-[#F6F5F8]/70 to-transparent dark:from-gray-950 dark:via-gray-950/70 sm:w-16"
+                        className="pointer-events-none absolute inset-y-0 end-0 z-10 w-14 bg-gradient-to-r from-[#F6F5F8] via-[#F6F5F8]/70 to-transparent dark:from-gray-950 dark:via-gray-950/70 sm:w-16"
                         aria-hidden
                     />
                 )}
@@ -75,7 +75,7 @@ export function PopularBrandsClient({ brands }: { brands: PopularBrand[] }) {
                         "mx-auto flex w-full max-w-lg gap-2.5 overflow-x-auto px-3 pb-1 sm:max-w-2xl sm:gap-3 sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl",
                         "snap-x snap-mandatory scroll-smooth",
                         "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-                        hasMultipleColumns ? "scroll-pl-4 sm:scroll-pl-5 lg:scroll-pl-6" : "",
+                        hasMultipleColumns ? "scroll-pe-4 sm:scroll-pe-5 lg:scroll-pe-6" : "",
                     ].join(" ")}
                     dir="rtl"
                 >

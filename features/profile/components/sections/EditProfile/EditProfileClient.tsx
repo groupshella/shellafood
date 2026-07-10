@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Plus } from "lucide-react";
 import type { AuthUser, UserGender } from "@/features/auth/types/auth.types";
@@ -401,13 +402,12 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
                         </button>
                     </FieldBlock>
 
-                    <button
-                        type="button"
-                        onClick={() => router.push("/profile/delete-account")}
+                    <Link
+                        href="/profile/delete-account"
                         className="flex min-h-[50px] w-full items-center justify-center rounded-xl bg-[#F6F5F8] px-4 text-[16px] font-bold leading-[160%] text-[#EB4335] transition-colors active:opacity-80 dark:bg-gray-800 md:col-span-2"
                     >
                         {PROFILE_STRINGS.deleteAccount}
-                    </button>
+                    </Link>
                 </div>
             )}
 

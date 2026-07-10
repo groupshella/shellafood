@@ -40,10 +40,10 @@ export function AllCategoriesClient({
                 <div className="relative mx-auto flex min-h-[3.25rem] w-full max-w-lg items-center justify-center px-3 py-2.5 sm:max-w-2xl sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">
                     <Link
                         href={backHref}
-                        className={`${ICON_BTN} absolute right-3 sm:right-5 lg:right-6`}
+                        className={`${ICON_BTN} absolute start-3 sm:start-5 lg:start-6`}
                         aria-label="العودة"
                     >
-                        <ChevronRight className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} />
+                        <ChevronRight className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} aria-hidden />
                     </Link>
 
                     <h1 className="text-base font-semibold text-gray-500 dark:text-gray-400 sm:text-lg md:text-xl">الأقسام</h1>

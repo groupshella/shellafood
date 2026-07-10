@@ -1,17 +1,16 @@
-import {
-    MOCK_MONTHLY_TRENDS,
-    MOCK_QIDHA_DATA,
-    MOCK_STATISTICS_CATEGORIES,
-    StatisticsClient,
-} from "@/features/profile/components/sections/Statistics/StatisticsClient";
+import { Suspense } from "react";
+
+import { Statistics } from "@/features/profile/components/sections/Statistics";
+
+export const metadata = {
+    title: "إحصائيات | شيلة فود",
+    description: "ملخص إنفاقك واتجاهاتك ومنتجاتك الأكثر شراءً",
+};
 
 export default function StatisticsPage() {
     return (
-        <StatisticsClient
-            products={[]}
-            categories={MOCK_STATISTICS_CATEGORIES}
-            monthlyTrends={MOCK_MONTHLY_TRENDS}
-            qidha={MOCK_QIDHA_DATA}
-        />
+        <Suspense fallback={<Statistics.skeleton />}>
+            <Statistics />
+        </Suspense>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { CouponCard } from "@/features/coupons/components/sections/CouponsList/CouponCard";
 import { CouponsEmpty } from "@/features/coupons/components/sections/CouponsList/CouponsEmpty";
@@ -23,7 +23,7 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 	const [activeTab, setActiveTab] = useState<CouponTab>("available");
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-	async function handleCopyCode(code: string) {
+	const handleCopyCode = useCallback(async (code: string) => {
 		try {
 			await navigator.clipboard.writeText(code);
 			setCopiedCode(code);
@@ -31,7 +31,7 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 		} catch {
 			// Clipboard API can fail silently (permissions, insecure context) — no-op.
 		}
-	}
+	}, []);
 
 	const activeList = activeTab === "available" ? available : expired;
 
@@ -52,7 +52,7 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 							onClick={() => setActiveTab(tab.id)}
 							aria-selected={isActive}
 							className={[
-								"min-h-10 flex-1 rounded-xl py-2.5 text-sm font-bold transition-all duration-200 sm:min-h-11 sm:text-[15px]",
+								"min-h-10 flex-1 rounded-xl py-2.5 text-sm font-bold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 sm:min-h-11 sm:text-[15px]",
 								isActive
 									? "bg-[#30913F] text-white shadow-sm"
 									: "text-gray-500 dark:text-gray-400",
@@ -66,6 +66,7 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 
 			{activeList.length === 0 ? (
 				<CouponsEmpty
+					fullPage={false}
 					message={
 						activeTab === "available"
 							? "لا يوجد كوبونات في الوقت الحالي"

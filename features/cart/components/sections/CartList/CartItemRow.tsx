@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { CartItem } from "@/features/cart/types/cart.types";
-import { useCartItem } from "@/features/cart/hooks/useCartItem";
+import { useProductCart } from "@/features/cart/hooks/useProductCart";
 import { RemoveProductConfirmSheet } from "@/features/cart/components/shared/RemoveProductConfirmSheet";
 import { CartItemCard } from "./CartItemCard";
 
@@ -10,15 +10,23 @@ interface CartItemRowProps {
   item: CartItem;
 }
 
-export function CartItemRow({ item }: CartItemRowProps) {
+export const CartItemRow = memo(function CartItemRow({ item }: CartItemRowProps) {
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const { item: liveItem, isPending, handleIncrease, handleDecrease, handleRemove } =
-    useCartItem(item);
+    useProductCart(item);
 
-  async function confirmRemove() {
+  const handleOpenRemove = useCallback(() => {
+    setShowRemoveConfirm(true);
+  }, []);
+
+  const handleCancelRemove = useCallback(() => {
+    setShowRemoveConfirm(false);
+  }, []);
+
+  const confirmRemove = useCallback(async () => {
     await handleRemove();
     setShowRemoveConfirm(false);
-  }
+  }, [handleRemove]);
 
   return (
     <>
@@ -27,15 +35,15 @@ export function CartItemRow({ item }: CartItemRowProps) {
         isUpdating={isPending}
         onIncrease={handleIncrease}
         onDecrease={handleDecrease}
-        onRemove={() => setShowRemoveConfirm(true)}
+        onRemove={handleOpenRemove}
       />
 
       <RemoveProductConfirmSheet
         isOpen={showRemoveConfirm}
         onConfirm={confirmRemove}
-        onCancel={() => setShowRemoveConfirm(false)}
+        onCancel={handleCancelRemove}
         isRemoving={isPending}
       />
     </>
   );
-}
+});

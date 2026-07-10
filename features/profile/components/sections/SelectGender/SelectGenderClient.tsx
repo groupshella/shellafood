@@ -16,7 +16,7 @@ export function SelectGenderClient() {
 
     const handleSave = () => {
         setGender(selected);
-        router.back();
+        router.push("/profile");
     };
 
     return (

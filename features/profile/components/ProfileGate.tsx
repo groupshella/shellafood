@@ -20,7 +20,7 @@ export function ProfileGate({ isAuthenticated, children }: ProfileGateProps) {
                 isOpen
                 isVisible
                 onClose={() => router.replace("/home")}
-                onLogin={() => router.push("/auth")}
+                loginHref="/auth"
             />
         </div>
     );

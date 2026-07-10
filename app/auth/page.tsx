@@ -6,6 +6,7 @@ export const metadata: Metadata = {
 	description: "سجّل دخولك أو أنشئ حساباً جديداً للاستمتاع بخدمات شلة فود",
 };
 
-export default function Page() {
+export default async function Page() {
+
 	return <AuthFlowPage />;
 }

@@ -1,10 +1,3 @@
-import { Tajawal } from "next/font/google";
-
-const tajawal = Tajawal({
-	subsets: ["arabic", "latin"],
-	weight: ["500", "700"],
-});
-
 export default function Loading() {
 	return (
 		<div
@@ -13,7 +6,7 @@ export default function Loading() {
 			role="status"
 			aria-live="polite"
 			aria-busy="true"
-			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-white via-[#f8fbf9] to-[#eef6f0] dark:from-gray-900 dark:via-gray-900 dark:to-gray-950`}
+			className="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-white via-[#f8fbf9] to-[#eef6f0] dark:from-gray-900 dark:via-gray-900 dark:to-gray-950"
 		>
 			<div
 				aria-hidden

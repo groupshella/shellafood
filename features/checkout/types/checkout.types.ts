@@ -45,6 +45,16 @@ export interface PlaceOrderPayload {
     contact_person_number: string;
 }
 
+export interface PlaceOrderResponse {
+    order_id: number;
+}
+
+export interface PlaceOrderResult {
+    success: boolean;
+    data?: PlaceOrderResponse;
+    message?: string;
+}
+
 export interface CheckoutData {
     orderId: number;
     cartItems: CartItem[];

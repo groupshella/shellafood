@@ -3,10 +3,7 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 
-import {
-	PrimaryButton,
-	tajawal,
-} from "@/features/auth/components/shared/AuthPrimitives";
+import { PrimaryButton } from "@/features/auth/components/shared/AuthPrimitives";
 
 interface SuccessScreenProps {
 	title: string;
@@ -70,7 +67,7 @@ const SuccessScreen = memo(function SuccessScreen({
 		<div
 			dir="rtl"
 			lang="ar"
-			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100`}
+			className="relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100"
 		>
 			<div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center px-4 pb-8 pt-14 sm:pt-16">
 				<div

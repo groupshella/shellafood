@@ -1,17 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Clock, Heart, Search, Star, Truck } from "lucide-react";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
 import { StoreDetails, StoreCategory } from "@/features/stores/types/store.types";
+import { STORE_CATEGORY_PRODUCTS_ID } from "@/features/stores/components/sections/StoreCategoryProducts/StoreCategoryProductsClient";
 
 const HERO_BTN =
-    "flex h-10 w-10 items-center justify-center rounded-full bg-white/85 backdrop-blur-sm shadow-sm transition-colors active:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:w-11";
+    "flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-gray-800 backdrop-blur-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 active:bg-white/95 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-gray-900/80 dark:text-gray-100 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800/95 sm:h-11 sm:w-11";
 
 const contentContainer =
     "mx-auto w-full px-3 sm:px-4 md:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl";
+
+/** Scroll only the tab strip — avoids page jump from element.scrollIntoView. */
+function scrollTabIntoView(container: HTMLElement, tab: HTMLElement) {
+    const containerRect = container.getBoundingClientRect();
+    const tabRect = tab.getBoundingClientRect();
+    const delta =
+        tabRect.left - containerRect.left - (container.clientWidth - tab.offsetWidth) / 2;
+    container.scrollBy({ left: delta, behavior: "smooth" });
+}
 
 interface StoreHeaderClientProps {
     store: StoreDetails;
@@ -29,17 +39,50 @@ export function StoreHeaderClient({
     moduleId,
 }: StoreHeaderClientProps) {
     const router = useRouter();
+    const categoryScrollRef = useRef<HTMLDivElement>(null);
     const [favorited, setFavorited] = useState(false);
     const [favoritePending, setFavoritePending] = useState(false);
 
-    const handleCategoryClick = (categoryId: number) => {
-        router.push(`/stores/${storeId}?module_id=${moduleId}&categoryId=${categoryId}`);
-    };
+    useEffect(() => {
+        if (!activeCategoryId) return;
 
-    const handleBack = () => router.back();
-    const handleOpenSearch = () => router.push(`/search?module_id=${moduleId}`);
+        const container = categoryScrollRef.current;
+        if (!container) return;
 
-    async function toggleFavorite() {
+        const tab = container.querySelector<HTMLElement>(`[data-id="${activeCategoryId}"]`);
+        if (!tab) return;
+
+        // Wait a frame so layout/RTL scroll metrics are ready.
+        const frame = requestAnimationFrame(() => scrollTabIntoView(container, tab));
+        return () => cancelAnimationFrame(frame);
+    }, [activeCategoryId]);
+
+    const handleCategoryClick = useCallback(
+        (categoryId: number) => {
+            const nextId = String(categoryId);
+
+            // Re-clicking the active category: scroll products into view without navigating.
+            if (nextId === activeCategoryId) {
+                document
+                    .getElementById(STORE_CATEGORY_PRODUCTS_ID)
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                return;
+            }
+
+            router.push(`/stores/${storeId}?module_id=${moduleId}&categoryId=${categoryId}`);
+        },
+        [router, storeId, moduleId, activeCategoryId],
+    );
+
+    const handleBack = useCallback(() => {
+        router.back();
+    }, [router]);
+
+    const handleOpenSearch = useCallback(() => {
+        router.push(`/search?module_id=${moduleId}`);
+    }, [router, moduleId]);
+
+    const toggleFavorite = useCallback(async () => {
         if (favoritePending) return;
 
         setFavoritePending(true);
@@ -53,7 +96,7 @@ export function StoreHeaderClient({
 
         if (!result.success) setFavorited(wasLiked);
         setFavoritePending(false);
-    }
+    }, [favoritePending, favorited, storeId]);
 
     const heroImage = store.store_image_url;
 
@@ -64,7 +107,7 @@ export function StoreHeaderClient({
                 {heroImage ? (
                     <Image
                         src={heroImage}
-                        alt=""
+                        alt={store.store_name}
                         fill
                         priority
                         className="object-cover"
@@ -77,6 +120,7 @@ export function StoreHeaderClient({
                             background:
                                 "linear-gradient(160deg, #1B5E20 0%, #2E7D32 55%, #388E3C 100%)",
                         }}
+                        aria-hidden
                     >
                         <div
                             aria-hidden
@@ -102,7 +146,7 @@ export function StoreHeaderClient({
                 <div className="absolute inset-x-0 top-3 z-10 sm:top-4">
                     <div className={`flex items-center justify-between ${contentContainer}`}>
                         <button type="button" onClick={handleBack} aria-label="رجوع" className={HERO_BTN}>
-                            <ArrowRight className="h-5 w-5 text-gray-800" strokeWidth={2} />
+                            <ArrowRight className="h-5 w-5" strokeWidth={2} aria-hidden />
                         </button>
 
                         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -118,9 +162,10 @@ export function StoreHeaderClient({
                                         "h-5 w-5",
                                         favorited
                                             ? "fill-[#30913F] text-[#30913F]"
-                                            : "fill-none text-gray-800",
+                                            : "fill-none",
                                     ].join(" ")}
                                     strokeWidth={favorited ? 0 : 2}
+                                    aria-hidden
                                 />
                             </button>
                             <button
@@ -129,7 +174,7 @@ export function StoreHeaderClient({
                                 aria-label="بحث"
                                 className={HERO_BTN}
                             >
-                                <Search className="h-5 w-5 text-gray-800" strokeWidth={2} />
+                                <Search className="h-5 w-5" strokeWidth={2} aria-hidden />
                             </button>
                         </div>
                     </div>
@@ -166,23 +211,23 @@ export function StoreHeaderClient({
                                 {store.free_delivery && (
                                     <span className="flex h-5 items-center gap-1 rounded-[4px] border border-gray-200 bg-white px-1.5 text-[10px] font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:h-[22px] sm:text-xs">
                                         توصيل مجاني
-                                        <Truck className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-4" strokeWidth={1.2} />
+                                        <Truck className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-4" strokeWidth={1.2} aria-hidden />
                                     </span>
                                 )}
                                 {store.delivery_time && (
                                     <span className="flex h-5 items-center gap-1 rounded-[4px] border border-gray-200 bg-white px-1.5 text-[10px] font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:h-[22px] sm:text-xs">
                                         {store.delivery_time}
-                                        <Clock className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" strokeWidth={1.2} />
+                                        <Clock className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" strokeWidth={1.2} aria-hidden />
                                     </span>
                                 )}
                             </div>
 
-                            <h1 className="w-full text-right text-base font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-lg md:text-xl">
+                            <h1 className="w-full text-start text-base font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-lg md:text-xl">
                                 {store.store_name}
                             </h1>
 
                             {store.store_description && (
-                                <p className="line-clamp-2 w-full text-right text-xs leading-snug text-gray-500 dark:text-gray-400 sm:text-sm md:line-clamp-3">
+                                <p className="line-clamp-2 w-full text-start text-xs leading-snug text-gray-500 dark:text-gray-400 sm:text-sm md:line-clamp-3">
                                     {store.store_description}
                                 </p>
                             )}
@@ -194,7 +239,7 @@ export function StoreHeaderClient({
                             <span className="text-[10px] font-semibold leading-none text-gray-900 dark:text-[#9DFCA3] sm:text-xs">
                                 {store.rating > 0 ? store.rating.toFixed(1) : "5.0"}
                             </span>
-                            <Star className="h-2.5 w-2.5 fill-gray-900 text-gray-900 sm:h-3 sm:w-3 dark:fill-[#9DFCA3] dark:text-[#9DFCA3]" strokeWidth={0} />
+                            <Star className="h-2.5 w-2.5 fill-gray-900 text-gray-900 sm:h-3 sm:w-3 dark:fill-[#9DFCA3] dark:text-[#9DFCA3]" strokeWidth={0} aria-hidden />
                         </span>
                     </div>
                 </div>
@@ -204,7 +249,9 @@ export function StoreHeaderClient({
             {categories.length > 0 && (
                 <div className={`pb-3 pt-3 sm:pt-4 ${contentContainer}`}>
                     <div
-                        className="flex items-center justify-end gap-1.5 overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden"
+                        ref={categoryScrollRef}
+                        dir="rtl"
+                        className="flex items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-smooth [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden"
                         role="tablist"
                         aria-label="تصنيفات المتجر"
                     >
@@ -215,10 +262,11 @@ export function StoreHeaderClient({
                                     key={cat.id}
                                     type="button"
                                     role="tab"
+                                    data-id={String(cat.id)}
                                     aria-selected={isActive}
                                     onClick={() => handleCategoryClick(cat.id)}
                                     className={[
-                                        "flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-2.5 text-xs font-bold transition-colors sm:h-9 sm:px-3 sm:text-sm",
+                                        "flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-2.5 text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 sm:h-9 sm:px-3 sm:text-sm dark:focus-visible:ring-offset-gray-900",
                                         isActive
                                             ? "bg-[#EBFEEB] text-[#267332] dark:bg-[#0d2e12] dark:text-[#4db860]"
                                             : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",

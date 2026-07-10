@@ -5,8 +5,7 @@ import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import { MarketsShell } from "@/features/markets/components/MarketsShell";
 import { Categories } from "@/features/markets/components/sections/Categories";
 import { Offers } from "@/features/markets/components/sections/Offers";
-import { CurrentOffers } from "@/features/markets/components/sections/CurrentOffers";
-import { RecentOrders } from "@/features/markets/components/sections/RecentOrders";
+
 import { PopularBrands } from "@/features/markets/components/sections/PopularBrands";
 import { Stores } from "@/features/markets/components/sections/Stores";
 import { Banners } from "@/features/hyper-market/StoreDetails/components/sections/Banners";
@@ -70,13 +69,8 @@ export default async function ModulePageRoute({ params, searchParams }: ModulePa
                 <Offers moduleId={id} />
             </Suspense>
 
-            {/* <Suspense fallback={<CurrentOffers.skeleton />}>
-                <CurrentOffers moduleId={id} />
-            </Suspense> */}
-            {/* 
-            <Suspense fallback={<RecentOrders.skeleton />}>
-                <RecentOrders moduleId={id} />
-            </Suspense> */}
+
+
 
             <Suspense fallback={<PopularBrands.skeleton />}>
                 <PopularBrands moduleId={id} />

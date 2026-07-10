@@ -3,12 +3,12 @@ import Link from "next/link";
 import { StoreModule } from "@/features/hyper-market/StoreDetails/types/modules.types";
 
 const PALETTE = [
-    { bg: "#E8F5EE", text: "#2D7A4F" },
-    { bg: "#FEF0E6", text: "#D4724A" },
-    { bg: "#EAF4F6", text: "#3A96A0" },
-    { bg: "#F3E8FF", text: "#7C3AED" },
-    { bg: "#FFF4E6", text: "#EA580C" },
-    { bg: "#E8F0FE", text: "#2563EB" },
+    { bg: "#E8F5EE", text: "#2D7A4F", darkBg: "#163528", darkText: "#7BE0A0" },
+    { bg: "#FEF0E6", text: "#D4724A", darkBg: "#3A2214", darkText: "#F0A57A" },
+    { bg: "#EAF4F6", text: "#3A96A0", darkBg: "#123338", darkText: "#6FD4DE" },
+    { bg: "#F3E8FF", text: "#7C3AED", darkBg: "#2A1848", darkText: "#C4A0F8" },
+    { bg: "#FFF4E6", text: "#EA580C", darkBg: "#3A1F10", darkText: "#F59A5C" },
+    { bg: "#E8F0FE", text: "#2563EB", darkBg: "#142748", darkText: "#7BA8F7" },
 ] as const;
 
 function getModuleHref(module: StoreModule): string {
@@ -19,82 +19,64 @@ function getModuleHref(module: StoreModule): string {
 interface ModuleCardProps {
     module: StoreModule;
     colorIndex: number;
-    moduleId: string;
+    isActive: boolean;
+    isDisabled: boolean;
 }
 
-export function ModuleCard({ module, colorIndex, moduleId }: ModuleCardProps) {
-    const isActive = module.id === Number(moduleId);
-    const { bg, text } = PALETTE[colorIndex % PALETTE.length];
-
-    const baseClassName = [
-        "relative flex shrink-0 snap-start items-center overflow-hidden",
-        "min-w-[8.5rem] rounded-2xl px-3.5 py-2.5 sm:min-w-[9.5rem] sm:px-4 sm:py-3",
-    ].join(" ");
-
-    if (!isActive) {
-        return (
-            <div
-                className={[
-                    baseClassName,
-                    "cursor-default bg-white saturate-0 dark:bg-gray-800",
-                    "ring-1 ring-black/[0.04] dark:ring-white/[0.06]",
-                ].join(" ")}
-                aria-disabled="true"
-                aria-label={`${module.module_name} — قريباً`}
-            >
-                <span className="relative z-10 whitespace-nowrap text-xs font-bold leading-tight text-gray-500 blur-[0.4px] dark:text-gray-400 sm:text-sm">
-                    {module.module_name}
-                </span>
-
-                {module.icon_full_url && (
-                    <div
-                        className="pointer-events-none absolute -end-1 top-1/2 h-12 w-12 -translate-y-1/2 opacity-[0.18] grayscale blur-[1px] sm:h-14 sm:w-14"
-                        aria-hidden
-                    >
-                        <Image
-                            src={module.icon_full_url}
-                            alt=""
-                            fill
-                            className="object-contain"
-                            sizes="56px"
-                        />
-                    </div>
-                )}
-            </div>
-        );
-    }
+export function ModuleCard({ module, colorIndex, isActive, isDisabled }: ModuleCardProps) {
+    const { bg, text, darkBg, darkText } = PALETTE[colorIndex % PALETTE.length];
 
     return (
         <Link
             href={getModuleHref(module)}
-            className={[
-                baseClassName,
-                "justify-between gap-2 sm:gap-3",
-                "transition-transform duration-150 active:scale-[0.98]",
-                "outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900",
-            ].join(" ")}
-            style={{ backgroundColor: bg }}
+            aria-current={isActive ? "page" : undefined}
             aria-label={module.module_name}
-            aria-current="page"
+            className={[
+                "flex shrink-0 snap-start items-center justify-between gap-2",
+                "min-w-[8.25rem] max-w-[11rem] rounded-xl px-3 py-2.5",
+                "bg-[var(--module-bg)] text-[var(--module-text)]",
+                "transition-[transform,opacity,filter,box-shadow] duration-150",
+                "outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+                "dark:bg-[var(--module-dark-bg)] dark:text-[var(--module-dark-text)] dark:focus-visible:ring-offset-gray-950",
+                "sm:min-w-[9rem] sm:max-w-none sm:gap-2.5 sm:rounded-2xl sm:px-3.5 sm:py-3",
+                "md:min-w-0 md:w-full md:max-w-none md:gap-3 md:px-4",
+                isActive
+                    ? [
+                          "ring-2 ring-[var(--module-text)] ring-offset-1 ring-offset-[#F6F5F8]",
+                          "dark:ring-[var(--module-dark-text)] dark:ring-offset-gray-950",
+                          "shadow-sm dark:shadow-[0_2px_10px_rgba(0,0,0,0.35)]",
+                      ].join(" ")
+                    : "active:scale-[0.97]",
+                isDisabled
+                    ? "opacity-40 grayscale dark:opacity-35 dark:grayscale"
+                    : "opacity-100",
+            ].join(" ")}
+            style={
+                {
+                    "--module-bg": bg,
+                    "--module-dark-bg": darkBg,
+                    "--module-text": text,
+                    "--module-dark-text": darkText,
+                } as React.CSSProperties
+            }
         >
-            <span
-                className="whitespace-nowrap text-xs font-bold leading-tight sm:text-sm"
-                style={{ color: text }}
-            >
-                {module.module_name}
-            </span>
-
-            {module.icon_full_url && (
-                <div className="relative h-7 w-7 shrink-0 opacity-80 sm:h-8 sm:w-8" aria-hidden>
+            {module.icon_full_url ? (
+                <div
+                    className="relative h-6 w-6 shrink-0 opacity-85 sm:h-7 sm:w-7 md:h-8 md:w-8"
+                    aria-hidden
+                >
                     <Image
                         src={module.icon_full_url}
                         alt=""
                         fill
                         className="object-contain"
-                        sizes="32px"
+                        sizes="(max-width: 640px) 24px, (max-width: 768px) 28px, 32px"
                     />
                 </div>
-            )}
+            ) : null}
+            <span className="min-w-0 flex-1 truncate text-start text-xs font-bold leading-tight sm:text-sm md:text-[15px]">
+                {module.module_name}
+            </span>
         </Link>
     );
 }
