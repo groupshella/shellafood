@@ -8,6 +8,7 @@ import { PrimaryButton } from "@/features/profile/components/shared/PrimaryButto
 import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 import { useProfileEdit } from "@/features/profile/context/ProfileEditContext";
 import { updateProfile } from "@/features/profile/actions/profile.actions";
+import Image from "next/image";
 
 export function PhotoConfirmClient() {
     const router = useRouter();
@@ -75,7 +76,7 @@ export function PhotoConfirmClient() {
             <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-6 sm:max-w-2xl sm:gap-8 lg:max-w-3xl">
                 <div className="relative aspect-square w-full max-w-48 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 sm:max-w-56 md:max-w-64">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                         src={photoSrc}
                         alt=""
                         className="h-full w-full object-cover transition-transform duration-200"

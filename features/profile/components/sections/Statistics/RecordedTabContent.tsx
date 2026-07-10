@@ -2,10 +2,7 @@
 
 import { ArrowUp, Calendar, Clock, TrendingUp } from "lucide-react";
 
-import {
-    AFACAD,
-    TAJAWAL,
-} from "@/features/profile/constants/statistics.constants";
+import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import type {
     QidhaStatisticsData,
     StatisticsCategory,
@@ -251,7 +248,7 @@ export function RecordedTabContent({
                         />
                         <span
                             className="text-[15px] font-bold text-[#DB2626] sm:text-[16px]"
-                            style={AFACAD}
+                            style={TAJAWAL}
                         >
                             {qidhaAmount(qidha?.dueTotal)}
                         </span>
@@ -285,7 +282,7 @@ export function RecordedTabContent({
                     <div className="flex flex-wrap items-center gap-1 text-[#111B18] dark:text-gray-100">
                         <span
                             className="text-[16px] font-bold tabular-nums sm:text-[17px]"
-                            style={AFACAD}
+                            style={TAJAWAL}
                         >
                             {qidhaAmount(qidha?.dueTotal)}
                         </span>
@@ -297,7 +294,7 @@ export function RecordedTabContent({
                         </span>
                         <span
                             className="text-[16px] font-bold tabular-nums sm:text-[17px]"
-                            style={AFACAD}
+                            style={TAJAWAL}
                         >
                             {qidhaAmount(qidha?.paidTotal)}
                         </span>

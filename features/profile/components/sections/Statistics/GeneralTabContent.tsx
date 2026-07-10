@@ -3,14 +3,7 @@
 import { ChevronDown, ChevronUp, List } from "lucide-react";
 import Image from "next/image";
 
-import {
-    AFACAD,
-    CHART_PERIOD_OPTIONS,
-    FREQUENCY_OPTIONS,
-    MONTHS,
-    TAJAWAL,
-    WEEK_DAYS,
-} from "@/features/profile/constants/statistics.constants";
+import { TAJAWAL, CHART_PERIOD_OPTIONS, FREQUENCY_OPTIONS, MONTHS, WEEK_DAYS } from "@/features/profile/constants/statistics.constants";
 import type { useGeneralAnalytics } from "@/features/profile/hooks/useGeneralAnalytics";
 import type {
     ChartPeriod,
@@ -192,7 +185,7 @@ export function GeneralTabContent({
                                     <SarIcon width={13.72} height={15.36} />
                                     <span
                                         className="text-[14px] font-medium sm:text-[16px]"
-                                        style={AFACAD}
+                                        style={TAJAWAL}
                                     >
                                         {summary?.monthlyAmount ?? "00.00"}
                                     </span>

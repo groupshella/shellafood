@@ -1,4 +1,4 @@
-import { AFACAD, TAJAWAL } from "@/features/profile/constants/statistics.constants";
+import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import { SarIcon } from "../shared/SarIcon";
 
 export function BalanceStatCard({
@@ -22,7 +22,7 @@ export function BalanceStatCard({
                 <SarIcon width={14} height={15.7} />
                 <span
                     className="text-[clamp(15px,4.2vw,18px)] font-bold tabular-nums"
-                    style={AFACAD}
+                    style={TAJAWAL}
                 >
                     {amount}
                 </span>

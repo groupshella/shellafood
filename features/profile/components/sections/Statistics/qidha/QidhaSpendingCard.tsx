@@ -1,4 +1,4 @@
-import { AFACAD, TAJAWAL } from "@/features/profile/constants/statistics.constants";
+import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import { SarIcon } from "../shared/SarIcon";
 
 export function QidhaSpendingCard({
@@ -30,7 +30,7 @@ export function QidhaSpendingCard({
                 <SarIcon width={13} height={14.56} />
                 <span
                     className="text-[clamp(14px,4vw,17px)] font-bold tabular-nums"
-                    style={AFACAD}
+                    style={TAJAWAL}
                 >
                     {amount}
                 </span>

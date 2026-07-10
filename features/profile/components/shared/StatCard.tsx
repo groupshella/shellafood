@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 type StatCardVariant = "points" | "wallet" | "qidha";
 
@@ -9,6 +10,7 @@ interface StatCardProps {
     value: number;
     variant: StatCardVariant;
     showCurrency?: boolean;
+    href?: string;
     onClick?: () => void;
 }
 
@@ -133,25 +135,22 @@ function StatValue({ value, showCurrency }: { value: number; showCurrency: boole
     );
 }
 
-export function StatCard({ title, value, variant, showCurrency = false, onClick }: StatCardProps) {
-    const Wrapper = onClick ? "button" : "div";
+export function StatCard({ title, value, variant, href, showCurrency = false, onClick }: StatCardProps) {
+    const isInteractive = Boolean(href || onClick);
 
-    return (
-        <Wrapper
-            type={onClick ? "button" : undefined}
-            onClick={onClick}
-            aria-label={onClick ? title : undefined}
-            className={[
-                "relative flex h-[145px] w-full min-w-0 max-w-[109px] shrink-0 flex-col items-center gap-0.5 overflow-visible rounded-[8px] px-2 py-4 text-center",
-                "md:h-[181px] md:max-w-[136px] md:gap-1 md:rounded-[10px] md:px-[18px] md:py-5",
-                "shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] transition-transform duration-150",
-                "dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.25)]",
-                onClick
-                    ? "active:scale-[0.98] md:hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#111B18] dark:focus-visible:ring-gray-100"
-                    : "",
-                CARD_CLASSES[variant],
-            ].join(" ")}
-        >
+    const className = [
+        "relative flex h-[145px] w-full min-w-0 max-w-[109px] shrink-0 flex-col items-center gap-0.5 overflow-visible rounded-[8px] px-2 py-4 text-center",
+        "md:h-[181px] md:max-w-[136px] md:gap-1 md:rounded-[10px] md:px-[18px] md:py-5",
+        "shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] transition-transform duration-150",
+        "dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.25)]",
+        isInteractive
+            ? "active:scale-[0.98] md:hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#111B18] dark:focus-visible:ring-gray-100"
+            : "",
+        CARD_CLASSES[variant],
+    ].join(" ");
+
+    const content = (
+        <>
             <span
                 className="relative z-10 flex h-[17px] items-center text-center text-[13px] font-bold leading-[17px] text-[#111B18] dark:text-gray-100 sm:text-[14px] md:h-[21px] md:text-[17.5px] md:leading-[21px]"
                 style={TAJAWAL}
@@ -164,6 +163,24 @@ export function StatCard({ title, value, variant, showCurrency = false, onClick 
             </div>
 
             <CardDecoration variant={variant} />
-        </Wrapper>
+        </>
     );
+
+    if (href) {
+        return (
+            <Link href={href} className={className} aria-label={title}>
+                {content}
+            </Link>
+        );
+    }
+
+    if (onClick) {
+        return (
+            <button type="button" onClick={onClick} aria-label={title} className={className}>
+                {content}
+            </button>
+        );
+    }
+
+    return <div className={className}>{content}</div>;
 }

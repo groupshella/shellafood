@@ -1,6 +1,6 @@
 import { Calendar } from "lucide-react";
 
-import { AFACAD, TAJAWAL } from "@/features/profile/constants/statistics.constants";
+import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 
 export function DuePaymentCard({
     label,
@@ -30,7 +30,7 @@ export function DuePaymentCard({
                 </span>
                 <span
                     className="text-[18px] font-bold tabular-nums sm:text-[20px]"
-                    style={{ ...AFACAD, color: textColor }}
+                    style={{ ...TAJAWAL, color: textColor }}
                 >
                     {count}
                 </span>

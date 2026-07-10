@@ -1,4 +1,4 @@
-import { AFACAD, TAJAWAL } from "@/features/profile/constants/statistics.constants";
+import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import type { StatisticsMonthTrend } from "@/features/profile/types/statistics.types";
 import { SarIcon } from "../shared/SarIcon";
 
@@ -24,7 +24,7 @@ export function MonthTrendCard({
             </span>
             <div className="flex items-center gap-0.5" style={{ color: totalColor }}>
                 <SarIcon width={13} height={14.56} />
-                <span className="text-[18px] font-bold tabular-nums" style={AFACAD}>
+                <span className="text-[18px] font-bold tabular-nums" style={TAJAWAL}>
                     {total}
                 </span>
             </div>
@@ -39,7 +39,7 @@ export function MonthTrendCard({
                     متوسط
                 </span>
                 <SarIcon width={9.53} height={10.68} />
-                <span className="text-[12px] font-semibold tabular-nums" style={AFACAD}>
+                <span className="text-[12px] font-semibold tabular-nums" style={TAJAWAL}>
                     {average}
                 </span>
             </div>

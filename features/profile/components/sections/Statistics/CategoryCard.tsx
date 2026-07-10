@@ -1,4 +1,4 @@
-import { AFACAD, TAJAWAL } from "@/features/profile/constants/statistics.constants";
+import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import type { StatisticsCategory } from "@/features/profile/types/statistics.types";
 
 export function CategoryCard({ category }: { category: StatisticsCategory }) {
@@ -26,7 +26,7 @@ export function CategoryCard({ category }: { category: StatisticsCategory }) {
             <div className="flex shrink-0 flex-col items-end">
                 <span
                     className="text-[15px] font-bold tabular-nums text-[#1F2937] dark:text-gray-100"
-                    style={AFACAD}
+                    style={TAJAWAL}
                 >
                     {category.amount}
                 </span>

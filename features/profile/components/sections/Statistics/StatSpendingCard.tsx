@@ -1,6 +1,6 @@
 import { TrendingDown, TrendingUp } from "lucide-react";
 
-import { AFACAD, TAJAWAL } from "@/features/profile/constants/statistics.constants";
+import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import { SarIcon } from "./shared/SarIcon";
 
 export function StatSpendingCard({
@@ -46,7 +46,7 @@ export function StatSpendingCard({
                 <SarIcon width={16} height={17.92} />
                 <span
                     className="text-[clamp(18px,5vw,24px)] font-bold leading-8 tabular-nums"
-                    style={AFACAD}
+                    style={TAJAWAL}
                 >
                     {amount}
                 </span>
