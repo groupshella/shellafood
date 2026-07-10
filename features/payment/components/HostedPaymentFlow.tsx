@@ -5,6 +5,7 @@ import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { useGetPaymentMethods } from "@/features/payment/hooks/useGetPaymentMethods";
 import { useProcessPayment } from "@/features/payment/hooks/useProcessPayment";
 import type { PaymentMethod } from "@/features/payment/types/payment.types";
+import Image from "next/image";
 
 export const INVOICE_STORAGE_KEY = "mf_pending_invoice_id";
 
@@ -53,7 +54,7 @@ export function HostedPaymentFlow({
         return () => {
             cancelled = true;
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handlePay = useCallback(async () => {
@@ -135,7 +136,7 @@ export function HostedPaymentFlow({
                                 >
                                     {method.ImageUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
-                                        <img
+                                        <Image
                                             src={method.ImageUrl}
                                             alt=""
                                             className="h-8 w-14 object-contain"

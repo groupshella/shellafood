@@ -10,13 +10,7 @@ import {
 import Image from "next/image";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Tajawal } from "next/font/google";
 import { useRouter } from "next/navigation";
-
-const tajawal = Tajawal({
-	subsets: ["arabic", "latin"],
-	weight: ["500", "700"],
-});
 
 const STAGE_W = 306;
 const STAGE_H = 390;
@@ -476,7 +470,7 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 
 	return (
 		<div
-			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col overflow-hidden bg-white`}
+			className="relative flex min-h-dvh w-full flex-col overflow-hidden bg-white"
 			dir="rtl"
 			lang="ar"
 		>

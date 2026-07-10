@@ -10,8 +10,6 @@ import {
 import { motion } from "framer-motion";
 import { isAccountExistsError } from "@/features/auth/lib/auth.lib";
 
-// TODO: font-tajawal utility not yet defined in tailwind config — load Tajawal once in root layout
-
 // ─── Design tokens (local hex map until theme tokens exist) ───────────────────
 export const AUTH_COLORS = {
 	primary: "#30913F",
@@ -36,7 +34,6 @@ export const AuthShell = memo(function AuthShell({
 		<div
 			dir="rtl"
 			lang="ar"
-			// TODO: font-tajawal utility not yet defined in tailwind config
 			className={`relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100 ${className}`}
 		>
 			<div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-8 pt-4 sm:pt-16">
@@ -135,7 +132,6 @@ export const SaudiFlag = memo(function SaudiFlag() {
 	return (
 		<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
 			<rect width="24" height="24" rx="4" fill="#0C7A2F" />
-			{/* TODO: font-tajawal utility not yet defined in tailwind config */}
 			<text
 				x="12"
 				y="11"

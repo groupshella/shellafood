@@ -3,12 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Home, Search } from "lucide-react";
-import { Tajawal } from "next/font/google";
-
-const tajawal = Tajawal({
-	subsets: ["arabic", "latin"],
-	weight: ["400", "500", "700"],
-});
 
 export function NotFoundContent() {
 	const router = useRouter();
@@ -17,7 +11,7 @@ export function NotFoundContent() {
 		<div
 			dir="rtl"
 			lang="ar"
-			className={`${tajawal.className} relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-white via-[#f8fbf9] to-[#eef6f0] px-4 py-10 dark:from-gray-900 dark:via-gray-900 dark:to-gray-950`}
+			className="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-white via-[#f8fbf9] to-[#eef6f0] px-4 py-10 dark:from-gray-900 dark:via-gray-900 dark:to-gray-950"
 		>
 			<div
 				aria-hidden

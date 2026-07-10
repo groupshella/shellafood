@@ -64,7 +64,6 @@ const SuccessScreen = memo(function SuccessScreen({
 	onAction,
 }: SuccessScreenProps) {
 	return (
-		// TODO: font-tajawal utility not yet defined in tailwind config
 		<div
 			dir="rtl"
 			lang="ar"

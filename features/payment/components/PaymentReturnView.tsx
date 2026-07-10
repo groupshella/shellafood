@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle, Clock, Loader2 } from "lucide-react";
 import { useCheckPaymentStatus } from "@/features/payment/hooks/useCheckPaymentStatus";
@@ -14,7 +15,7 @@ interface PaymentReturnViewProps {
 }
 
 const ACTION_BTN = [
-    "min-h-[44px] rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition-opacity active:opacity-80",
+    "inline-flex min-h-[44px] items-center justify-center rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition-opacity active:opacity-80",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
 ].join(" ");
 
@@ -74,13 +75,12 @@ export function PaymentReturnView({ invoiceIdParam, paymentIdParam }: PaymentRet
             <div className="flex flex-col items-center gap-4 rounded-2xl bg-red-50 p-6 sm:p-8 dark:bg-red-950/30" dir="rtl" role="alert">
                 <AlertCircle className="h-12 w-12 text-red-500 dark:text-red-400" />
                 <p className="text-center text-sm text-red-700 dark:text-red-300">{error}</p>
-                <button
-                    type="button"
-                    onClick={() => router.push("/")}
+                <Link
+                    href="/"
                     className={`${ACTION_BTN} bg-[#30913F] focus-visible:ring-[#30913F]`}
                 >
                     الرئيسية
-                </button>
+                </Link>
             </div>
         );
     }
@@ -93,13 +93,12 @@ export function PaymentReturnView({ invoiceIdParam, paymentIdParam }: PaymentRet
                 <p className="text-center text-[13px] text-gray-600 dark:text-gray-300">
                     تم تأكيد طلبك وسيتم معالجته قريباً
                 </p>
-                <button
-                    type="button"
-                    onClick={() => router.push("/orders")}
+                <Link
+                    href="/orders"
                     className={`${ACTION_BTN} mt-2 bg-[#267332] focus-visible:ring-[#267332]`}
                 >
                     تتبع طلبك
-                </button>
+                </Link>
             </div>
         );
     }
@@ -112,13 +111,12 @@ export function PaymentReturnView({ invoiceIdParam, paymentIdParam }: PaymentRet
                 <p className="text-center text-[13px] text-gray-600 dark:text-gray-300">
                     جاري معالجة عملية الدفع. سيتم تحديث حالة طلبك تلقائياً
                 </p>
-                <button
-                    type="button"
-                    onClick={() => router.push("/orders")}
+                <Link
+                    href="/orders"
                     className={`${ACTION_BTN} mt-2 bg-amber-500 focus-visible:ring-amber-500`}
                 >
                     عرض الطلبات
-                </button>
+                </Link>
             </div>
         );
     }
