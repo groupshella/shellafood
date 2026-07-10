@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { PlaceOrderPayload } from "@/features/checkout/types/checkout.types";
-import type { PlaceOrderResponse } from "@/app/api/order/place/route";
-import type { ApiResponse } from "@/shared/lib/api-response";
+import { placeOrder as placeOrderAction } from "@/features/checkout/actions/place-order";
+import type {
+    PlaceOrderPayload,
+    PlaceOrderResponse,
+} from "@/features/checkout/types/checkout.types";
 
 interface UsePlaceOrderResult {
     placeOrder: (payload: PlaceOrderPayload) => Promise<PlaceOrderResponse>;
@@ -20,19 +22,13 @@ export function usePlaceOrder(): UsePlaceOrderResult {
         setError(null);
 
         try {
-            const res = await fetch("/api/order/place", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
+            const result = await placeOrderAction(payload);
 
-            const json: ApiResponse<PlaceOrderResponse> = await res.json();
-
-            if (!json.success) {
-                throw new Error(json.message);
+            if (!result.success || !result.data) {
+                throw new Error(result.message ?? "تعذر إتمام الطلب");
             }
 
-            return json.data;
+            return result.data;
         } catch (err) {
             const message = err instanceof Error ? err.message : "تعذر إتمام الطلب";
             setError(message);

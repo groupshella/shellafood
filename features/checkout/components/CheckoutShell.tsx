@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { CheckoutProvider, useCheckout } from "@/features/checkout/context/CheckoutContext";
 import type { CheckoutData } from "@/features/checkout/types/checkout.types";
@@ -22,20 +22,18 @@ const CONTENT_PADDING = "px-3 py-4 pb-36 sm:px-4 sm:py-5 sm:pb-40 md:px-5 lg:px-
 const FOOTER_PADDING = "px-3 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-4 sm:pt-4 md:px-5 lg:px-6";
 
 function CheckoutShellInner({ children }: CheckoutShellInnerProps) {
-    const router = useRouter();
     const { confirmPayment, isPlacingOrder, orderError } = useCheckout();
 
     return (
         <div className={SHELL_LAYOUT} dir="rtl">
             <header className={`sticky top-0 z-10 flex items-center justify-between bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:bg-gray-900 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] ${HEADER_PADDING}`}>
-                <button
-                    type="button"
-                    onClick={() => router.back()}
+                <Link
+                    href="/cart"
                     aria-label="رجوع"
                     className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 transition-colors active:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:active:bg-gray-700 sm:h-11 sm:w-11"
                 >
                     <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300 sm:h-[22px] sm:w-[22px]" />
-                </button>
+                </Link>
 
                 <h1 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-lg lg:text-xl">الدفع</h1>
 
