@@ -1,10 +1,4 @@
 import Link from "next/link";
-import { Cairo } from "next/font/google";
-
-const cairo = Cairo({
-	subsets: ["arabic", "latin"],
-	weight: ["500", "600", "700", "900"],
-});
 
 export type OfferDiscountPercent = 50 | 35 | 25;
 
@@ -46,7 +40,6 @@ export function OfferDiscountCard({ percent, href }: OfferDiscountCardProps) {
 		<Link
 			href={href}
 			className={[
-				cairo.className,
 				"group relative block shrink-0 overflow-hidden",
 				"w-[min(82vw,17.5rem)] sm:w-[19.5rem] md:w-[22rem] lg:w-[24rem]",
 				"aspect-[271/148] sm:aspect-[312/160] md:aspect-[352/168]",
