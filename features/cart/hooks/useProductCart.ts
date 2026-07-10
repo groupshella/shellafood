@@ -1,10 +1,51 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useCart } from "../context/CartContext";
-import { ProductCartMeta } from "../lib/match-cart-line";
+import {
+    cartItemToProductMeta,
+    ProductCartMeta,
+} from "../lib/match-cart-line";
+import { CartItem } from "../types/cart.types";
 
-export function useProductCart(product: ProductCartMeta, isAvailable = true) {
+type UseProductCartResult = {
+    quantity: number;
+    isPending: boolean;
+    error: string | null;
+    handleAdd: () => void;
+    handleIncrease: () => void;
+    handleDecrease: () => void;
+    handleRemove: () => void;
+};
+
+export function useProductCart(
+    item: CartItem
+): UseProductCartResult & { item: CartItem };
+export function useProductCart(
+    product: ProductCartMeta,
+    isAvailable?: boolean
+): UseProductCartResult;
+export function useProductCart(
+    productOrItem: ProductCartMeta | CartItem,
+    isAvailable = true
+): UseProductCartResult & { item?: CartItem } {
+    const isCartItem = "item_id" in productOrItem;
+
+    const product = useMemo(() => {
+        if (isCartItem) {
+            return cartItemToProductMeta(productOrItem);
+        }
+        return productOrItem;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, isCartItem
+        ? [
+              productOrItem.item_id,
+              productOrItem.name,
+              productOrItem.price,
+              productOrItem.discount,
+          ]
+        : [productOrItem]);
+
     const {
         getQuantity,
         incrementProduct,
@@ -45,7 +86,7 @@ export function useProductCart(product: ProductCartMeta, isAvailable = true) {
         [mutate, product, removeProduct]
     );
 
-    return {
+    const result: UseProductCartResult = {
         quantity,
         isPending,
         error,
@@ -54,4 +95,13 @@ export function useProductCart(product: ProductCartMeta, isAvailable = true) {
         handleDecrease,
         handleRemove,
     };
+
+    if (isCartItem) {
+        return {
+            ...result,
+            item: { ...productOrItem, quantity },
+        };
+    }
+
+    return result;
 }

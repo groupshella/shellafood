@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { ItemShell } from "@/features/item/components/ItemShell";
-import { AddToCart } from "@/features/item/components/sections/AddToCart";
+import { AddToCart } from "@/features/cart/components/shared/AddToCart";
 import { ItemInfo } from "@/features/item/components/sections/ItemInfo";
 import { RelatedItems } from "@/features/item/components/sections/RelatedItems";
 

@@ -1,23 +1,16 @@
 "use client";
 
-import { useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Search, ShoppingBag } from "lucide-react";
 import { useCart } from "@/features/cart/context/CartContext";
 
-interface AddToCartClientProps {
+interface AddToCartProps {
     moduleId?: string;
 }
 
-export function AddToCartClient({ moduleId }: AddToCartClientProps) {
-    const router = useRouter();
+function AddToCartBar({ moduleId }: AddToCartProps) {
     const { totalCount } = useCart();
     const searchHref = moduleId ? `/search?module_id=${moduleId}` : "/search";
-
-    const handleSearch = useCallback(() => {
-        router.push(searchHref);
-    }, [router, searchHref]);
 
     return (
         <div className="pointer-events-none fixed inset-x-0 z-50 flex justify-center bottom-[calc(1.25rem+env(safe-area-inset-bottom))] sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]">
@@ -37,15 +30,18 @@ export function AddToCartClient({ moduleId }: AddToCartClientProps) {
 
                 <div className="h-5 w-px bg-white/30" aria-hidden />
 
-                <button
-                    type="button"
-                    onClick={handleSearch}
+                <Link
+                    href={searchHref}
                     aria-label="بحث"
                     className="flex h-10 w-10 items-center justify-center rounded-full transition-transform active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 sm:h-11 sm:w-11"
                 >
                     <Search className="h-6 w-6 text-white" strokeWidth={2} aria-hidden />
-                </button>
+                </Link>
             </div>
         </div>
     );
 }
+
+export const AddToCart = Object.assign(AddToCartBar, {
+    skeleton: () => null,
+});

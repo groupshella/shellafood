@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { OffersShell } from "@/features/offers/components/OffersShell";
 import { OfferItems } from "@/features/offers/components/sections/OfferItems";
 import { getOffers } from "@/features/offers/api/getOffers";
-import { AddToCart } from "@/features/hyper-market/Categories/components/sections/AddToCart";
+import { AddToCart } from "@/features/cart/components/shared/AddToCart";
 
 const MODULE_ID = "3";
 

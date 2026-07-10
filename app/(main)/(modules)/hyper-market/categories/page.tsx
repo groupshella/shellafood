@@ -4,7 +4,7 @@ import { CategoriesPageShell } from "@/features/hyper-market/Categories/componen
 import { AllCategories } from "@/features/hyper-market/Categories/components/sections/AllCategories";
 import { CategoryTabs } from "@/features/hyper-market/Categories/components/sections/CategoryTabs";
 import { CategoryDetail } from "@/features/hyper-market/Categories/components/sections/CategoryDetail";
-import { AddToCart } from "@/features/hyper-market/Categories/components/sections/AddToCart";
+import { AddToCart } from "@/features/cart/components/shared/AddToCart";
 
 const STORE_ID = "1";
 const MODULE_ID = "3";
