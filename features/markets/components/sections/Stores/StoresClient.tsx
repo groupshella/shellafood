@@ -6,6 +6,7 @@ import { Check, SlidersHorizontal, X } from "lucide-react";
 import { Category } from "@/features/markets/types/categories.types";
 import {
     DEFAULT_FILTERS,
+    GetStoresResponse,
     StoreFilters,
     hasActiveFilters,
 } from "@/features/markets/types/stores.types";
@@ -317,9 +318,28 @@ function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () 
     );
 }
 
-export function StoresClient({ categories }: { categories: Category[] }) {
-    const { stores, isLoading, isLoadingMore, error, hasMore, filters, setFilters, loadMore } =
-        useMarketsStore();
+export function StoresClient({
+    categories,
+    initialStores,
+}: {
+    categories: Category[];
+    initialStores: GetStoresResponse;
+}) {
+    const {
+        stores,
+        isLoading,
+        isLoadingMore,
+        error,
+        hasMore,
+        filters,
+        setFilters,
+        loadMore,
+        hydrateFromServer,
+    } = useMarketsStore();
+
+    useEffect(() => {
+        hydrateFromServer(initialStores);
+    }, [hydrateFromServer, initialStores]);
 
     const filtersActive = hasActiveFilters(filters);
 

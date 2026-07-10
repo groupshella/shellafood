@@ -1,11 +1,5 @@
 import Link from "next/link";
-import { Cairo } from "next/font/google";
 import { Offer } from "@/features/markets/types/offers.types";
-
-const cairo = Cairo({
-    subsets: ["arabic", "latin"],
-    weight: ["500", "600", "700", "900"],
-});
 
 function TagIcon() {
     return (
@@ -50,7 +44,6 @@ export function OfferSlide({ offer }: { offer: Offer; priority?: boolean }) {
         <Link
             href={`/offers/${offer.id}?module_id=${offer.module_id}`}
             className={[
-                cairo.className,
                 "group relative mx-auto block w-full max-w-lg overflow-hidden",
                 "aspect-[343/148] sm:max-w-2xl sm:aspect-[680/168] lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl",
                 "rounded-2xl sm:rounded-[1.25rem] md:rounded-3xl",

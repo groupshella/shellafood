@@ -5,6 +5,7 @@ import {
     GetStoresResponse,
     StoreFilters,
     DEFAULT_FILTERS,
+    hasActiveFilters,
 } from "@/features/markets/types/stores.types";
 import { ApiResponse, unwrap } from "@/shared/lib/api-response";
 
@@ -40,6 +41,10 @@ export function useStores(moduleId: string) {
     const [error, setError] = useState<string | null>(null);
     const [filters, setFiltersState] = useState<StoreFilters>(DEFAULT_FILTERS);
     const loadedCountRef = useRef(0);
+    /** Skip the next filters-effect fetch (used after SSR hydrate). */
+    const skipNextFetchRef = useRef(false);
+    /** Become true after SSR hydrate or fallback timeout so we don't race the server render. */
+    const [fetchEnabled, setFetchEnabled] = useState(false);
 
     const fetchStores = useCallback(
         async (
@@ -78,12 +83,50 @@ export function useStores(moduleId: string) {
         },
         [moduleId],
     );
+
+    const filtersRef = useRef(filters);
+    filtersRef.current = filters;
+
+    const hydrateFromServer = useCallback((data: GetStoresResponse) => {
+        // Don't overwrite if the user already applied filters from categories/chips.
+        if (hasActiveFilters(filtersRef.current)) {
+            setFetchEnabled(true);
+            return;
+        }
+
+        setStores(data.stores ?? []);
+        setTotalSize(data.total_size ?? 0);
+        loadedCountRef.current = data.stores?.length ?? 0;
+        setIsLoading(false);
+        setError(null);
+        skipNextFetchRef.current = true;
+        setFetchEnabled(true);
+    }, []);
+
+    // If Stores SSR never hydrates (or filters change first), enable client fetching.
     useEffect(() => {
+        if (fetchEnabled) return;
+        if (hasActiveFilters(filters)) {
+            setFetchEnabled(true);
+            return;
+        }
+        const timer = window.setTimeout(() => setFetchEnabled(true), 50);
+        return () => window.clearTimeout(timer);
+    }, [fetchEnabled, filters]);
+
+    useEffect(() => {
+        if (!fetchEnabled) return;
+
+        if (skipNextFetchRef.current) {
+            skipNextFetchRef.current = false;
+            return;
+        }
+
         const controller = new AbortController();
         loadedCountRef.current = 0;
-        fetchStores(0, false, filters, controller.signal);
+        void fetchStores(0, false, filters, controller.signal);
         return () => controller.abort();
-    }, [fetchStores, filters]);
+    }, [fetchEnabled, fetchStores, filters]);
 
     const setFilters = useCallback((f: StoreFilters) => {
         setFiltersState(f);
@@ -104,5 +147,6 @@ export function useStores(moduleId: string) {
         filters,
         setFilters,
         loadMore,
+        hydrateFromServer,
     };
 }
