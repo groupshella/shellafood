@@ -1,17 +1,27 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Clock, Heart, Search, Star, Truck } from "lucide-react";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
 import { StoreDetails, StoreCategory } from "@/features/stores/types/store.types";
+import { STORE_CATEGORY_PRODUCTS_ID } from "@/features/stores/components/sections/StoreCategoryProducts/StoreCategoryProductsClient";
 
 const HERO_BTN =
     "flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-gray-800 backdrop-blur-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 active:bg-white/95 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-gray-900/80 dark:text-gray-100 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800/95 sm:h-11 sm:w-11";
 
 const contentContainer =
     "mx-auto w-full px-3 sm:px-4 md:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl";
+
+/** Scroll only the tab strip — avoids page jump from element.scrollIntoView. */
+function scrollTabIntoView(container: HTMLElement, tab: HTMLElement) {
+    const containerRect = container.getBoundingClientRect();
+    const tabRect = tab.getBoundingClientRect();
+    const delta =
+        tabRect.left - containerRect.left - (container.clientWidth - tab.offsetWidth) / 2;
+    container.scrollBy({ left: delta, behavior: "smooth" });
+}
 
 interface StoreHeaderClientProps {
     store: StoreDetails;
@@ -29,14 +39,39 @@ export function StoreHeaderClient({
     moduleId,
 }: StoreHeaderClientProps) {
     const router = useRouter();
+    const categoryScrollRef = useRef<HTMLDivElement>(null);
     const [favorited, setFavorited] = useState(false);
     const [favoritePending, setFavoritePending] = useState(false);
 
+    useEffect(() => {
+        if (!activeCategoryId) return;
+
+        const container = categoryScrollRef.current;
+        if (!container) return;
+
+        const tab = container.querySelector<HTMLElement>(`[data-id="${activeCategoryId}"]`);
+        if (!tab) return;
+
+        // Wait a frame so layout/RTL scroll metrics are ready.
+        const frame = requestAnimationFrame(() => scrollTabIntoView(container, tab));
+        return () => cancelAnimationFrame(frame);
+    }, [activeCategoryId]);
+
     const handleCategoryClick = useCallback(
         (categoryId: number) => {
+            const nextId = String(categoryId);
+
+            // Re-clicking the active category: scroll products into view without navigating.
+            if (nextId === activeCategoryId) {
+                document
+                    .getElementById(STORE_CATEGORY_PRODUCTS_ID)
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                return;
+            }
+
             router.push(`/stores/${storeId}?module_id=${moduleId}&categoryId=${categoryId}`);
         },
-        [router, storeId, moduleId],
+        [router, storeId, moduleId, activeCategoryId],
     );
 
     const handleBack = useCallback(() => {
@@ -214,7 +249,9 @@ export function StoreHeaderClient({
             {categories.length > 0 && (
                 <div className={`pb-3 pt-3 sm:pt-4 ${contentContainer}`}>
                     <div
-                        className="flex items-center justify-end gap-1.5 overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden"
+                        ref={categoryScrollRef}
+                        dir="rtl"
+                        className="flex items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-smooth [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden"
                         role="tablist"
                         aria-label="تصنيفات المتجر"
                     >
@@ -225,6 +262,7 @@ export function StoreHeaderClient({
                                     key={cat.id}
                                     type="button"
                                     role="tab"
+                                    data-id={String(cat.id)}
                                     aria-selected={isActive}
                                     onClick={() => handleCategoryClick(cat.id)}
                                     className={[

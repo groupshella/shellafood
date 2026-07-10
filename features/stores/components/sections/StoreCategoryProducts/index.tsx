@@ -1,12 +1,19 @@
-import { getStoreCategories } from "@/features/stores/api/store-categories";
 import { getCategoryDetail } from "@/features/stores/api/category-detail";
+import {
+    categoryProductsToDetail,
+    type StoreCategoryProducts as StoreCategoryProductsData,
+} from "@/features/stores/types/store.types";
 import { StoreCategoryProductsClient } from "./StoreCategoryProductsClient";
 import StoreCategoryProductsSkeleton from "./skeleton";
 
 interface StoreCategoryProductsProps {
     storeId: string;
     moduleId: string;
-    categoryId?: string;
+    categoryId: string;
+    /** Embedded products from store details — used when it matches `categoryId`. */
+    categoryProducts?: StoreCategoryProductsData;
+    /** Scroll products into view (e.g. after picking a category from the tabs). */
+    scrollIntoView?: boolean;
 }
 
 export const StoreCategoryProducts = Object.assign(
@@ -14,16 +21,17 @@ export const StoreCategoryProducts = Object.assign(
         storeId,
         moduleId,
         categoryId,
+        categoryProducts,
+        scrollIntoView = false,
     }: StoreCategoryProductsProps) {
-        let resolvedCategoryId = categoryId;
+        if (!categoryId) return null;
 
-        if (!resolvedCategoryId) {
-            const categories = await getStoreCategories(storeId);
-            if (categories.length === 0) return null;
-            resolvedCategoryId = String(categories[0].id);
-        }
+        const canUseEmbedded =
+            categoryProducts != null && String(categoryProducts.category_id) === categoryId;
 
-        const detail = await getCategoryDetail(storeId, resolvedCategoryId);
+        const detail = canUseEmbedded
+            ? categoryProductsToDetail(categoryProducts)
+            : await getCategoryDetail(storeId, categoryId);
 
         if (!detail.sub_categories.length) return null;
 
@@ -35,7 +43,11 @@ export const StoreCategoryProducts = Object.assign(
                     </h2>
                 </div>
 
-                <StoreCategoryProductsClient detail={detail} moduleId={moduleId} />
+                <StoreCategoryProductsClient
+                    detail={detail}
+                    moduleId={moduleId}
+                    scrollIntoView={scrollIntoView}
+                />
             </div>
         );
     },
