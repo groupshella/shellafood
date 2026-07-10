@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { getBrands } from "@/features/hyper-market/Brands/api/brands";
-import { BrandPageShell } from "@/features/hyper-market/Brands/components/BrandPageShell";
-import { BrandItems } from "@/features/hyper-market/Brands/components/sections/BrandItems";
-import { AddToCart } from "@/features/hyper-market/Categories/components/sections/AddToCart";
+import { getBrands } from "@/features/brands/api/brands";
+import { BrandPageShell } from "@/features/brands/components/BrandPageShell";
+import { BrandItems } from "@/features/brands/components/sections/BrandItems";
+import { AddToCart } from "@/features/cart/components/shared/AddToCart";
 
 const MODULE_ID = "3";
 
@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: BrandPageProps): Promise<Meta
 
     return {
         title: brand
-            ? `${brand.name} | هايبر ماركت | شلة فود`
-            : "براند | هايبر ماركت | شلة فود",
+            ? `${brand.name} | شلة فود`
+            : "براند | شلة فود",
     };
 }
 

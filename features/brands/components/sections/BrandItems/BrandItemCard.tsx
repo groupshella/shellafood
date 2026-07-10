@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -6,7 +6,7 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { Heart, ShoppingBag } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
-import type { BrandItem } from "@/features/hyper-market/Brands/types/brands.types";
+import type { BrandItem } from "@/features/brands/types/brands.types";
 
 interface BrandItemCardProps {
     item: BrandItem;

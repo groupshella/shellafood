@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { memo } from "react";
 import { HyperMarketPopularBrand } from "@/features/hyper-market/StoreDetails/types/popular-brands.types";
@@ -8,7 +8,7 @@ export const BrandCard = memo(function BrandCard({ brand }: { brand: HyperMarket
 
     return (
         <Link
-            href={`/hyper-market/brands/${brand.id}`}
+            href={`/brands/${brand.id}`}
             className={[
                 "flex min-h-[68px] items-center gap-2.5 rounded-2xl bg-white p-2.5 sm:min-h-[76px] sm:gap-3 sm:p-3",
                 "ring-1 ring-black/[0.06] dark:bg-gray-800 dark:ring-white/[0.08]",

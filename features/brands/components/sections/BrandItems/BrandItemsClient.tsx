@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
@@ -7,10 +7,10 @@ import {
     X,
     ShoppingBag,
 } from "lucide-react";
-import type { BrandItem } from "@/features/hyper-market/Brands/types/brands.types";
-import { useBrandSearch } from "@/features/hyper-market/Brands/hooks/useBrandSearch";
-import { useBrandFilter } from "@/features/hyper-market/Brands/hooks/useBrandFilter";
-import { FilterSheet } from "@/features/hyper-market/Brands/components/shared/FilterSheet";
+import type { BrandItem } from "@/features/brands/types/brands.types";
+import { useBrandSearch } from "@/features/brands/hooks/useBrandSearch";
+import { useBrandFilter } from "@/features/brands/hooks/useBrandFilter";
+import { FilterSheet } from "@/features/brands/components/shared/FilterSheet";
 import { BrandItemCard } from "./BrandItemCard";
 import { BrandItemsListLoading } from "./skeleton";
 

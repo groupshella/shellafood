@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
-import type { Brand } from "@/features/hyper-market/Brands/types/brands.types";
+import type { Brand } from "@/features/brands/types/brands.types";
 
 interface BrandPageShellProps {
     brand: Brand;
@@ -29,7 +29,7 @@ export function BrandPageShell({ brand, children }: BrandPageShellProps) {
             <header className="sticky top-0 z-20 border-b border-black/[0.04] bg-white/95 backdrop-blur-md dark:border-white/[0.06] dark:bg-gray-900/95">
                 <div className="relative flex min-h-[3.25rem] items-center justify-center px-3 py-2.5 sm:px-5">
                     <Link
-                        href="/hyper-market/brands"
+                        href="/brands"
                         className={`${ICON_BTN} absolute start-3 sm:start-5`}
                         aria-label="العودة إلى العلامات التجارية"
                     >

@@ -1,8 +1,8 @@
-import { mapItemsSearchResponse } from "@/features/hyper-market/Brands/lib/normalize-brand-item";
+﻿import { mapItemsSearchResponse } from "@/features/brands/lib/normalize-brand-item";
 import type {
     BrandItem,
     ItemsSearchApiResponse,
-} from "@/features/hyper-market/Brands/types/brands.types";
+} from "@/features/brands/types/brands.types";
 
 function itemsSearchHeaders(): HeadersInit {
     return {

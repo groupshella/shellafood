@@ -1,4 +1,4 @@
-import { Brand, GetBrandsResponse } from "@/features/hyper-market/Brands/types/brands.types";
+﻿import { Brand, GetBrandsResponse } from "@/features/brands/types/brands.types";
 
 export async function getBrands(moduleId: string): Promise<Brand[]> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/brands`, {

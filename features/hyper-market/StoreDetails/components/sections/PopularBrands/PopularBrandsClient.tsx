@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef } from "react";
 import Link from "next/link";
@@ -38,7 +38,7 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
 
     const columns = chunkByTwo(brands);
     const hasMultipleColumns = columns.length > 3;
-    const viewAllHref = "/hyper-market/brands";
+    const viewAllHref = "/brands";
 
     return (
         <section

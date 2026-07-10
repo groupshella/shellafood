@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 import { unwrap, type ApiResponse } from "@/shared/lib/api-response";
 import { mapBrandItemsResponse } from "../lib/normalize-brand-item";
 import type { BrandItem, GetBrandItemsApiResponse } from "../types/brands.types";
@@ -21,16 +22,39 @@ export function useBrandSearch(brandId: string): UseBrandSearchReturn {
     const [total, setTotal] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
     const abortRef = useRef<AbortController | null>(null);
-    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const doSearch = useCallback(
+    const runSearch = useDebouncedCallback(async (q: string) => {
+        abortRef.current?.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
+
+        try {
+            const res = await fetch(
+                `/api/brands/${brandId}/search?query=${encodeURIComponent(q)}&offset=0&limit=50`,
+                { signal: controller.signal },
+            );
+            const json = (await res.json()) as ApiResponse<GetBrandItemsApiResponse>;
+            const { items, total: count } = mapBrandItemsResponse(unwrap(json));
+            setResults(items);
+            setTotal(count);
+        } catch (err) {
+            if ((err as Error).name === "AbortError") return;
+            setError("حدث خطأ أثناء البحث");
+            setResults([]);
+            setTotal(0);
+        } finally {
+            if (!controller.signal.aborted) setLoading(false);
+        }
+    }, 300);
+
+    const setQuery = useCallback(
         (q: string) => {
-            abortRef.current?.abort();
-            if (timerRef.current) clearTimeout(timerRef.current);
+            setQueryRaw(q);
 
             if (!q.trim()) {
+                runSearch.cancel();
+                abortRef.current?.abort();
                 setResults(null);
                 setTotal(null);
                 setLoading(false);
@@ -40,57 +64,27 @@ export function useBrandSearch(brandId: string): UseBrandSearchReturn {
 
             setLoading(true);
             setError(null);
-
-            timerRef.current = setTimeout(async () => {
-                const controller = new AbortController();
-                abortRef.current = controller;
-
-                try {
-                    const res = await fetch(
-                        `/api/brands/${brandId}/search?query=${encodeURIComponent(q)}&offset=0&limit=50`,
-                        { signal: controller.signal }
-                    );
-                    const json = (await res.json()) as ApiResponse<GetBrandItemsApiResponse>;
-                    const { items, total: count } = mapBrandItemsResponse(unwrap(json));
-                    setResults(items);
-                    setTotal(count);
-                } catch (err) {
-                    if ((err as Error).name === "AbortError") return;
-                    setError("حدث خطأ أثناء البحث");
-                    setResults([]);
-                    setTotal(0);
-                } finally {
-                    if (!controller.signal.aborted) setLoading(false);
-                }
-            }, 300);
+            void runSearch(q);
         },
-        [brandId]
-    );
-
-    const setQuery = useCallback(
-        (q: string) => {
-            setQueryRaw(q);
-            doSearch(q);
-        },
-        [doSearch]
+        [runSearch],
     );
 
     const clearSearch = useCallback(() => {
+        runSearch.cancel();
         abortRef.current?.abort();
-        if (timerRef.current) clearTimeout(timerRef.current);
         setQueryRaw("");
         setResults(null);
         setTotal(null);
         setLoading(false);
         setError(null);
-    }, []);
+    }, [runSearch]);
 
     useEffect(() => {
         return () => {
+            runSearch.cancel();
             abortRef.current?.abort();
-            if (timerRef.current) clearTimeout(timerRef.current);
         };
-    }, []);
+    }, [runSearch]);
 
     return { query, setQuery, results, total, loading, error, clearSearch };
 }

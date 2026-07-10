@@ -1,4 +1,4 @@
-import { getBrands } from "@/features/hyper-market/Brands/api/brands";
+﻿import { getBrands } from "@/features/brands/api/brands";
 import { AllBrandsClient } from "./AllBrandsClient";
 import AllBrandsSkeleton from "./skeleton";
 

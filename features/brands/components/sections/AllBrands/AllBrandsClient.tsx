@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { Brand } from "@/features/hyper-market/Brands/types/brands.types";
+import { Brand } from "@/features/brands/types/brands.types";
 import { BrandGridCard } from "./BrandGridCard";
 
 const ICON_BTN = [
@@ -24,9 +24,9 @@ export function AllBrandsClient({ brands }: AllBrandsClientProps) {
             <header className="sticky top-0 z-20 border-b border-black/[0.04] bg-white/95 backdrop-blur-md dark:border-white/[0.06] dark:bg-gray-900/95">
                 <div className="relative flex min-h-[3.25rem] items-center justify-center px-3 py-2.5 sm:px-5">
                     <Link
-                        href="/hyper-market"
+                        href="/home"
                         className={`${ICON_BTN} absolute start-3 sm:start-5`}
-                        aria-label="العودة إلى هايبر ماركت"
+                        aria-label="العودة"
                     >
                         <ChevronRight className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} aria-hidden />
                     </Link>
@@ -42,7 +42,7 @@ export function AllBrandsClient({ brands }: AllBrandsClientProps) {
                     {brands.map((brand) => (
                         <Link
                             key={brand.id}
-                            href={`/hyper-market/brands/${brand.id}`}
+                            href={`/brands/${brand.id}`}
                             className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
                         >
                             <BrandGridCard brand={brand} />

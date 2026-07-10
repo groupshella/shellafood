@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import { memo, useCallback, useState } from "react";
-import { Brand } from "@/features/hyper-market/Brands/types/brands.types";
+import { Brand } from "@/features/brands/types/brands.types";
 
 interface BrandGridCardProps {
     brand: Brand;

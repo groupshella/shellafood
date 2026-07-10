@@ -1,4 +1,4 @@
-import { getBrandItems } from "@/features/hyper-market/Brands/api/brand-items";
+﻿import { getBrandItems } from "@/features/brands/api/brand-items";
 import { BrandItemsClient } from "./BrandItemsClient";
 import BrandItemsSkeleton from "./skeleton";
 import EmptyState from "./skeleton";
