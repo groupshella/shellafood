@@ -35,7 +35,7 @@ export function AllCategoriesClient({
     const backHref = buildBackHref(moduleId, moduleName);
 
     return (
-        <div className="min-h-dvh bg-white dark:bg-gray-950" dir="rtl">
+        <div className="min-h-dvh" dir="rtl">
             <header className="sticky top-0 z-20 border-b border-black/[0.04] bg-white/95 backdrop-blur-md dark:border-white/[0.06] dark:bg-gray-900/95">
                 <div className="relative mx-auto flex min-h-[3.25rem] w-full max-w-lg items-center justify-center px-3 py-2.5 sm:max-w-2xl sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">
                     <Link
@@ -57,6 +57,7 @@ export function AllCategoriesClient({
                             key={category.id}
                             category={category}
                             moduleId={moduleId}
+                            mode="filter"
                             layout="grid"
                         />
                     ))}

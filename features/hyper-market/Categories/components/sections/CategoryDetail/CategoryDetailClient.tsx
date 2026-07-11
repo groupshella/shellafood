@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { LayoutGrid, List, SlidersHorizontal } from "lucide-react";
 import {
     CategoryDetails,
+    CategoryProduct,
     SubCategory,
 } from "@/features/hyper-market/Categories/types/category-detail.types";
 import { CategoryProductCard } from "./CategoryProductCard";
@@ -19,11 +20,13 @@ function ToolbarBtn({
     label,
     onClick,
     active = false,
+    indicator = false,
     children,
 }: {
     label: string;
     onClick: () => void;
     active?: boolean;
+    indicator?: boolean;
     children: React.ReactNode;
 }) {
     return (
@@ -33,7 +36,7 @@ function ToolbarBtn({
             aria-pressed={active}
             onClick={onClick}
             className={[
-                "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]",
+                "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]",
                 "transition-colors active:scale-95",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
                 active
@@ -42,6 +45,9 @@ function ToolbarBtn({
             ].join(" ")}
         >
             {children}
+            {indicator && (
+                <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#30913F] ring-2 ring-white dark:ring-gray-950" />
+            )}
         </button>
     );
 }
@@ -49,11 +55,13 @@ function ToolbarBtn({
 function ProductsToolbar({
     totalProducts,
     viewMode,
+    hasActiveFilter,
     onToggleView,
     onOpenFilter,
 }: {
     totalProducts: number;
     viewMode: ViewMode;
+    hasActiveFilter: boolean;
     onToggleView: () => void;
     onOpenFilter: () => void;
 }) {
@@ -77,13 +85,14 @@ function ProductsToolbar({
                 <ToolbarBtn
                     label="تصفية المنتجات"
                     onClick={onOpenFilter}
+                    indicator={hasActiveFilter}
                 >
                     <SlidersHorizontal className="h-[18px] w-[18px]" strokeWidth={2.25} />
                 </ToolbarBtn>
             </div>
 
             <p dir="rtl" className="text-sm font-medium text-[#707784] dark:text-gray-400">
-                <span className="tabular-nums">{totalProducts.toLocaleString("en-US")}</span> المنتجات
+                <span className="tabular-nums">{totalProducts.toLocaleString("en-US")}</span> منتج
             </p>
         </div>
     );
@@ -143,16 +152,20 @@ function SubCategoryTabs({
 
 function SubCategorySection({
     subCategory,
+    displayProducts,
     sectionRef,
     onLoadMore,
     viewMode,
+    hasActiveFilter,
     onToggleView,
     onOpenFilter,
 }: {
     subCategory: SubCategory;
+    displayProducts: CategoryProduct[];
     sectionRef: (el: HTMLElement | null) => void;
     onLoadMore: () => void;
     viewMode: ViewMode;
+    hasActiveFilter: boolean;
     onToggleView: () => void;
     onOpenFilter: () => void;
 }) {
@@ -170,27 +183,32 @@ function SubCategorySection({
             </div>
 
             <ProductsToolbar
-                totalProducts={subCategory.total_products}
+                totalProducts={displayProducts.length}
                 viewMode={viewMode}
+                hasActiveFilter={hasActiveFilter}
                 onToggleView={onToggleView}
                 onOpenFilter={onOpenFilter}
             />
 
-            {viewMode === "grid" ? (
+            {displayProducts.length === 0 ? (
+                <p dir="rtl" className="px-3 py-8 text-center text-sm text-[#707784] dark:text-gray-500">
+                    لا توجد منتجات تطابق الفلتر الحالي
+                </p>
+            ) : viewMode === "grid" ? (
                 <div className="grid grid-cols-2 gap-2 px-3 pt-2 sm:grid-cols-3 sm:gap-2.5 sm:px-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-3 lg:px-6 xl:grid-cols-5">
-                    {subCategory.products.map((product) => (
+                    {displayProducts.map((product) => (
                         <CategoryProductCard key={product.id} product={product} layout="grid" />
                     ))}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-2.5 px-3 pt-2 sm:px-5 md:grid-cols-2 md:gap-3 lg:px-6">
-                    {subCategory.products.map((product) => (
+                    {displayProducts.map((product) => (
                         <CategoryProductCard key={product.id} product={product} layout="list" />
                     ))}
                 </div>
             )}
 
-            {subCategory.has_more && (
+            {subCategory.has_more && !hasActiveFilter && (
                 <div className="flex justify-center pb-2 pt-3">
                     <button
                         type="button"
@@ -205,6 +223,39 @@ function SubCategorySection({
     );
 }
 
+const DEFAULT_FILTER: FilterValues = { sort: "popular", price: "all" };
+
+function getDisplayPrice(product: CategoryProduct): number {
+    return product.discounted_price ?? product.price;
+}
+
+function applyFilterToProducts(products: CategoryProduct[], filter: FilterValues): CategoryProduct[] {
+    let result = [...products];
+
+    if (filter.price !== "all") {
+        const [minStr, maxStr] = filter.price.split("-");
+        const min = Number(minStr);
+        const max = Number(maxStr);
+        const [lo, hi] = min <= max ? [min, max] : [max, min];
+        result = result.filter((p) => {
+            const dp = getDisplayPrice(p);
+            return dp >= lo && dp <= hi;
+        });
+    }
+
+    if (filter.sort === "price-asc") {
+        result.sort((a, b) => getDisplayPrice(a) - getDisplayPrice(b));
+    } else if (filter.sort === "price-desc") {
+        result.sort((a, b) => getDisplayPrice(b) - getDisplayPrice(a));
+    }
+
+    return result;
+}
+
+function isDefaultFilter(f: FilterValues) {
+    return f.sort === "popular" && f.price === "all";
+}
+
 interface Props {
     detail: CategoryDetails;
 }
@@ -215,8 +266,9 @@ export function CategoryDetailClient({ detail }: Props) {
     );
     const [viewMode, setViewMode] = useState<ViewMode>("grid");
     const [filterOpen, setFilterOpen] = useState(false);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_filters, setFilters] = useState<FilterValues | null>(null);
+    const [appliedFilter, setAppliedFilter] = useState<FilterValues>(DEFAULT_FILTER);
+
+    const hasActiveFilter = !isDefaultFilter(appliedFilter);
 
     const sectionRefs = useRef<Map<number, HTMLElement>>(new Map());
     const isProgrammatic = useRef(false);
@@ -273,25 +325,30 @@ export function CategoryDetailClient({ detail }: Props) {
                 />
             )}
 
-            <div className="bg-[#F6F5F8] pb-28 dark:bg-gray-950">
-                {detail.sub_categories.map((sc) => (
-                    <SubCategorySection
-                        key={sc.id}
-                        subCategory={sc}
-                        sectionRef={(el) => registerSection(sc.id, el)}
-                        onLoadMore={() => { /* hook into your loadMoreProducts here */ }}
-                        viewMode={viewMode}
-                        onToggleView={toggleView}
-                        onOpenFilter={() => setFilterOpen(true)}
-                    />
-                ))}
+            <div className="pb-28">
+                {detail.sub_categories.map((sc) => {
+                    const displayProducts = applyFilterToProducts(sc.products, appliedFilter);
+                    return (
+                        <SubCategorySection
+                            key={sc.id}
+                            subCategory={sc}
+                            displayProducts={displayProducts}
+                            sectionRef={(el) => registerSection(sc.id, el)}
+                            onLoadMore={() => { /* hook into your loadMoreProducts here */ }}
+                            viewMode={viewMode}
+                            hasActiveFilter={hasActiveFilter}
+                            onToggleView={toggleView}
+                            onOpenFilter={() => setFilterOpen(true)}
+                        />
+                    );
+                })}
             </div>
 
             <FilterSheet
                 open={filterOpen}
                 onClose={() => setFilterOpen(false)}
                 onApply={(f) => {
-                    setFilters(f);
+                    setAppliedFilter(f);
                     setFilterOpen(false);
                 }}
             />

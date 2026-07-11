@@ -1,10 +1,11 @@
 "use client";
 
-import { memo, useEffect } from "react";
+import { memo, useEffect, useRef } from "react";
 import { Plus } from "lucide-react";
 import { QuantityPill } from "./QuantityPill";
 import { ProductCartMeta } from "../../lib/match-cart-line";
 import { useProductCart } from "../../hooks/useProductCart";
+import { useNotification } from "@/shared/components/NotificationToast";
 
 interface ProductAddControlProps {
     product: ProductCartMeta;
@@ -23,12 +24,19 @@ export const ProductAddControl = memo(function ProductAddControl({
     className = "",
     onError,
 }: ProductAddControlProps) {
+    const { error: notifyError } = useNotification();
+    const lastNotifiedError = useRef<string | null>(null);
     const { quantity, isPending, error, handleAdd, handleIncrease, handleDecrease } =
         useProductCart(product, isAvailable);
 
     useEffect(() => {
         onError?.(error);
-    }, [error, onError]);
+        if (error && error !== lastNotifiedError.current) {
+            notifyError(error);
+            lastNotifiedError.current = error;
+        }
+        if (!error) lastNotifiedError.current = null;
+    }, [error, notifyError, onError]);
 
     if (quantity > 0) {
         return (

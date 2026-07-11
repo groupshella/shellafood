@@ -8,7 +8,6 @@ type PriceRange =
     | "all"
     | "0-10"
     | "0-20"
-    | "20-40"
     | "70-40"
     | "70-100"
     | "100-150"
@@ -36,16 +35,17 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 ];
 
 const PRICE_RANGES: { value: PriceRange; label: string }[] = [
-    { value: "0-10", label: "10 - 0" },
-    { value: "0-20", label: "40 - 20" },
-    { value: "all", label: "الجميع" },
-    { value: "100-150", label: "200 - 150" },
-    { value: "70-100", label: "100 - 70" },
-    { value: "70-40", label: "40 - 70" },
-    { value: "500-700", label: "700 - 500" },
-    { value: "300-500", label: "500 - 300" },
-    { value: "200-300", label: "300 - 200" },
-    { value: "700-1000", label: "1000 - 700" },
+    { value: "all",      label: "الجميع" },
+    { value: "0-10",     label: "0 - 10" },
+    { value: "0-20",     label: "0 - 20" },
+    { value: "70-40",    label: "40 - 70" },
+    { value: "70-100",   label: "70 - 100" },
+    { value: "100-150",  label: "100 - 150" },
+    { value: "150-200",  label: "150 - 200" },
+    { value: "200-300",  label: "200 - 300" },
+    { value: "300-500",  label: "300 - 500" },
+    { value: "500-700",  label: "500 - 700" },
+    { value: "700-1000", label: "700 - 1000" },
 ];
 
 export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
@@ -111,7 +111,7 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                 <section className="pb-6">
                     <h3 className="pb-3 text-[15px] font-bold text-[#111B18] dark:text-gray-200">النطاق السعري</h3>
                     <div className="grid grid-cols-3 gap-2.5">
-                        {PRICE_RANGES.slice(0, 9).map((option) => (
+                        {PRICE_RANGES.map((option) => (
                             <Chip
                                 key={option.value}
                                 label={option.label}
@@ -121,18 +121,6 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                             />
                         ))}
                     </div>
-                    {PRICE_RANGES.length > 9 && (
-                        <div className="grid grid-cols-3 gap-2.5 pt-2.5">
-                            <div className="col-span-1" />
-                            <Chip
-                                label={PRICE_RANGES[9].label}
-                                selected={price === PRICE_RANGES[9].value}
-                                onClick={() => setPrice(PRICE_RANGES[9].value)}
-                                fullWidth
-                            />
-                            <div className="col-span-1" />
-                        </div>
-                    )}
                 </section>
 
                 <div className="flex flex-col gap-3 pt-2">

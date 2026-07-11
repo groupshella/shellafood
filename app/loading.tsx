@@ -32,15 +32,7 @@ export default function Loading() {
 						جاري التحميل...
 					</p>
 
-					<div className="flex items-center gap-1.5" aria-hidden>
-						{[0, 150, 300].map((delay) => (
-							<span
-								key={delay}
-								className="h-2 w-2 rounded-full bg-[#30913F] motion-safe:animate-bounce motion-reduce:animate-none dark:bg-[#3da84f]"
-								style={{ animationDelay: `${delay}ms` }}
-							/>
-						))}
-					</div>
+
 				</div>
 			</div>
 

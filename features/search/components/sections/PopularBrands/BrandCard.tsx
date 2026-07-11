@@ -26,11 +26,11 @@ export const BrandCard = memo(function BrandCard({ brand, onSelect }: BrandCardP
             type="button"
             onClick={handleSelect}
             className={[
-                "flex aspect-square w-full min-w-0 items-center justify-center rounded-xl bg-white p-2",
+                "flex aspect-square w-full min-w-0 items-center justify-center rounded-lg bg-white p-1",
                 "shadow-sm ring-1 ring-black/[0.04] dark:bg-gray-800 dark:ring-white/[0.06]",
                 "transition-transform active:scale-[0.95]",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
-                "sm:rounded-2xl sm:p-2.5 lg:p-3",
+                "sm:rounded-2xl sm:p-2",
             ].join(" ")}
             aria-label={name}
         >
@@ -41,7 +41,7 @@ export const BrandCard = memo(function BrandCard({ brand, onSelect }: BrandCardP
                         alt=""
                         fill
                         className="object-contain"
-                        sizes="(max-width: 640px) 18vw, (max-width: 1024px) 10vw, 80px"
+                        sizes="(max-width: 640px) 15vw, (max-width: 1024px) 10vw, 80px"
                         loading="lazy"
                         onError={handleLogoError}
                     />

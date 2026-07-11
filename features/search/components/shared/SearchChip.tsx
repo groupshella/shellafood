@@ -10,7 +10,7 @@ export function SearchChip({ label, isActive = false, onClick }: SearchChipProps
             type="button"
             onClick={onClick}
             className={[
-                "min-h-10 rounded-full px-3.5 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97]",
+                "min-h-10 rounded-full px-3.5 py-2 text-sm font-bold transition-all duration-150 active:scale-[0.97]",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
                 "sm:px-4 sm:text-[15px]",
                 isActive

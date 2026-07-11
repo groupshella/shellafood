@@ -6,6 +6,7 @@ import { memo, useCallback, useState } from "react";
 import { Heart, ShoppingBag, Plus } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
+import { useNotification } from "@/shared/components/NotificationToast";
 import type { FavoriteProduct } from "@/features/favorites/types/favorites.types";
 
 interface ProductCardProps {
@@ -22,6 +23,7 @@ export const ProductCard = memo(function ProductCard({
     const [imgError, setImgError] = useState(false);
     const [favorited, setFavorited] = useState(initialFavorited);
     const [pending, setPending] = useState(false);
+    const { success, error: notifyError } = useNotification();
 
     const hasDiscount =
         product.discounted_price != null &&
@@ -52,13 +54,15 @@ export const ProductCard = memo(function ProductCard({
 
             if (!result.success) {
                 setFavorited(wasLiked);
-            } else if (wasLiked && onRemove) {
-                onRemove(product.id);
+                notifyError(result.message);
+            } else {
+                success(result.message);
+                if (wasLiked && onRemove) onRemove(product.id);
             }
 
             setPending(false);
         },
-        [pending, favorited, product.id, onRemove],
+        [pending, favorited, product.id, onRemove, notifyError, success],
     );
 
     return (

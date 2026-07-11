@@ -20,7 +20,7 @@ export function HomeShell({ children }: HomeShellProps) {
 		>
 			<div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-3 px-3 pb-4 pt-2.5 sm:max-w-xl sm:gap-4 sm:px-4 sm:pt-4 md:max-w-2xl lg:max-w-4xl lg:gap-5 lg:px-6 xl:max-w-5xl 2xl:max-w-6xl 2xl:gap-6 2xl:px-8">
 				<header className="flex min-w-0 items-center justify-between gap-2 py-1 sm:gap-3 sm:py-2 lg:py-2.5">
-					<h1 className="min-w-0 truncate text-base font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-lg md:text-xl lg:text-2xl">
+					<h1 className="min-w-0 truncate text-base font-bold tracking-tight text-gray-900 dark:text-gray-100  md:text-xl lg:text-2xl">
 						مرحباً بك
 					</h1>
 					<nav aria-label="إجراءات سريعة" className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3">

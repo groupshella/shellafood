@@ -5,6 +5,7 @@ import Link from "next/link";
 import { memo, useCallback, useState } from "react";
 import { Heart, Star, Clock, Truck, Store } from "lucide-react";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
+import { useNotification } from "@/shared/components/NotificationToast";
 import type { FavoriteStore } from "@/features/favorites/types/favorites.types";
 
 interface StoreCardProps {
@@ -20,6 +21,7 @@ export const StoreCard = memo(function StoreCard({
 }: StoreCardProps) {
     const [favorited, setFavorited] = useState(initialFavorited);
     const [pending, setPending] = useState(false);
+    const { success, error: notifyError } = useNotification();
 
     const toggleFavorite = useCallback(
         async (e: React.MouseEvent) => {
@@ -37,13 +39,15 @@ export const StoreCard = memo(function StoreCard({
 
             if (!result.success) {
                 setFavorited(wasLiked);
-            } else if (wasLiked && onRemove) {
-                onRemove(store.id);
+                notifyError(result.message);
+            } else {
+                success(result.message);
+                if (wasLiked && onRemove) onRemove(store.id);
             }
 
             setPending(false);
         },
-        [pending, favorited, store.id, onRemove],
+        [pending, favorited, store.id, onRemove, notifyError, success],
     );
 
     return (

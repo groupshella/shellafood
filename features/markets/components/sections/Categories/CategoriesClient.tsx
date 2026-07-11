@@ -33,7 +33,7 @@ export function CategoriesClient({ categories, moduleId, moduleName }: Categorie
     return (
         <section
             aria-label="الأقسام"
-            className="w-full space-y-3 bg-white py-4 dark:bg-gray-900 sm:space-y-4 sm:py-5"
+            className="w-full space-y-3 py-4 sm:space-y-4 sm:py-5"
             dir="rtl"
         >
             <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-3 px-3 sm:max-w-2xl sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">

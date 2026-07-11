@@ -7,6 +7,7 @@ import { ArrowRight, Clock, Heart, Search, Star, Truck } from "lucide-react";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
 import { StoreDetails, StoreCategory } from "@/features/stores/types/store.types";
 import { STORE_CATEGORY_PRODUCTS_ID } from "@/features/stores/components/sections/StoreCategoryProducts/StoreCategoryProductsClient";
+import { useNotification } from "@/shared/components/NotificationToast";
 
 const HERO_BTN =
     "flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-gray-800 backdrop-blur-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 active:bg-white/95 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-gray-900/80 dark:text-gray-100 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800/95 sm:h-11 sm:w-11";
@@ -39,6 +40,7 @@ export function StoreHeaderClient({
     moduleId,
 }: StoreHeaderClientProps) {
     const router = useRouter();
+    const { success, error: notifyError } = useNotification();
     const categoryScrollRef = useRef<HTMLDivElement>(null);
     const [favorited, setFavorited] = useState(false);
     const [favoritePending, setFavoritePending] = useState(false);
@@ -94,9 +96,14 @@ export function StoreHeaderClient({
             ? await removeFromWishlist({ storeId: numericStoreId })
             : await addToWishlist({ storeId: numericStoreId });
 
-        if (!result.success) setFavorited(wasLiked);
+        if (!result.success) {
+            setFavorited(wasLiked);
+            notifyError(result.message);
+        } else {
+            success(result.message);
+        }
         setFavoritePending(false);
-    }, [favoritePending, favorited, storeId]);
+    }, [favoritePending, favorited, notifyError, storeId, success]);
 
     const heroImage = store.store_image_url;
 
@@ -206,7 +213,7 @@ export function StoreHeaderClient({
                             )}
                         </div>
 
-                        <div className="flex min-w-0 flex-col items-end gap-1 pb-0.5 sm:gap-1.5 sm:pb-1">
+                        <div className="flex min-w-0 flex-col items-start gap-1 pb-0.5 sm:gap-1.5 sm:pb-1">
                             <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-1.5">
                                 {store.free_delivery && (
                                     <span className="flex h-5 items-center gap-1 rounded-[4px] border border-gray-200 bg-white px-1.5 text-[10px] font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:h-[22px] sm:text-xs">

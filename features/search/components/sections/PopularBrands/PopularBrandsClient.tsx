@@ -8,7 +8,7 @@ const SECTION_HEADING =
     "text-sm font-semibold text-gray-500 dark:text-gray-400 sm:text-base lg:text-lg";
 
 const BRANDS_GRID =
-    "grid grid-cols-4 gap-2 sm:grid-cols-5 sm:gap-3 md:grid-cols-6 lg:grid-cols-8 lg:gap-4 xl:grid-cols-10";
+    "grid grid-cols-5 gap-1.5 sm:grid-cols-5 sm:gap-3 md:grid-cols-6 lg:grid-cols-8 lg:gap-4 xl:grid-cols-10";
 
 interface PopularBrandsClientProps {
     brands: PopularBrand[];

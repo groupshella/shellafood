@@ -8,6 +8,7 @@ import type {
     ElectronicPaymentType,
     PaymentMethodType,
 } from "@/features/checkout/types/checkout.types";
+import { useNotification } from "@/shared/components/NotificationToast";
 
 function parseInvoiceAmount(formatted: string): number {
     return Number(formatted.replace(/[^\d.]/g, "")) || 0;
@@ -35,6 +36,7 @@ interface CheckoutProviderProps {
 export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
     const router = useRouter();
     const { placeOrder, isLoading: isPlacingOrder } = usePlaceOrder();
+    const { error: notifyError } = useNotification();
 
     const [selected, setSelectedState] = useState<PaymentMethodType>(null);
     const [electronicMethod, setElectronicMethodState] = useState<ElectronicPaymentType>(null);
@@ -58,6 +60,7 @@ export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
     const confirmPayment = useCallback(async () => {
         if (!selected) {
             setShowPaymentWarning(true);
+            notifyError("بالرجاء تحديد طريقة الدفع");
             return;
         }
 
@@ -81,8 +84,9 @@ export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
         } catch (err) {
             const message = err instanceof Error ? err.message : "تعذر إتمام الطلب، يرجى المحاولة مرة أخرى";
             setOrderError(message);
+            notifyError(message);
         }
-    }, [data, placeOrder, router, selected]);
+    }, [data, notifyError, placeOrder, router, selected]);
 
     return (
         <CheckoutContext.Provider

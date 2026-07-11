@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { useCart } from "@/features/cart/context/CartContext";
 import { ClearCartConfirmSheet } from "@/features/cart/components/shared/ClearCartConfirmSheet";
+import { useNotification } from "@/shared/components/NotificationToast";
 
 interface CartShellProps {
   title: string;
@@ -18,6 +19,7 @@ const HEADER_PADDING = "px-3 py-3 sm:px-4 sm:py-3.5 md:px-5 lg:px-6";
 
 export function CartShell({ title, children }: CartShellProps) {
   const { clearAllProducts, totalCount } = useCart();
+  const { success, error: notifyError } = useNotification();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
 
@@ -32,23 +34,29 @@ export function CartShell({ title, children }: CartShellProps) {
   const handleClearCart = useCallback(async () => {
     setShowClearConfirm(false);
     setIsClearing(true);
-    await clearAllProducts();
+    const result = await clearAllProducts();
+    if (result.success) {
+      success("تم تفريغ السلة");
+    } else {
+      notifyError(result.message ?? "تعذّر تفريغ السلة");
+    }
     setIsClearing(false);
-  }, [clearAllProducts]);
+  }, [clearAllProducts, notifyError, success]);
 
   return (
     <div className={SHELL_LAYOUT} dir="rtl">
       <header className={`sticky top-0 z-10 flex items-center justify-between bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:bg-gray-900 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] ${HEADER_PADDING}`}>
         <Link
           href="/home"
-          className="flex h-10 w-10 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] active:bg-gray-100 dark:active:bg-gray-800 sm:h-11 sm:w-11"
+          className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] active:bg-gray-100 dark:active:bg-gray-800 sm:h-11 sm:w-11 ${totalCount > 0 ? "opacity-100" : "pointer-events-none opacity-0"}`}
           aria-label="رجوع"
         >
           <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300 sm:h-[22px] sm:w-[22px]" aria-hidden />
         </Link>
 
-        <h1 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-lg lg:text-xl">{title}</h1>
-
+        <div className={`flex items-center justify-center py-3.5 sm:py-4 ${HEADER_PADDING}`}>
+          <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg lg:text-xl">سلة التسوق</h1>
+        </div>
         <div className={`min-w-[4.5rem] transition-opacity sm:min-w-[5.5rem] ${totalCount > 0 ? "opacity-100" : "pointer-events-none opacity-0"}`}>
           <button
             type="button"

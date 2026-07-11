@@ -62,7 +62,7 @@ export function CheckoutBottomSheet({
                                 type="button"
                                 onClick={onClose}
                                 aria-label="إغلاق"
-                                className="absolute start-0 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:h-10 sm:w-10"
+                                className="absolute end-0 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:h-10 sm:w-10"
                             >
                                 <X className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2.5} />
                             </button>

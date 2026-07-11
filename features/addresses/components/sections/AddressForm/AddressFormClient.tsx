@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { addAddress } from "@/features/addresses/actions/add-address";
 import { updateAddress } from "@/features/addresses/actions/update-address";
 import { Address, PickedLocation } from "@/features/addresses/types/address.types";
+import { useNotification } from "@/shared/components/NotificationToast";
 
 const BUILDING_TYPES = [
 	{ value: "apartment", label: "شقة" },
@@ -48,6 +49,7 @@ function FieldLabel({ text, required, htmlFor }: { text: string; required?: bool
 
 export function AddressFormClient({ location, editAddress }: AddressFormClientProps) {
 	const router = useRouter();
+	const { success, error: notifyError } = useNotification();
 	const [isPending, startTransition] = useTransition();
 	const [errors, setErrors] = useState<FieldErrors>({});
 	const [generalError, setGeneralError] = useState<string | null>(null);
@@ -97,12 +99,14 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 				: await addAddress(payload);
 
 			if (result.success) {
+				success((isEdit ? "تم تحديث العنوان" : "تم حفظ العنوان"));
 				router.push("/addresses");
 				router.refresh();
 			} else if (result.errors) {
 				setErrors(result.errors);
 			} else {
 				setGeneralError(result.message);
+				notifyError(result.message);
 			}
 		});
 	}

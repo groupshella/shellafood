@@ -6,7 +6,7 @@ import { SearchModule } from "@/features/search/types/modules.types";
 import { ModuleCard } from "./ModuleCard";
 
 const SECTION_HEADING =
-    "text-sm font-semibold text-gray-500 dark:text-gray-400 sm:text-base lg:text-lg";
+    "text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-base lg:text-lg";
 
 interface ModulesClientProps {
     modules: SearchModule[];
@@ -33,10 +33,9 @@ export function ModulesClient({ modules }: ModulesClientProps) {
 
     return (
         <section aria-label="خدماتنا" className="space-y-2.5 sm:space-y-3.5">
-            <h2 className={SECTION_HEADING}>خدماتنا</h2>
 
             <div className="md:hidden">
-                <ScrollContainer className="-mx-1 px-1" ariaLabel="قائمة الخدمات">
+                <ScrollContainer className="mx-auto" ariaLabel="قائمة الخدمات">
                     {moduleCards}
                 </ScrollContainer>
             </div>

@@ -20,7 +20,7 @@ export function AllCategoriesClient({ categories }: AllCategoriesClientProps) {
     if (categories.length === 0) return null;
 
     return (
-        <div className="min-h-dvh bg-white dark:bg-gray-950">
+        <div className="min-h-dvh">
             <header className="sticky top-0 z-20 border-b border-black/[0.04] bg-white/95 backdrop-blur-md dark:border-white/[0.06] dark:bg-gray-900/95">
                 <div className="relative flex min-h-[3.25rem] items-center justify-center px-3 py-2.5 sm:px-5">
                     <Link

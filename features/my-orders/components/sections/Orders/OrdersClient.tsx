@@ -42,10 +42,27 @@ function yesterdayStr() {
     d.setDate(d.getDate() - 1);
     return d.toISOString().slice(0, 10);
 }
+function startOfWeekStr() {
+    const d = new Date();
+    d.setDate(d.getDate() - d.getDay());
+    return d.toISOString().slice(0, 10);
+}
+function startOfMonthStr() {
+    const d = new Date();
+    d.setDate(1);
+    return d.toISOString().slice(0, 10);
+}
 function dateGroupLabel(orderDate: string): DateGroupLabel {
     if (orderDate === todayStr()) return "اليوم";
     if (orderDate === yesterdayStr()) return "الأمس";
     return "الأقدم";
+}
+function matchesTimePeriod(orderDate: string, period: string): boolean {
+    const today = todayStr();
+    if (period === "اليوم") return orderDate === today;
+    if (period === "هذا الأسبوع") return orderDate >= startOfWeekStr() && orderDate <= today;
+    if (period === "هذا الشهر") return orderDate >= startOfMonthStr() && orderDate <= today;
+    return true;
 }
 
 const GROUP_ORDER: DateGroupLabel[] = ["اليوم", "الأمس", "الأقدم"];
@@ -98,10 +115,19 @@ export function OrdersClient({ orders }: Props) {
     const filteredOrders = useMemo(() => {
         return orders.filter((o) => {
             const moduleMatch = activeModuleId === "all" || getModuleId(o) === activeModuleId;
+
             const statusMatch =
                 appliedFilter.statuses.length === 0 ||
                 appliedFilter.statuses.includes(o.order_status as OrderStatus);
-            return moduleMatch && statusMatch;
+
+            const dateMatch =
+                appliedFilter.date === "" || o.order_date === appliedFilter.date;
+
+            const periodMatch =
+                appliedFilter.timePeriod === null ||
+                matchesTimePeriod(o.order_date, appliedFilter.timePeriod);
+
+            return moduleMatch && statusMatch && dateMatch && periodMatch;
         });
     }, [orders, activeModuleId, appliedFilter]);
 
@@ -277,8 +303,13 @@ export function OrdersClient({ orders }: Props) {
                                 <input
                                     type="date"
                                     value={draftFilter.date}
+                                    max={todayStr()}
                                     onChange={(e) =>
-                                        setDraftFilter((prev) => ({ ...prev, date: e.target.value }))
+                                        setDraftFilter((prev) => ({
+                                            ...prev,
+                                            date: e.target.value,
+                                            timePeriod: null,
+                                        }))
                                     }
                                     aria-label="اختر التاريخ"
                                     className="min-h-10 flex-1 bg-transparent text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500 sm:text-[15px]"
@@ -297,6 +328,7 @@ export function OrdersClient({ orders }: Props) {
                                                 setDraftFilter((prev) => ({
                                                     ...prev,
                                                     timePeriod: isActive ? null : chip,
+                                                    date: "",
                                                 }))
                                             }
                                             className={[
@@ -338,13 +370,26 @@ export function OrdersClient({ orders }: Props) {
                             </div>
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={applyFilter}
-                            className="w-full rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 sm:text-[15px] lg:py-4"
-                        >
-                            تم
-                        </button>
+                        <div className="flex flex-col gap-3">
+                            <button
+                                type="button"
+                                onClick={applyFilter}
+                                className="h-12 w-full rounded-xl bg-[#30913F] text-sm font-semibold text-white transition-colors active:bg-[#267332] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 sm:text-[15px]"
+                            >
+                                تطبيق
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setDraftFilter(EMPTY_FILTER);
+                                    setAppliedFilter(EMPTY_FILTER);
+                                    closeFilter();
+                                }}
+                                className="h-12 w-full rounded-xl bg-[#F6F6F6] text-sm font-semibold text-[#43474F] transition-colors hover:bg-[#ECECEC] active:bg-[#E5E5E5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:text-[15px]"
+                            >
+                                إعادة الضبط
+                            </button>
+                        </div>
                     </div>
                 </>
             )}

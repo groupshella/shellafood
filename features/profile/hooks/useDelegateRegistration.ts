@@ -167,7 +167,7 @@ export function useDelegateRegistration(): UseDelegateRegistrationReturn {
             submittingRef.current = false;
             setIsSubmitting(false);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [form, isSubmitting]);
 
     return {

@@ -1,9 +1,10 @@
 "use client";
 
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { CartItem } from "@/features/cart/types/cart.types";
 import { useProductCart } from "@/features/cart/hooks/useProductCart";
 import { RemoveProductConfirmSheet } from "@/features/cart/components/shared/RemoveProductConfirmSheet";
+import { useNotification } from "@/shared/components/NotificationToast";
 import { CartItemCard } from "./CartItemCard";
 
 interface CartItemRowProps {
@@ -12,8 +13,18 @@ interface CartItemRowProps {
 
 export const CartItemRow = memo(function CartItemRow({ item }: CartItemRowProps) {
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
-  const { item: liveItem, isPending, handleIncrease, handleDecrease, handleRemove } =
+  const { error: notifyError } = useNotification();
+  const lastNotifiedError = useRef<string | null>(null);
+  const { item: liveItem, isPending, error, handleIncrease, handleDecrease, handleRemove } =
     useProductCart(item);
+
+  useEffect(() => {
+    if (error && error !== lastNotifiedError.current) {
+      notifyError(error);
+      lastNotifiedError.current = error;
+    }
+    if (!error) lastNotifiedError.current = null;
+  }, [error, notifyError]);
 
   const handleOpenRemove = useCallback(() => {
     setShowRemoveConfirm(true);
