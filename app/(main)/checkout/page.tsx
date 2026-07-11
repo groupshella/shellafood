@@ -13,6 +13,8 @@ import { MOCK_CHECKOUT } from "@/features/checkout/constants/checkout.constants"
 import { COOKIE_KEYS, type AuthUser } from "@/features/auth/types/auth.types";
 import { formatPrice } from "@/features/home/components/shared/PriceTag";
 import type { CheckoutData } from "@/features/checkout/types/checkout.types";
+import { AuthRequiredScreen } from "@/features/layout/components/AuthRequiredScreen";
+import { isAuthenticated } from "@/features/layout/lib/is-authenticated";
 
 export const metadata: Metadata = {
     title: "الدفع | شيلافود",
@@ -75,6 +77,11 @@ async function buildCheckoutData(): Promise<CheckoutData> {
 }
 
 export default async function CheckoutPage() {
+    if (!(await isAuthenticated())) {
+        return <AuthRequiredScreen page="checkout" />;
+    }
+
+
     const checkoutData = await buildCheckoutData();
 
     return (

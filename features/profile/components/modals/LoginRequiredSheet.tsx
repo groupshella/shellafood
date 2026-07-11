@@ -28,7 +28,7 @@ export function LoginRequiredSheet({
             ariaLabel={PROFILE_STRINGS.loginRequiredTitle}
             showCloseButton
         >
-            <div className="mx-auto flex w-full max-w-md flex-col items-center px-2 pb-6 pt-4 text-center sm:px-4">
+            <div className="mx-auto flex w-full max-w-md flex-col items-center px-2 pb-8 pt-4 text-center sm:px-4">
                 <div className="relative mb-5 flex h-24 w-24 items-center justify-center sm:h-28 sm:w-28">
                     <div className="absolute inset-0 rounded-full bg-[#EBFEEB] dark:bg-[#30913F]/15" />
                     <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-b from-[#8CC63F] to-[#39B54A] text-white shadow-lg sm:h-[72px] sm:w-[72px]">

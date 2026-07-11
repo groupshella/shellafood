@@ -2,28 +2,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { memo } from "react";
 import { Module } from "@/features/home/types/modules.types";
-import { MODULE_SPEC, ModuleSpecKey } from "@/features/home/components/shared/home.tokens";
+import {
+	MODULE_SPEC,
+	MODULE_SPEC_BY_ID,
+	ModuleSpecKey,
+} from "@/features/home/components/shared/home.tokens";
 
 type ModuleCardModule = Pick<Module, "id" | "module_name" | "module_type" | "icon_full_url">;
 
-export function resolveSpecKey(module: ModuleCardModule): ModuleSpecKey {
-	const name = module.module_name.toLowerCase();
-	const type = module.module_type.toLowerCase();
-
-	if (module.id === 3 || type.includes("grocery") || name.includes("هايبر")) {
-		return "hypermarket";
-	}
-	if (type.includes("food") || name.includes("مطع")) return "restaurants";
-	if (name.includes("مقه") || name.includes("cafe")) return "cafe";
-	if (type.includes("pharmacy") || name.includes("صيد")) return "pharmacy";
-	if (name.includes("سوق") || name.includes("market")) return "markets";
-	return "restaurants";
+export function resolveSpecKey(module: ModuleCardModule): ModuleSpecKey | null {
+	return MODULE_SPEC_BY_ID[module.id] ?? null;
 }
 
-function getModuleHref(module: ModuleCardModule): string {
-	return module.id === 3
-		? "/hyper-market?module_id=3"
-		: `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
+function getModuleHref(module: ModuleCardModule, key: ModuleSpecKey): string {
+	if (key === "hypermarket") {
+		return `/hyper-market?module_id=${module.id}`;
+	}
+
+	return `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
 }
 
 export const ModuleCard = memo(function ModuleCard({
@@ -31,11 +27,10 @@ export const ModuleCard = memo(function ModuleCard({
 	specKey,
 }: {
 	module?: ModuleCardModule;
-	specKey?: ModuleSpecKey;
+	specKey: ModuleSpecKey;
 }) {
-	const key = specKey ?? (module ? resolveSpecKey(module) : "restaurants");
-	const spec = MODULE_SPEC[key];
-	const href = module && !spec.disabled ? getModuleHref(module) : null;
+	const spec = MODULE_SPEC[specKey];
+	const href = module && !spec.disabled ? getModuleHref(module, specKey) : null;
 	const iconSrc = ("iconSrc" in spec ? spec.iconSrc : undefined) ?? module?.icon_full_url;
 	const label = module?.module_name || spec.label;
 	const ariaLabel = "soonLabel" in spec ? `${label} ${spec.soonLabel}` : label;
@@ -76,7 +71,7 @@ export const ModuleCard = memo(function ModuleCard({
 						fill
 						className={`object-contain ${spec.disabled ? "grayscale" : ""}`}
 						sizes={spec.tall ? "(max-width: 640px) 48px, 80px" : "(max-width: 640px) 36px, 48px"}
-						priority={key === "cafe"}
+						priority={specKey === "cafe"}
 					/>
 				</span>
 			)}

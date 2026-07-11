@@ -8,10 +8,12 @@ import { formatPrice, PriceTag } from "@/features/home/components/shared/PriceTa
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
 import { CategoryProduct } from "@/features/hyper-market/Categories/types/category-detail.types";
+import { useNotification } from "@/shared/components/NotificationToast";
 
 interface Props {
     product: CategoryProduct;
     layout?: "grid" | "list";
+    moduleId?: string;
 }
 
 function SarIcon({ size }: { size: number }) {
@@ -28,7 +30,9 @@ function SarIcon({ size }: { size: number }) {
 export const CategoryProductCard = memo(function CategoryProductCard({
     product,
     layout = "grid",
+    moduleId = "3",
 }: Props) {
+    const { success, error: notifyError } = useNotification();
     const [imgError, setImgError] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
     const [wishlistPending, setWishlistPending] = useState(false);
@@ -49,7 +53,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
         [product.id, product.name, product.price, discountPercent],
     );
 
-    const itemHref = `/items/${product.id}?module_id=3`;
+    const itemHref = `/items/${product.id}?module_id=${moduleId}`;
 
     async function toggleWishlist(e: React.MouseEvent) {
         e.preventDefault();
@@ -64,7 +68,12 @@ export const CategoryProductCard = memo(function CategoryProductCard({
             ? await removeFromWishlist({ itemId: product.id })
             : await addToWishlist({ itemId: product.id });
 
-        if (!result.success) setWishlisted(wasLiked);
+        if (!result.success) {
+            setWishlisted(wasLiked);
+            notifyError(result.message);
+        } else {
+            success(result.message);
+        }
         setWishlistPending(false);
     }
 
@@ -138,7 +147,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                     className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#F6F5F8] outline-none dark:bg-gray-700 sm:h-20 sm:w-20"
                 >
                     {hasDiscount && (
-                        <span className="absolute end-0 top-0 z-10 rounded-ss-md rounded-es-md bg-[#FFDCDC] px-1.5 py-0.5 text-[11px] font-bold leading-none text-[#DB2626] dark:bg-red-900/40 dark:text-red-300">
+                        <span className="absolute start-0 top-0  z-10 rounded-ss-md rounded-es-md bg-[#FFDCDC] px-1.5 py-0.5 text-[11px] font-bold leading-none text-[#DB2626] dark:bg-red-900/40 dark:text-red-300">
                             -{Math.round(discountPercent)}%
                         </span>
                     )}
@@ -168,8 +177,8 @@ export const CategoryProductCard = memo(function CategoryProductCard({
             className="relative flex min-h-[172px] w-full min-w-0 flex-row items-center gap-2 overflow-hidden rounded-lg bg-white shadow-[0_7px_19.8px_rgba(0,0,0,0.04)] dark:bg-gray-800 dark:shadow-[0_7px_19.8px_rgba(0,0,0,0.2)] sm:min-h-[190px]"
         >
             {hasDiscount && (
-                <span className="absolute end-0 top-[5px] z-10 flex min-w-[38px] items-center justify-center rounded-ss-md rounded-es-md bg-[#FFDCDC] px-[11px] py-0.5 text-[13px] font-bold leading-[1] text-[#DB2626] dark:bg-red-900/40 dark:text-red-300">
-                    -{Math.round(discountPercent)}%
+                <span className="absolute start-0 top-[5px] z-10 flex min-w-[38px] items-center justify-center rounded-ss-md rounded-es-md bg-[#FFDCDC] px-[11px] py-0.5 text-[13px] font-bold leading-[1] text-[#DB2626] dark:bg-red-900/40 dark:text-red-300">
+                    {Math.round(discountPercent)}%-
                 </span>
             )}
 

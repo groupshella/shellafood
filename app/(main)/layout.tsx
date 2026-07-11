@@ -2,6 +2,7 @@ import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import { getCart } from "@/features/cart/api/cart";
 import { CartProvider } from "@/features/cart/context/CartContext";
 import { MainNavbar } from "@/features/layout/components/MainNavbar";
+import { NotificationProvider } from "@/shared/components/NotificationToast";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -21,9 +22,11 @@ export default async function MainLayout({
 	const cartItems = await getCart();
 
 	return (
-		<CartProvider initialItems={cartItems}>
-			<main className="min-h-screen">{children}</main>
-			<MainNavbar />
-		</CartProvider>
+		<NotificationProvider>
+			<CartProvider initialItems={cartItems}>
+				<main className="min-h-screen">{children}</main>
+				<MainNavbar />
+			</CartProvider>
+		</NotificationProvider>
 	);
 }

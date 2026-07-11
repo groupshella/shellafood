@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDebouncedCallback } from "use-debounce";
 import { unwrap, type ApiResponse } from "@/shared/lib/api-response";
 import { mapBrandItemsResponse } from "../lib/normalize-brand-item";
 import type { BrandItem, GetBrandItemsApiResponse } from "../types/brands.types";
@@ -9,6 +8,7 @@ import type { BrandItem, GetBrandItemsApiResponse } from "../types/brands.types"
 interface UseBrandSearchReturn {
     query: string;
     setQuery: (q: string) => void;
+    submitSearch: () => void;
     results: BrandItem[] | null;
     total: number | null;
     loading: boolean;
@@ -24,14 +24,20 @@ export function useBrandSearch(brandId: string): UseBrandSearchReturn {
     const [error, setError] = useState<string | null>(null);
     const abortRef = useRef<AbortController | null>(null);
 
-    const runSearch = useDebouncedCallback(async (q: string) => {
+    const runSearch = useCallback(async (q: string) => {
+        const trimmed = q.trim();
+        if (!trimmed) return;
+
         abortRef.current?.abort();
         const controller = new AbortController();
         abortRef.current = controller;
 
+        setLoading(true);
+        setError(null);
+
         try {
             const res = await fetch(
-                `/api/brands/${brandId}/search?query=${encodeURIComponent(q)}&offset=0&limit=50`,
+                `/api/brands/${brandId}/search?query=${encodeURIComponent(trimmed)}&offset=0&limit=50`,
                 { signal: controller.signal },
             );
             const json = (await res.json()) as ApiResponse<GetBrandItemsApiResponse>;
@@ -46,45 +52,37 @@ export function useBrandSearch(brandId: string): UseBrandSearchReturn {
         } finally {
             if (!controller.signal.aborted) setLoading(false);
         }
-    }, 300);
+    }, [brandId]);
 
-    const setQuery = useCallback(
-        (q: string) => {
-            setQueryRaw(q);
-
-            if (!q.trim()) {
-                runSearch.cancel();
-                abortRef.current?.abort();
-                setResults(null);
-                setTotal(null);
-                setLoading(false);
-                setError(null);
-                return;
-            }
-
-            setLoading(true);
+    const setQuery = useCallback((q: string) => {
+        setQueryRaw(q);
+        if (!q.trim()) {
+            abortRef.current?.abort();
+            setResults(null);
+            setTotal(null);
+            setLoading(false);
             setError(null);
-            void runSearch(q);
-        },
-        [runSearch],
-    );
+        }
+    }, []);
+
+    const submitSearch = useCallback(() => {
+        void runSearch(query);
+    }, [runSearch, query]);
 
     const clearSearch = useCallback(() => {
-        runSearch.cancel();
         abortRef.current?.abort();
         setQueryRaw("");
         setResults(null);
         setTotal(null);
         setLoading(false);
         setError(null);
-    }, [runSearch]);
+    }, []);
 
     useEffect(() => {
         return () => {
-            runSearch.cancel();
             abortRef.current?.abort();
         };
-    }, [runSearch]);
+    }, []);
 
-    return { query, setQuery, results, total, loading, error, clearSearch };
+    return { query, setQuery, submitSearch, results, total, loading, error, clearSearch };
 }

@@ -108,7 +108,7 @@ export const CategoryCard = memo(function CategoryCard({
 
     return (
         <Link
-            href={`/modules/${moduleId}/category/${category.slug}`}
+            href={`/modules/${moduleId}`}
             className={sharedClassName}
             aria-label={category.name}
         >

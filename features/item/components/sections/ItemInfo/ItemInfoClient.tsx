@@ -7,14 +7,15 @@ import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
 import { ItemDetails } from "@/features/item/types/item.types";
+import { useNotification } from "@/shared/components/NotificationToast";
 
 interface ItemInfoClientProps {
     item: ItemDetails;
 }
 
 export function ItemInfoClient({ item }: ItemInfoClientProps) {
+    const { success, error: notifyError } = useNotification();
     const [imgError, setImgError] = useState(false);
-    const [addError, setAddError] = useState<string | null>(null);
     const [wishlisted, setWishlisted] = useState(false);
     const [wishlistPending, setWishlistPending] = useState(false);
 
@@ -47,6 +48,9 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
 
         if (!result.success) {
             setWishlisted(wasLiked);
+            notifyError(result.message);
+        } else {
+            success(result.message);
         }
 
         setWishlistPending(false);
@@ -132,15 +136,8 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                             isAvailable={item.is_available}
                             size="md"
                             variant="soft"
-                            onError={setAddError}
                         />
                     </div>
-
-                    {addError && (
-                        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-600 dark:bg-red-950/50 dark:text-red-400 sm:text-sm">
-                            {addError}
-                        </p>
-                    )}
 
                     {!item.is_available && (
                         <p className="mt-3 text-start text-xs font-semibold text-red-500 dark:text-red-400 sm:text-sm">

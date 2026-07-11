@@ -49,7 +49,7 @@ export function CategoriesGridClient({ categories }: CategoriesGridClientProps) 
     return (
         <section
             aria-label="تصنيفات المتجر"
-            className="bg-white px-3 pb-5 pt-3 dark:bg-gray-900 sm:px-5 lg:px-6"
+            className="bg-transparent px-3 pb-5 pt-3 sm:px-5 lg:px-6"
             dir="rtl"
         >
             <div className="mb-3 flex items-center justify-between gap-3">
@@ -66,7 +66,7 @@ export function CategoriesGridClient({ categories }: CategoriesGridClientProps) 
             <div className="relative">
                 {hasMultipleColumns && (
                     <div
-                        className="pointer-events-none absolute inset-y-0 start-0 z-10 w-10 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-gray-900 dark:via-gray-900/80 sm:w-12"
+                        className="pointer-events-none absolute inset-y-0 start-0 z-10 w-10 bg-gradient-to-r from-[#F6F5F8] via-[#F6F5F8]/80 to-transparent dark:from-gray-950 dark:via-gray-950/80 sm:w-12"
                         aria-hidden
                     />
                 )}

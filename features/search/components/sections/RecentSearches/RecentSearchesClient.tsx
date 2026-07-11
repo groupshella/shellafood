@@ -5,7 +5,7 @@ import { useSearchContext } from "@/features/search/components/SearchContext";
 import { SearchChip } from "@/features/search/components/shared/SearchChip";
 
 const SECTION_HEADING =
-    "text-sm font-semibold text-gray-500 dark:text-gray-400 sm:text-base lg:text-lg";
+    "text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-base lg:text-lg";
 
 export function RecentSearchesClient() {
     const { query, handleSubmit, recentSearches, clearRecent, isHydrated } = useSearchContext();

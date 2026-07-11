@@ -1,63 +1,150 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import {
     List,
+    LayoutGrid,
     TrendingUp,
+    TrendingDown,
     Search,
     X,
 } from "lucide-react";
 import type { OfferItem } from "@/features/offers/types/offer.types";
+import type { CategoryProduct } from "@/features/hyper-market/Categories/types/category-detail.types";
 import { useOfferSearch } from "@/features/offers/hooks/useOfferSearch";
-import { ProductCard } from "./ProductCard";
+import { CategoryProductCard } from "@/features/hyper-market/Categories/components/sections/CategoryDetail/CategoryProductCard";
 import { Empty } from "./Empty";
 import { OfferItemsSearchLoading } from "./skeleton";
+
+type ViewMode = "grid" | "list";
+type PriceSort = "none" | "asc" | "desc";
 
 const SECTION_PADDING = "px-3 sm:px-4 md:px-5 lg:px-6";
 
 const TOOLBAR_ICON_BTN = [
     "flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px]",
-    "bg-[#EBFEEB] text-[#30913F] dark:bg-[#0d2e12] dark:text-[#4db860]",
-    "transition-colors active:bg-[#DCF5DC] dark:active:bg-[#163d1c]",
+    "transition-colors active:scale-95",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
     "sm:h-9 sm:w-9",
 ].join(" ");
 
-const PRODUCT_GRID =
-    "grid grid-cols-1 gap-2 sm:gap-2.5 md:grid-cols-2 md:gap-3 lg:gap-4";
+const TOOLBAR_ICON_IDLE =
+    "bg-[#EBFEEB] text-[#30913F] dark:bg-[#0d2e12] dark:text-[#4db860] active:bg-[#DCF5DC] dark:active:bg-[#163d1c]";
+
+const TOOLBAR_ICON_ACTIVE = "bg-[#30913F] text-white";
+
+const GRID_LAYOUT =
+    "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 md:grid-cols-3 lg:grid-cols-4 lg:gap-3 xl:grid-cols-5";
+
+const LIST_LAYOUT =
+    "grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-3";
+
+function toCategoryProduct(item: OfferItem): CategoryProduct {
+    return {
+        id: item.id,
+        name: item.name,
+        full_image_url: item.image_full_url,
+        price: item.price,
+        discounted_price: item.discounted_price,
+        discount_percentage: item.discount_percentage,
+    };
+}
+
+function effectivePrice(item: OfferItem): number {
+    if (item.discounted_price > 0 && item.discounted_price < item.price) {
+        return item.discounted_price;
+    }
+    return item.price;
+}
+
+function sortByPrice(items: OfferItem[], sort: PriceSort): OfferItem[] {
+    if (sort === "none") return items;
+
+    const sorted = [...items];
+    sorted.sort((a, b) => {
+        const diff = effectivePrice(a) - effectivePrice(b);
+        return sort === "asc" ? diff : -diff;
+    });
+    return sorted;
+}
 
 interface ToolbarProps {
     total: number;
+    viewMode: ViewMode;
+    priceSort: PriceSort;
+    onToggleView: () => void;
+    onToggleSort: () => void;
     onSearchOpen: () => void;
 }
 
-function ProductsToolbar({ total, onSearchOpen }: ToolbarProps) {
+function ProductsToolbar({
+    total,
+    viewMode,
+    priceSort,
+    onToggleView,
+    onToggleSort,
+    onSearchOpen,
+}: ToolbarProps) {
     return (
         <div
             dir="ltr"
             className={`flex items-center justify-between gap-3 bg-white py-2.5 dark:bg-gray-900 sm:py-3 ${SECTION_PADDING}`}
         >
             <div className="flex items-center gap-2 sm:gap-2.5">
-                <button type="button" className={TOOLBAR_ICON_BTN} aria-label="عرض القائمة">
-                    <List
-                        className="h-[18px] w-[18px] sm:h-4 sm:w-4"
-                        strokeWidth={2.25}
-                        aria-hidden
-                    />
+                <button
+                    type="button"
+                    onClick={onToggleView}
+                    className={`${TOOLBAR_ICON_BTN} ${viewMode === "list" ? TOOLBAR_ICON_ACTIVE : TOOLBAR_ICON_IDLE}`}
+                    aria-label={viewMode === "grid" ? "عرض القائمة" : "عرض الشبكة"}
+                    aria-pressed={viewMode === "list"}
+                >
+                    {viewMode === "grid" ? (
+                        <List
+                            className="h-[18px] w-[18px] sm:h-4 sm:w-4"
+                            strokeWidth={2.25}
+                            aria-hidden
+                        />
+                    ) : (
+                        <LayoutGrid
+                            className="h-[18px] w-[18px] sm:h-4 sm:w-4"
+                            strokeWidth={2.25}
+                            aria-hidden
+                        />
+                    )}
                 </button>
 
-                <button type="button" className={TOOLBAR_ICON_BTN} aria-label="ترتيب المنتجات">
-                    <TrendingUp
-                        className="h-[18px] w-[18px] sm:h-4 sm:w-4"
-                        strokeWidth={2.25}
-                        aria-hidden
-                    />
+                <button
+                    type="button"
+                    onClick={onToggleSort}
+                    className={`${TOOLBAR_ICON_BTN} ${priceSort !== "none" ? TOOLBAR_ICON_ACTIVE : TOOLBAR_ICON_IDLE}`}
+                    aria-label={
+                        priceSort === "asc"
+                            ? "ترتيب من الأعلى للأقل"
+                            : priceSort === "desc"
+                              ? "إلغاء الترتيب"
+                              : "ترتيب حسب السعر"
+                    }
+                    aria-pressed={priceSort !== "none"}
+                >
+                    {priceSort === "desc" ? (
+                        <TrendingDown
+                            className="h-[18px] w-[18px] sm:h-4 sm:w-4"
+                            strokeWidth={2.25}
+                            aria-hidden
+                        />
+                    ) : (
+                        <TrendingUp
+                            className="h-[18px] w-[18px] sm:h-4 sm:w-4"
+                            strokeWidth={2.25}
+                            aria-hidden
+                        />
+                    )}
                 </button>
 
                 <button
                     type="button"
                     onClick={onSearchOpen}
-                    className={TOOLBAR_ICON_BTN}
+                    className={`${TOOLBAR_ICON_BTN} ${TOOLBAR_ICON_IDLE}`}
                     aria-label="البحث في المنتجات"
                 >
                     <Search
@@ -70,7 +157,7 @@ function ProductsToolbar({ total, onSearchOpen }: ToolbarProps) {
 
             <p dir="rtl" className="text-sm font-medium text-gray-500 dark:text-gray-400 sm:text-[15px]">
                 <span className="tabular-nums">{total.toLocaleString("en-US")}</span>{" "}
-                منتجات
+                منتج
             </p>
         </div>
     );
@@ -156,6 +243,8 @@ export function OfferItemsClient({
     pageLimit,
 }: OfferItemsClientProps) {
     const [searchOpen, setSearchOpen] = useState(false);
+    const [viewMode, setViewMode] = useState<ViewMode>("grid");
+    const [priceSort, setPriceSort] = useState<PriceSort>("none");
     const [displayItems, setDisplayItems] = useState<OfferItem[]>(items);
     const [displayTotal, setDisplayTotal] = useState(total);
     const [hasMorePages, setHasMorePages] = useState(hasMore);
@@ -166,8 +255,24 @@ export function OfferItemsClient({
     const search = useOfferSearch(offerId, moduleId);
 
     const isSearchActive = search.query.trim().length > 0;
-    const visibleItems = search.results ?? displayItems;
+    const baseItems = search.results ?? displayItems;
+    const visibleItems = useMemo(
+        () => sortByPrice(baseItems, priceSort),
+        [baseItems, priceSort],
+    );
     const visibleTotal = search.total ?? displayTotal;
+
+    const toggleView = useCallback(() => {
+        setViewMode((prev) => (prev === "grid" ? "list" : "grid"));
+    }, []);
+
+    const toggleSort = useCallback(() => {
+        setPriceSort((prev) => {
+            if (prev === "none") return "asc";
+            if (prev === "asc") return "desc";
+            return "none";
+        });
+    }, []);
 
     const openSearch = useCallback(() => {
         setSearchOpen(true);
@@ -214,7 +319,14 @@ export function OfferItemsClient({
                     onClose={closeSearch}
                 />
             ) : (
-                <ProductsToolbar total={visibleTotal} onSearchOpen={openSearch} />
+                <ProductsToolbar
+                    total={visibleTotal}
+                    viewMode={viewMode}
+                    priceSort={priceSort}
+                    onToggleView={toggleView}
+                    onToggleSort={toggleSort}
+                    onSearchOpen={openSearch}
+                />
             )}
 
             {(search.error ?? loadMoreError) && (
@@ -232,9 +344,14 @@ export function OfferItemsClient({
                 <Empty isSearch={isSearchActive} />
             ) : (
                 <div className={`pt-2 sm:pt-3 ${SECTION_PADDING}`}>
-                    <div className={PRODUCT_GRID}>
+                    <div className={viewMode === "grid" ? GRID_LAYOUT : LIST_LAYOUT}>
                         {visibleItems.map((item) => (
-                            <ProductCard key={item.id} item={item} moduleId={moduleId} />
+                            <CategoryProductCard
+                                key={item.id}
+                                product={toCategoryProduct(item)}
+                                layout={viewMode}
+                                moduleId={moduleId}
+                            />
                         ))}
                     </div>
                 </div>

@@ -1,14 +1,15 @@
 "use client";
 
 import { Module } from "@/features/home/types/modules.types";
-import { ModuleSpecKey } from "@/features/home/components/shared/home.tokens";
-import { ModuleCard, StaticModuleCard, resolveSpecKey } from "./ModuleCard";
+import { MODULE_SPEC, ModuleSpecKey } from "@/features/home/components/shared/home.tokens";
+import { ModuleCard, StaticModuleCard } from "./ModuleCard";
 
 const FEATURED_MODULE_KEYS: ModuleSpecKey[] = ["hypermarket", "restaurants"];
 const COMPACT_MODULE_KEYS: ModuleSpecKey[] = ["cafe", "markets", "pharmacy"];
 
 function pickModule(modules: Module[], key: ModuleSpecKey): Module | null {
-	return modules.find((m) => resolveSpecKey(m) === key) ?? null;
+	const moduleId = MODULE_SPEC[key].id;
+	return modules.find((m) => m.id === moduleId) ?? null;
 }
 
 export function ModulesClient({ modules }: { modules: Module[] }) {

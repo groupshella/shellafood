@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { AddressListItem } from "@/features/addresses/types/address.types";
 import { deleteAddress } from "@/features/addresses/actions/delete-address";
+import { useNotification } from "@/shared/components/NotificationToast";
 import { AddressCard } from "./AddressCard";
 import { DeleteConfirmSheet } from "../../shared/DeleteConfirmSheet";
 
@@ -17,6 +18,7 @@ const primaryButtonClass =
 
 export function AddressListClient({ addresses }: AddressListClientProps) {
 	const router = useRouter();
+	const { success, error: notifyError } = useNotification();
 	const [isPending, startTransition] = useTransition();
 	const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 	const showDelete = addresses.length > 1;
@@ -49,9 +51,15 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 		setPendingDeleteId(null);
 
 		startTransition(async () => {
-			await deleteAddress(idToDelete);
+			const result = await deleteAddress(idToDelete);
+			if (result.success) {
+				success("تم حذف العنوان");
+				router.refresh();
+			} else {
+				notifyError("تعذّر حذف العنوان");
+			}
 		});
-	}, [pendingDeleteId]);
+	}, [notifyError, pendingDeleteId, router, success]);
 
 	const handleAddAddress = useCallback(() => {
 		router.push("/addresses/add");

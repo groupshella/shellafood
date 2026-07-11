@@ -77,10 +77,11 @@ function ProductsToolbar({
 interface SearchBarProps {
     value: string;
     onChange: (v: string) => void;
+    onSubmit: () => void;
     onClose: () => void;
 }
 
-function SearchBar({ value, onChange, onClose }: SearchBarProps) {
+function SearchBar({ value, onChange, onSubmit, onClose }: SearchBarProps) {
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -88,16 +89,13 @@ function SearchBar({ value, onChange, onClose }: SearchBarProps) {
     }, []);
 
     return (
-        <div
+        <form
             dir="rtl"
+            role="search"
+            onSubmit={(e) => { e.preventDefault(); onSubmit(); }}
             className="flex animate-[slideDown_200ms_ease-out] items-center gap-2 bg-white px-3 py-2.5 dark:bg-gray-900 sm:px-5 lg:px-6"
         >
             <div className="relative flex-1">
-                <Search
-                    className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
-                    strokeWidth={2}
-                    aria-hidden
-                />
                 <input
                     ref={inputRef}
                     type="search"
@@ -105,8 +103,9 @@ function SearchBar({ value, onChange, onClose }: SearchBarProps) {
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder="ابحث في المنتجات..."
+                    enterKeyHint="search"
                     className={[
-                        "w-full rounded-xl bg-[#F6F5F8] py-2.5 pe-9 ps-4 text-[13px] text-gray-700 placeholder:text-gray-400",
+                        "w-full rounded-xl bg-[#F6F5F8] py-2.5 pe-4 ps-4 text-[13px] text-gray-700 placeholder:text-gray-400",
                         "dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500",
                         "focus:outline-none focus:ring-2 focus:ring-[#30913F]",
                         "[&::-webkit-search-cancel-button]:appearance-none",
@@ -116,6 +115,15 @@ function SearchBar({ value, onChange, onClose }: SearchBarProps) {
             </div>
 
             <button
+                type="submit"
+                aria-label="بحث"
+                disabled={!value.trim()}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#30913F] text-white transition-colors active:bg-[#267332] disabled:opacity-40 dark:active:bg-[#1f6b2a]"
+            >
+                <Search className="h-4 w-4" strokeWidth={2} aria-hidden />
+            </button>
+
+            <button
                 type="button"
                 onClick={onClose}
                 aria-label="إغلاق البحث"
@@ -123,7 +131,7 @@ function SearchBar({ value, onChange, onClose }: SearchBarProps) {
             >
                 <X className="h-[18px] w-[18px]" strokeWidth={2.25} />
             </button>
-        </div>
+        </form>
     );
 }
 
@@ -227,6 +235,7 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
                 <SearchBar
                     value={search.query}
                     onChange={search.setQuery}
+                    onSubmit={search.submitSearch}
                     onClose={closeSearch}
                 />
             ) : (

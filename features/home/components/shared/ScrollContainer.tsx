@@ -11,7 +11,7 @@ export function ScrollContainer({ children, className, ariaLabel }: ScrollContai
 			aria-label={ariaLabel}
 			tabIndex={0}
 			className={[
-				"w-full min-w-0 overflow-x-auto overflow-y-visible p-2 mx-[-1rem]",
+				"w-full min-w-0 overflow-x-auto overflow-y-visible",
 				"touch-pan-x overscroll-x-contain snap-x snap-mandatory",
 				"[-webkit-overflow-scrolling:touch]",
 				"[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
@@ -21,7 +21,9 @@ export function ScrollContainer({ children, className, ariaLabel }: ScrollContai
 				.filter(Boolean)
 				.join(" ")}
 		>
-			<div className="flex min-w-full gap-2.5 sm:gap-3 md:gap-4 lg:gap-5 [&>*]:snap-start">{children}</div>
+			<div className="flex w-max min-w-full  p-1  sm:px-5  md:px-6  lg:px-8 [&>*]:snap-start">
+				{children}
+			</div>
 		</div>
 	);
 }

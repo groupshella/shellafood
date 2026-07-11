@@ -43,7 +43,7 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
     return (
         <section
             aria-label="أشهر العلامات التجارية"
-            className="w-full bg-[#F5F5F5] px-3 pb-5 pt-3 dark:bg-gray-950 sm:px-5 lg:px-6"
+            className="w-full bg-transparent px-3 pb-5 pt-3 sm:px-5 lg:px-6"
             dir="rtl"
         >
             <div className="mb-3 flex items-center justify-between gap-3">
@@ -58,12 +58,7 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
             </div>
 
             <div className="relative">
-                {hasMultipleColumns && (
-                    <div
-                        className="pointer-events-none absolute inset-y-0 start-0 z-10 w-10 bg-gradient-to-r from-[#F5F5F5] via-[#F5F5F5]/80 to-transparent dark:from-gray-950 dark:via-gray-950/80 sm:w-12"
-                        aria-hidden
-                    />
-                )}
+
 
                 <div ref={scrollRef} className={H_SCROLL}>
                     {columns.map((column) => (

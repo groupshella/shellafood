@@ -1,5 +1,6 @@
 export const MODULE_SPEC = {
 	hypermarket: {
+		id: 3,
 		bg: "#E3FFE8",
 		darkBg: "#1a3d24",
 		text: "#237030",
@@ -11,6 +12,7 @@ export const MODULE_SPEC = {
 		iconOpacity: 0.5,
 	},
 	restaurants: {
+		id: 6,
 		bg: "#FFF1E7",
 		darkBg: "#3d2a1a",
 		text: "#B56717",
@@ -22,6 +24,7 @@ export const MODULE_SPEC = {
 		iconOpacity: 0.5,
 	},
 	cafe: {
+		id: 9,
 		bg: "#F6F0E9",
 		darkBg: "#352a22",
 		text: "#A06A42",
@@ -34,6 +37,7 @@ export const MODULE_SPEC = {
 		iconSrc: "/modules/cafe.png",
 	},
 	markets: {
+		id: 7,
 		bg: "#F5F6F4",
 		darkBg: "#2a2d2b",
 		text: "#555555",
@@ -47,6 +51,7 @@ export const MODULE_SPEC = {
 		iconSrc: "/modules/markets.png",
 	},
 	pharmacy: {
+		id: 8,
 		bg: "#F5F6F4",
 		darkBg: "#2a2d2b",
 		text: "#555555",
@@ -62,3 +67,11 @@ export const MODULE_SPEC = {
 } as const;
 
 export type ModuleSpecKey = keyof typeof MODULE_SPEC;
+
+export const MODULE_SPEC_BY_ID: Record<number, ModuleSpecKey> = {
+	[MODULE_SPEC.hypermarket.id]: "hypermarket",
+	[MODULE_SPEC.restaurants.id]: "restaurants",
+	[MODULE_SPEC.cafe.id]: "cafe",
+	[MODULE_SPEC.markets.id]: "markets",
+	[MODULE_SPEC.pharmacy.id]: "pharmacy",
+};

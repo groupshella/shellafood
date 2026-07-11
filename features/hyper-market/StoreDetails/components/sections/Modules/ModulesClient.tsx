@@ -38,10 +38,7 @@ export function ModulesClient({ modules, moduleId }: ModulesClientProps) {
 
             {/* Mobile / tablet: horizontal snap scroll */}
             <div className="md:hidden">
-                <ScrollContainer
-                    className="-mx-3 px-3 sm:-mx-5 sm:px-5"
-                    ariaLabel="قائمة الخدمات"
-                >
+                <ScrollContainer ariaLabel="قائمة الخدمات">
                     {moduleCards}
                 </ScrollContainer>
             </div>
