@@ -1,6 +1,6 @@
 "use client";
 
-import { QIDHA_STRINGS } from "@/features/profile/constants/qidha.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 import type { QidhaPayOption } from "@/features/profile/types/qidha.types";
 import { SarIcon } from "./shared/SarIcon";
 
@@ -18,10 +18,15 @@ export function QidhaPayOptionRow({
     selected: boolean;
     onSelect: () => void;
 }) {
+    const { isArabic } = useLanguage();
     const label =
         option === "full"
-            ? QIDHA_STRINGS.fullAmountDue
-            : QIDHA_STRINGS.minimumAmountDue;
+            ? isArabic
+                ? "المبلغ المستحق بالكامل"
+                : "Full amount due"
+            : isArabic
+              ? "المبلغ الأدنى المستحق"
+              : "Minimum amount due";
 
     return (
         <button

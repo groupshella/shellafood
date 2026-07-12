@@ -3,12 +3,14 @@ import type {
     BrandItem,
     ItemsSearchApiResponse,
 } from "@/features/brands/types/brands.types";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
-function itemsSearchHeaders(): HeadersInit {
+async function getItemsSearchHeaders(): Promise<HeadersInit> {
+    const locale = await getServerLocale();
     return {
         Accept: "application/json",
         "Content-Type": "application/json; charset=UTF-8",
-        "X-localization": "ar",
+        "X-localization": locale,
         zoneId: process.env.ZONE_ID!,
         "zone-id": process.env.ZONE_ID!,
         moduleId: process.env.MODULE_ID ?? "3",
@@ -32,7 +34,7 @@ export async function getBrandItems(
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/items/search?${params}`,
         {
-            headers: itemsSearchHeaders(),
+            headers: await getItemsSearchHeaders(),
             next: {
                 revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
                 tags: ["brands", `brand-${brandId}-items`],

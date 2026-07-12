@@ -1,19 +1,13 @@
 import { cookies } from "next/headers";
 
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
-import { LOCALE_COOKIE, type AppLocale } from "@/features/profile/constants/profile.strings";
+import { getServerLocale } from "@/features/language/getServerLocale";
 import type { InvitedFriendsApiResponse } from "@/features/profile/types/invited-friends.types";
 import type { InvitedFriendsData } from "@/features/profile/types/referral.types";
 import { mapInvitedFriendsResponse } from "@/features/profile/lib/mapInvitedFriends";
 
 const DEFAULT_OFFSET = 1;
 const DEFAULT_LIMIT = 10;
-
-async function getLocale(): Promise<AppLocale> {
-    const cookieStore = await cookies();
-    const locale = cookieStore.get(LOCALE_COOKIE)?.value;
-    return locale === "en" ? "en" : "ar";
-}
 
 function emptyInvitedFriends(): InvitedFriendsData {
     return {
@@ -39,7 +33,8 @@ export async function getInvitedFriends(
     const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
     if (!token) return emptyInvitedFriends();
 
-    const locale = await getLocale();
+    const locale = await getServerLocale();
+    const isArabic = locale === "ar";
     const params = new URLSearchParams({
         offset: String(offset),
         limit: String(limit),
@@ -54,7 +49,7 @@ export async function getInvitedFriends(
                 "Content-Type": "application/json",
                 moduleId: process.env.MODULE_ID ?? "3",
                 zoneId: process.env.ZONE_ID!,
-                "X-localization": locale,
+                "X-localization": isArabic ? "ar" : "en",
             },
             next: { revalidate: 0, tags: ["invited-friends"] },
         },

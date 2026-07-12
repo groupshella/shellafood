@@ -1,6 +1,5 @@
 import { getQidhaWallet } from "@/features/profile/api/qidha";
 import { getProfileUser } from "@/features/profile/lib/get-profile-user";
-import { QIDHA_STRINGS } from "@/features/profile/constants/qidha.strings";
 import type { QidhaWalletCard } from "@/features/profile/types/qidha.types";
 import { redirect } from "next/navigation";
 
@@ -20,7 +19,7 @@ function buildFallbackCard(user: {
         creditLimit,
         cardNumber: `2026${String(user.id).padStart(8, "0")}`.slice(0, 12),
         expiryDate: "11-6-2026",
-        statusLabel: QIDHA_STRINGS.available,
+        statusLabel: "available",
     };
 }
 

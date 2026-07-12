@@ -58,21 +58,23 @@ function ProductsToolbar({
     hasActiveFilter,
     onToggleView,
     onOpenFilter,
+    isArabic,
 }: {
     totalProducts: number;
     viewMode: ViewMode;
     hasActiveFilter: boolean;
     onToggleView: () => void;
     onOpenFilter: () => void;
+    isArabic: boolean;
 }) {
     return (
         <div
-            dir="ltr"
+            dir={isArabic ? "rtl" : "ltr"}
             className="flex items-center justify-between gap-3 bg-white px-3 py-2.5 dark:bg-gray-900 sm:px-5 lg:px-6"
         >
             <div className="flex items-center gap-2">
                 <ToolbarBtn
-                    label={viewMode === "grid" ? "عرض القائمة" : "عرض الشبكة"}
+                    label={viewMode === "grid" ? (isArabic ? "عرض القائمة" : "View list") : (isArabic ? "عرض الشبكة" : "View grid")}
                     onClick={onToggleView}
                     active={viewMode === "list"}
                 >
@@ -83,7 +85,7 @@ function ProductsToolbar({
                 </ToolbarBtn>
 
                 <ToolbarBtn
-                    label="تصفية المنتجات"
+                    label={isArabic ? "تصفية المنتجات" : "Filter products"}
                     onClick={onOpenFilter}
                     indicator={hasActiveFilter}
                 >
@@ -91,8 +93,8 @@ function ProductsToolbar({
                 </ToolbarBtn>
             </div>
 
-            <p dir="rtl" className="text-sm font-medium text-[#707784] dark:text-gray-400">
-                <span className="tabular-nums">{totalProducts.toLocaleString("en-US")}</span> منتج
+            <p dir={isArabic ? "rtl" : "ltr"} className="text-sm font-medium text-[#707784] dark:text-gray-400">
+                <span className="tabular-nums">{totalProducts.toLocaleString("en-US")}</span> {isArabic ? "منتج" : "product"}
             </p>
         </div>
     );
@@ -102,10 +104,12 @@ function SubCategoryTabs({
     subCategories,
     activeId,
     onSelect,
+    isArabic,
 }: {
     subCategories: SubCategory[];
     activeId: number | null;
     onSelect: (id: number) => void;
+    isArabic: boolean;
 }) {
     const barRef = useRef<HTMLDivElement>(null);
 
@@ -118,7 +122,7 @@ function SubCategoryTabs({
     return (
         <div
             ref={barRef}
-            dir="rtl"
+            dir={isArabic ? "rtl" : "ltr"}
             role="tablist"
             aria-label="أقسام فرعية"
             className="sticky z-20 flex h-12 gap-2 overflow-x-auto overscroll-x-contain border-b border-gray-100 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-900 sm:px-5 lg:px-6
@@ -159,6 +163,7 @@ function SubCategorySection({
     hasActiveFilter,
     onToggleView,
     onOpenFilter,
+    isArabic,
 }: {
     subCategory: SubCategory;
     displayProducts: CategoryProduct[];
@@ -168,6 +173,7 @@ function SubCategorySection({
     hasActiveFilter: boolean;
     onToggleView: () => void;
     onOpenFilter: () => void;
+    isArabic: boolean;
 }) {
     return (
         <section
@@ -177,7 +183,7 @@ function SubCategorySection({
             className="pb-3"
         >
             <div className="bg-white px-3 pt-3 dark:bg-gray-900 sm:px-5 lg:px-6">
-                <h2 className="text-start text-base font-bold text-[#111B18] dark:text-gray-50 sm:text-lg">
+                <h2 dir={isArabic ? "rtl" : "ltr"} className="text-start text-base font-bold text-[#111B18] dark:text-gray-50 sm:text-lg">
                     {subCategory.name}
                 </h2>
             </div>
@@ -188,11 +194,12 @@ function SubCategorySection({
                 hasActiveFilter={hasActiveFilter}
                 onToggleView={onToggleView}
                 onOpenFilter={onOpenFilter}
+                isArabic={isArabic}
             />
 
             {displayProducts.length === 0 ? (
-                <p dir="rtl" className="px-3 py-8 text-center text-sm text-[#707784] dark:text-gray-500">
-                    لا توجد منتجات تطابق الفلتر الحالي
+                <p dir={isArabic ? "rtl" : "ltr"} className="px-3 py-8 text-center text-sm text-[#707784] dark:text-gray-500">
+                    {isArabic ? "لا توجد منتجات تطابق الفلتر الحالي" : "No products match the current filter"}
                 </p>
             ) : viewMode === "grid" ? (
                 <div className="grid grid-cols-2 gap-2 px-3 pt-2 sm:grid-cols-3 sm:gap-2.5 sm:px-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-3 lg:px-6 xl:grid-cols-5">
@@ -215,7 +222,7 @@ function SubCategorySection({
                         onClick={onLoadMore}
                         className="min-h-[40px] rounded-full border border-[#30913F] bg-white px-5 py-2 text-xs font-semibold text-[#30913F] transition-opacity active:opacity-70 dark:bg-gray-900 dark:text-[#4db860] dark:border-[#30913F]/50 sm:text-sm"
                     >
-                        عرض المزيد
+                        {isArabic ? "عرض المزيد" : "View more"}
                     </button>
                 </div>
             )}
@@ -258,9 +265,10 @@ function isDefaultFilter(f: FilterValues) {
 
 interface Props {
     detail: CategoryDetails;
+    isArabic: boolean;
 }
 
-export function CategoryDetailClient({ detail }: Props) {
+export function CategoryDetailClient({ detail, isArabic }: Props) {
     const [activeSubId, setActiveSubId] = useState<number | null>(
         detail.sub_categories[0]?.id ?? null
     );
@@ -322,6 +330,7 @@ export function CategoryDetailClient({ detail }: Props) {
                     subCategories={detail.sub_categories}
                     activeId={activeSubId}
                     onSelect={scrollToSection}
+                    isArabic={isArabic}
                 />
             )}
 
@@ -339,6 +348,7 @@ export function CategoryDetailClient({ detail }: Props) {
                             hasActiveFilter={hasActiveFilter}
                             onToggleView={toggleView}
                             onOpenFilter={() => setFilterOpen(true)}
+                            isArabic={isArabic}
                         />
                     );
                 })}
@@ -351,6 +361,7 @@ export function CategoryDetailClient({ detail }: Props) {
                     setAppliedFilter(f);
                     setFilterOpen(false);
                 }}
+                isArabic={isArabic}
             />
         </div>
     );

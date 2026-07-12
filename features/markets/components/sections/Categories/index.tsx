@@ -6,11 +6,13 @@ export const Categories = Object.assign(
     async function Categories({
         moduleId,
         moduleName,
+        isArabic,
     }: {
         moduleId: string;
         moduleName?: string;
+        isArabic: boolean;
     }) {
-        const categories = await getCategories(moduleId);
+        const categories = await getCategories(moduleId, isArabic);
         if (categories.length === 0) return null;
 
         return (
@@ -18,6 +20,7 @@ export const Categories = Object.assign(
                 categories={categories}
                 moduleId={moduleId}
                 moduleName={moduleName}
+                isArabic={isArabic}
             />
         );
     },

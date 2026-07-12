@@ -18,27 +18,29 @@ interface FavoritesShellProps {
     productsContent: React.ReactNode;
     storesContent: React.ReactNode;
     ordersContent: React.ReactNode;
+    isArabic: boolean;
 }
 
 export function FavoritesShell({
     productsContent,
     storesContent,
     ordersContent,
+    isArabic,
 }: FavoritesShellProps) {
     const [activeTab, setActiveTab] = useState<FavoritesTab>("products");
 
     return (
-        <div dir="rtl" className={SHELL_LAYOUT}>
+        <div dir={isArabic ? "rtl" : "ltr"} className={SHELL_LAYOUT}>
             <header className="sticky top-0 z-20 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:bg-gray-900 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]">
                 <div className={`flex items-center justify-center py-3.5 sm:py-4 ${HEADER_PADDING}`}>
-                    <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg lg:text-xl">مفضلاتي</h1>
+                    <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg lg:text-xl">{isArabic ? "مفضلاتي" : "Favorites"}</h1>
                 </div>
 
                 <div className={`pb-3 sm:pb-3.5 ${HEADER_PADDING}`}>
                     <div
                         role="tablist"
-                        aria-label="تصفية المفضلة"
-                        className="flex items-center rounded-2xl bg-gray-100 p-1 dark:bg-gray-800 sm:p-1.5 lg:max-w-xl"
+                        aria-label={isArabic ? "تصفية المفضلة" : "Filter favorites"}
+                        className="flex items-center flex-row-reverse rounded-2xl bg-gray-100 p-1 dark:bg-gray-800 sm:p-1.5 lg:max-w-xl"
                     >
                         {TABS.map((tab) => {
                             const isActive = activeTab === tab.id;

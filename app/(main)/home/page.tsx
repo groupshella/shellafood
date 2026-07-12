@@ -7,6 +7,7 @@ import { PromoBanners } from "@/features/home/components/sections/PromoBanner";
 import { HomeShell } from "@/features/home/components/HomeShell";
 import { AddressTopbarBanner } from "@/features/addresses/components/sections/AddressTopbarBanner";
 import { Offers } from "@/features/hyper-market/StoreDetails/components/sections/Offers";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 export const metadata = {
 	title: "الرئيسية | شيلة فود",
@@ -18,8 +19,11 @@ export default async function HomePage() {
 	const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
 	const isAuthenticated = !!token;
 
+	const locale = await getServerLocale()
+	const isArabic = locale === "ar";
+
 	return (
-		<HomeShell isAuthenticated={isAuthenticated}>
+		<HomeShell isAuthenticated={isAuthenticated} isArabic={isArabic}>
 			<Suspense
 				fallback={
 					<div className="mx-4">
@@ -27,14 +31,14 @@ export default async function HomePage() {
 					</div>
 				}
 			>
-				<AddressTopbarBanner isAuthenticated={isAuthenticated} />
+				<AddressTopbarBanner isAuthenticated={isAuthenticated} isArabic={isArabic} />
 			</Suspense>
 			<Suspense fallback={<Banners.skeleton />}>
-				<Banners />
+				<Banners isArabic={isArabic} />
 			</Suspense>
 
 			<Suspense fallback={<Modules.skeleton />}>
-				<Modules />
+				<Modules isArabic={isArabic} />
 			</Suspense>
 
 			{/* <Suspense fallback={<DiscountedStores.skeleton />}>
@@ -45,9 +49,9 @@ export default async function HomePage() {
 				<CurrentOffers />
 			</Suspense> */}
 			<Suspense fallback={<Offers.skeleton />}>
-				<Offers moduleId="3" />
+				<Offers moduleId="3" isArabic={isArabic} />
 			</Suspense>
-			<PromoBanners />
+			<PromoBanners isArabic={isArabic} />
 
 			{/* <Suspense fallback={<RecentOrders.skeleton />}>
 				<RecentOrders />

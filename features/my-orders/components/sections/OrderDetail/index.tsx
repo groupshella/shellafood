@@ -4,8 +4,8 @@ import { OrderDetailClient } from "./OrderDetailClient";
 import OrderDetailSkeleton from "./skeleton";
 
 export const OrderDetail = Object.assign(
-    async function OrderDetail({ id }: { id: string }) {
-        const data = await getOrderDetailData(id);
+    async function OrderDetail({ id, isArabic }: { id: string; isArabic: boolean }) {
+        const data = await getOrderDetailData(id, isArabic);
 
         if (!data) {
             return (
@@ -16,7 +16,7 @@ export const OrderDetail = Object.assign(
         }
 
         const order = mapOrderDetailView(data.track, data.details);
-        return <OrderDetailClient order={order} />;
+        return <OrderDetailClient order={order} isArabic={isArabic} />;
     },
     { skeleton: OrderDetailSkeleton }
 );

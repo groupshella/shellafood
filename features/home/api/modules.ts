@@ -1,13 +1,13 @@
 import { GetModulesResponse, Module } from "@/features/home/types/modules.types";
 import { ApiResponse, unwrap } from "@/shared/lib/api-response";
 
-export async function getModules(): Promise<Module[]> {
+export async function getModules({ isArabic }: { isArabic: boolean }): Promise<Module[]> {
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v2/modules?zone_id=${process.env.ZONE_ID}`,
         {
             headers: {
                 Accept: "application/json",
-                "X-Localization": "ar",
+                "X-Localization": isArabic ? "ar" : "en",
             },
             next: {
                 revalidate: 3600,

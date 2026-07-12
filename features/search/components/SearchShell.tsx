@@ -5,6 +5,7 @@ import { FormEvent } from "react";
 import { ChevronRight, Search, X } from "lucide-react";
 import { SearchProvider, useSearchContext } from "./SearchContext";
 import { SearchResultsClient } from "./sections/SearchResults/SearchResultsClient";
+import { useLanguage } from "@/features/language/useLanguage";
 
 const DEFAULT_MODULE_ID = "3";
 
@@ -21,9 +22,9 @@ function SearchShellInner({ children }: { children: React.ReactNode }) {
         event.preventDefault();
         handleSubmit(query);
     };
-
+    const { isArabic } = useLanguage();
     return (
-        <div className={SHELL_LAYOUT} dir="rtl">
+        <div className={SHELL_LAYOUT} dir={isArabic ? "rtl" : "ltr"}>
             <div className="flex w-full min-w-0 items-center gap-2 sm:gap-2.5 lg:gap-3" dir="rtl">
                 <Link href="/home" className={BACK_BTN} aria-label="العودة للرئيسية">
                     <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-400 sm:h-6 sm:w-6" aria-hidden />
@@ -41,8 +42,8 @@ function SearchShellInner({ children }: { children: React.ReactNode }) {
                         enterKeyHint="search"
                         value={query}
                         onChange={(event) => setQuery(event.target.value)}
-                        placeholder="البحث"
-                        aria-label="البحث"
+                        placeholder={isArabic ? "البحث" : "Search"}
+                        aria-label={isArabic ? "البحث" : "Search"}
                         className={[
                             "min-w-0 flex-1 bg-transparent text-start text-sm text-gray-900 dark:text-gray-100",
                             "placeholder:text-gray-400 dark:placeholder:text-gray-500",

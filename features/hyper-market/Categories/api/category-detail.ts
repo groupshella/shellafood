@@ -3,6 +3,7 @@ import { CategoryDetails } from "@/features/hyper-market/Categories/types/catego
 export async function getCategoryDetail(
     storeId: string,
     categoryId: string,
+    isArabic: boolean = false,
     limit = 40
 ): Promise<CategoryDetails> {
     const res = await fetch(
@@ -10,8 +11,8 @@ export async function getCategoryDetail(
         {
             headers: {
                 Accept: "application/json",
-                "Accept-Language": "ar",
-                "X-Localization": "ar",
+                "Accept-Language": isArabic ? "ar" : "en",
+                "X-Localization": isArabic ? "ar" : "en",
                 zoneId: process.env.ZONE_ID!,
             },
             next: {

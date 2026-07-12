@@ -12,18 +12,19 @@ const BRANDS_GRID =
 
 interface PopularBrandsClientProps {
     brands: PopularBrand[];
+    isArabic: boolean;
 }
 
-export function PopularBrandsClient({ brands }: PopularBrandsClientProps) {
+export function PopularBrandsClient({ brands, isArabic }: PopularBrandsClientProps) {
     const { handleSelect } = useSearchContext();
 
     return (
-        <section aria-label="أشهر العلامات التجارية" className="space-y-3 sm:space-y-4">
-            <h2 className={SECTION_HEADING}>أشهر العلامات التجارية</h2>
+        <section aria-label={isArabic ? "أشهر العلامات التجارية" : "Popular brands"} className="space-y-3 sm:space-y-4" dir={isArabic ? "rtl" : "ltr"}>
+            <h2 className={SECTION_HEADING}>{isArabic ? "أشهر العلامات التجارية" : "Popular brands"}</h2>
 
             <div className={BRANDS_GRID}>
                 {brands.map((brand) => (
-                    <BrandCard key={brand.id} brand={brand} onSelect={handleSelect} />
+                    <BrandCard key={brand.id} brand={brand} onSelect={handleSelect} isArabic={isArabic} />
                 ))}
             </div>
         </section>

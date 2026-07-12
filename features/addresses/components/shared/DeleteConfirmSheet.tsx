@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface DeleteConfirmSheetProps {
 	isOpen: boolean;
@@ -16,6 +17,7 @@ export function DeleteConfirmSheet({
 	onCancel,
 	isDeleting = false,
 }: DeleteConfirmSheetProps) {
+	const { isArabic, locale } = useLanguage();
 	const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
 	useEffect(() => {
@@ -49,7 +51,7 @@ export function DeleteConfirmSheet({
 				type="button"
 				className="fixed inset-0 z-40 cursor-default bg-black/40 transition-opacity dark:bg-black/60"
 				onClick={isDeleting ? undefined : onCancel}
-				aria-label="إغلاق"
+				aria-label={isArabic ? "إغلاق" : "Close"}
 				disabled={isDeleting}
 			/>
 
@@ -58,6 +60,8 @@ export function DeleteConfirmSheet({
 				aria-modal="true"
 				aria-labelledby="delete-dialog-title"
 				aria-describedby="delete-dialog-desc"
+				dir={isArabic ? "rtl" : "ltr"}
+				lang={locale}
 				className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl bg-white px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4 shadow-xl dark:bg-gray-800 sm:px-5 sm:pb-[calc(2rem+env(safe-area-inset-bottom))] sm:pt-5 md:inset-x-auto md:bottom-auto md:start-1/2 md:top-1/2 md:w-full md:max-w-sm md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-2xl md:pb-8"
 			>
 				<div className="mx-auto mb-5 h-1 w-10 rounded-full bg-gray-200 dark:bg-gray-600 md:hidden" aria-hidden />
@@ -66,10 +70,14 @@ export function DeleteConfirmSheet({
 					id="delete-dialog-title"
 					className="mb-2 text-center text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg"
 				>
-					هل ترغب في حذف العنوان ؟
+					{isArabic
+						? "هل ترغب في حذف العنوان ؟"
+						: "Do you want to delete this address?"}
 				</p>
 				<p id="delete-dialog-desc" className="sr-only">
-					لا يمكن التراجع عن هذا الإجراء
+					{isArabic
+						? "لا يمكن التراجع عن هذا الإجراء"
+						: "This action cannot be undone"}
 				</p>
 
 				<button
@@ -81,10 +89,12 @@ export function DeleteConfirmSheet({
 					{isDeleting ? (
 						<>
 							<Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-							<span>جاري الحذف...</span>
+							<span>{isArabic ? "جاري الحذف..." : "Deleting..."}</span>
 						</>
-					) : (
+					) : isArabic ? (
 						"حذف العنوان"
+					) : (
+						"Delete address"
 					)}
 				</button>
 
@@ -95,7 +105,7 @@ export function DeleteConfirmSheet({
 					disabled={isDeleting}
 					className="flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gray-100 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 active:bg-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-60 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:focus-visible:ring-gray-500"
 				>
-					إلغاء
+					{isArabic ? "إلغاء" : "Cancel"}
 				</button>
 			</div>
 		</>

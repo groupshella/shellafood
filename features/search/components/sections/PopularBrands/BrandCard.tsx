@@ -7,9 +7,10 @@ import { PopularBrand } from "@/features/search/types/popular-brands.types";
 interface BrandCardProps {
     brand: PopularBrand;
     onSelect: (name: string) => void;
+    isArabic: boolean;
 }
 
-export const BrandCard = memo(function BrandCard({ brand, onSelect }: BrandCardProps) {
+export const BrandCard = memo(function BrandCard({ brand, onSelect, isArabic }: BrandCardProps) {
     const [logoError, setLogoError] = useState(false);
     const name = brand.name?.trim() || "";
 
@@ -25,6 +26,7 @@ export const BrandCard = memo(function BrandCard({ brand, onSelect }: BrandCardP
         <button
             type="button"
             onClick={handleSelect}
+            dir={isArabic ? "rtl" : "ltr"}
             className={[
                 "flex aspect-square w-full min-w-0 items-center justify-center rounded-lg bg-white p-1",
                 "shadow-sm ring-1 ring-black/[0.04] dark:bg-gray-800 dark:ring-white/[0.06]",

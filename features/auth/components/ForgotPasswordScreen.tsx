@@ -12,6 +12,7 @@ import {
 	PhoneField,
 	PrimaryButton,
 } from "@/features/auth/components/shared/AuthPrimitives";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface ForgotPasswordScreenProps {
 	isLoading?: boolean;
@@ -28,6 +29,7 @@ const ForgotPasswordScreen = memo(function ForgotPasswordScreen({
 	onBack,
 	onSubmit,
 }: ForgotPasswordScreenProps) {
+	const { isArabic } = useLanguage();
 	const [phone, setPhone] = useState(prefillPhone);
 
 	useEffect(() => {
@@ -45,7 +47,9 @@ const ForgotPasswordScreen = memo(function ForgotPasswordScreen({
 		<AuthShell>
 			<BackHeader onBack={onBack} disabled={isLoading} />
 
-			<AuthTitle>الاستعادة عن طريق</AuthTitle>
+			<AuthTitle>
+				{isArabic ? "الاستعادة عن طريق" : "Recover via"}
+			</AuthTitle>
 
 			<motion.div
 				initial={{ y: 12, opacity: 0 }}
@@ -60,7 +64,11 @@ const ForgotPasswordScreen = memo(function ForgotPasswordScreen({
 					disabled={isLoading}
 				/>
 
-				<HelperRow>سيتم ارسال رمز التحقق الى هاتفك</HelperRow>
+				<HelperRow>
+					{isArabic
+						? "سيتم ارسال رمز التحقق الى هاتفك"
+						: "A verification code will be sent to your phone"}
+				</HelperRow>
 
 				<AnimatePresence>
 					{error && (
@@ -77,7 +85,13 @@ const ForgotPasswordScreen = memo(function ForgotPasswordScreen({
 
 			<div className="mt-auto pt-8">
 				<PrimaryButton onClick={handleSubmit} disabled={!isValid || isLoading}>
-					{isLoading ? "جاري الإرسال..." : "المتابعة"}
+					{isLoading
+						? isArabic
+							? "جاري الإرسال..."
+							: "Sending..."
+						: isArabic
+							? "المتابعة"
+							: "Continue"}
 				</PrimaryButton>
 			</div>
 		</AuthShell>

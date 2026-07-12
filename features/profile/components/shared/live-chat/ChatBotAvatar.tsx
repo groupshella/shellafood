@@ -1,12 +1,14 @@
 import Image from "next/image";
-import { LIVE_CHAT_STRINGS } from "@/features/profile/constants/live-chat.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 
 export function ChatBotAvatar() {
+    const { isArabic } = useLanguage();
+
     return (
         <div className="flex justify-end">
             <Image
                 src="/profile/chat-bot-avatar.png"
-                alt={LIVE_CHAT_STRINGS.botAvatarAlt}
+                alt={isArabic ? "مساعد شلة" : "Shella assistant"}
                 width={106}
                 height={93}
                 className="h-[93px] w-auto object-contain"

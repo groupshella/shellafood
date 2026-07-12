@@ -11,6 +11,7 @@ import {
 	PrimaryButton,
 } from "@/features/auth/components/shared/AuthPrimitives";
 import type { OtpFlow } from "@/features/auth/types/auth.types";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface OtpScreenProps {
 	phone: string;
@@ -56,6 +57,7 @@ const OtpScreen = memo(function OtpScreen({
 	onVerify,
 	onResend,
 }: OtpScreenProps) {
+	const { isArabic } = useLanguage();
 	const [code, setCode] = useState("");
 	const [timer, setTimer] = useState(cooldownSeconds);
 	const [isResending, setIsResending] = useState(false);
@@ -112,7 +114,13 @@ const OtpScreen = memo(function OtpScreen({
 
 	const formattedPhone = formatPhone(phone);
 	const title =
-		otpFlow === "forgot_password" ? "التحقق من رقم هاتفك الخاص" : "ادخل رمز التفعيل";
+		otpFlow === "forgot_password"
+			? isArabic
+				? "التحقق من رقم هاتفك الخاص"
+				: "Verify your phone number"
+			: isArabic
+				? "ادخل رمز التفعيل"
+				: "Enter activation code";
 
 	return (
 		<AuthShell>
@@ -126,7 +134,9 @@ const OtpScreen = memo(function OtpScreen({
 				transition={{ delay: 0.1, duration: 0.4 }}
 				className="mt-2 text-start text-[16px] font-normal leading-relaxed text-[#555555] dark:text-gray-400"
 			>
-				تم ارسال رمز التحقق الى الرقم الخاص بك{" "}
+				{isArabic
+					? "تم ارسال رمز التحقق الى الرقم الخاص بك"
+					: "A verification code was sent to your number"}{" "}
 				<span dir="ltr" className="inline-block font-semibold text-[#111B18] dark:text-gray-100">
 					{formattedPhone}
 				</span>
@@ -139,7 +149,11 @@ const OtpScreen = memo(function OtpScreen({
 				className="mt-8"
 				dir="ltr"
 				role="group"
-				aria-label="رمز التحقق المكون من 6 أرقام"
+				aria-label={
+					isArabic
+						? "رمز التحقق المكون من 6 أرقام"
+						: "6-digit verification code"
+				}
 			>
 				<div className="flex justify-center gap-2 sm:gap-3">
 					{[0, 1, 2, 3, 4, 5].map((i) => {
@@ -153,8 +167,12 @@ const OtpScreen = memo(function OtpScreen({
 								disabled={!error}
 								aria-label={
 									error
-										? "مسح رمز التحقق وإعادة الإدخال"
-										: `خانة ${i + 1}${isFilled ? `: ${code[i]}` : ""}`
+										? isArabic
+											? "مسح رمز التحقق وإعادة الإدخال"
+											: "Clear code and re-enter"
+										: isArabic
+											? `خانة ${i + 1}${isFilled ? `: ${code[i]}` : ""}`
+											: `Digit ${i + 1}${isFilled ? `: ${code[i]}` : ""}`
 								}
 								className={[
 									"flex h-14 min-w-0 flex-1 items-center justify-center rounded-xl border-2 text-xl font-bold transition-all duration-200",
@@ -198,7 +216,9 @@ const OtpScreen = memo(function OtpScreen({
 				{timer > 0 ? (
 					<>
 						<p className="text-[15px] font-medium text-[#555555] dark:text-gray-400">
-							في حال عدم وصول الرمز؟ إعادة الإرسال
+							{isArabic
+								? "في حال عدم وصول الرمز؟ إعادة الإرسال"
+								: "Didn't receive the code? Resend"}
 						</p>
 						<span className="inline-flex items-center gap-1.5 text-[15px] font-normal tabular-nums text-[#555555] dark:text-gray-400">
 							<ClockIcon />
@@ -212,9 +232,15 @@ const OtpScreen = memo(function OtpScreen({
 						disabled={isResending}
 						className="rounded-lg px-2 py-1 text-[15px] font-medium text-[#555555] transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:opacity-50 dark:text-gray-400 dark:focus-visible:ring-offset-gray-900"
 					>
-						في حال عدم وصول الرمز؟{" "}
+						{isArabic ? "في حال عدم وصول الرمز؟" : "Didn't receive the code?"}{" "}
 						<span className="font-bold text-[#30913F]">
-							{isResending ? "جاري الإرسال..." : "إعادة الإرسال"}
+							{isResending
+								? isArabic
+									? "جاري الإرسال..."
+									: "Sending..."
+								: isArabic
+									? "إعادة الإرسال"
+									: "Resend"}
 						</span>
 					</button>
 				)}
@@ -222,7 +248,13 @@ const OtpScreen = memo(function OtpScreen({
 
 			<div className="mt-8">
 				<PrimaryButton onClick={handleVerify} disabled={code.length !== 6 || isLoading}>
-					{isLoading ? "جاري التحقق..." : "إرسال"}
+					{isLoading
+						? isArabic
+							? "جاري التحقق..."
+							: "Verifying..."
+						: isArabic
+							? "إرسال"
+							: "Submit"}
 				</PrimaryButton>
 			</div>
 

@@ -10,7 +10,7 @@ import { ReferralInvitedList } from "@/features/profile/components/shared/referr
 import { ReferralLinkBox } from "@/features/profile/components/shared/referral/ReferralLinkBox";
 import { ReferralSegmentedControl } from "@/features/profile/components/shared/referral/ReferralSegmentedControl";
 import { ReferralStatsCard } from "@/features/profile/components/shared/referral/ReferralStatsCard";
-import { REFERRAL_STRINGS } from "@/features/profile/constants/referral.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 import type { InvitedFriendsData, ReferralTab } from "@/features/profile/types/referral.types";
 
 interface InviteFriendsClientProps {
@@ -19,12 +19,13 @@ interface InviteFriendsClientProps {
 }
 
 export function InviteFriendsClient({ referralLink, invitedFriends }: InviteFriendsClientProps) {
+    const { isArabic } = useLanguage();
     const [activeTab, setActiveTab] = useState<ReferralTab>("link");
     const hasInvitedFriends = invitedFriends.groups.length > 0;
 
     return (
         <ProfileSubpageShell
-            title={REFERRAL_STRINGS.pageTitle}
+            title={isArabic ? "دعوة الأصدقاء" : "Invite friends"}
             showHeaderBorder={false}
             relaxedHeader
         >
@@ -42,28 +43,30 @@ export function InviteFriendsClient({ referralLink, invitedFriends }: InviteFrie
 }
 
 function InviteLinkTab({ referralLink }: { referralLink: string }) {
+    const { isArabic } = useLanguage();
+
     return (
         <div className="flex w-full flex-col gap-6 md:grid md:grid-cols-[minmax(220px,0.85fr)_minmax(0,1fr)] md:items-center md:gap-8">
             <ReferralIllustration />
 
             <div className="flex flex-col gap-5 md:gap-6">
                 <h2 className="text-center text-[18px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-xl md:text-start">
-                    {REFERRAL_STRINGS.inviteTitle}
+                    {isArabic ? "ادعُ أصدقاءك والشركات" : "Invite friends and businesses"}
                 </h2>
 
                 <div className="flex items-start justify-start gap-2">
                     <Star className="mt-0.5 h-5 w-5 shrink-0 text-[#111B18] dark:text-gray-200 sm:h-6 sm:w-6" strokeWidth={1.5} />
 
                     <p className="text-start text-[15px] font-medium leading-[160%] text-[#111B18] dark:text-gray-200 sm:text-[16px]">
-                        {REFERRAL_STRINGS.inviteDesc}
+                        {isArabic ? "انسخ الرمز الخاص بك وشاركه مع أصدقائك والشركات" : "Copy your code and share it with friends and businesses"}
                     </p>
                 </div>
 
                 <div className="flex items-center justify-start gap-2">
                     <CircleDollarSign className="h-5 w-5 shrink-0 text-[#111B18] dark:text-gray-200 sm:h-6 sm:w-6" strokeWidth={1.5} />
                     <p className="text-[17px] font-medium leading-[160%] text-[#111B18] dark:text-gray-200 sm:text-[18px]">
-                        {REFERRAL_STRINGS.rewardRate}{" "}
-                        <span className="text-[15px] sm:text-[16px]">{REFERRAL_STRINGS.currencySymbol}</span>
+                        {isArabic ? "1 الإحالة = 10.00" : "1 referral = 10.00"}{" "}
+                        <span className="text-[15px] sm:text-[16px]">﷼</span>
                     </p>
                 </div>
 

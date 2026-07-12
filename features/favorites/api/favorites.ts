@@ -5,13 +5,13 @@ import type {
     OrderListResponse,
 } from "@/features/favorites/types/favorites.types";
 
-async function buildHeaders(): Promise<Record<string, string>> {
+async function buildHeaders({ isArabic }: { isArabic: boolean }): Promise<Record<string, string>> {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
 
     const headers: Record<string, string> = {
         "Content-Type": "application/json; charset=UTF-8",
-        "X-localization": "ar",
+        "X-localization": isArabic ? "ar" : "en",
         zoneId: process.env.ZONE_ID!,
     };
 
@@ -22,8 +22,8 @@ async function buildHeaders(): Promise<Record<string, string>> {
     return headers;
 }
 
-export async function getWishlist(): Promise<WishlistResponse> {
-    const headers = await buildHeaders();
+export async function getWishlist({ isArabic }: { isArabic: boolean }): Promise<WishlistResponse> {
+    const headers = await buildHeaders({ isArabic });
 
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/customer/wish-list`,
@@ -39,9 +39,10 @@ export async function getWishlist(): Promise<WishlistResponse> {
 
 export async function getFavoriteOrders(
     offset = 1,
-    limit = 20
+    limit = 20,
+    isArabic: boolean
 ): Promise<OrderListResponse> {
-    const headers = await buildHeaders();
+    const headers = await buildHeaders({ isArabic });
 
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/customer/order/list?offset=${offset}&limit=${limit}`,

@@ -1,11 +1,11 @@
 import { GetStoreCategoriesResponse, StoreCategory } from "@/features/hyper-market/Categories/types/categories.types";
 
-export async function getStoreCategories(storeId: string): Promise<StoreCategory[]> {
+export async function getStoreCategories(storeId: string, isArabic: boolean = false): Promise<StoreCategory[]> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v2/stores/${storeId}/categories`, {
         headers: {
             Accept: "application/json",
-            "Accept-Language": "ar",
-            "X-Localization": "ar",
+            "Accept-Language": isArabic ? "ar" : "en",
+            "X-Localization": isArabic ? "ar" : "en",
             zoneId: process.env.ZONE_ID!,
         },
         next: {

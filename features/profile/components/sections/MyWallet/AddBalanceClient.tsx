@@ -3,11 +3,11 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { useLanguage } from "@/features/language/useLanguage";
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
 import {
     WALLET_PAYMENT_METHODS,
     WALLET_QUICK_AMOUNTS,
-    WALLET_STRINGS,
 } from "@/features/profile/constants/wallet.strings";
 import type { WalletPaymentMethodId } from "@/features/profile/types/wallet.types";
 import { useNotification } from "@/shared/components/NotificationToast";
@@ -60,6 +60,7 @@ function PaymentLogo({ id }: { id: WalletPaymentMethodId }) {
 }
 
 export function AddBalanceClient() {
+    const { isArabic } = useLanguage();
     const [amount, setAmount] = useState(0);
     const [method, setMethod] = useState<WalletPaymentMethodId>("visa_master");
     const [isPending, startTransition] = useTransition();
@@ -77,14 +78,27 @@ export function AddBalanceClient() {
                 });
                 const json = await res.json();
                 if (!res.ok || !json.success) {
-                    error(json?.message ?? "فشل في إضافة الرصيد");
+                    error(
+                        json?.message ??
+                            (isArabic
+                                ? "فشل في إضافة الرصيد"
+                                : "Failed to add balance"),
+                    );
                     return;
                 }
-                success("تمت إضافة الرصيد بنجاح");
+                success(
+                    isArabic
+                        ? "تمت إضافة الرصيد بنجاح"
+                        : "Balance added successfully",
+                );
                 router.push("/profile/wallet");
                 router.refresh();
             } catch {
-                error("فشل في إضافة الرصيد");
+                error(
+                    isArabic
+                        ? "فشل في إضافة الرصيد"
+                        : "Failed to add balance",
+                );
             }
         });
     }
@@ -96,7 +110,7 @@ export function AddBalanceClient() {
 
     return (
         <ProfileSubpageShell
-            title={WALLET_STRINGS.addBalanceTitle}
+            title={isArabic ? "إضافة رصيد" : "Add balance"}
             relaxedHeader
             showHeaderBorder={false}
             showFooterBorder={false}
@@ -110,7 +124,13 @@ export function AddBalanceClient() {
                         className="flex h-12 w-full items-center justify-center rounded-[12px] bg-[#30913F] text-[15px] font-bold text-white transition-opacity enabled:active:opacity-90 disabled:opacity-50 sm:h-[52px] sm:text-[16px]"
                         style={TAJAWAL}
                     >
-                        {isPending ? "جاري الإضافة..." : WALLET_STRINGS.addBalance}
+                        {isPending
+                            ? isArabic
+                                ? "جاري الإضافة..."
+                                : "Adding..."
+                            : isArabic
+                              ? "أضف رصيد"
+                              : "Add balance"}
                     </button>
                 </div>
             }
@@ -121,7 +141,9 @@ export function AddBalanceClient() {
                         className="text-start text-[14px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[15px]"
                         style={TAJAWAL}
                     >
-                        {WALLET_STRINGS.amountQuestion}
+                        {isArabic
+                            ? "ما المبلغ الذي تريد إضافته في المحفظة ؟"
+                            : "How much would you like to add?"}
                     </p>
 
                     <div className="flex h-[72px] items-center justify-center gap-2 rounded-[12px] bg-[#F6F5F8] dark:bg-gray-800">
@@ -175,7 +197,7 @@ export function AddBalanceClient() {
                         className="text-start text-[16px] font-bold text-[#111B18] dark:text-gray-100"
                         style={TAJAWAL}
                     >
-                        {WALLET_STRINGS.paymentMethods}
+                        {isArabic ? "طرق الدفع" : "Payment methods"}
                     </h2>
 
                     <div className="flex flex-col gap-2.5">

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useState } from "react";
 
+import { useLanguage } from "@/features/language/useLanguage";
 import {
     CHART_MAX,
     TAJAWAL,
@@ -20,6 +21,7 @@ export function SpendingChart({
     showLine: boolean;
     activeIndex?: number;
 }) {
+    const { isArabic } = useLanguage();
     const gradientId = useId();
     const [animate, setAnimate] = useState(false);
 
@@ -74,7 +76,7 @@ export function SpendingChart({
                 viewBox={`0 0 ${chartGeometry.width} ${chartGeometry.height}`}
                 className="h-full w-full overflow-visible"
                 role="img"
-                aria-label="تحليل الإنفاق"
+                aria-label={isArabic ? "تحليل الإنفاق" : "Spending analysis"}
             >
                 <defs>
                     <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">

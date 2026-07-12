@@ -4,6 +4,7 @@ import { CartShell } from "@/features/cart/components/CartShell";
 import { CartList, skeleton as CartListSkeleton } from "@/features/cart/components/sections/CartList";
 import { AuthRequiredScreen } from "@/features/layout/components/AuthRequiredScreen";
 import { isAuthenticated } from "@/features/layout/lib/is-authenticated";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 export const metadata: Metadata = {
   title: "السلة | شيلة فود",
@@ -11,12 +12,13 @@ export const metadata: Metadata = {
 };
 
 export default async function CartPage() {
-
+  const locale = await getServerLocale()
+  const isArabic = locale === "ar";
 
   return (
-    <CartShell title="السلة">
+    <CartShell title={isArabic ? "السلة" : "Cart"} isArabic={isArabic}>
       <Suspense fallback={<CartListSkeleton />}>
-        <CartList />
+        <CartList isArabic={isArabic} />
       </Suspense>
     </CartShell>
   );

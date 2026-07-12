@@ -1,10 +1,13 @@
-import { WALLET_STRINGS } from "@/features/profile/constants/wallet.strings";
+"use client";
+
+import { useLanguage } from "@/features/language/useLanguage";
 import { SarIcon } from "./shared/SarIcon";
 
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
 const AFACAD = { fontFamily: "'Afacad Flux', sans-serif" } as const;
 
 export function WalletBalanceCard({ balance }: { balance: number }) {
+    const { isArabic } = useLanguage();
     const display = balance.toFixed(2);
 
     return (
@@ -14,7 +17,7 @@ export function WalletBalanceCard({ balance }: { balance: number }) {
                 background:
                     "linear-gradient(135deg, #3EC856 0%, #30913F 48%, #1E7A2C 100%)",
             }}
-            aria-label={WALLET_STRINGS.availableBalance}
+            aria-label={isArabic ? "الرصيد المتاح" : "Available balance"}
         >
             <div
                 className="pointer-events-none absolute -start-8 -top-10 h-[140px] w-[140px] rounded-full bg-white/10"
@@ -30,7 +33,7 @@ export function WalletBalanceCard({ balance }: { balance: number }) {
                     className="text-[14px] font-medium leading-[160%] text-white/90 sm:text-[15px]"
                     style={TAJAWAL}
                 >
-                    {WALLET_STRINGS.availableBalance}
+                    {isArabic ? "الرصيد المتاح" : "Available balance"}
                 </p>
                 <div className="flex items-center gap-1.5">
                     <SarIcon

@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { updateTag } from "next/cache";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
+import { getServerLocale } from "@/features/language/getServerLocale";
 import { UpdateAddressPayload, UpdateAddressResponse } from "../types/address.types";
 
 export interface UpdateAddressResult {
@@ -17,7 +18,15 @@ export async function updateAddress(
 ): Promise<UpdateAddressResult> {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
-  if (!token) return { success: false, message: "غير مصرح" };
+  const locale = await getServerLocale();
+  const isArabic = locale === "ar";
+
+  if (!token) {
+    return {
+      success: false,
+      message: isArabic ? "غير مصرح" : "Unauthorized",
+    };
+  }
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/v2/address/${id}`,
@@ -27,7 +36,7 @@ export async function updateAddress(
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
         "Content-Type": "application/json",
-        "X-Localization": "ar",
+        "X-Localization": locale,
       },
       body: JSON.stringify(payload),
     }

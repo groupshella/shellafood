@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Check, Timer, User } from "lucide-react";
 import type { ReferralEntry } from "@/features/profile/types/referral.types";
-import { REFERRAL_STRINGS } from "@/features/profile/constants/referral.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface ReferralListItemProps {
     entry: ReferralEntry;
@@ -33,12 +33,14 @@ export function ReferralListItem({ entry }: ReferralListItemProps) {
 }
 
 function ReferralRowStatus({ entry }: { entry: ReferralEntry }) {
+    const { isArabic } = useLanguage();
+
     if (entry.status === "pending") {
         return (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-[20px] bg-[#DFD3F5] p-1 dark:bg-purple-900/30">
                 <Timer className="h-4 w-4 text-[#111B18] dark:text-purple-200" strokeWidth={1.5} />
                 <span className="text-[12px] font-medium text-[#111B18] dark:text-purple-200">
-                    {entry.statusLabel ?? REFERRAL_STRINGS.statusPending}
+                    {entry.statusLabel ?? (isArabic ? "انتظار" : "Pending")}
                 </span>
             </span>
         );
@@ -51,14 +53,14 @@ function ReferralRowStatus({ entry }: { entry: ReferralEntry }) {
                     <span>+</span>
                     <span>{entry.rewardText ?? entry.reward}</span>
                     {!entry.rewardText && (
-                        <span className="text-[14px]">{REFERRAL_STRINGS.currencySymbol}</span>
+                        <span className="text-[14px]">﷼</span>
                     )}
                 </div>
             )}
             <span className="inline-flex items-center gap-1 rounded-[20px] bg-[#EBFEEB] p-1 dark:bg-[#30913F]/15">
                 <Check className="h-4 w-4 text-[#111B18] dark:text-[#4db860]" strokeWidth={2} />
                 <span className="text-[12px] font-medium text-[#111B18] dark:text-gray-200">
-                    {entry.statusLabel ?? REFERRAL_STRINGS.statusRegistered}
+                    {entry.statusLabel ?? (isArabic ? "تم التسجيل" : "Registered")}
                 </span>
             </span>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin } from "lucide-react";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface OutOfServiceAreaProps {
 	onAutoRedirect: () => void;
@@ -11,9 +12,12 @@ export function OutOfServiceArea({
 	onAutoRedirect,
 	onGoHome,
 }: OutOfServiceAreaProps) {
+	const { isArabic, locale } = useLanguage();
+
 	return (
 		<div
-			dir="rtl"
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={locale}
 			role="alertdialog"
 			aria-labelledby="out-of-zone-title"
 			aria-describedby="out-of-zone-desc"
@@ -53,13 +57,15 @@ export function OutOfServiceArea({
 				id="out-of-zone-title"
 				className="text-base font-bold leading-snug text-[#111B18] dark:text-gray-100 sm:text-lg"
 			>
-				هذه المنطقة خارج نطاق خدمتنا
+				{isArabic ? "هذه المنطقة خارج نطاق خدمتنا" : "This area is outside our service range"}
 			</h2>
 			<p
 				id="out-of-zone-desc"
 				className="mt-2 text-sm leading-relaxed text-[#43474F] dark:text-gray-400 sm:text-[14px]"
 			>
-				هل ترغب بالتوجه تلقائياً إلى أقرب منطقة متوفر فيها الخدمة؟
+				{isArabic
+					? "هل ترغب بالتوجه تلقائياً إلى أقرب منطقة متوفر فيها الخدمة؟"
+					: "Would you like to go automatically to the nearest area where service is available?"}
 			</p>
 
 			<div className="mt-5 flex w-full max-w-sm flex-col gap-2.5 sm:mt-6 sm:gap-3 md:mt-8">
@@ -68,14 +74,14 @@ export function OutOfServiceArea({
 					onClick={onAutoRedirect}
 					className="flex min-h-[48px] w-full items-center justify-center rounded-xl bg-[#30913F] text-sm font-bold text-white transition-colors hover:bg-[#2a8036] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 sm:min-h-[52px] sm:text-[15px]"
 				>
-					نعم ، وجههني
+					{isArabic ? "نعم، وجهني" : "Yes, guide me"}
 				</button>
 				<button
 					type="button"
 					onClick={onGoHome}
 					className="flex min-h-[48px] w-full items-center justify-center rounded-xl bg-[#F6F6F6] text-sm font-bold text-[#43474F] transition-colors hover:bg-[#ECECEC] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 sm:min-h-[52px] sm:text-[15px]"
 				>
-					لا ، الرجوع الرئيسية
+					{isArabic ? "لا، الرجوع للرئيسية" : "No, go back home"}
 				</button>
 			</div>
 		</div>

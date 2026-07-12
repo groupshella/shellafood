@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
+import { getServerLocale } from "@/features/language/getServerLocale";
 import { ANALYTICS_ENDPOINTS } from "@/features/profile/constants/statistics.constants";
 import {
     adaptCategories,
@@ -30,11 +31,14 @@ async function getAccessToken(): Promise<string | null> {
     return cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value ?? null;
 }
 
-function analyticsHeaders(token: string): HeadersInit {
+async function analyticsHeaders(token: string): Promise<HeadersInit> {
+    const locale = await getServerLocale();
+    const isArabic = locale === "ar";
+
     return {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
-        "X-localization": "ar",
+        "X-localization": isArabic ? "ar" : "en",
         moduleId: MODULE_ID,
         zoneId: ZONE_ID,
     };
@@ -53,7 +57,7 @@ async function fetchAnalyticsRaw(
     }
 
     const res = await fetch(url.toString(), {
-        headers: analyticsHeaders(token),
+        headers: await analyticsHeaders(token),
         cache: "no-store",
     });
 

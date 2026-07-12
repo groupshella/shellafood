@@ -2,7 +2,6 @@
 
 import { Minus, Plus } from "lucide-react";
 import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
-import Image from "next/image";
 
 interface ProfilePhotoCropProps {
     photoSrc: string;
@@ -19,12 +18,14 @@ export function ProfilePhotoCrop({ photoSrc, zoom, onZoomChange, error }: Profil
     return (
         <div className="flex w-full flex-col items-center gap-6 sm:gap-8">
             <div className="relative aspect-square w-full max-w-48 overflow-hidden rounded-full bg-[#F6F5F8] ring-1 ring-[#F6F5F8] dark:bg-gray-800 dark:ring-gray-700 sm:max-w-56 md:max-w-64">
+                {/* Native img required for blob:/data: URLs from FileReader */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <Image
+                <img
                     src={photoSrc}
                     alt=""
                     className="h-full w-full object-cover transition-transform duration-200"
                     style={{ transform: `scale(${zoom})` }}
+                    draggable={false}
                 />
             </div>
 

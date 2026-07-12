@@ -48,9 +48,10 @@ const CheckoutContext = createContext<CheckoutContextValue | null>(null);
 interface CheckoutProviderProps {
     data: CheckoutData;
     children: React.ReactNode;
+    isArabic: boolean;
 }
 
-export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
+export function CheckoutProvider({ data, children, isArabic }: CheckoutProviderProps) {
     const router = useRouter();
     const { placeOrder, isLoading: isPlacingOrder } = usePlaceOrder();
     const { error: notifyError, success: notifySuccess } = useNotification();
@@ -78,11 +79,11 @@ export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
     const updateDeliveryAddress = useCallback((address: AddressListItem) => {
         setPayload((prev) => ({
             ...prev,
-            address: formatAddressLine(address),
+            address: formatAddressLine(address, isArabic),
             latitude: String(address.latitude),
             longitude: String(address.longitude),
         }));
-    }, []);
+    }, [isArabic]);
 
     const confirmPayment = useCallback(async () => {
         if (!selected) {

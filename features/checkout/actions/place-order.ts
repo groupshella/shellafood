@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { updateTag } from "next/cache";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
+import { getServerLocale } from "@/features/language/getServerLocale";
 import type {
   PlaceOrderPayload,
   PlaceOrderResult,
@@ -13,19 +14,37 @@ export async function placeOrder(
 ): Promise<PlaceOrderResult> {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
+  const locale = await getServerLocale();
+  const isArabic = locale === "ar";
 
   if (!token) {
-    return { success: false, message: "غير مصرح" };
+    return {
+      success: false,
+      message: isArabic ? "غير مصرح" : "Unauthorized",
+    };
   }
 
   if (!payload.cart?.length) {
-    return { success: false, message: "السلة فارغة" };
+    return {
+      success: false,
+      message: isArabic ? "السلة فارغة" : "Cart is empty",
+    };
   }
   if (!payload.order_amount) {
-    return { success: false, message: "لم يتم احتساب مبلغ الطلب" };
+    return {
+      success: false,
+      message: isArabic
+        ? "لم يتم احتساب مبلغ الطلب"
+        : "Order amount was not calculated",
+    };
   }
   if (!payload.store_id) {
-    return { success: false, message: "لم يتم التعرف على المتجر — يرجى إعادة تحميل الصفحة" };
+    return {
+      success: false,
+      message: isArabic
+        ? "لم يتم التعرف على المتجر — يرجى إعادة تحميل الصفحة"
+        : "Store not recognized — please reload the page",
+    };
   }
 
   try {
@@ -39,7 +58,7 @@ export async function placeOrder(
           Authorization: `Bearer ${token}`,
           zoneId: process.env.ZONE_ID ?? "[2]",
           moduleId: process.env.MODULE_ID ?? "3",
-          "X-localization": "ar",
+          "X-localization": locale,
         },
         body: JSON.stringify(payload),
         cache: "no-store",
@@ -51,7 +70,10 @@ export async function placeOrder(
     if (!res.ok) {
       return {
         success: false,
-        message: json?.message ?? json?.errors?.[0] ?? "تعذر إتمام الطلب",
+        message:
+          json?.message ??
+          json?.errors?.[0] ??
+          (isArabic ? "تعذر إتمام الطلب" : "Could not complete the order"),
       };
     }
 
@@ -65,12 +87,20 @@ export async function placeOrder(
       json?.data?.order?.id;
 
     if (!orderId) {
-      return { success: false, message: "تم الطلب لكن لم يُرجع رقم الطلب" };
+      return {
+        success: false,
+        message: isArabic
+          ? "تم الطلب لكن لم يُرجع رقم الطلب"
+          : "Order placed but no order ID was returned",
+      };
     }
 
     updateTag("cart");
     return { success: true, data: { order_id: orderId } };
   } catch {
-    return { success: false, message: "تعذر إتمام الطلب" };
+    return {
+      success: false,
+      message: isArabic ? "تعذر إتمام الطلب" : "Could not complete the order",
+    };
   }
 }

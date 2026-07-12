@@ -2,9 +2,10 @@ interface ScrollContainerProps {
 	children: React.ReactNode;
 	className?: string;
 	ariaLabel?: string;
+	isArabic?: boolean;
 }
 
-export function ScrollContainer({ children, className, ariaLabel }: ScrollContainerProps) {
+export function ScrollContainer({ children, className, ariaLabel, isArabic }: ScrollContainerProps) {
 	return (
 		<div
 			role="region"

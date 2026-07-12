@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Clock, Heart, Search, Star, Truck } from "lucide-react";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
+import { useLanguage } from "@/features/language/useLanguage";
 import { StoreDetails, StoreCategory } from "@/features/stores/types/store.types";
 import { STORE_CATEGORY_PRODUCTS_ID } from "@/features/stores/components/sections/StoreCategoryProducts/StoreCategoryProductsClient";
 import { useNotification } from "@/shared/components/NotificationToast";
@@ -30,6 +31,7 @@ interface StoreHeaderClientProps {
     activeCategoryId: string;
     storeId: string;
     moduleId: string;
+    isArabic: boolean;
 }
 
 export function StoreHeaderClient({
@@ -38,6 +40,7 @@ export function StoreHeaderClient({
     activeCategoryId,
     storeId,
     moduleId,
+    isArabic,
 }: StoreHeaderClientProps) {
     const router = useRouter();
     const { success, error: notifyError } = useNotification();
@@ -108,7 +111,7 @@ export function StoreHeaderClient({
     const heroImage = store.store_image_url;
 
     return (
-        <div className="bg-white dark:bg-gray-900">
+        <div className="bg-white dark:bg-gray-900" dir={isArabic ? "rtl" : "ltr"}>
             {/* Hero banner */}
             <div className="relative h-36 w-full overflow-hidden sm:h-40 md:h-48 lg:h-56 xl:h-60">
                 {heroImage ? (
@@ -152,7 +155,7 @@ export function StoreHeaderClient({
 
                 <div className="absolute inset-x-0 top-3 z-10 sm:top-4">
                     <div className={`flex items-center justify-between ${contentContainer}`}>
-                        <button type="button" onClick={handleBack} aria-label="رجوع" className={HERO_BTN}>
+                        <button type="button" onClick={handleBack} aria-label={isArabic ? "رجوع" : "Back"} className={HERO_BTN}>
                             <ArrowRight className="h-5 w-5" strokeWidth={2} aria-hidden />
                         </button>
 
@@ -161,7 +164,7 @@ export function StoreHeaderClient({
                                 type="button"
                                 onClick={toggleFavorite}
                                 disabled={favoritePending}
-                                aria-label={favorited ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                                aria-label={favorited ? (isArabic ? "إزالة من المفضلة" : "Remove from favorites") : isArabic ? "إضافة إلى المفضلة" : "Add to favorites"}
                                 className={HERO_BTN}
                             >
                                 <Heart
@@ -178,7 +181,7 @@ export function StoreHeaderClient({
                             <button
                                 type="button"
                                 onClick={handleOpenSearch}
-                                aria-label="بحث"
+                                aria-label={isArabic ? "بحث" : "Search"}
                                 className={HERO_BTN}
                             >
                                 <Search className="h-5 w-5" strokeWidth={2} aria-hidden />
@@ -217,7 +220,7 @@ export function StoreHeaderClient({
                             <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-1.5">
                                 {store.free_delivery && (
                                     <span className="flex h-5 items-center gap-1 rounded-[4px] border border-gray-200 bg-white px-1.5 text-[10px] font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:h-[22px] sm:text-xs">
-                                        توصيل مجاني
+                                        {isArabic ? "توصيل مجاني" : "Free delivery"}
                                         <Truck className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-4" strokeWidth={1.2} aria-hidden />
                                     </span>
                                 )}
@@ -257,10 +260,10 @@ export function StoreHeaderClient({
                 <div className={`pb-3 pt-3 sm:pt-4 ${contentContainer}`}>
                     <div
                         ref={categoryScrollRef}
-                        dir="rtl"
+                        dir={isArabic ? "rtl" : "ltr"}
                         className="flex items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-smooth [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden"
                         role="tablist"
-                        aria-label="تصنيفات المتجر"
+                        aria-label={isArabic ? "تصنيفات المتجر" : "Store categories"}
                     >
                         {categories.map((cat) => {
                             const isActive = String(cat.id) === activeCategoryId;

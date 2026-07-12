@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Category } from "@/features/markets/types/categories.types";
 import { CategoryCard } from "../Categories/CategoryCard";
 
@@ -16,6 +16,7 @@ interface AllCategoriesClientProps {
     categories: Category[];
     moduleId: string;
     moduleName?: string;
+    isArabic: boolean;
 }
 
 function buildBackHref(moduleId: string, moduleName?: string) {
@@ -29,24 +30,25 @@ export function AllCategoriesClient({
     categories,
     moduleId,
     moduleName,
+    isArabic,
 }: AllCategoriesClientProps) {
     if (categories.length === 0) return null;
 
     const backHref = buildBackHref(moduleId, moduleName);
 
     return (
-        <div className="min-h-dvh" dir="rtl">
+        <div className="min-h-dvh" dir={isArabic ? "rtl" : "ltr"}>
             <header className="sticky top-0 z-20 border-b border-black/[0.04] bg-white/95 backdrop-blur-md dark:border-white/[0.06] dark:bg-gray-900/95">
                 <div className="relative mx-auto flex min-h-[3.25rem] w-full max-w-lg items-center justify-center px-3 py-2.5 sm:max-w-2xl sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">
                     <Link
                         href={backHref}
                         className={`${ICON_BTN} absolute start-3 sm:start-5 lg:start-6`}
-                        aria-label="العودة"
+                        aria-label={isArabic ? "العودة" : "Return"}
                     >
-                        <ChevronRight className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} aria-hidden />
+                        {!isArabic ? <ChevronLeft className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} /> : <ChevronRight className="h-5 w-5 text-[#30913F] dark:text-[#4db860]" strokeWidth={2} />}
                     </Link>
 
-                    <h1 className="text-base font-semibold text-gray-500 dark:text-gray-400 sm:text-lg md:text-xl">الأقسام</h1>
+                    <h1 className="text-base font-semibold text-gray-500 dark:text-gray-400 sm:text-lg md:text-xl">{isArabic ? "الأقسام" : "Categories"}</h1>
                 </div>
             </header>
 
@@ -59,6 +61,7 @@ export function AllCategoriesClient({
                             moduleId={moduleId}
                             mode="filter"
                             layout="grid"
+                            isArabic={isArabic}
                         />
                     ))}
                 </div>

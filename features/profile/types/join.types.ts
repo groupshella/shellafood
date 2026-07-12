@@ -4,6 +4,7 @@ export interface JoinActionResult {
     success: boolean;
     message: string;
     fieldErrors?: Partial<Record<string, string>>;
+    alreadyRegistered?: boolean;
 }
 
 // ── Delivery-Man ──────────────────────────────────────────────────────────────

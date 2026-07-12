@@ -11,6 +11,7 @@ interface StoreCategoryProductsClientProps {
 	detail: CategoryDetail;
 	moduleId: string;
 	scrollIntoView?: boolean;
+	isArabic: boolean;
 }
 
 const contentContainer =
@@ -34,6 +35,7 @@ export function StoreCategoryProductsClient({
 	detail,
 	moduleId,
 	scrollIntoView = false,
+	isArabic,
 }: StoreCategoryProductsClientProps) {
 	const sectionRef = useRef<HTMLDivElement>(null);
 	const allProducts = detail.sub_categories.flatMap((sc) => sc.products);
@@ -49,16 +51,22 @@ export function StoreCategoryProductsClient({
 				id={STORE_CATEGORY_PRODUCTS_ID}
 				ref={sectionRef}
 				className={`flex flex-col items-center justify-center py-12 text-center sm:py-16 ${contentContainer}`}
+				dir={isArabic ? "rtl" : "ltr"}
 			>
 				<p className="text-sm font-semibold text-gray-500 dark:text-gray-400 sm:text-base">
-					لا توجد منتجات في هذا التصنيف
+					{isArabic ? "لا توجد منتجات في هذا التصنيف" : "No products in this category"}
 				</p>
 			</div>
 		);
 	}
 
 	return (
-		<div id={STORE_CATEGORY_PRODUCTS_ID} ref={sectionRef} className={contentContainer}>
+		<div
+			id={STORE_CATEGORY_PRODUCTS_ID}
+			ref={sectionRef}
+			className={contentContainer}
+			dir={isArabic ? "rtl" : "ltr"}
+		>
 			{detail.sub_categories.map((sc) => {
 				if (sc.products.length === 0) return null;
 				return (

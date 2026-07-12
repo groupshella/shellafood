@@ -1,6 +1,9 @@
+"use client";
+
 import { Heart, Plus } from "lucide-react";
 import Image from "next/image";
 
+import { useLanguage } from "@/features/language/useLanguage";
 import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import type { StatisticsProduct } from "@/features/profile/types/statistics.types";
 
@@ -15,11 +18,21 @@ export function GridProductCard({
     pulsing: boolean;
     onToggleHeart: () => void;
 }) {
+    const { isArabic } = useLanguage();
+
     return (
         <article className="relative rounded-[8px] bg-white dark:bg-gray-800 p-3 shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)] transition-[transform,opacity] duration-150 active:scale-[0.98] active:opacity-95">
             <button
                 type="button"
-                aria-label={favorited ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                aria-label={
+                    favorited
+                        ? isArabic
+                            ? "إزالة من المفضلة"
+                            : "Remove from favorites"
+                        : isArabic
+                          ? "إضافة إلى المفضلة"
+                          : "Add to favorites"
+                }
                 onClick={onToggleHeart}
                 className="absolute end-3 top-3 flex h-9 w-9 items-center justify-center"
             >
@@ -85,7 +98,7 @@ export function GridProductCard({
                 </div>
                 <button
                     type="button"
-                    aria-label="إضافة إلى السلة"
+                    aria-label={isArabic ? "إضافة إلى السلة" : "Add to cart"}
                     className="flex h-9 w-9 items-center justify-center rounded-full bg-[#30913F] active:scale-[0.92]"
                 >
                     <Plus className="h-4 w-4 text-white" strokeWidth={2} />

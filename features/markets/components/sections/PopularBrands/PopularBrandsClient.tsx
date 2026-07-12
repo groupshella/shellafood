@@ -13,7 +13,7 @@ function chunkByTwo(items: PopularBrand[]): PopularBrand[][] {
     return columns;
 }
 
-export function PopularBrandsClient({ brands }: { brands: PopularBrand[] }) {
+export function PopularBrandsClient({ brands, isArabic }: { brands: PopularBrand[], isArabic: boolean }) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [canScrollMore, setCanScrollMore] = useState(false);
 
@@ -48,14 +48,14 @@ export function PopularBrandsClient({ brands }: { brands: PopularBrand[] }) {
     }, [brands, updateScrollHint]);
 
     return (
-        <section aria-label="أشهر العلامات التجارية" className="w-full space-y-3" dir="rtl">
+        <section aria-label={isArabic ? "أشهر العلامات التجارية" : "Popular Brands"} className="w-full space-y-3" dir={isArabic ? "rtl" : "ltr"}>
             <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-3 px-3 sm:max-w-2xl sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">
                 <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 sm:text-lg">
-                    أشهر العلامات التجارية
+                    {isArabic ? "أشهر العلامات التجارية" : "Popular Brands"}
                 </h2>
                 {hasMultipleColumns && canScrollMore && (
                     <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-gray-400 dark:text-gray-500">
-                        <span className="hidden sm:inline">اسحب للمزيد</span>
+                        <span className="hidden sm:inline">{isArabic ? "اسحب للمزيد" : "Pull for more"}</span>
                         <ChevronLeft className="h-4 w-4" strokeWidth={2.5} aria-hidden />
                     </span>
                 )}
@@ -77,7 +77,7 @@ export function PopularBrandsClient({ brands }: { brands: PopularBrand[] }) {
                         "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
                         hasMultipleColumns ? "scroll-pe-4 sm:scroll-pe-5 lg:scroll-pe-6" : "",
                     ].join(" ")}
-                    dir="rtl"
+                    dir={isArabic ? "rtl" : "ltr"}
                 >
                     {columns.map((column) => (
                         <div
@@ -85,7 +85,7 @@ export function PopularBrandsClient({ brands }: { brands: PopularBrand[] }) {
                             className="flex w-[43vw] min-w-[8.5rem] max-w-[13rem] shrink-0 snap-start flex-col gap-2.5 sm:w-[30vw] sm:min-w-[10rem] sm:max-w-[14rem] sm:gap-3 lg:w-[22vw] lg:max-w-[15rem] xl:w-[18vw]"
                         >
                             {column.map((brand) => (
-                                <BrandCard key={brand.id} brand={brand} />
+                                <BrandCard key={brand.id} brand={brand} isArabic={isArabic} />
                             ))}
                         </div>
                     ))}

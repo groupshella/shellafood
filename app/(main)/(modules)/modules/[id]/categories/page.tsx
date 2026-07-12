@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { AllCategoriesPageShell } from "@/features/markets/components/AllCategoriesPageShell";
 import { AllCategories } from "@/features/markets/components/sections/AllCategories";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 interface ModuleCategoriesPageProps {
 	params: Promise<{ id: string }>;
@@ -29,11 +30,12 @@ export default async function ModuleCategoriesPage({
 }: ModuleCategoriesPageProps) {
 	const { id } = await params;
 	const { module_name } = await searchParams;
-
+	const locale = await getServerLocale()
+	const isArabic = locale === "ar"
 	return (
 		<AllCategoriesPageShell>
 			<Suspense fallback={<AllCategories.skeleton />}>
-				<AllCategories moduleId={id} moduleName={module_name} />
+				<AllCategories moduleId={id} moduleName={module_name} isArabic={isArabic} />
 			</Suspense>
 		</AllCategoriesPageShell>
 	);

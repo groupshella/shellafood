@@ -3,8 +3,8 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { useLanguage } from "@/features/language/useLanguage";
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
-import { POINTS_STRINGS } from "@/features/profile/constants/points.strings";
 import type { PointsHistoryGroup } from "@/features/profile/types/points.types";
 import { useNotification } from "@/shared/components/NotificationToast";
 import { PointsHistoryList } from "./PointsHistoryList";
@@ -21,6 +21,7 @@ export function MyPointsClient({
     convertiblePoints,
     history = [],
 }: MyPointsClientProps) {
+    const { isArabic } = useLanguage();
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
     const { success, error } = useNotification();
@@ -36,20 +37,33 @@ export function MyPointsClient({
                 });
                 const json = await res.json();
                 if (!res.ok || !json.success) {
-                    error(json?.message ?? "فشل في تحويل النقاط");
+                    error(
+                        json?.message ??
+                            (isArabic
+                                ? "فشل في تحويل النقاط"
+                                : "Failed to convert points"),
+                    );
                     return;
                 }
-                success("تم تحويل النقاط إلى المحفظة بنجاح");
+                success(
+                    isArabic
+                        ? "تم تحويل النقاط إلى المحفظة بنجاح"
+                        : "Points converted to wallet successfully",
+                );
                 router.refresh();
             } catch {
-                error("فشل في تحويل النقاط");
+                error(
+                    isArabic
+                        ? "فشل في تحويل النقاط"
+                        : "Failed to convert points",
+                );
             }
         });
     }
 
     return (
         <ProfileSubpageShell
-            title={POINTS_STRINGS.pageTitle}
+            title={isArabic ? "نقاطي" : "My points"}
             relaxedHeader
             showHeaderBorder={false}
             showFooterBorder={false}
@@ -63,7 +77,13 @@ export function MyPointsClient({
                         className="flex h-12 w-full items-center justify-center rounded-[12px] bg-[#30913F] text-[15px] font-bold text-white transition-opacity enabled:active:opacity-90 disabled:opacity-50 sm:h-[52px] sm:text-[16px]"
                         style={TAJAWAL}
                     >
-                        {isPending ? "جاري التحويل..." : POINTS_STRINGS.convertToWallet}
+                        {isPending
+                            ? isArabic
+                                ? "جاري التحويل..."
+                                : "Converting..."
+                            : isArabic
+                              ? "تحويل إلى محفظة المال"
+                              : "Convert to wallet"}
                     </button>
                 </div>
             }

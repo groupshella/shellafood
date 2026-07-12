@@ -12,6 +12,7 @@ interface FilterSheetProps {
     applied: FilterState | null;
     onApply: (f: FilterState) => void;
     onClear: () => void;
+    isArabic: boolean;
 }
 
 export function FilterSheet({
@@ -21,6 +22,7 @@ export function FilterSheet({
     applied,
     onApply,
     onClear,
+    isArabic,
 }: FilterSheetProps) {
     const [draft, setDraft] = useState<FilterState>(EMPTY_FILTER);
 
@@ -46,7 +48,8 @@ export function FilterSheet({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+            className="fixed inset-0 z-[999]
+             flex items-end justify-center bg-black/40 sm:items-center"
             style={{ opacity: isVisible ? 1 : 0, transition: "opacity 300ms ease" }}
             onClick={onClose}
             aria-hidden={!isVisible}
@@ -54,8 +57,8 @@ export function FilterSheet({
             <div
                 role="dialog"
                 aria-modal="true"
-                aria-label="فلتر"
-                dir="rtl"
+                aria-label={isArabic ? "فلتر" : "Filter"}
+                dir={isArabic ? "rtl" : "ltr"}
                 onClick={(e) => e.stopPropagation()}
                 className="flex max-h-[92dvh] w-full max-w-md flex-col overflow-y-auto rounded-t-3xl bg-white px-4 pt-3 pb-[calc(2.5rem+env(safe-area-inset-bottom))] shadow-2xl dark:bg-gray-900 sm:max-h-[90dvh] sm:rounded-3xl sm:px-5 sm:pb-10"
                 style={{
@@ -69,16 +72,16 @@ export function FilterSheet({
                     <button
                         type="button"
                         onClick={onClose}
-                        aria-label="إغلاق"
+                        aria-label={isArabic ? "إغلاق" : "Close"}
                         className="absolute start-0 flex h-8 w-8 items-center justify-center rounded-full bg-[#F6F5F8] text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700"
                     >
                         <X className="h-4 w-4" strokeWidth={2.5} />
                     </button>
-                    <h2 className="text-[16px] font-semibold text-gray-900 dark:text-gray-50">فلتر</h2>
+                    <h2 className="text-[16px] font-semibold text-gray-900 dark:text-gray-50">{isArabic ? "فلتر" : "Filter"}</h2>
                 </div>
 
                 <div className="mb-8">
-                    <p className="mb-3 text-[13px] font-semibold text-gray-800 dark:text-gray-200">نطاق السعر</p>
+                    <p className="mb-3 text-[13px] font-semibold text-gray-800 dark:text-gray-200">{isArabic ? "نطاق السعر" : "Price range"}</p>
                     <div className="flex flex-wrap gap-2">
                         {PRICE_RANGES.map((range) => {
                             const isSelected = draft.priceRange?.id === range.id;
@@ -111,14 +114,14 @@ export function FilterSheet({
                         }}
                         className="flex-1 rounded-xl bg-[#F6F5F8] py-3.5 text-[14px] font-semibold text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700"
                     >
-                        إعادة تعيين
+                        {isArabic ? "إعادة تعيين" : "Reset"}
                     </button>
                     <button
                         type="button"
                         onClick={() => onApply(draft)}
                         className="flex-1 rounded-xl bg-[#30913F] py-3.5 text-[14px] font-semibold text-white transition-colors active:bg-[#267332] dark:active:bg-[#267332]"
                     >
-                        تطبيق
+                        {isArabic ? "تطبيق" : "Apply"}
                     </button>
                 </div>
             </div>

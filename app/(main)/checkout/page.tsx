@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { getCart } from "@/features/cart/api/cart";
 import { getAddresses } from "@/features/addresses/api/addresses";
 import { formatAddressLine } from "@/features/addresses/lib/format-address-line";
+import { getServerLocale } from "@/features/language/getServerLocale";
 import { CheckoutShell } from "@/features/checkout/components/CheckoutShell";
 import { CartSummary } from "@/features/checkout/components/sections/CartSummary";
 import { DeliveryMethod } from "@/features/checkout/components/sections/DeliveryMethod";
@@ -26,10 +27,11 @@ function formatInvoiceAmount(amount: number) {
     return `${formatPrice(amount)} ﷼`;
 }
 
-async function buildCheckoutData(): Promise<CheckoutData> {
+async function buildCheckoutData({ isArabic }: { isArabic: boolean }): Promise<CheckoutData> {
+
     const [items, addresses, cookieStore] = await Promise.all([
-        getCart(),
-        getAddresses(),
+        getCart({ isArabic }),
+        getAddresses({ isArabic }),
         cookies(),
     ]);
 
@@ -51,7 +53,9 @@ async function buildCheckoutData(): Promise<CheckoutData> {
     }
 
     const defaultAddress = addresses[0] ?? null;
-    const deliveryAddress = defaultAddress ? formatAddressLine(defaultAddress) : "";
+    const deliveryAddress = defaultAddress
+        ? formatAddressLine(defaultAddress, isArabic)
+        : "";
     const deliveryAddressShort = defaultAddress?.address_label ?? "";
     const latitude = defaultAddress ? String(defaultAddress.latitude) : (process.env.NEXT_PUBLIC_LATITUDE ?? "24.7136");
     const longitude = defaultAddress ? String(defaultAddress.longitude) : (process.env.NEXT_PUBLIC_LONGITUDE ?? "46.6753");
@@ -99,32 +103,34 @@ async function buildCheckoutData(): Promise<CheckoutData> {
 }
 
 export default async function CheckoutPage() {
+    const locale = await getServerLocale()
+    const isArabic = locale === "ar";
     if (!(await isAuthenticated())) {
         return <AuthRequiredScreen page="checkout" />;
     }
 
 
-    const checkoutData = await buildCheckoutData();
+    const checkoutData = await buildCheckoutData({ isArabic });
 
     return (
-        <CheckoutShell checkoutData={checkoutData}>
+        <CheckoutShell checkoutData={checkoutData} isArabic={isArabic}>
             <Suspense fallback={<CartSummary.skeleton />}>
-                <CartSummary />
+                <CartSummary isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<DeliveryMethod.skeleton />}>
-                <DeliveryMethod />
+                <DeliveryMethod isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<PaymentMethod.skeleton />}>
-                <PaymentMethod />
+                <PaymentMethod isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<DiscountCode.skeleton />}>
-                <DiscountCode />
+                <DiscountCode isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<AdditionalNote.skeleton />}>
-                <AdditionalNote />
+                <AdditionalNote isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<InvoiceDetails.skeleton />}>
-                <InvoiceDetails />
+                <InvoiceDetails isArabic={isArabic} />
             </Suspense>
         </CheckoutShell>
     );

@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import type { ApiResponse } from "@/shared/lib/api-response";
 import type { ProcessPaymentRequest, ProcessPaymentData } from "@/features/payment/types/payment.types";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface UseProcessPaymentResult {
     processPayment: (payload: ProcessPaymentRequest) => Promise<ProcessPaymentData>;
@@ -13,7 +14,7 @@ interface UseProcessPaymentResult {
 export function useProcessPayment(): UseProcessPaymentResult {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
+    const { isArabic } = useLanguage();
     const processPayment = useCallback(async (payload: ProcessPaymentRequest) => {
         setIsLoading(true);
         setError(null);
@@ -21,7 +22,7 @@ export function useProcessPayment(): UseProcessPaymentResult {
         try {
             const res = await fetch("/api/payment/myfatoorah/process", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", "X-Localization": isArabic ? "ar" : "en" },
                 body: JSON.stringify(payload),
             });
 
@@ -33,7 +34,7 @@ export function useProcessPayment(): UseProcessPaymentResult {
 
             return json.data;
         } catch (err) {
-            const message = err instanceof Error ? err.message : "تعذر معالجة الدفع";
+            const message = err instanceof Error ? isArabic ? "تعذر معالجة الدفع" : "Failed to process payment" : (err as Error).message;
             setError(message);
             throw err;
         } finally {

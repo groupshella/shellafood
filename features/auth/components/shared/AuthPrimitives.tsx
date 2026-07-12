@@ -9,6 +9,7 @@ import {
 } from "react";
 import { motion } from "framer-motion";
 import { isAccountExistsError } from "@/features/auth/lib/auth.lib";
+import { useLanguage } from "@/features/language/useLanguage";
 
 // ─── Design tokens (local hex map until theme tokens exist) ───────────────────
 export const AUTH_COLORS = {
@@ -30,10 +31,12 @@ export const AuthShell = memo(function AuthShell({
 	children: ReactNode;
 	className?: string;
 }) {
+	const { isArabic, locale } = useLanguage();
+
 	return (
 		<div
-			dir="rtl"
-			lang="ar"
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={locale}
 			className={`relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100 ${className}`}
 		>
 			<div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-8 pt-4 sm:pt-16">
@@ -51,6 +54,8 @@ export const BackHeader = memo(function BackHeader({
 	onBack: () => void;
 	disabled?: boolean;
 }) {
+	const { isArabic } = useLanguage();
+
 	return (
 		<motion.button
 			type="button"
@@ -58,7 +63,7 @@ export const BackHeader = memo(function BackHeader({
 			animate={{ opacity: 1 }}
 			onClick={onBack}
 			disabled={disabled}
-			aria-label="رجوع"
+			aria-label={isArabic ? "رجوع" : "Back"}
 			className="mb-4 -me-2 flex h-10 w-10 items-center justify-center self-start rounded-full transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-50 dark:hover:bg-gray-700 dark:focus-visible:ring-gray-500"
 		>
 			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -153,7 +158,7 @@ export const PhoneField = memo(function PhoneField({
 	onChange,
 	onEnter,
 	disabled,
-	label = "رقم الهاتف",
+	label,
 }: {
 	value: string;
 	onChange: (v: string) => void;
@@ -161,9 +166,12 @@ export const PhoneField = memo(function PhoneField({
 	disabled?: boolean;
 	label?: string;
 }) {
+	const { isArabic } = useLanguage();
+	const fieldLabel = label ?? (isArabic ? "رقم الهاتف" : "Phone number");
+
 	return (
 		<div>
-			<FieldLabel>{label}</FieldLabel>
+			<FieldLabel>{fieldLabel}</FieldLabel>
 			<div className="box-border flex h-14 w-full items-center gap-3 rounded-xl border border-[#C6C8CE] bg-white px-4 transition-all focus-within:border-[#30913F] focus-within:ring-1 focus-within:ring-[#30913F] dark:border-gray-600 dark:bg-gray-800 dark:focus-within:border-[#30913F]">
 				<div className="flex shrink-0 items-center gap-2 border-e border-[#C6C8CE] pe-3 dark:border-gray-600">
 					<SaudiFlag />
@@ -183,7 +191,7 @@ export const PhoneField = memo(function PhoneField({
 					onKeyDown={(e) => e.key === "Enter" && onEnter?.()}
 					placeholder="12 234 5678"
 					disabled={disabled}
-					aria-label={label}
+					aria-label={fieldLabel}
 					className="min-w-0 flex-1 bg-transparent text-start text-[14px] text-[#343434] outline-none placeholder:text-[#707784] dark:text-gray-100 dark:placeholder:text-gray-500"
 				/>
 			</div>
@@ -225,7 +233,7 @@ export const PasswordField = memo(function PasswordField({
 	onEnter,
 	disabled,
 	label,
-	placeholder = "كلمة المرور",
+	placeholder,
 	show,
 	onToggle,
 	error,
@@ -240,6 +248,11 @@ export const PasswordField = memo(function PasswordField({
 	onToggle: () => void;
 	error?: boolean;
 }) {
+	const { isArabic } = useLanguage();
+	const fieldPlaceholder =
+		placeholder ?? (isArabic ? "كلمة المرور" : "Password");
+	const fallbackAriaLabel = isArabic ? "كلمة المرور" : "Password";
+
 	return (
 		<div>
 			<FieldLabel>{label}</FieldLabel>
@@ -253,7 +266,15 @@ export const PasswordField = memo(function PasswordField({
 					type="button"
 					onClick={onToggle}
 					className="shrink-0 rounded text-[#555555] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:text-gray-400"
-					aria-label={show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+					aria-label={
+						show
+							? isArabic
+								? "إخفاء كلمة المرور"
+								: "Hide password"
+							: isArabic
+								? "إظهار كلمة المرور"
+								: "Show password"
+					}
 				>
 					{show ? <EyeIcon /> : <EyeSlashIcon />}
 				</button>
@@ -262,9 +283,9 @@ export const PasswordField = memo(function PasswordField({
 					value={value}
 					onChange={(e) => onChange(e.target.value)}
 					onKeyDown={(e) => e.key === "Enter" && onEnter?.()}
-					placeholder={placeholder}
+					placeholder={fieldPlaceholder}
 					disabled={disabled}
-					aria-label={typeof label === "string" ? label : "كلمة المرور"}
+					aria-label={typeof label === "string" ? label : fallbackAriaLabel}
 					className="min-w-0 flex-1 bg-transparent text-start text-[14px] text-[#111B18] outline-none placeholder:text-[#555555] dark:text-gray-100 dark:placeholder:text-gray-500"
 				/>
 			</div>
@@ -402,14 +423,17 @@ export function AccountExistsErrorMessage({
 	onLogin: () => void;
 	onForgotPassword: () => void;
 }) {
+	const { isArabic } = useLanguage();
+
 	return (
 		<div
 			role="alert"
 			className="rounded-lg bg-red-50 px-3 py-3 text-start text-[14px] leading-relaxed text-red-600 dark:bg-red-950/60 dark:text-red-400"
 		>
 			<p>
-				يوجد حساب مرتبط بهذا الرقم بالفعل. يمكنك تسجيل الدخول أو استعادة كلمة
-				المرور.
+				{isArabic
+					? "يوجد حساب مرتبط بهذا الرقم بالفعل. يمكنك تسجيل الدخول أو استعادة كلمة المرور."
+					: "An account is already linked to this number. You can sign in or recover your password."}
 			</p>
 			<div className="mt-3 flex flex-wrap items-center justify-end gap-3">
 				<button
@@ -417,14 +441,14 @@ export function AccountExistsErrorMessage({
 					onClick={onForgotPassword}
 					className="rounded text-[14px] font-medium text-[#555555] underline transition-colors hover:text-[#30913F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 dark:text-gray-400 dark:hover:text-[#30913F]"
 				>
-					استعادة كلمة المرور
+					{isArabic ? "استعادة كلمة المرور" : "Recover password"}
 				</button>
 				<button
 					type="button"
 					onClick={onLogin}
 					className="rounded-lg bg-[#30913F] px-4 py-2 text-[14px] font-bold text-white transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
 				>
-					تسجيل الدخول
+					{isArabic ? "تسجيل الدخول" : "Sign in"}
 				</button>
 			</div>
 		</div>

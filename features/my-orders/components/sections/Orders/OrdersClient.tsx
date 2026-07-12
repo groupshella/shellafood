@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { SlidersHorizontal, X, Store, Clock, ChevronLeft } from "lucide-react";
+import { SlidersHorizontal, X, Store, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import type { ApiOrder, OrderStatus, FilterState, DateGroupLabel } from "@/features/my-orders/types/orders.types";
 import { OrdersEmpty } from "./OrdersEmpty";
 
@@ -94,9 +94,10 @@ function getModuleName(order: ApiOrder): string {
 
 interface Props {
     orders: ApiOrder[];
+    isArabic: boolean;
 }
 
-export function OrdersClient({ orders }: Props) {
+export function OrdersClient({ orders, isArabic }: Props) {
     const [activeModuleId, setActiveModuleId] = useState<number | "all">("all");
     const [filterOpen, setFilterOpen] = useState(false);
     const [filterVisible, setFilterVisible] = useState(false);
@@ -183,13 +184,13 @@ export function OrdersClient({ orders }: Props) {
 
     return (
         <>
-            <header className="sticky top-0 z-20 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:bg-gray-900 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]">
+            <header dir={isArabic ? "rtl" : "ltr"} className="sticky top-0 z-20 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:bg-gray-900 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]">
                 <div className={`relative flex items-center justify-center py-3.5 sm:py-4 ${HEADER_PADDING}`}>
                     {!hasNoOrders ? (
                         <button
                             type="button"
                             onClick={openFilter}
-                            aria-label="فلتر"
+                            aria-label={isArabic ? "فلتر" : "Filter"}
                             className="absolute end-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 transition-colors active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:active:bg-gray-700 sm:end-4 sm:h-11 sm:w-11"
                         >
                             <SlidersHorizontal className="h-[18px] w-[18px] text-gray-700 dark:text-gray-300 sm:h-5 sm:w-5" strokeWidth={1.8} aria-hidden />
@@ -198,13 +199,13 @@ export function OrdersClient({ orders }: Props) {
                             )}
                         </button>
                     ) : null}
-                    <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-[17px] lg:text-lg">طلباتي</h1>
+                    <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-[17px] lg:text-lg">{isArabic ? "طلباتي" : "My orders"}</h1>
                 </div>
 
                 {!hasNoOrders ? (
                     <div
                         role="tablist"
-                        aria-label="تصفية حسب القسم"
+                        aria-label={isArabic ? "تصفية حسب القسم" : "Filter by section"}
                         className={`flex gap-2 overflow-x-auto pb-3 pt-1 sm:gap-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${HEADER_PADDING}`}
                     >
                         <button
@@ -219,7 +220,7 @@ export function OrdersClient({ orders }: Props) {
                                     : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700",
                             ].join(" ")}
                         >
-                            الكل
+                            {isArabic ? "الكل" : "All"}
                         </button>
                         {moduleTabs.map((tab) => (
                             <button
@@ -255,7 +256,7 @@ export function OrdersClient({ orders }: Props) {
                             </p>
                             <div className={ORDERS_GRID}>
                                 {groupOrders.map((order) => (
-                                    <OrderCard key={order.id} order={order} />
+                                    <OrderCard key={order.id} order={order} isArabic={isArabic} />
                                 ))}
                             </div>
                         </section>
@@ -275,8 +276,8 @@ export function OrdersClient({ orders }: Props) {
                     <div
                         role="dialog"
                         aria-modal
-                        aria-label="فلتر"
-                        dir="rtl"
+                        aria-label={isArabic ? "فلتر" : "Filter"}
+                        dir={isArabic ? "rtl" : "ltr"}
                         className="fixed inset-x-0 bottom-18 z-50 mx-auto max-w-lg rounded-t-[20px] bg-white px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl dark:bg-gray-900 sm:max-w-2xl sm:px-5 md:max-w-xl lg:max-w-2xl"
                         style={{
                             transform: filterVisible ? "translateY(0)" : "translateY(100%)",
@@ -289,16 +290,16 @@ export function OrdersClient({ orders }: Props) {
                             <button
                                 type="button"
                                 onClick={closeFilter}
-                                aria-label="إغلاق"
+                                aria-label={isArabic ? "إغلاق" : "Close"}
                                 className="absolute start-0 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:h-9 sm:w-9"
                             >
                                 <X className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2.5} aria-hidden />
                             </button>
-                            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-[16px]">فلتر</h2>
+                            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-[16px]">{isArabic ? "فلتر" : "Filter"}</h2>
                         </div>
 
                         <div className="mb-5">
-                            <p className="mb-3 text-[13px] font-semibold text-gray-800 dark:text-gray-200">الفترة الزمنية</p>
+                            <p className="mb-3 text-[13px] font-semibold text-gray-800 dark:text-gray-200">{isArabic ? "الفترة الزمنية" : "Time period"}</p>
                             <div className="mb-3 flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 dark:border-gray-700 dark:bg-gray-800 sm:px-4">
                                 <input
                                     type="date"
@@ -311,7 +312,7 @@ export function OrdersClient({ orders }: Props) {
                                             timePeriod: null,
                                         }))
                                     }
-                                    aria-label="اختر التاريخ"
+                                    aria-label={isArabic ? "اختر التاريخ" : "Select date"}
                                     className="min-h-10 flex-1 bg-transparent text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500 sm:text-[15px]"
                                     dir="ltr"
                                 />
@@ -346,7 +347,7 @@ export function OrdersClient({ orders }: Props) {
                         </div>
 
                         <div className="mb-8">
-                            <p className="mb-3 text-[13px] font-semibold text-gray-800 dark:text-gray-200">حالة الأوردر</p>
+                            <p className="mb-3 text-[13px] font-semibold text-gray-800 dark:text-gray-200">{isArabic ? "حالة الأوردر" : "Order status"}</p>
                             <div className="flex flex-wrap gap-2 sm:gap-2.5">
                                 {STATUS_CHIPS.map(({ id, label }) => {
                                     const isActive = draftFilter.statuses.includes(id);
@@ -376,7 +377,7 @@ export function OrdersClient({ orders }: Props) {
                                 onClick={applyFilter}
                                 className="h-12 w-full rounded-xl bg-[#30913F] text-sm font-semibold text-white transition-colors active:bg-[#267332] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 sm:text-[15px]"
                             >
-                                تطبيق
+                                {isArabic ? "تطبيق" : "Apply"}
                             </button>
                             <button
                                 type="button"
@@ -387,7 +388,7 @@ export function OrdersClient({ orders }: Props) {
                                 }}
                                 className="h-12 w-full rounded-xl bg-[#F6F6F6] text-sm font-semibold text-[#43474F] transition-colors hover:bg-[#ECECEC] active:bg-[#E5E5E5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:text-[15px]"
                             >
-                                إعادة الضبط
+                                {isArabic ? "إعادة الضبط" : "Reset"}
                             </button>
                         </div>
                     </div>
@@ -399,7 +400,7 @@ export function OrdersClient({ orders }: Props) {
 
 // ── OrderCard ─────────────────────────────────────────────────────────────────
 
-const OrderCard = memo(function OrderCard({ order }: { order: ApiOrder }) {
+const OrderCard = memo(function OrderCard({ order, isArabic }: { order: ApiOrder; isArabic: boolean }) {
     const statusInfo = STATUS_STYLES[order.order_status] ?? {
         bg: "bg-gray-100 dark:bg-gray-800",
         text: "text-gray-500 dark:text-gray-400",
@@ -408,13 +409,13 @@ const OrderCard = memo(function OrderCard({ order }: { order: ApiOrder }) {
     const storeName = order.store?.name ?? "—";
     const logoUrl = order.store?.logo_full_url;
     const amount = order.order_amount != null
-        ? `${order.order_amount} ج.م`
+        ? `${order.order_amount} ${isArabic ? "ج.م" : "EGP"}`
         : 0;
 
     return (
         <Link
             href={`/my-orders/${order.id}`}
-            aria-label={`طلب ${storeName} رقم ${order.id}`}
+            aria-label={`${isArabic ? "طلب" : "Order"} ${storeName} ${isArabic ? "رقم" : "number"} ${order.id}`}
             className="flex h-full min-w-0 flex-row-reverse overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:bg-gray-800 dark:ring-white/[0.06] dark:focus-visible:ring-offset-gray-950"
         >
             <div className="flex w-16 shrink-0 items-center justify-center self-stretch sm:w-[4.5rem] md:w-20">
@@ -440,12 +441,12 @@ const OrderCard = memo(function OrderCard({ order }: { order: ApiOrder }) {
                 <div className="flex min-w-0 items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400 sm:h-[13px] sm:w-[13px]" strokeWidth={1.6} aria-hidden />
                     <span className="truncate text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-[13px]">
-                        تاريخ الطلب: {order.order_time}
+                        {isArabic ? "تاريخ الطلب" : "Order date"}: {order.order_time}
                     </span>
                 </div>
 
                 <p className="text-start text-[13px] font-semibold text-gray-900 dark:text-gray-50 sm:text-sm">
-                    إجمالي التكلفة: {amount}
+                    {isArabic ? "إجمالي التكلفة" : "Total cost"}: {amount}
                 </p>
             </div>
 

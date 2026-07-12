@@ -2,15 +2,14 @@ import { cookies } from "next/headers";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import { CartItem, parseCartItems } from "../types/cart.types";
 
-export async function getCart(): Promise<CartItem[]> {
+export async function getCart({ isArabic }: { isArabic: boolean }): Promise<CartItem[]> {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
   const guestId = cookieStore.get(COOKIE_KEYS.GUEST_ID)?.value;
-
   const headers: Record<string, string> = {
     Accept: "application/json",
     "Content-Type": "application/json",
-    "X-Localization": "ar",
+    "X-Localization": isArabic ? "ar" : "en",
     moduleId: process.env.MODULE_ID ?? "3",
     zoneId: process.env.ZONE_ID!,
   };

@@ -35,9 +35,10 @@ const VIEW_ALL_BTN = [
 
 interface CategoriesGridClientProps {
     categories: StoreCategory[];
+    isArabic: boolean;
 }
 
-export function CategoriesGridClient({ categories }: CategoriesGridClientProps) {
+export function CategoriesGridClient({ categories, isArabic }: CategoriesGridClientProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const columns = buildColumns(categories);
@@ -48,17 +49,17 @@ export function CategoriesGridClient({ categories }: CategoriesGridClientProps) 
 
     return (
         <section
-            aria-label="تصنيفات المتجر"
+            aria-label={isArabic ? "تصنيفات المتجر" : "Store categories"}
             className="bg-transparent px-3 pb-5 pt-3 sm:px-5 lg:px-6"
-            dir="rtl"
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <div className="mb-3 flex items-center justify-between gap-3">
                 <h2 className="text-base font-bold text-[#111B18] dark:text-gray-50 sm:text-lg">
-                    الاقسام
+                    {isArabic ? "الاقسام" : "Categories"}
                 </h2>
 
                 <Link href={viewAllHref} className={VIEW_ALL_BTN}>
-                    <span>عرض الكل</span>
+                    <span>{isArabic ? "عرض الكل" : "View all"}</span>
                     <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
                 </Link>
             </div>
@@ -78,7 +79,7 @@ export function CategoriesGridClient({ categories }: CategoriesGridClientProps) 
                             className={`${COLUMN_CLASS} flex flex-col gap-2 sm:gap-2.5`}
                         >
                             {column.map((category) => (
-                                <CategoryCard key={category.id} category={category} />
+                                <CategoryCard key={category.id} category={category} isArabic={isArabic} />
                             ))}
                         </div>
                     ))}

@@ -3,10 +3,18 @@
 import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { WALLET_FILTER_OPTIONS } from "@/features/profile/constants/wallet.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 import type { WalletHistoryFilter } from "@/features/profile/types/wallet.types";
 
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
+const WALLET_FILTER_OPTIONS: WalletHistoryFilter[] = [
+    "all",
+    "order",
+    "loyalty",
+    "payment",
+    "referral",
+    "cashback",
+];
 
 export function WalletFilterDropdown({
     value,
@@ -15,11 +23,33 @@ export function WalletFilterDropdown({
     value: WalletHistoryFilter;
     onChange: (next: WalletHistoryFilter) => void;
 }) {
+    const { isArabic } = useLanguage();
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
-    const selected =
-        WALLET_FILTER_OPTIONS.find((o) => o.id === value) ??
-        WALLET_FILTER_OPTIONS[0];
+    const selectedLabel =
+        value === "all"
+            ? isArabic
+                ? "كل الحركات المالية"
+                : "All transactions"
+            : value === "order"
+              ? isArabic
+                  ? "معاملات الطلب"
+                  : "Order transactions"
+              : value === "loyalty"
+                ? isArabic
+                    ? "تم تحويل من نقطة الولاء"
+                    : "Converted from loyalty points"
+                : value === "payment"
+                  ? isArabic
+                      ? "تمت الإضافة عبر طريقة الدفع"
+                      : "Added via payment method"
+                  : value === "referral"
+                    ? isArabic
+                        ? "المكتسبة عن طريق الإحالة"
+                        : "Earned via referral"
+                    : isArabic
+                      ? "معاملات الاسترداد النقدي"
+                      : "Cashback transactions";
 
     useEffect(() => {
         if (!open) return;
@@ -50,7 +80,7 @@ export function WalletFilterDropdown({
                     className="truncate text-[12px] font-medium text-[#111B18] dark:text-gray-100 sm:text-[13px]"
                     style={TAJAWAL}
                 >
-                    {selected.label}
+                    {selectedLabel}
                 </span>
             </button>
 
@@ -60,15 +90,15 @@ export function WalletFilterDropdown({
                     className="absolute start-0 top-[calc(100%+6px)] z-30 w-[min(260px,80vw)] overflow-hidden rounded-[10px] border border-[#F6F5F8] bg-white shadow-[0px_4px_16px_rgba(0,0,0,0.1)] dark:border-gray-700 dark:bg-gray-800"
                 >
                     {WALLET_FILTER_OPTIONS.map((option, index) => {
-                        const isSelected = option.id === value;
+                        const isSelected = option === value;
                         return (
-                            <div key={option.id}>
+                            <div key={option}>
                                 <button
                                     type="button"
                                     role="option"
                                     aria-selected={isSelected}
                                     onClick={() => {
-                                        onChange(option.id);
+                                        onChange(option);
                                         setOpen(false);
                                     }}
                                     className={[
@@ -79,7 +109,29 @@ export function WalletFilterDropdown({
                                     ].join(" ")}
                                     style={TAJAWAL}
                                 >
-                                    {option.label}
+                                    {option === "all"
+                                        ? isArabic
+                                            ? "كل الحركات المالية"
+                                            : "All transactions"
+                                        : option === "order"
+                                          ? isArabic
+                                              ? "معاملات الطلب"
+                                              : "Order transactions"
+                                          : option === "loyalty"
+                                            ? isArabic
+                                                ? "تم تحويل من نقطة الولاء"
+                                                : "Converted from loyalty points"
+                                            : option === "payment"
+                                              ? isArabic
+                                                  ? "تمت الإضافة عبر طريقة الدفع"
+                                                  : "Added via payment method"
+                                              : option === "referral"
+                                                ? isArabic
+                                                    ? "المكتسبة عن طريق الإحالة"
+                                                    : "Earned via referral"
+                                                : isArabic
+                                                  ? "معاملات الاسترداد النقدي"
+                                                  : "Cashback transactions"}
                                 </button>
                                 {index < WALLET_FILTER_OPTIONS.length - 1 && (
                                     <div className="mx-3 border-t border-[#F0EFF3] dark:border-gray-700" />

@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 
+import { useLanguage } from "@/features/language/useLanguage";
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
-import { WALLET_STRINGS } from "@/features/profile/constants/wallet.strings";
 import type { WalletHistoryGroup } from "@/features/profile/types/wallet.types";
 import { WalletBalanceCard } from "./WalletBalanceCard";
 import { WalletHistoryList } from "./WalletHistoryList";
@@ -19,11 +19,12 @@ export function MyWalletClient({
     balance,
     history = [],
 }: MyWalletClientProps) {
+    const { isArabic } = useLanguage();
     const router = useRouter();
 
     return (
         <ProfileSubpageShell
-            title={WALLET_STRINGS.pageTitle}
+            title={isArabic ? "محفظتي" : "My wallet"}
             relaxedHeader
             showHeaderBorder={false}
             showFooterBorder={false}
@@ -36,7 +37,7 @@ export function MyWalletClient({
                         className="flex h-12 w-full items-center justify-center rounded-[12px] bg-[#30913F] text-[15px] font-bold text-white transition-opacity active:opacity-90 sm:h-[52px] sm:text-[16px]"
                         style={TAJAWAL}
                     >
-                        {WALLET_STRINGS.addBalance}
+                        {isArabic ? "أضف رصيد" : "Add balance"}
                     </button>
                 </div>
             }

@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import type { AuthUser } from "@/features/auth/types/auth.types";
+import { getServerLocale } from "@/features/language/getServerLocale";
 import type { UpdateProfileResult } from "@/features/profile/types/profile.types";
 import {
     mapCustomerInfoToAuthUser,
@@ -18,6 +19,10 @@ const COOKIE_OPTS = {
     secure: IS_PROD,
     httpOnly: false,
 };
+
+function message(isArabic: boolean, ar: string, en: string): string {
+    return isArabic ? ar : en;
+}
 
 async function getToken(): Promise<string | null> {
     const cookieStore = await cookies();
@@ -41,11 +46,13 @@ async function persistUser(user: AuthUser) {
 }
 
 async function fetchCustomerInfo(token: string, current: AuthUser | null): Promise<AuthUser | null> {
+    const locale = await getServerLocale();
+
     const res = await fetch(`${BACKEND_URL}/api/v1/customer/info`, {
         headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
-            "X-localization": "ar",
+            "X-localization": locale,
         },
         cache: "no-store",
     });
@@ -67,19 +74,23 @@ export async function updateProfile(
     },
     imageFile?: File | null,
 ): Promise<UpdateProfileResult> {
+    const locale = await getServerLocale();
+    const isArabic = locale === "ar";
     const token = await getToken();
     if (!token) {
-        return { success: false, message: "غير مصرح", fieldErrors: { general: "غير مصرح" } };
+        const unauthorized = message(isArabic, "غير مصرح", "Unauthorized");
+        return { success: false, message: unauthorized, fieldErrors: { general: unauthorized } };
     }
 
     const currentUser = await getCurrentUser();
     const phone = payload.phone.trim();
 
     if (!phone) {
+        const phoneRequired = message(isArabic, "رقم الهاتف مطلوب", "Phone number is required");
         return {
             success: false,
-            message: "رقم الهاتف مطلوب",
-            fieldErrors: { phone: "رقم الهاتف مطلوب" },
+            message: phoneRequired,
+            fieldErrors: { phone: phoneRequired },
         };
     }
 
@@ -98,7 +109,7 @@ export async function updateProfile(
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: "application/json",
-                "X-localization": "ar",
+                "X-localization": locale,
             },
             body: formData,
         });
@@ -107,8 +118,9 @@ export async function updateProfile(
 
         if (!res.ok) {
             const fieldErrors = parseProfileFieldErrors(json);
-            const message = fieldErrors.general ?? Object.values(fieldErrors)[0] ?? "تعذر حفظ التغييرات";
-            return { success: false, message, fieldErrors };
+            const fallback = message(isArabic, "تعذر حفظ التغييرات", "Could not save changes");
+            const errorMessage = fieldErrors.general ?? Object.values(fieldErrors)[0] ?? fallback;
+            return { success: false, message: errorMessage, fieldErrors };
         }
 
         const refreshedUser = (await fetchCustomerInfo(token, currentUser)) ?? currentUser;
@@ -126,21 +138,30 @@ export async function updateProfile(
 
         return {
             success: true,
-            message: typeof json?.message === "string" ? json.message : "تم حفظ التغييرات بنجاح",
+            message: typeof json?.message === "string"
+                ? json.message
+                : message(isArabic, "تم حفظ التغييرات بنجاح", "Changes saved successfully"),
             user: updatedUser,
         };
     } catch {
+        const fallback = message(
+            isArabic,
+            "تعذر حفظ التغييرات، حاول مرة أخرى",
+            "Could not save changes, please try again",
+        );
         return {
             success: false,
-            message: "تعذر حفظ التغييرات، حاول مرة أخرى",
-            fieldErrors: { general: "تعذر حفظ التغييرات، حاول مرة أخرى" },
+            message: fallback,
+            fieldErrors: { general: fallback },
         };
     }
 }
 
 export async function deleteAccount(): Promise<{ success: boolean; message: string }> {
+    const locale = await getServerLocale();
+    const isArabic = locale === "ar";
     const token = await getToken();
-    if (!token) return { success: false, message: "غير مصرح" };
+    if (!token) return { success: false, message: message(isArabic, "غير مصرح", "Unauthorized") };
 
     try {
         const res = await fetch(`${BACKEND_URL}/api/v1/customer/remove-account`, {
@@ -149,7 +170,7 @@ export async function deleteAccount(): Promise<{ success: boolean; message: stri
                 Authorization: `Bearer ${token}`,
                 Accept: "application/json",
                 "Content-Type": "application/json",
-                "X-localization": "ar",
+                "X-localization": locale,
             },
             body: JSON.stringify({ _method: "delete" }),
         });
@@ -157,12 +178,23 @@ export async function deleteAccount(): Promise<{ success: boolean; message: stri
         const json = await res.json();
 
         if (!res.ok) {
-            const message = json?.errors?.[0]?.message ?? json?.message ?? "تعذر حذف الحساب";
-            return { success: false, message };
+            const fallback = message(isArabic, "تعذر حذف الحساب", "Could not delete account");
+            const errorMessage = json?.errors?.[0]?.message ?? json?.message ?? fallback;
+            return { success: false, message: errorMessage };
         }
 
-        return { success: true, message: json?.message ?? "تم حذف الحساب" };
+        return {
+            success: true,
+            message: json?.message ?? message(isArabic, "تم حذف الحساب", "Account deleted"),
+        };
     } catch {
-        return { success: false, message: "تعذر حذف الحساب، حاول مرة أخرى" };
+        return {
+            success: false,
+            message: message(
+                isArabic,
+                "تعذر حذف الحساب، حاول مرة أخرى",
+                "Could not delete account, please try again",
+            ),
+        };
     }
 }

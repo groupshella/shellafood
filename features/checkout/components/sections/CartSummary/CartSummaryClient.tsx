@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Package } from "lucide-react";
 import type { CartItem } from "@/features/cart/types/cart.types";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface CartSummaryClientProps {
     items: CartItem[];
@@ -14,11 +15,12 @@ function getTotalQuantity(items: CartItem[]) {
 
 export function CartSummaryClient({ items }: CartSummaryClientProps) {
     const cartCount = getTotalQuantity(items);
+    const { isArabic } = useLanguage();
 
     return (
-        <div dir="rtl">
+        <div dir={isArabic ? "rtl" : "ltr"}>
             <p className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
-                يوجد {cartCount.toLocaleString("en-US")} منتجات في سلتك
+                {isArabic ? `يوجد ${cartCount.toLocaleString("en-US")} منتجات في سلتك` : `There are ${cartCount.toLocaleString("en-US")} products in your cart`}
             </p>
 
             <div className="flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] sm:gap-2.5 [&::-webkit-scrollbar]:hidden">

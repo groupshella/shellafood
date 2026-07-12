@@ -2,8 +2,8 @@
 
 import { LogIn } from "lucide-react";
 import { CheckoutBottomSheet } from "@/features/checkout/components/shared/CheckoutBottomSheet";
-import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 import { PrimaryButton } from "@/features/profile/components/shared/PrimaryButton";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface LoginRequiredSheetProps {
     isOpen: boolean;
@@ -20,12 +20,18 @@ export function LoginRequiredSheet({
     loginHref = "/auth",
     onLogin,
 }: LoginRequiredSheetProps) {
+    const { isArabic } = useLanguage();
+
     return (
         <CheckoutBottomSheet
             isOpen={isOpen}
             isVisible={isVisible}
             onClose={onClose}
-            ariaLabel={PROFILE_STRINGS.loginRequiredTitle}
+            ariaLabel={
+                isArabic
+                    ? "هذه الخدمة تتطلب تسجيل دخول"
+                    : "This service requires signing in"
+            }
             showCloseButton
         >
             <div className="mx-auto flex w-full max-w-md flex-col items-center px-2 pb-8 pt-4 text-center sm:px-4">
@@ -36,13 +42,17 @@ export function LoginRequiredSheet({
                     </div>
                 </div>
                 <h2 className="mb-2 text-[17px] font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
-                    {PROFILE_STRINGS.loginRequiredTitle}
+                    {isArabic
+                        ? "هذه الخدمة تتطلب تسجيل دخول"
+                        : "This service requires signing in"}
                 </h2>
                 <p className="mb-6 text-[14px] leading-relaxed text-gray-500 dark:text-gray-400 sm:text-[15px]">
-                    {PROFILE_STRINGS.loginRequiredSubtitle}
+                    {isArabic
+                        ? "الرجاء تسجيل الدخول للاستمتاع بخدمتك"
+                        : "Please sign in to use this service"}
                 </p>
                 <PrimaryButton href={onLogin ? undefined : loginHref} onClick={onLogin}>
-                    {PROFILE_STRINGS.login}
+                    {isArabic ? "تسجيل الدخول" : "Sign in"}
                 </PrimaryButton>
             </div>
         </CheckoutBottomSheet>

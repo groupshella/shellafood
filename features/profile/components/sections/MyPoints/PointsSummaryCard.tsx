@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 
-import { POINTS_STRINGS } from "@/features/profile/constants/points.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
 const AFACAD = { fontFamily: "'Afacad Flux', sans-serif" } as const;
 
 export function PointsSummaryCard({ points }: { points: number }) {
+    const { isArabic } = useLanguage();
     const display = Number.isInteger(points)
         ? String(points)
         : points.toFixed(2);
@@ -15,7 +16,11 @@ export function PointsSummaryCard({ points }: { points: number }) {
     return (
         <section
             className="relative w-full overflow-hidden rounded-[16px] bg-[#EFE6FF] dark:bg-[#2D1F47] px-4 py-6 sm:rounded-[18px] sm:px-5 sm:py-7"
-            aria-label={POINTS_STRINGS.convertiblePoints}
+            aria-label={
+                isArabic
+                    ? "نقاطك القابلة للتحويل"
+                    : "Your convertible points"
+            }
         >
             <div className="pointer-events-none absolute inset-0" aria-hidden>
                 <Image
@@ -53,13 +58,15 @@ export function PointsSummaryCard({ points }: { points: number }) {
                     className="text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[17px]"
                     style={TAJAWAL}
                 >
-                    {POINTS_STRINGS.convertiblePoints}
+                    {isArabic
+                        ? "نقاطك القابلة للتحويل"
+                        : "Your convertible points"}
                 </h2>
                 <p
                     className="text-[13px] font-medium leading-[160%] text-[#7861A6] dark:text-[#C4B5E0] sm:text-[14px]"
                     style={TAJAWAL}
                 >
-                    {POINTS_STRINGS.earnPointsNow}
+                    {isArabic ? "اربح نقاط الآن" : "Earn points now"}
                 </p>
                 <p
                     className="mt-2 text-[clamp(36px,10vw,48px)] font-extrabold leading-none tabular-nums text-[#111B18] dark:text-gray-50"

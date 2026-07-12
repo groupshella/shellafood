@@ -14,6 +14,7 @@ import {
 	SecondaryButton,
 } from "@/features/auth/components/shared/AuthPrimitives";
 import { getGuestId } from "@/features/auth/lib/auth.lib";
+import { useLanguage } from "@/features/language/useLanguage";
 import { useRouter } from "next/navigation";
 
 interface LoginScreenProps {
@@ -116,6 +117,7 @@ const LoginScreen = memo(function LoginScreen({
 	onGoogle,
 	onLanguageToggle,
 }: LoginScreenProps) {
+	const { isArabic, toggleLanguage } = useLanguage();
 	const [phone, setPhone] = useState(prefillPhone);
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
@@ -141,22 +143,22 @@ const LoginScreen = memo(function LoginScreen({
 		setShowPassword((s) => !s);
 	}, []);
 
+	const handleLanguageToggle = onLanguageToggle ?? toggleLanguage;
+
 	return (
 		<AuthShell>
-			{onLanguageToggle && (
-				<motion.button
-					type="button"
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					transition={{ delay: 0.1 }}
-					onClick={onLanguageToggle}
-					className="absolute top-14 end-4 z-10 inline-flex min-h-9 items-center gap-1 rounded-2xl border border-[#C6C8CE] bg-white px-2.5 py-1.5 text-[14px] font-normal text-[#111B18] transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus-visible:ring-offset-gray-900 sm:top-16"
-					aria-label="تغيير اللغة"
-				>
-					<GlobeIcon />
-					English
-				</motion.button>
-			)}
+			<motion.button
+				type="button"
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				transition={{ delay: 0.1 }}
+				onClick={handleLanguageToggle}
+				className="absolute top-14 end-4 z-10 inline-flex min-h-9 items-center gap-1 rounded-2xl border border-[#C6C8CE] bg-white px-2.5 py-1.5 text-[14px] font-normal text-[#111B18] transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus-visible:ring-offset-gray-900 sm:top-16"
+				aria-label={isArabic ? "تغيير اللغة" : "Change language"}
+			>
+				<GlobeIcon />
+				{isArabic ? "English" : "العربية"}
+			</motion.button>
 
 			<div className="mt-8 flex flex-col items-center gap-6 sm:mt-10">
 				<motion.div
@@ -167,7 +169,7 @@ const LoginScreen = memo(function LoginScreen({
 				>
 					<Image
 						src="/favicon.ico"
-						alt="شلة"
+						alt={isArabic ? "شلة" : "Shella"}
 						width={64}
 						height={46}
 						sizes="64px"
@@ -183,10 +185,12 @@ const LoginScreen = memo(function LoginScreen({
 					className="flex flex-col items-center gap-2"
 				>
 					<h1 className="text-center text-2xl font-bold leading-tight text-[#111B18] dark:text-gray-100 sm:text-[25px]">
-						مرحباً بك
+						{isArabic ? "مرحباً بك" : "Welcome"}
 					</h1>
 					<p className="max-w-xs text-center text-[15px] font-normal leading-relaxed text-[#555555] dark:text-gray-400 sm:text-[16px]">
-						سجل دخول أو أنشئ حساب جديد للمتابعة
+						{isArabic
+							? "سجل دخول أو أنشئ حساب جديد للمتابعة"
+							: "Sign in or create a new account to continue"}
 					</p>
 				</motion.div>
 			</div>
@@ -201,7 +205,7 @@ const LoginScreen = memo(function LoginScreen({
 
 				<div className="flex flex-col gap-2">
 					<PasswordField
-						label="كلمة المرور"
+						label={isArabic ? "كلمة المرور" : "Password"}
 						value={password}
 						onChange={setPassword}
 						onEnter={handleSubmit}
@@ -217,14 +221,14 @@ const LoginScreen = memo(function LoginScreen({
 							disabled={isLoading}
 							className="rounded px-1 py-0.5 text-[14px] font-medium text-[#555555] underline transition-colors hover:text-[#30913F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 disabled:opacity-50 dark:text-gray-400 dark:hover:text-[#4aba5a]"
 						>
-							نسيت كلمة المرور ؟
+							{isArabic ? "نسيت كلمة المرور ؟" : "Forgot password?"}
 						</button>
 						<label className="flex cursor-pointer select-none items-center gap-2 opacity-80">
 							<button
 								type="button"
 								role="checkbox"
 								aria-checked={remember}
-								aria-label="تذكرني"
+								aria-label={isArabic ? "تذكرني" : "Remember me"}
 								disabled={isLoading}
 								onClick={() => setRemember((r) => !r)}
 								className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-50 ${remember
@@ -244,7 +248,9 @@ const LoginScreen = memo(function LoginScreen({
 									</svg>
 								)}
 							</button>
-							<span className="text-[14px] font-medium text-[#111B18] dark:text-gray-200">تذكرني</span>
+							<span className="text-[14px] font-medium text-[#111B18] dark:text-gray-200">
+								{isArabic ? "تذكرني" : "Remember me"}
+							</span>
 						</label>
 					</div>
 				</div>
@@ -275,13 +281,27 @@ const LoginScreen = memo(function LoginScreen({
 
 			<div className="mt-8 flex w-full flex-col gap-3">
 				<PrimaryButton onClick={handleSubmit} disabled={!isValid || isLoading}>
-					{isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+					{isLoading
+						? isArabic
+							? "جاري تسجيل الدخول..."
+							: "Signing in..."
+						: isArabic
+							? "تسجيل الدخول"
+							: "Sign in"}
 				</PrimaryButton>
 
 				<SecondaryButton
 					onClick={hasGuestId ? () => router.push("/home") : onGuest}
 					disabled={isLoading}
-					aria-label={hasGuestId ? "أنت تتصفح بالفعل كزائر" : "المتابعة كزائر"}
+					aria-label={
+						hasGuestId
+							? isArabic
+								? "أنت تتصفح بالفعل كزائر"
+								: "You are already browsing as a guest"
+							: isArabic
+								? "المتابعة كزائر"
+								: "Continue as guest"
+					}
 				>
 					<span className="inline-flex items-center justify-center gap-2">
 						<span
@@ -293,14 +313,20 @@ const LoginScreen = memo(function LoginScreen({
 						>
 							{hasGuestId ? <GuestActiveIcon /> : <GuestIcon />}
 						</span>
-						{hasGuestId ? "أنت تتصفح كزائر" : "المتابعة كزائر"}
+						{hasGuestId
+							? isArabic
+								? "أنت تتصفح كزائر"
+								: "Browsing as guest"
+							: isArabic
+								? "المتابعة كزائر"
+								: "Continue as guest"}
 					</span>
 				</SecondaryButton>
 
 				<div className="flex items-center gap-3 py-1">
 					<div className="h-px flex-1 bg-[#C6C8CE] dark:bg-gray-600" />
 					<span className="shrink-0 text-[15px] font-normal text-[#555555] dark:text-gray-400 sm:text-[16px]">
-						أو المتابعة بحساب
+						{isArabic ? "أو المتابعة بحساب" : "Or continue with"}
 					</span>
 					<div className="h-px flex-1 bg-[#C6C8CE] dark:bg-gray-600" />
 				</div>
@@ -310,7 +336,11 @@ const LoginScreen = memo(function LoginScreen({
 						type="button"
 						onClick={onApple}
 						disabled={isLoading}
-						aria-label="تسجيل الدخول بحساب Apple"
+						aria-label={
+							isArabic
+								? "تسجيل الدخول بحساب Apple"
+								: "Sign in with Apple"
+						}
 						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-white text-[#111B18] transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus-visible:ring-gray-500"
 					>
 						<AppleIcon />
@@ -320,7 +350,11 @@ const LoginScreen = memo(function LoginScreen({
 						type="button"
 						onClick={onGoogle}
 						disabled={isLoading}
-						aria-label="تسجيل الدخول بحساب Google"
+						aria-label={
+							isArabic
+								? "تسجيل الدخول بحساب Google"
+								: "Sign in with Google"
+						}
 						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-white transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus-visible:ring-gray-500"
 					>
 						<GoogleIcon />
@@ -329,14 +363,14 @@ const LoginScreen = memo(function LoginScreen({
 				</div>
 
 				<p className="pt-2 text-center text-[14px] font-medium text-[#111B18] dark:text-gray-300">
-					ليس لديك حساب؟{" "}
+					{isArabic ? "ليس لديك حساب؟" : "Don't have an account?"}{" "}
 					<button
 						type="button"
 						onClick={onRegister}
 						disabled={isLoading}
 						className="rounded font-bold text-[#30913F] transition-colors hover:text-[#2a8036] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 disabled:opacity-50 dark:hover:text-[#4aba5a]"
 					>
-						إنشاء حساب
+						{isArabic ? "إنشاء حساب" : "Create account"}
 					</button>
 				</p>
 			</div>

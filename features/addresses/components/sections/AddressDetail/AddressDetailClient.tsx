@@ -3,10 +3,10 @@
 import { MapPin, Building2, Hash, Layers, DoorOpen, Info, Tag } from "lucide-react";
 import { Address } from "@/features/addresses/types/address.types";
 
-const BUILDING_TYPE_LABELS: Record<string, string> = {
-	apartment: "شقة",
-	villa: "فيلا",
-	office: "مكتب",
+const BUILDING_TYPE_LABELS: Record<string, { ar: string; en: string }> = {
+	apartment: { ar: "شقة", en: "Apartment" },
+	villa: { ar: "فيلا", en: "Villa" },
+	office: { ar: "مكتب", en: "Office" },
 };
 
 interface DetailRowProps {
@@ -33,7 +33,7 @@ function DetailRow({ icon, label, value }: DetailRowProps) {
 	);
 }
 
-export function AddressDetailClient({ address }: { address: Address }) {
+export function AddressDetailClient({ address, isArabic }: { address: Address, isArabic: boolean }) {
 	const iconClass = "h-4 w-4 text-[#30913F] dark:text-[#3da84f]";
 
 	const hasBuildingDetails =
@@ -44,38 +44,74 @@ export function AddressDetailClient({ address }: { address: Address }) {
 
 	return (
 		<div className="flex flex-col gap-3 px-3 pb-8 pt-4 sm:gap-4 sm:px-5 sm:pt-5 lg:grid lg:grid-cols-2 lg:gap-5 lg:px-6 lg:pb-10 xl:gap-6">
-			<section aria-label="الموقع" className={cardClass}>
-				<DetailRow icon={<MapPin className={iconClass} aria-hidden />} label="المدينة" value={address.city} />
-				<DetailRow icon={<MapPin className={iconClass} aria-hidden />} label="المنطقة" value={address.region} />
-				<DetailRow icon={<MapPin className={iconClass} aria-hidden />} label="اسم الشارع" value={address.street_name} />
+			<section aria-label={isArabic ? "الموقع" : "Location"} className={cardClass} dir={isArabic ? "rtl" : "ltr"}>
+				<DetailRow
+					icon={<MapPin className={iconClass} aria-hidden />}
+					label={isArabic ? "المدينة" : "City"}
+					value={address.city}
+				/>
+				<DetailRow
+					icon={<MapPin className={iconClass} aria-hidden />}
+					label={isArabic ? "المنطقة" : "District"}
+					value={address.region}
+				/>
+				<DetailRow
+					icon={<MapPin className={iconClass} aria-hidden />}
+					label={isArabic ? "اسم الشارع" : "Street name"}
+					value={address.street_name}
+				/>
 			</section>
 
 			<div className="flex flex-col gap-3 sm:gap-4 lg:gap-5">
 				{hasBuildingDetails && (
-					<section aria-label="تفاصيل المبنى" className={cardClass}>
+					<section aria-label={isArabic ? "تفاصيل المبنى" : "Building details"} className={cardClass}>
 						<DetailRow
 							icon={<Building2 className={iconClass} aria-hidden />}
-							label="نوع المبنى"
+							label={isArabic ? "نوع المبنى" : "Building type"}
 							value={
 								address.building_type
-									? BUILDING_TYPE_LABELS[address.building_type] ?? address.building_type
+									? BUILDING_TYPE_LABELS[address.building_type]
+										? isArabic
+											? BUILDING_TYPE_LABELS[address.building_type].ar
+											: BUILDING_TYPE_LABELS[address.building_type].en
+										: address.building_type
 									: undefined
 							}
 						/>
-						<DetailRow icon={<Hash className={iconClass} aria-hidden />} label="رقم المبنى" value={address.building_number} />
-						<DetailRow icon={<Layers className={iconClass} aria-hidden />} label="رقم الطابق" value={address.floor_number} />
-						<DetailRow icon={<DoorOpen className={iconClass} aria-hidden />} label="رقم الشقة" value={address.apartment_number} />
+						<DetailRow
+							icon={<Hash className={iconClass} aria-hidden />}
+							label={isArabic ? "رقم المبنى" : "Building number"}
+							value={address.building_number}
+						/>
+						<DetailRow
+							icon={<Layers className={iconClass} aria-hidden />}
+							label={isArabic ? "رقم الطابق" : "Floor number"}
+							value={address.floor_number}
+						/>
+						<DetailRow
+							icon={<DoorOpen className={iconClass} aria-hidden />}
+							label={isArabic ? "رقم الشقة" : "Apartment number"}
+							value={address.apartment_number}
+						/>
 					</section>
 				)}
 
 				{address.additional_info && (
-					<section aria-label="معلومات إضافية" className={cardClass}>
-						<DetailRow icon={<Info className={iconClass} aria-hidden />} label="معلومات إضافية" value={address.additional_info} />
+					<section aria-label={isArabic ? "معلومات إضافية" : "Additional info"} className={cardClass}>
+						<DetailRow
+							icon={<Info className={iconClass} aria-hidden />}
+							label={isArabic ? "معلومات إضافية" : "Additional info"}
+							value={address.additional_info}
+						/>
 					</section>
 				)}
 
-				<section aria-label="تسمية العنوان" className={cardClass}>
-					<DetailRow icon={<Tag className={iconClass} aria-hidden />} label="تسمية العنوان" value={address.address_label} />
+				<section aria-label={isArabic ? "تسمية العنوان" : "Address label"} className={cardClass}>
+					<DetailRow
+						icon={<Tag className={iconClass} aria-hidden />}
+						label={isArabic ? "تسمية العنوان" : "Address label"}
+						value={address.address_label}
+					/>
 				</section>
 			</div>
 		</div>

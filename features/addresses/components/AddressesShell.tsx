@@ -7,6 +7,7 @@ interface AddressesShellProps {
 	title: string;
 	showAddButton?: boolean;
 	children: React.ReactNode;
+	isArabic: boolean;
 }
 
 const iconButtonClass =
@@ -16,18 +17,22 @@ export function AddressesShell({
 	title,
 	showAddButton = false,
 	children,
+	isArabic,
 }: AddressesShellProps) {
 	const router = useRouter();
 
 	return (
-		<div className="flex min-h-dvh min-w-0 flex-col overflow-x-hidden bg-gray-50 dark:bg-gray-900">
+		<div
+			dir={isArabic ? "rtl" : "ltr"}
+			className="flex min-h-dvh min-w-0 flex-col overflow-x-hidden bg-gray-50 dark:bg-gray-900"
+		>
 			<header className="sticky top-0 z-10 border-b border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900">
 				<div className="mx-auto flex w-full max-w-lg min-w-0 items-center justify-between gap-2 px-3 py-2.5 sm:max-w-xl sm:gap-3 sm:px-5 sm:py-4 md:max-w-2xl lg:max-w-3xl lg:px-6 xl:max-w-4xl">
 					<button
 						type="button"
 						onClick={() => router.push("/home")}
 						className={`${iconButtonClass} active:bg-gray-100 dark:active:bg-gray-800`}
-						aria-label="رجوع"
+						aria-label={isArabic ? "رجوع" : "Back"}
 					>
 						<ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300 sm:h-6 sm:w-6" aria-hidden />
 					</button>
@@ -41,7 +46,7 @@ export function AddressesShell({
 							type="button"
 							onClick={() => router.push("/addresses/add")}
 							className={`${iconButtonClass} bg-[#30913F]/10 active:bg-[#30913F]/20 dark:bg-[#30913F]/20 dark:active:bg-[#30913F]/30`}
-							aria-label="إضافة عنوان"
+							aria-label={isArabic ? "إضافة عنوان" : "Add address"}
 						>
 							<Plus className="h-5 w-5 text-[#30913F] dark:text-[#3da84f]" aria-hidden />
 						</button>

@@ -6,6 +6,7 @@ import { StoreShell } from "@/features/stores/components/StoreShell";
 import { StoreHeader } from "@/features/stores/components/sections/StoreHeader";
 import { StoreCategoryProducts } from "@/features/stores/components/sections/StoreCategoryProducts";
 import { AddToCart } from "@/features/cart/components/shared/AddToCart";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 interface StorePageProps {
     params: Promise<{ id: string }>;
@@ -23,6 +24,8 @@ export default async function StorePage({ params, searchParams }: StorePageProps
 
     const store = await getStoreDetails(storeId);
     const resolvedCategoryId = resolveStoreCategoryId(store, categoryId);
+    const locale = await getServerLocale();
+    const isArabic = locale === "ar";
 
     return (
         <StoreShell>
@@ -31,6 +34,7 @@ export default async function StorePage({ params, searchParams }: StorePageProps
                 storeId={storeId}
                 moduleId={moduleId}
                 activeCategoryId={resolvedCategoryId}
+                isArabic={isArabic}
             />
 
             <Suspense key={resolvedCategoryId || "default"} fallback={<StoreCategoryProducts.skeleton />}>
@@ -40,10 +44,11 @@ export default async function StorePage({ params, searchParams }: StorePageProps
                     categoryId={resolvedCategoryId}
                     categoryProducts={store.category_products}
                     scrollIntoView={Boolean(categoryId)}
+                    isArabic={isArabic}
                 />
             </Suspense>
 
-            <AddToCart moduleId={moduleId} />
+            <AddToCart moduleId={moduleId} isArabic={isArabic} />
         </StoreShell>
     );
 }

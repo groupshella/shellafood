@@ -5,6 +5,7 @@ import { AllCategories } from "@/features/hyper-market/Categories/components/sec
 import { CategoryTabs } from "@/features/hyper-market/Categories/components/sections/CategoryTabs";
 import { CategoryDetail } from "@/features/hyper-market/Categories/components/sections/CategoryDetail";
 import { AddToCart } from "@/features/cart/components/shared/AddToCart";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 const STORE_ID = "1";
 const MODULE_ID = "3";
@@ -22,26 +23,27 @@ export default async function HyperMarketCategoriesPage({
 	searchParams,
 }: HyperMarketCategoriesPageProps) {
 	const { categoryId } = await searchParams;
-
+	const locale = await getServerLocale();
+	const isArabic = locale === "ar";
 	return (
-		<CategoriesPageShell moduleId={MODULE_ID}>
+		<CategoriesPageShell moduleId={MODULE_ID} isArabic={isArabic}>
 			{categoryId ? (
 				<>
 					<Suspense fallback={<CategoryTabs.skeleton />}>
-						<CategoryTabs storeId={STORE_ID} activeCategoryId={categoryId} />
+						<CategoryTabs storeId={STORE_ID} activeCategoryId={categoryId} isArabic={isArabic} />
 					</Suspense>
 
 					<Suspense key={categoryId} fallback={<CategoryDetail.skeleton />}>
-						<CategoryDetail storeId={STORE_ID} categoryId={categoryId} />
+						<CategoryDetail storeId={STORE_ID} categoryId={categoryId} isArabic={isArabic} />
 					</Suspense>
 				</>
 			) : (
 				<Suspense fallback={<AllCategories.skeleton />}>
-					<AllCategories storeId={STORE_ID} />
+					<AllCategories storeId={STORE_ID} isArabic={isArabic} />
 				</Suspense>
 			)}
 
-			<AddToCart moduleId={MODULE_ID} />
+			<AddToCart moduleId={MODULE_ID} isArabic={isArabic} />
 		</CategoriesPageShell>
 	);
 }

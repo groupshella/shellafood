@@ -6,11 +6,13 @@ import { PromoBannerItem } from "./promo-banners.config";
 interface PromoBannerCardProps {
 	banner: PromoBannerItem;
 	priority?: boolean;
+	isArabic: boolean;
 }
 
 export const PromoBannerCard = memo(function PromoBannerCard({
 	banner,
 	priority = false,
+	isArabic,
 }: PromoBannerCardProps) {
 	const card = (
 		<div
@@ -26,7 +28,7 @@ export const PromoBannerCard = memo(function PromoBannerCard({
 		>
 			<Image
 				src={banner.src}
-				alt={banner.alt}
+				alt={banner.alt || isArabic ? "موقع شلة" : "Website banner"}
 				fill
 				priority={priority}
 				quality={90}
@@ -47,7 +49,7 @@ export const PromoBannerCard = memo(function PromoBannerCard({
 				target="_blank"
 				rel="noopener noreferrer"
 				className={linkClassName}
-				aria-label={banner.alt}
+				aria-label={banner.alt || isArabic ? "موقع شلة" : "Website banner"}
 			>
 				{card}
 			</Link>
@@ -55,7 +57,7 @@ export const PromoBannerCard = memo(function PromoBannerCard({
 	}
 
 	return (
-		<Link href={banner.href} className={linkClassName} aria-label={banner.alt}>
+		<Link href={banner.href} className={linkClassName} aria-label={banner.alt || isArabic ? "موقع شلة" : "Website banner"}>
 			{card}
 		</Link>
 	);

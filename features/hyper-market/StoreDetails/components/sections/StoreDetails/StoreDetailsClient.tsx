@@ -11,12 +11,13 @@ import { CategoriesGridClient } from "@/features/hyper-market/StoreDetails/compo
 interface StoreDetailsClientProps {
     store: StoreDetails;
     moduleId?: string;
+    isArabic: boolean;
 }
 
-export function StoreDetailsClient({ store, moduleId }: StoreDetailsClientProps) {
+export function StoreDetailsClient({ store, moduleId, isArabic }: StoreDetailsClientProps) {
     return (
-        <div className="flex flex-col pb-2">
-            <CategoriesGridClient categories={store.categories} />
+        <div className="flex flex-col pb-2" dir={isArabic ? "rtl" : "ltr"}>
+            <CategoriesGridClient categories={store.categories} isArabic={isArabic} />
 
         </div>
     );

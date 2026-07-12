@@ -1,4 +1,4 @@
-export function EmptyFavorites() {
+export function EmptyFavorites({ isArabic }: { isArabic: boolean }) {
     return (
         <div className="flex flex-col items-center justify-center px-4 py-12 text-center sm:px-6 sm:py-16 lg:py-24">
             <div className="relative mb-5 flex h-32 w-32 items-center justify-center sm:mb-6 sm:h-36 sm:w-36 md:h-40 md:w-40">
@@ -32,10 +32,10 @@ export function EmptyFavorites() {
             </div>
 
             <p className="text-base font-bold text-gray-800 dark:text-gray-200 sm:text-lg">
-                لا توجد مفضلات حتى الآن
+                {isArabic ? "لا توجد مفضلات حتى الآن" : "No favorites yet"}
             </p>
             <p className="mt-1.5 max-w-[220px] text-sm text-gray-500 dark:text-gray-400 sm:mt-2 sm:max-w-xs sm:text-[15px]">
-                ابدأ بإضافة المنتجات أو المتاجر التي تعجبك
+                {isArabic ? "ابدأ بإضافة المنتجات أو المتاجر التي تعجبك" : "Start by adding products or stores that you like"}
             </p>
         </div>
     );

@@ -7,8 +7,10 @@ import OtpScreen from "@/features/auth/components/OtpScreen";
 import NewPasswordScreen from "@/features/auth/components/NewPasswordScreen";
 import SuccessScreen from "@/features/auth/components/SuccessScreen";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useLanguage } from "@/features/language/useLanguage";
 
 export default function AuthFlowPage() {
+    const { isArabic } = useLanguage();
     const {
         step,
         phone,
@@ -97,18 +99,34 @@ export default function AuthFlowPage() {
 
             {step === "register-success" && (
                 <SuccessScreen
-                    title="تم إنشاء حسابك بنجاح"
-                    subtitle="يمكنك الان استخدام جميع خدمات التطبيق"
-                    buttonLabel="بدء الاستخدام"
+                    title={
+                        isArabic
+                            ? "تم إنشاء حسابك بنجاح"
+                            : "Your account was created successfully"
+                    }
+                    subtitle={
+                        isArabic
+                            ? "يمكنك الان استخدام جميع خدمات التطبيق"
+                            : "You can now use all app services"
+                    }
+                    buttonLabel={isArabic ? "بدء الاستخدام" : "Get started"}
                     onAction={goToLogin}
                 />
             )}
 
             {step === "reset-success" && (
                 <SuccessScreen
-                    title="تم تغيير كلمة المرور بنجاح"
-                    subtitle="يمكنك الان الدخول عن طريق كلمة المرور الجديدة"
-                    buttonLabel="تسجيل الدخول"
+                    title={
+                        isArabic
+                            ? "تم تغيير كلمة المرور بنجاح"
+                            : "Password changed successfully"
+                    }
+                    subtitle={
+                        isArabic
+                            ? "يمكنك الان الدخول عن طريق كلمة المرور الجديدة"
+                            : "You can now sign in with your new password"
+                    }
+                    buttonLabel={isArabic ? "تسجيل الدخول" : "Sign in"}
                     onAction={goToLogin}
                 />
             )}

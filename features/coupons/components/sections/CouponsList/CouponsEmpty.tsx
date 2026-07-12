@@ -4,11 +4,13 @@ type CouponsEmptyProps = {
 	message?: string;
 	/** Full viewport empty/error page vs. tab-level empty */
 	fullPage?: boolean;
+	isArabic: boolean;
 };
 
 export function CouponsEmpty({
-	message = "لا يوجد كوبونات في الوقت الحالي",
+	message,
 	fullPage = true,
+	isArabic,
 }: CouponsEmptyProps) {
 	return (
 		<div
@@ -29,7 +31,7 @@ export function CouponsEmpty({
 			>
 				<Image
 					src="/coupons/coupons-empty.png"
-					alt="لا يوجد كوبونات"
+					alt={isArabic ? "لا يوجد كوبونات" : "No coupons"}
 					fill
 					className="object-contain"
 					sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, 256px"

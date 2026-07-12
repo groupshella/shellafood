@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { PopularBrand } from "@/features/markets/types/popular-brands.types";
 
-export function BrandCard({ brand }: { brand: PopularBrand }) {
+export function BrandCard({ brand, isArabic }: { brand: PopularBrand, isArabic: boolean }) {
     const name = brand.name?.trim() || "";
 
     return (
@@ -11,6 +11,7 @@ export function BrandCard({ brand }: { brand: PopularBrand }) {
                 "ring-1 ring-black/[0.06] dark:bg-gray-800 dark:ring-white/[0.08]",
             ].join(" ")}
             aria-label={name}
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-gray-50 ring-1 ring-black/[0.04] dark:bg-gray-700 dark:ring-white/[0.06] sm:h-14 sm:w-14 lg:h-16 lg:w-16">
                 {brand.image_full_url ? (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface ClearCartConfirmSheetProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ export function ClearCartConfirmSheet({
   isClearing = false,
 }: ClearCartConfirmSheetProps) {
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
-
+  const { isArabic } = useLanguage();
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -51,7 +52,7 @@ export function ClearCartConfirmSheet({
         type="button"
         className="fixed inset-0 z-40 cursor-default bg-black/50 backdrop-blur-[2px] transition-opacity dark:bg-black/70"
         onClick={isClearing ? undefined : onCancel}
-        aria-label="إغلاق"
+        aria-label={isArabic ? "إغلاق" : "Close"}
         disabled={isClearing}
       />
 
@@ -68,7 +69,7 @@ export function ClearCartConfirmSheet({
           id="clear-cart-title"
           className="mb-6 text-center text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-lg"
         >
-          هل ترغب في تفريغ السلة؟
+          {isArabic ? "هل ترغب في تفريغ السلة؟" : "Are you sure you want to clear the cart?"}
         </p>
 
         <button
@@ -77,7 +78,7 @@ export function ClearCartConfirmSheet({
           disabled={isClearing}
           className="mb-3 w-full rounded-2xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 active:bg-[#267332] disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-offset-gray-900 sm:py-4 sm:text-[15px]"
         >
-          {isClearing ? "جاري التفريغ..." : "تفريغ السلة"}
+          {isClearing ? "جاري التفريغ..." : isArabic ? "تفريغ السلة" : "Clear cart"}
         </button>
 
         <button
@@ -87,7 +88,7 @@ export function ClearCartConfirmSheet({
           disabled={isClearing}
           className="w-full rounded-2xl bg-gray-100 py-3.5 text-sm font-medium text-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 active:bg-gray-200 disabled:opacity-60 dark:bg-gray-800 dark:text-gray-300 dark:focus-visible:ring-gray-500 dark:active:bg-gray-700 sm:py-4 sm:text-[15px]"
         >
-          إلغاء
+          {isArabic ? "إلغاء" : "Cancel"}
         </button>
       </div>
     </>

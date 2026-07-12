@@ -9,6 +9,7 @@ interface CategoriesClientProps {
     categories: Category[];
     moduleId: string;
     moduleName?: string;
+    isArabic: boolean;
 }
 
 function buildAllCategoriesHref(moduleId: string, moduleName?: string) {
@@ -27,20 +28,25 @@ const VIEW_MORE_BTN = [
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900",
 ].join(" ");
 
-export function CategoriesClient({ categories, moduleId, moduleName }: CategoriesClientProps) {
+export function CategoriesClient({
+    categories,
+    moduleId,
+    moduleName,
+    isArabic,
+}: CategoriesClientProps) {
     const allCategoriesHref = buildAllCategoriesHref(moduleId, moduleName);
 
     return (
         <section
-            aria-label="الأقسام"
+            aria-label={isArabic ? "الأقسام" : "Categories"}
             className="w-full space-y-3 py-4 sm:space-y-4 sm:py-5"
-            dir="rtl"
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-3 px-3 sm:max-w-2xl sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">
-                <h2 className="text-base font-semibold text-gray-500 dark:text-gray-400 sm:text-lg">الأقسام</h2>
+                <h2 className="text-base font-semibold text-gray-500 dark:text-gray-400 sm:text-lg">{isArabic ? "الأقسام" : "Categories"}</h2>
 
                 <Link href={allCategoriesHref} className={VIEW_MORE_BTN}>
-                    تطلع على المزيد
+                    {isArabic ? "تطلع على المزيد" : "View More"}
                 </Link>
             </div>
 
@@ -51,6 +57,7 @@ export function CategoriesClient({ categories, moduleId, moduleName }: Categorie
                             category={category}
                             moduleId={moduleId}
                             mode="filter"
+                            isArabic={isArabic}
                         />
                     </div>
                 ))}

@@ -5,11 +5,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { clearSession } from "@/features/auth/lib/auth.lib";
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
-import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 import { deleteAccount } from "@/features/profile/actions/profile.actions";
+import { useLanguage } from "@/features/language/useLanguage";
 
 export function DeleteAccountClient() {
     const router = useRouter();
+    const { isArabic } = useLanguage();
     const [agreed, setAgreed] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -36,7 +37,7 @@ export function DeleteAccountClient() {
 
     return (
         <ProfileSubpageShell
-            title={PROFILE_STRINGS.deleteTitle}
+            title={isArabic ? "حذف الحساب" : "Delete account"}
             relaxedHeader
             showHeaderBorder={false}
             showFooterBorder={false}
@@ -60,7 +61,9 @@ export function DeleteAccountClient() {
                             {agreed && <span className="text-[13px] leading-none">✓</span>}
                         </button>
                         <span className="text-[14px] font-medium leading-[160%] text-[#555555] dark:text-gray-400">
-                            {PROFILE_STRINGS.deleteAgree}
+                            {isArabic
+                                ? "لقد قرأت البيان أعلاه وأوافق عليه"
+                                : "I have read and agree to the statement above"}
                         </span>
                     </label>
 
@@ -75,7 +78,7 @@ export function DeleteAccountClient() {
                                 : "cursor-not-allowed bg-[#E2E4E6] text-[#555555] dark:bg-gray-800 dark:text-gray-500",
                         ].join(" ")}
                     >
-                        {PROFILE_STRINGS.deleteAccount}
+                        {isArabic ? "حذف الحساب" : "Delete account"}
                     </button>
                 </div>
             }
@@ -83,17 +86,21 @@ export function DeleteAccountClient() {
             <div className="mx-auto flex w-full max-w-lg flex-col gap-4 sm:max-w-2xl lg:max-w-3xl lg:gap-5">
                 <div className="flex flex-col items-start gap-1">
                     <p className="w-full text-start text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[17px]">
-                        {PROFILE_STRINGS.deleteIntro}
+                        {isArabic
+                            ? "يرجى مراجعة المعلومات التالية بعناية قبل حذف حسابك."
+                            : "Please carefully review the following before deleting your account."}
                     </p>
                     <p className="w-full text-start text-[15px] font-medium leading-[170%] text-[#111B18] dark:text-gray-200 sm:text-[16px]">
-                        {PROFILE_STRINGS.deleteBody}
+                        {isArabic
+                            ? "سيؤدي هذا الإجراء إلى حذف حسابك بشكل نهائي، بالإضافة إلى إزالة بعض البيانات المرتبطة به، مثل:"
+                            : "This will permanently delete your account and remove related data, such as:"}
                     </p>
                 </div>
 
                 <div className="flex w-full items-start gap-2">
                     <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#EB4335]" strokeWidth={1.5} />
                     <p className="flex-1 text-start text-[14px] font-bold leading-[160%] text-[#EB4335] dark:text-red-400">
-                        {PROFILE_STRINGS.deleteWarning}
+                        {isArabic ? "لا يمكن التراجع عن هذا الإجراء بعد تنفيذه." : "This action cannot be undone."}
                     </p>
                 </div>
 

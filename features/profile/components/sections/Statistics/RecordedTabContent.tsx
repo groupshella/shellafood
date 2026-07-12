@@ -2,6 +2,7 @@
 
 import { ArrowUp, Calendar, Clock, TrendingUp } from "lucide-react";
 
+import { useLanguage } from "@/features/language/useLanguage";
 import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import type {
     QidhaStatisticsData,
@@ -26,6 +27,7 @@ export function RecordedTabContent({
     categories: StatisticsCategory[];
     monthlyTrends: StatisticsMonthTrend[];
 }) {
+    const { isArabic } = useLanguage();
     const hasQidhaData = Boolean(qidha);
     const hasCategories = categories.length > 0;
     const hasTrends = monthlyTrends.length > 0;
@@ -55,7 +57,7 @@ export function RecordedTabContent({
                                 className="text-[13px] font-medium text-white/75"
                                 style={TAJAWAL}
                             >
-                                الرصيد المتاح
+                                {isArabic ? "الرصيد المتاح" : "Available balance"}
                             </span>
                             <div className="flex flex-wrap items-center gap-1.5 text-white">
                                 <span
@@ -78,7 +80,7 @@ export function RecordedTabContent({
                                 className="text-[12px] font-medium text-white"
                                 style={TAJAWAL}
                             >
-                                نشط
+                                {isArabic ? "نشط" : "Active"}
                             </span>
                         </div>
                     </div>
@@ -89,7 +91,7 @@ export function RecordedTabContent({
                             className="text-[11px] font-normal text-[#D1FDD2]"
                             style={TAJAWAL}
                         >
-                            آخر تحديث قبل دقيقة
+                            {isArabic ? "آخر تحديث قبل دقيقة" : "Updated a minute ago"}
                         </span>
                     </div>
                 </div>
@@ -98,28 +100,32 @@ export function RecordedTabContent({
             {/* Secondary balance stats */}
             <div className="grid grid-cols-3 gap-2">
                 <BalanceStatCard
-                    label="إجمالي الرصيد"
+                    label={isArabic ? "إجمالي الرصيد" : "Total balance"}
                     amount={qidhaAmount(qidha?.totalBalance)}
-                    sublabel="الرصيد الإجمالي"
+                    sublabel={isArabic ? "الرصيد الإجمالي" : "Total balance"}
                 />
                 <BalanceStatCard
-                    label="الحد الائتماني"
+                    label={isArabic ? "الحد الائتماني" : "Credit limit"}
                     amount={qidhaAmount(qidha?.creditLimit)}
-                    sublabel="الحد الأقصى المسموح"
+                    sublabel={isArabic ? "الحد الأقصى المسموح" : "Maximum allowed"}
                 />
                 <BalanceStatCard
-                    label="الرصيد المستخدم"
+                    label={isArabic ? "الرصيد المستخدم" : "Used balance"}
                     amount={qidhaAmount(qidha?.usedBalance)}
-                    sublabel="المبلغ المنفق حتى الاَن"
+                    sublabel={isArabic ? "المبلغ المنفق حتى الاَن" : "Amount spent so far"}
                 />
             </div>
 
             {/* Spending analysis */}
             <section className="flex flex-col gap-3">
-                <SectionTitle>تحليل الإنفاق</SectionTitle>
+                <SectionTitle>{isArabic ? "تحليل الإنفاق" : "Spending analysis"}</SectionTitle>
                 <div className="grid grid-cols-3 gap-2">
                     <QidhaSpendingCard
-                        label="إجمالي الإنفاق هذا الشهر"
+                        label={
+                            isArabic
+                                ? "إجمالي الإنفاق هذا الشهر"
+                                : "Total spending this month"
+                        }
                         amount={qidhaAmount(qidha?.monthlyTotal)}
                         iconBg="#EBFEEB"
                         icon={
@@ -130,7 +136,7 @@ export function RecordedTabContent({
                         }
                     />
                     <QidhaSpendingCard
-                        label="متوسط الإنفاق اليومي"
+                        label={isArabic ? "متوسط الإنفاق اليومي" : "Average daily spending"}
                         amount={qidhaAmount(qidha?.dailyAverage)}
                         iconBg="#EFE6FF"
                         icon={
@@ -141,7 +147,7 @@ export function RecordedTabContent({
                         }
                     />
                     <QidhaSpendingCard
-                        label="أعلى عملية شراء"
+                        label={isArabic ? "أعلى عملية شراء" : "Highest purchase"}
                         amount={qidhaAmount(qidha?.highestPurchase)}
                         iconBg="#EBFEEB"
                         icon={
@@ -156,7 +162,7 @@ export function RecordedTabContent({
 
             {/* Categories */}
             <section className="flex flex-col gap-3">
-                <SectionTitle>فئات الإنفاق</SectionTitle>
+                <SectionTitle>{isArabic ? "فئات الإنفاق" : "Spending categories"}</SectionTitle>
                 <div className="flex flex-col gap-2.5">
                     {hasCategories ? (
                         categories.map((category) => (
@@ -164,7 +170,9 @@ export function RecordedTabContent({
                         ))
                     ) : (
                         <EmptySectionCard>
-                            لا توجد فئات لعرضها حتى الأن
+                            {isArabic
+                                ? "لا توجد فئات لعرضها حتى الأن"
+                                : "No categories to show yet"}
                         </EmptySectionCard>
                     )}
                 </div>
@@ -172,7 +180,7 @@ export function RecordedTabContent({
 
             {/* Monthly trends */}
             <section className="flex flex-col gap-3">
-                <SectionTitle>الاتجاهات الشهرية</SectionTitle>
+                <SectionTitle>{isArabic ? "الاتجاهات الشهرية" : "Monthly trends"}</SectionTitle>
                 {hasTrends ? (
                     <div className="-mx-1 flex gap-2.5 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         {monthlyTrends.map((trend) => (
@@ -185,14 +193,20 @@ export function RecordedTabContent({
                     </div>
                 ) : (
                     <EmptySectionCard>
-                        لا توجد إحصائيات لعرضها حتى الأن
+                        {isArabic
+                            ? "لا توجد إحصائيات لعرضها حتى الأن"
+                            : "No statistics to show yet"}
                     </EmptySectionCard>
                 )}
             </section>
 
             {/* Salary day */}
             <section className="flex flex-col gap-3">
-                <SectionTitle>يوم الراتب والمدفوعات الشهرية</SectionTitle>
+                <SectionTitle>
+                    {isArabic
+                        ? "يوم الراتب والمدفوعات الشهرية"
+                        : "Payday and monthly payments"}
+                </SectionTitle>
                 <div className="flex w-full items-center gap-3 rounded-[14px] border border-[#F0EEF3] bg-white px-4 py-3.5 shadow-[0px_1px_8px_rgba(0,0,0,0.04)] dark:border-gray-700 dark:bg-gray-800">
                     {/* First in RTL = right: calendar icon */}
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#EFE6FF]">
@@ -206,13 +220,13 @@ export function RecordedTabContent({
                             className="text-[11px] font-medium text-[#8A8F98] dark:text-gray-400"
                             style={TAJAWAL}
                         >
-                            يوم الراتب
+                            {isArabic ? "يوم الراتب" : "Payday"}
                         </span>
                         <span
                             className="text-[15px] font-bold text-[#1F2937] dark:text-gray-100"
                             style={TAJAWAL}
                         >
-                            1 من كل شهر
+                            {isArabic ? "1 من كل شهر" : "1st of every month"}
                         </span>
                         <div
                             className="flex h-[26px] items-center gap-1 rounded-full px-2.5"
@@ -229,7 +243,7 @@ export function RecordedTabContent({
                                 className="text-[12px] font-bold text-white"
                                 style={TAJAWAL}
                             >
-                                بعد 0 يوم
+                                {isArabic ? "بعد 0 يوم" : "in 0 days"}
                             </span>
                         </div>
                     </div>
@@ -239,7 +253,7 @@ export function RecordedTabContent({
             {/* Due payments */}
             <section className="flex flex-col gap-3">
                 <div className="flex items-center justify-between gap-3">
-                    <SectionTitle>المدفوعات المستحقة</SectionTitle>
+                    <SectionTitle>{isArabic ? "المدفوعات المستحقة" : "Due payments"}</SectionTitle>
                     <div className="flex shrink-0 items-center gap-1 rounded-[8px] bg-[#FFDCDC] px-2.5 py-1">
                         <SarIcon
                             width={12}
@@ -257,14 +271,14 @@ export function RecordedTabContent({
 
                 <div className="grid grid-cols-2 gap-2.5">
                     <DuePaymentCard
-                        label="المعلقة"
+                        label={isArabic ? "المعلقة" : "Pending"}
                         count={qidhaCount(qidha?.pendingCount)}
                         bg="#FDF1DA"
                         textColor="#ED9206"
                         iconBg="#EFAD4F"
                     />
                     <DuePaymentCard
-                        label="المتأخرة"
+                        label={isArabic ? "المتأخرة" : "Overdue"}
                         count={qidhaCount(qidha?.overdueCount)}
                         bg="#FFDCDC"
                         textColor="#DB2626"
@@ -277,7 +291,7 @@ export function RecordedTabContent({
                         className="text-[12px] font-bold text-[#555555] dark:text-gray-400"
                         style={TAJAWAL}
                     >
-                        المبلغ المستحق
+                        {isArabic ? "المبلغ المستحق" : "Amount due"}
                     </span>
                     <div className="flex flex-wrap items-center gap-1 text-[#111B18] dark:text-gray-100">
                         <span
@@ -290,7 +304,7 @@ export function RecordedTabContent({
                             className="text-[13px] font-bold sm:text-[14px]"
                             style={TAJAWAL}
                         >
-                            من أصل
+                            {isArabic ? "من أصل" : "of"}
                         </span>
                         <span
                             className="text-[16px] font-bold tabular-nums sm:text-[17px]"

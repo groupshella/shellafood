@@ -1,10 +1,14 @@
+"use client";
+
 import Image from "next/image";
 
-import { POINTS_STRINGS } from "@/features/profile/constants/points.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
 
 export function PointsHistoryEmpty() {
+    const { isArabic } = useLanguage();
+
     return (
         <div className="flex w-full flex-col items-center justify-center gap-5 py-10 sm:py-14">
             <div
@@ -24,7 +28,9 @@ export function PointsHistoryEmpty() {
                 className="max-w-[280px] text-center text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[17px]"
                 style={TAJAWAL}
             >
-                {POINTS_STRINGS.emptyMessage}
+                {isArabic
+                    ? "للأسف لم تربح نقاط حتى الاَن"
+                    : "You haven't earned any points yet"}
             </p>
         </div>
     );

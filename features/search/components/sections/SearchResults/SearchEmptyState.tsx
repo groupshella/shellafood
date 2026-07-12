@@ -1,3 +1,7 @@
+"use client";
+
+import { useLanguage } from "@/features/language/useLanguage";
+
 export function SearchEmptyIllustration(props: React.SVGProps<SVGSVGElement>) {
     return (
         <svg viewBox="0 0 223 250" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
@@ -41,13 +45,17 @@ interface SearchEmptyStateProps {
 }
 
 export function SearchEmptyState({ query: _query }: SearchEmptyStateProps = {}) {
+    const { isArabic, locale } = useLanguage();
+
     return (
         <div
             className="flex w-full flex-col items-center justify-center px-4 py-12 sm:px-6 sm:py-16 md:py-20 lg:py-24"
             role="status"
             aria-live="polite"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={locale}
         >
-            <div className="flex w-full max-w-xs flex-col items-center sm:max-w-sm" dir="rtl">
+            <div className="flex w-full max-w-xs flex-col items-center sm:max-w-sm">
                 <div
                     className="relative aspect-square w-full max-w-[180px] sm:max-w-[200px] md:max-w-[260px]
                         [--search-badge:#D1FDD2] [--search-bg:#E0FAE4] [--search-bag:#9DFCA3] [--search-line:#49B95E] [--search-line-alt:#48BB5C]
@@ -56,16 +64,16 @@ export function SearchEmptyState({ query: _query }: SearchEmptyStateProps = {}) 
                     <SearchEmptyIllustration
                         className="h-full w-full object-contain"
                         role="img"
-                        aria-label="لا توجد نتائج مطابقة"
+                        aria-label={isArabic ? "لا توجد نتائج مطابقة" : "No matching results"}
                     />
                 </div>
 
                 <h2 className="mt-5 text-center text-base font-bold text-gray-900 dark:text-gray-50 sm:mt-6 sm:text-lg md:text-xl">
-                    لا توجد نتائج مطابقة
+                    {isArabic ? "لا توجد نتائج مطابقة" : "No matching results"}
                 </h2>
 
                 <p className="mt-2 max-w-[280px] text-center text-sm leading-relaxed text-gray-500 dark:text-gray-400 sm:mt-2.5 sm:max-w-sm sm:text-[15px]">
-                    جرّب البحث بكلمات أخرى أو استكشف الفئات المتاحة.
+                    {isArabic ? "جرّب البحث بكلمات أخرى أو استكشف الفئات المتاحة." : "Try another keyword or explore the available categories."}
                 </p>
             </div>
         </div>

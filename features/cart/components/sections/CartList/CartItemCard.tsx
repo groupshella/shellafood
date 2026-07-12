@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { formatPrice } from "@/features/home/components/shared/PriceTag";
 import { CartItem } from "@/features/cart/types/cart.types";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface CartItemCardProps {
   item: CartItem;
@@ -51,9 +52,9 @@ export const CartItemCard = memo(function CartItemCard({
 }: CartItemCardProps) {
   const originalPrice = getOriginalPrice(item.price, item.discount);
   const weight = item.description?.trim() ? extractWeight(item.description) : null;
-
+  const { isArabic } = useLanguage();
   return (
-    <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
+    <div className="flex min-w-0 items-start gap-2.5 sm:gap-3" dir={isArabic ? "rtl" : "ltr"}>
       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-800 sm:h-[88px] sm:w-[88px] md:h-24 md:w-24">
         {item.image_full_url ? (
           <Image
@@ -92,7 +93,7 @@ export const CartItemCard = memo(function CartItemCard({
             type="button"
             onClick={onRemove}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 active:text-red-500 dark:text-gray-500 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 dark:active:text-red-400 sm:h-10 sm:w-10"
-            aria-label={`حذف ${item.name}`}
+            aria-label={isArabic ? `حذف ${item.name}` : `Delete ${item.name}`}
           >
             <Trash2 className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={1.5} aria-hidden />
           </button>
@@ -123,7 +124,7 @@ export const CartItemCard = memo(function CartItemCard({
               type="button"
               onClick={onDecrease}
               className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 dark:text-gray-400 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 sm:h-9 sm:w-9"
-              aria-label="تقليل الكمية"
+              aria-label={isArabic ? "تقليل الكمية" : "Decrease quantity"}
             >
               <Minus className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
             </button>
@@ -134,7 +135,7 @@ export const CartItemCard = memo(function CartItemCard({
               type="button"
               onClick={onIncrease}
               className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 dark:text-gray-400 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 sm:h-9 sm:w-9"
-              aria-label="زيادة الكمية"
+              aria-label={isArabic ? "زيادة الكمية" : "Increase quantity"}
             >
               <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
             </button>

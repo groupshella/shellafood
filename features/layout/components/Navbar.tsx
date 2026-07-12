@@ -149,12 +149,12 @@ export function IconUser({ active, className }: SvgProps) {
 }
 
 // ─── Nav config ───────────────────────────────────────────────────────────────
-const NAV_ITEMS = [
-	{ id: "home", label: "الرئيسية", Icon: IconHome, path: "/home" },
-	{ id: "favorites", label: "المفضلة", Icon: IconHeart, path: "/favorites" },
-	{ id: "cart", label: "السلة", Icon: IconBag, path: "/cart" },
-	{ id: "my-orders", label: "طلباتي", Icon: IconReceipt, path: "/my-orders" },
-	{ id: "profile", label: "حسابي", Icon: IconUser, path: "/profile" },
+const NAV_ITEMS = ({ isArabic }: { isArabic: boolean }) => [
+	{ id: "home", label: isArabic ? "الرئيسية" : "Home", Icon: IconHome, path: "/home" },
+	{ id: "favorites", label: isArabic ? "المفضلة" : "Favorites", Icon: IconHeart, path: "/favorites" },
+	{ id: "cart", label: isArabic ? "السلة" : "Cart", Icon: IconBag, path: "/cart" },
+	{ id: "my-orders", label: isArabic ? "طلباتي" : "My orders", Icon: IconReceipt, path: "/my-orders" },
+	{ id: "profile", label: isArabic ? "حسابي" : "Profile", Icon: IconUser, path: "/profile" },
 ] as const;
 
 function isActive(pathname: string, path: string) {
@@ -163,17 +163,17 @@ function isActive(pathname: string, path: string) {
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function Navbar() {
+export default function Navbar({ isArabic }: { isArabic: boolean }) {
 	const pathname = usePathname();
 
 	return (
 		<nav
-			dir="rtl"
+			dir={isArabic ? "rtl" : "ltr"}
 			className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white/90 pb-safe backdrop-blur-lg dark:border-gray-700/80 dark:bg-gray-900/95"
-			aria-label="التنقل الرئيسي"
+			aria-label={isArabic ? "التنقل الرئيسي" : "Main navigation"}
 		>
 			<div className="mx-auto flex h-[64px] w-full max-w-lg items-end justify-around px-1 pb-2 sm:h-[68px] sm:max-w-xl sm:px-2 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
-				{NAV_ITEMS.map((item) => {
+				{NAV_ITEMS({ isArabic }).map((item) => {
 					const active = isActive(pathname, item.path);
 					const { Icon } = item;
 

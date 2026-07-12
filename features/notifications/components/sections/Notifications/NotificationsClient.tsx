@@ -8,13 +8,14 @@ const NOTIFICATIONS_GRID =
 
 interface NotificationsClientProps {
     notifications: Notification[];
+    isArabic: boolean;
 }
 
-export function NotificationsClient({ notifications }: NotificationsClientProps) {
+export function NotificationsClient({ notifications, isArabic }: NotificationsClientProps) {
     return (
-        <section aria-label="قائمة الإشعارات" className={NOTIFICATIONS_GRID}>
+        <section aria-label={isArabic ? "قائمة الإشعارات" : "Notifications list"} className={NOTIFICATIONS_GRID}>
             {notifications.map((notification) => (
-                <NotificationCard key={notification.id} notification={notification} />
+                <NotificationCard key={notification.id} notification={notification} isArabic={isArabic} />
             ))}
         </section>
     );

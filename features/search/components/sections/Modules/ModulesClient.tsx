@@ -10,9 +10,10 @@ const SECTION_HEADING =
 
 interface ModulesClientProps {
     modules: SearchModule[];
+    isArabic: boolean;
 }
 
-export function ModulesClient({ modules }: ModulesClientProps) {
+export function ModulesClient({ modules, isArabic }: ModulesClientProps) {
     const { moduleId, setModuleId } = useSearchContext();
 
     const moduleCards = modules.map((module, index) => {
@@ -27,15 +28,16 @@ export function ModulesClient({ modules }: ModulesClientProps) {
                 isActive={isActive}
                 isDisabled={!isActive}
                 onSelect={setModuleId}
+                isArabic={isArabic}
             />
         );
     });
 
     return (
-        <section aria-label="خدماتنا" className="space-y-2.5 sm:space-y-3.5">
+        <section aria-label={isArabic ? "خدماتنا" : "Our services"} className="space-y-2.5 sm:space-y-3.5" dir={isArabic ? "rtl" : "ltr"}>
 
             <div className="md:hidden">
-                <ScrollContainer className="mx-auto" ariaLabel="قائمة الخدمات">
+                <ScrollContainer className="mx-auto" ariaLabel={isArabic ? "قائمة الخدمات" : "Services list"} >
                     {moduleCards}
                 </ScrollContainer>
             </div>

@@ -1,20 +1,22 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface ProfileShellProps {
     children: ReactNode;
 }
 
 export function ProfileShell({ children }: ProfileShellProps) {
+    const { isArabic } = useLanguage();
     return (
         <div
             className="flex min-h-dvh w-full overflow-x-hidden flex-col bg-white dark:bg-gray-950"
-            dir="rtl"
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <header className="sticky top-0 z-10 shrink-0 border-b border-transparent bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-gray-950 sm:px-5 md:px-6">
                 <h1 className="text-center text-lg font-bold leading-[160%] text-[#111B18] dark:text-gray-50 sm:text-[18px] md:text-xl">
-                    حسابي
+                    {isArabic ? "حسابي" : "My account"}
                 </h1>
             </header>
 

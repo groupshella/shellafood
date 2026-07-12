@@ -9,6 +9,7 @@ import { ProductAddControl } from "@/features/cart/components/shared/ProductAddC
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
 import { CategoryProduct } from "@/features/hyper-market/Categories/types/category-detail.types";
 import { useNotification } from "@/shared/components/NotificationToast";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface Props {
     product: CategoryProduct;
@@ -36,7 +37,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
     const [imgError, setImgError] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
     const [wishlistPending, setWishlistPending] = useState(false);
-
+    const { isArabic } = useLanguage();
     const hasDiscount =
         product.discounted_price != null && product.discounted_price < product.price;
     const displayPrice = hasDiscount ? product.discounted_price! : product.price;
@@ -102,7 +103,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
     if (layout === "list") {
         return (
             <div
-                dir="rtl"
+                dir={isArabic ? "rtl" : "ltr"}
                 className="flex h-full w-full min-w-0 flex-row-reverse items-center gap-2.5 rounded-2xl bg-white px-2.5 py-2.5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] dark:bg-gray-800 dark:shadow-[0_1px_4px_rgba(0,0,0,0.2)] dark:ring-white/[0.06] sm:gap-3 sm:px-4 sm:py-3"
             >
                 <div className="flex shrink-0 flex-col items-center justify-between gap-3 self-stretch p-0.5">
@@ -173,7 +174,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
 
     return (
         <div
-            dir="rtl"
+            dir={isArabic ? "rtl" : "ltr"}
             className="relative flex min-h-[172px] w-full min-w-0 flex-row items-center gap-2 overflow-hidden rounded-lg bg-white shadow-[0_7px_19.8px_rgba(0,0,0,0.04)] dark:bg-gray-800 dark:shadow-[0_7px_19.8px_rgba(0,0,0,0.2)] sm:min-h-[190px]"
         >
             {hasDiscount && (

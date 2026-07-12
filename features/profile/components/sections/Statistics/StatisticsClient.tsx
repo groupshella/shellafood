@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 
+import { useLanguage } from "@/features/language/useLanguage";
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
 import {
-    FREQUENCY_OPTIONS,
     MOCK_MONTHLY_TRENDS,
     MOCK_QIDHA_DATA,
     MOCK_STATISTICS_CATEGORIES,
@@ -37,11 +37,12 @@ export function StatisticsClient({
     monthlyTrends = MOCK_MONTHLY_TRENDS,
     qidha = MOCK_QIDHA_DATA,
 }: StatisticsClientProps) {
+    const { isArabic } = useLanguage();
     const [activeTab, setActiveTab] = useState<StatisticsTab>("general");
     const [chartPeriod, setChartPeriod] = useState<ChartPeriod>("week");
     const [chartDropdownOpen, setChartDropdownOpen] = useState(false);
     const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
-    const [filterValue, setFilterValue] = useState<string>(FREQUENCY_OPTIONS[0]);
+    const [filterValue, setFilterValue] = useState<string>("week");
     const [layoutMode, setLayoutMode] = useState<ProductLayout>("grid");
     const [heartOverrides, setHeartOverrides] = useState<Record<number, boolean>>({});
     const [heartPulse, setHeartPulse] = useState<number | null>(null);
@@ -81,7 +82,7 @@ export function StatisticsClient({
 
     return (
         <ProfileSubpageShell
-            title="إحصائيات"
+            title={isArabic ? "إحصائيات" : "Statistics"}
             relaxedHeader
             showHeaderBorder={false}
             mainClassName="bg-[#F6F5F8] dark:bg-gray-800 pb-[max(2rem,env(safe-area-inset-bottom))] pt-4"
@@ -89,7 +90,7 @@ export function StatisticsClient({
             <div className="mx-auto flex w-full max-w-[343px] flex-col gap-6 md:max-w-[720px]">
                 <div
                     role="tablist"
-                    aria-label="إحصائيات"
+                    aria-label={isArabic ? "إحصائيات" : "Statistics"}
                     className="flex h-[44px] w-full items-center rounded-[12px] bg-white p-[2px] shadow-[0px_1px_8px_rgba(0,0,0,0.04)] dark:bg-gray-800 md:mx-auto md:max-w-[420px]"
                 >
                     <button
@@ -105,7 +106,7 @@ export function StatisticsClient({
                         ].join(" ")}
                         style={TAJAWAL}
                     >
-                        عام
+                        {isArabic ? "عام" : "General"}
                     </button>
                     <button
                         type="button"
@@ -120,7 +121,7 @@ export function StatisticsClient({
                         ].join(" ")}
                         style={TAJAWAL}
                     >
-                        قيدها
+                        {isArabic ? "قيدها" : "Qidha"}
                     </button>
                 </div>
 

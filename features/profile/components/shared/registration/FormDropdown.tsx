@@ -59,7 +59,7 @@ export function FormDropdown({
                 {open && (
                     <ul
                         role="listbox"
-                        className="absolute inset-x-0 top-[calc(100%+6px)] z-20 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]"
+                        className="absolute inset-x-0 top-[calc(100%+6px)] right-0 z-20 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]"
                     >
                         {options.map((option, index) => (
                             <li key={option} role="option" aria-selected={value === option}>
@@ -69,11 +69,10 @@ export function FormDropdown({
                                         onChange(option);
                                         setOpen(false);
                                     }}
-                                    className={`w-full px-4 py-3.5 text-end text-[14px] transition-colors active:bg-gray-50 dark:active:bg-gray-700 ${
-                                        value === option
+                                    className={`w-full px-4 py-3.5 text-start text-[14px] transition-colors active:bg-gray-50 dark:active:bg-gray-700 ${value === option
                                             ? "font-semibold text-[#30913F] dark:text-[#4db860]"
                                             : "text-gray-900 dark:text-gray-100"
-                                    } ${index > 0 ? "border-t border-gray-100 dark:border-gray-700" : ""}`}
+                                        } ${index > 0 ? "border-t border-gray-100 dark:border-gray-700" : ""}`}
                                 >
                                     {option}
                                 </button>

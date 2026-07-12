@@ -1,8 +1,8 @@
 "use client";
 
 import { CheckoutBottomSheet } from "@/features/checkout/components/shared/CheckoutBottomSheet";
-import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 import { PrimaryButton } from "@/features/profile/components/shared/PrimaryButton";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface LogoutConfirmSheetProps {
     isOpen: boolean;
@@ -19,28 +19,35 @@ export function LogoutConfirmSheet({
     onConfirm,
     isLoading = false,
 }: LogoutConfirmSheetProps) {
+    const { isArabic } = useLanguage();
+
     return (
         <CheckoutBottomSheet
             isOpen={isOpen}
             isVisible={isVisible}
             onClose={onClose}
-            ariaLabel={PROFILE_STRINGS.logoutConfirmTitle}
+            ariaLabel={
+                isArabic
+                    ? "هل أنت متأكد أنك تريد تسجيل الخروج ؟"
+                    : "Are you sure you want to log out?"
+            }
         >
             <div className="mx-auto w-full max-w-md px-2 pb-8 pt-2 sm:px-4">
                 <h2 className="mb-6 text-center text-[17px] font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
-                    {PROFILE_STRINGS.logoutConfirmTitle}
+                    {isArabic
+                        ? "هل أنت متأكد أنك تريد تسجيل الخروج ؟"
+                        : "Are you sure you want to log out?"}
                 </h2>
                 <div className="flex flex-col gap-3">
                     <PrimaryButton onClick={onConfirm} disabled={isLoading}>
-                        {PROFILE_STRINGS.logoutConfirmYes}
+                        {isArabic ? "نعم ، تسجيل خروج" : "Yes, log out"}
                     </PrimaryButton>
                     <PrimaryButton
-                        variant="danger-muted"
                         className="bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-100"
                         onClick={onClose}
                         disabled={isLoading}
                     >
-                        {PROFILE_STRINGS.cancel}
+                        {isArabic ? "إلغاء" : "Cancel"}
                     </PrimaryButton>
                 </div>
             </div>

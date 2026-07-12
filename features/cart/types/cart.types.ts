@@ -31,13 +31,42 @@ export interface CartActionResult {
   message?: string;
 }
 
-export const CART_ERROR_MESSAGES: Record<CartErrorCode, string> = {
-  item_not_found: "المنتج غير موجود",
-  store_closed: "المتجر مغلق حالياً",
-  cart_item_limit: "تجاوزت الحد الأقصى للكمية",
-  different_store: "لا يمكن إضافة منتجات من متجر مختلف",
-  cart_not_found: "المنتج غير موجود في السلة",
+export const CART_ERROR_MESSAGES: Record<
+  CartErrorCode,
+  { ar: string; en: string }
+> = {
+  item_not_found: {
+    ar: "المنتج غير موجود",
+    en: "Product not found",
+  },
+  store_closed: {
+    ar: "المتجر مغلق حالياً",
+    en: "Store is currently closed",
+  },
+  cart_item_limit: {
+    ar: "تجاوزت الحد الأقصى للكمية",
+    en: "Maximum quantity exceeded",
+  },
+  different_store: {
+    ar: "لا يمكن إضافة منتجات من متجر مختلف",
+    en: "Cannot add products from a different store",
+  },
+  cart_not_found: {
+    ar: "المنتج غير موجود في السلة",
+    en: "Product not found in cart",
+  },
 };
+
+export function getCartErrorMessage(
+  code: CartErrorCode | undefined,
+  isArabic: boolean,
+): string {
+  if (code && CART_ERROR_MESSAGES[code]) {
+    const copy = CART_ERROR_MESSAGES[code];
+    return isArabic ? copy.ar : copy.en;
+  }
+  return isArabic ? "حدث خطأ" : "Something went wrong";
+}
 
 /**
  * Extract store_id from wherever the backend puts it on a cart item.

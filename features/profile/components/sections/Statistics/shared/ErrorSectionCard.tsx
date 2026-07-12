@@ -1,20 +1,25 @@
+"use client";
+
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
+import { useLanguage } from "@/features/language/useLanguage";
 import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 
 export function ErrorSectionCard({
-    message = "تعذّر تحميل البيانات",
+    message,
     onRetry,
 }: {
     message?: string;
     onRetry: () => void;
 }) {
+    const { isArabic } = useLanguage();
+
     return (
         <div className="flex min-h-[71px] w-full flex-col items-center justify-center gap-2 rounded-[18px] border border-[#FFDCDC] dark:border-red-900/40 bg-[#FFF6F6] dark:bg-red-950/20 px-4 py-6">
             <div className="flex items-center gap-1.5 text-[#DB2626] dark:text-red-400">
                 <AlertTriangle className="h-4 w-4" strokeWidth={2} />
                 <p className="text-center text-[14px] font-medium" style={TAJAWAL}>
-                    {message}
+                    {message ?? (isArabic ? "تعذّر تحميل البيانات" : "Could not load data")}
                 </p>
             </div>
             <button
@@ -24,7 +29,7 @@ export function ErrorSectionCard({
                 style={TAJAWAL}
             >
                 <RefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
-                إعادة المحاولة
+                {isArabic ? "إعادة المحاولة" : "Retry"}
             </button>
         </div>
     );

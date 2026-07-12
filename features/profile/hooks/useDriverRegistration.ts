@@ -7,8 +7,9 @@ import {
     fetchZones,
     registerDriver,
 } from "@/features/profile/actions/join.actions";
+import { useLanguage } from "@/features/language/useLanguage";
 import { validateUploadFile } from "@/features/profile/lib/upload.lib";
-import { JOIN_STRINGS, MAX_UPLOAD_BYTES } from "@/features/profile/constants/join.strings";
+import { MAX_UPLOAD_BYTES } from "@/features/profile/constants/join.strings";
 import { isValidEmail } from "@/features/profile/lib/profile.lib";
 import type {
     EarningType,
@@ -67,6 +68,12 @@ export interface UseDriverRegistrationReturn {
     isLoadingMeta: boolean;
     metaLoadError: boolean;
     retryMeta: () => void;
+    /** True while the on-mount prior-registration check is running. */
+    isCheckingRegistration: boolean;
+    /** True if the token-based check detected an existing registration. */
+    isAlreadyRegistered: boolean;
+    /** Human-readable message from the prior-registration check. */
+    registrationCheckMsg: string;
     isSubmitting: boolean;
     fieldErrors: Partial<Record<string, string>>;
     clearFieldError: (key: string) => void;
@@ -82,6 +89,7 @@ export interface UseDriverRegistrationReturn {
 }
 
 export function useDriverRegistration(): UseDriverRegistrationReturn {
+    const { isArabic } = useLanguage();
     const [form, setForm] = useState<DriverFormState>(INITIAL_FORM);
     const [zones, setZones] = useState<Zone[]>([]);
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -91,6 +99,28 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
     const [fieldErrors, setFieldErrors] = useState<Partial<Record<string, string>>>({});
     const submittingRef = useRef(false);
     const [metaRetryKey, setMetaRetryKey] = useState(0);
+
+    // ── On-mount prior-registration check (sends {} with auth token) ──────────
+    const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
+    const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
+    const [registrationCheckMsg, setRegistrationCheckMsg] = useState("");
+
+    useEffect(() => {
+        setIsCheckingRegistration(true);
+        checkDriverRegistration({})
+            .then((result) => {
+                if (result.isRegistered) {
+                    setIsAlreadyRegistered(true);
+                    setRegistrationCheckMsg(
+                        result.message ?? (isArabic ? "هذا الحساب مسجل مسبقاً" : "This account is already registered"),
+                    );
+                }
+            })
+            .catch(() => {
+                // Silently fail — don't block the form if the check errors
+            })
+            .finally(() => setIsCheckingRegistration(false));
+    }, [isArabic]);
 
     useEffect(() => {
         setIsLoadingMeta(true);
@@ -129,7 +159,7 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
             file: File,
         ): string | null => {
             const err = validateUploadFile(file, MAX_UPLOAD_BYTES);
-            if (err) return JOIN_STRINGS.fileTooLarge;
+            if (err) return isArabic ? "حجم الملف يجب ألا يتجاوز 2 ميجا" : "File size must not exceed 2 MB";
             setForm((prev) => ({ ...prev, [field]: [...prev[field], file] }));
             setFieldErrors((prev) => {
                 if (!prev[field]) return prev;
@@ -139,7 +169,7 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
             });
             return null;
         },
-        [],
+        [isArabic],
     );
 
     const handleRemoveFile = useCallback(
@@ -158,39 +188,39 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
     const validate = (f: DriverFormState): Partial<Record<string, string>> | null => {
         const errors: Record<string, string> = {};
 
-        if (!f.firstName.trim()) errors.firstName = JOIN_STRINGS.requiredField;
+        if (!f.firstName.trim()) errors.firstName = isArabic ? "هذا الحقل مطلوب" : "This field is required";
 
         if (!f.email.trim()) {
-            errors.email = JOIN_STRINGS.requiredField;
+            errors.email = isArabic ? "هذا الحقل مطلوب" : "This field is required";
         } else if (!isValidEmail(f.email)) {
-            errors.email = JOIN_STRINGS.invalidEmail;
+            errors.email = isArabic ? "صيغة البريد الإلكتروني غير صالحة" : "Invalid email format";
         }
 
         if (!f.phone.trim()) {
-            errors.phone = JOIN_STRINGS.requiredField;
+            errors.phone = isArabic ? "هذا الحقل مطلوب" : "This field is required";
         } else if (!isValidSaudiPhone(f.phone)) {
-            errors.phone = JOIN_STRINGS.invalidPhone;
+            errors.phone = isArabic ? "صيغة رقم الهاتف غير صالحة" : "Invalid phone number format";
         }
 
         if (!f.password) {
-            errors.password = JOIN_STRINGS.requiredField;
+            errors.password = isArabic ? "هذا الحقل مطلوب" : "This field is required";
         } else if (f.password.length < 6) {
-            errors.password = JOIN_STRINGS.minPassword;
+            errors.password = isArabic ? "كلمة المرور يجب أن تكون 6 أحرف على الأقل" : "Password must be at least 6 characters";
         }
 
         if (!f.confirmPassword) {
-            errors.confirmPassword = JOIN_STRINGS.requiredField;
+            errors.confirmPassword = isArabic ? "هذا الحقل مطلوب" : "This field is required";
         } else if (f.password !== f.confirmPassword) {
-            errors.confirmPassword = JOIN_STRINGS.passwordMismatch;
+            errors.confirmPassword = isArabic ? "كلمتا المرور غير متطابقتين" : "Passwords do not match";
         }
 
-        if (!f.identityType) errors.identityType = JOIN_STRINGS.requiredField;
-        if (!f.identityNumber.trim()) errors.identityNumber = JOIN_STRINGS.requiredField;
-        if (!f.zoneId) errors.zoneId = JOIN_STRINGS.requiredField;
-        if (!f.vehicleId) errors.vehicleId = JOIN_STRINGS.requiredField;
-        if (!f.earning) errors.earning = JOIN_STRINGS.requiredField;
-        if (f.identityImages.length === 0) errors.identityImages = JOIN_STRINGS.requiredField;
-        if (!f.agreed) errors.agreed = JOIN_STRINGS.mustAgreeTerms;
+        if (!f.identityType) errors.identityType = isArabic ? "هذا الحقل مطلوب" : "This field is required";
+        if (!f.identityNumber.trim()) errors.identityNumber = isArabic ? "هذا الحقل مطلوب" : "This field is required";
+        if (!f.zoneId) errors.zoneId = isArabic ? "هذا الحقل مطلوب" : "This field is required";
+        if (!f.vehicleId) errors.vehicleId = isArabic ? "هذا الحقل مطلوب" : "This field is required";
+        if (!f.earning) errors.earning = isArabic ? "هذا الحقل مطلوب" : "This field is required";
+        if (f.identityImages.length === 0) errors.identityImages = isArabic ? "هذا الحقل مطلوب" : "This field is required";
+        if (!f.agreed) errors.agreed = isArabic ? "يجب الموافقة على الشروط وسياسة الخصوصية" : "You must agree to the terms and privacy policy";
 
         return Object.keys(errors).length > 0 ? errors : null;
     };
@@ -203,7 +233,11 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
         const clientErrors = validate(form);
         if (clientErrors) {
             setFieldErrors(clientErrors);
-            return { success: false, message: JOIN_STRINGS.requiredField, fieldErrors: clientErrors };
+            return {
+                success: false,
+                message: isArabic ? "هذا الحقل مطلوب" : "This field is required",
+                fieldErrors: clientErrors,
+            };
         }
 
         submittingRef.current = true;
@@ -223,9 +257,11 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
                 identity_number: identityNumber,
             });
             if (alreadyResult.isRegistered) {
-                const msg = alreadyResult.message ?? JOIN_STRINGS.alreadyRegistered;
-                setFieldErrors({ general: msg });
-                return { success: false, message: msg };
+                return {
+                    success: false,
+                    alreadyRegistered: true,
+                    message: alreadyResult.message ?? (isArabic ? "هذا الحساب مسجل مسبقاً" : "This account is already registered"),
+                };
             }
 
             const result = await registerDriver({
@@ -253,7 +289,7 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
             setIsSubmitting(false);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form, isSubmitting]);
+    }, [form, isArabic, isSubmitting]);
 
     return {
         form,
@@ -263,6 +299,9 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
         isLoadingMeta,
         metaLoadError,
         retryMeta,
+        isCheckingRegistration,
+        isAlreadyRegistered,
+        registrationCheckMsg,
         isSubmitting,
         fieldErrors,
         clearFieldError,

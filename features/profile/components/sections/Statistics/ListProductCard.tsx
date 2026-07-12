@@ -1,6 +1,9 @@
+"use client";
+
 import { Heart, Plus } from "lucide-react";
 import Image from "next/image";
 
+import { useLanguage } from "@/features/language/useLanguage";
 import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import type { StatisticsProduct } from "@/features/profile/types/statistics.types";
 import { SarIcon } from "./shared/SarIcon";
@@ -16,6 +19,8 @@ export function ListProductCard({
     pulsing: boolean;
     onToggleHeart: () => void;
 }) {
+    const { isArabic } = useLanguage();
+
     return (
         <article className="relative flex w-full items-center gap-2 rounded-[8px] bg-white dark:bg-gray-800 p-2 shadow-[0px_7px_19.8px_rgba(0,0,0,0.04)] transition-[transform,opacity] duration-150 active:scale-[0.98] active:opacity-95 sm:gap-[9px] sm:p-0">
             {product.discountPercent != null && (
@@ -78,7 +83,15 @@ export function ListProductCard({
             <div className="flex shrink-0 flex-col items-center gap-1 sm:gap-4">
                 <button
                     type="button"
-                    aria-label={favorited ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                    aria-label={
+                        favorited
+                            ? isArabic
+                                ? "إزالة من المفضلة"
+                                : "Remove from favorites"
+                            : isArabic
+                              ? "إضافة إلى المفضلة"
+                              : "Add to favorites"
+                    }
                     onClick={onToggleHeart}
                     className="flex h-10 w-10 items-center justify-center sm:h-11 sm:w-11"
                 >
@@ -101,7 +114,7 @@ export function ListProductCard({
                 </button>
                 <button
                     type="button"
-                    aria-label="إضافة إلى السلة"
+                    aria-label={isArabic ? "إضافة إلى السلة" : "Add to cart"}
                     className="flex h-10 w-10 items-center justify-center active:scale-[0.92] sm:h-11 sm:w-11"
                 >
                     <span className="flex h-8 w-8 items-center justify-center rounded-[74.55px] bg-[#D1FDD2] sm:h-9 sm:w-9">

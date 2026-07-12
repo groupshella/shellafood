@@ -28,6 +28,7 @@ export function PasswordInput({ value, onChange, placeholder, hasError }: Passwo
                 }`}
                 autoComplete="new-password"
                 aria-required
+                aria-invalid={hasError}
             />
             <button
                 type="button"

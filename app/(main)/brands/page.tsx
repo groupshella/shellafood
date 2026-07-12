@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { BrandsPageShell } from "@/features/brands/components/BrandsPageShell";
 import { AllBrands } from "@/features/brands/components/sections/AllBrands";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 const MODULE_ID = "3";
 
@@ -10,11 +11,13 @@ export const metadata: Metadata = {
     description: "تصفح جميع العلامات التجارية.",
 };
 
-export default function BrandsPage() {
+export default async function BrandsPage() {
+    const locale = await getServerLocale()
+    const isArabic = locale === "ar";
     return (
-        <BrandsPageShell>
+        <BrandsPageShell isArabic={isArabic}>
             <Suspense fallback={<AllBrands.skeleton />}>
-                <AllBrands moduleId={MODULE_ID} />
+                <AllBrands moduleId={MODULE_ID} isArabic={isArabic} />
             </Suspense>
         </BrandsPageShell>
     );

@@ -4,8 +4,8 @@ import { CartSummaryClient } from "./CartSummaryClient";
 import CartSummarySkeleton from "./skeleton";
 
 export const CartSummary = Object.assign(
-    async function CartSummary() {
-        const items = await getCart();
+    async function CartSummary({ isArabic }: { isArabic: boolean }) {
+        const items = await getCart({ isArabic });
 
         if (items.length === 0) {
             return <CartEmpty />;

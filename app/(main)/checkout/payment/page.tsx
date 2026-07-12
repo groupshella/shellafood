@@ -5,6 +5,7 @@ import { PaymentShell } from "@/features/payment/components/PaymentShell";
 import { HostedPaymentFlow } from "@/features/payment/components/HostedPaymentFlow";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import type { AuthUser } from "@/features/auth/types/auth.types";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 export const metadata: Metadata = {
     title: "الدفع | شيلة فود",
@@ -16,6 +17,8 @@ interface PaymentPageProps {
 }
 
 export default async function PaymentPage({ searchParams }: PaymentPageProps) {
+    const locale = await getServerLocale()
+    const isArabic = locale === "ar";
     const params = await searchParams;
     const cookieStore = await cookies();
 
@@ -46,7 +49,7 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
     const customerEmail = user?.email ?? "no-reply@shelafood.com";
 
     return (
-        <PaymentShell>
+        <PaymentShell isArabic={isArabic}>
             <HostedPaymentFlow
                 orderId={orderId}
                 amount={amount}
@@ -54,6 +57,7 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
                 customerName={customerName}
                 customerPhone={customerPhone}
                 customerEmail={customerEmail}
+                isArabic={isArabic}
             />
         </PaymentShell>
     );

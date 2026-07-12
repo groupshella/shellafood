@@ -5,7 +5,7 @@ import { PopularBrands } from "@/features/search/components/sections/PopularBran
 import { PopularSearch } from "@/features/search/components/sections/PopularSearch";
 import { RecentSearches } from "@/features/search/components/sections/RecentSearches";
 import type { Metadata } from "next";
-
+import { getServerLocale } from "@/features/language/getServerLocale";
 export const metadata: Metadata = {
 	title: "البحث | شلة فود",
 	description:
@@ -75,21 +75,24 @@ export default async function SearchRoute({
 	const { module_id } = await searchParams;
 	const activeModuleId = module_id && !Number.isNaN(Number(module_id)) ? module_id : "3";
 
+	const locale = await getServerLocale();
+	const isArabic = locale === "ar";
+
 	return (
 		<SearchShell moduleId={activeModuleId}>
 			<div className="mt-8 flex flex-col gap-8">
 				<Suspense fallback={<Modules.skeleton />}>
-					<Modules />
+					<Modules isArabic={isArabic} />
 				</Suspense>
 
-				<RecentSearches />
+				<RecentSearches isArabic={isArabic} />
 
 				<Suspense fallback={<PopularSearch.skeleton />}>
-					<PopularSearch moduleId={activeModuleId} />
+					<PopularSearch moduleId={activeModuleId} isArabic={isArabic} />
 				</Suspense>
 
 				<Suspense fallback={<PopularBrands.skeleton />}>
-					<PopularBrands moduleId={activeModuleId} />
+					<PopularBrands moduleId={activeModuleId} isArabic={isArabic} />
 				</Suspense>
 			</div>
 		</SearchShell>

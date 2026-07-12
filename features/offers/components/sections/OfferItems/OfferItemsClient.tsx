@@ -15,7 +15,6 @@ import { useOfferSearch } from "@/features/offers/hooks/useOfferSearch";
 import { CategoryProductCard } from "@/features/hyper-market/Categories/components/sections/CategoryDetail/CategoryProductCard";
 import { Empty } from "./Empty";
 import { OfferItemsSearchLoading } from "./skeleton";
-
 type ViewMode = "grid" | "list";
 type PriceSort = "none" | "asc" | "desc";
 
@@ -75,6 +74,7 @@ interface ToolbarProps {
     onToggleView: () => void;
     onToggleSort: () => void;
     onSearchOpen: () => void;
+    isArabic: boolean;
 }
 
 function ProductsToolbar({
@@ -84,18 +84,19 @@ function ProductsToolbar({
     onToggleView,
     onToggleSort,
     onSearchOpen,
+    isArabic,
 }: ToolbarProps) {
     return (
         <div
-            dir="ltr"
             className={`flex items-center justify-between gap-3 bg-white py-2.5 dark:bg-gray-900 sm:py-3 ${SECTION_PADDING}`}
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <div className="flex items-center gap-2 sm:gap-2.5">
                 <button
                     type="button"
                     onClick={onToggleView}
                     className={`${TOOLBAR_ICON_BTN} ${viewMode === "list" ? TOOLBAR_ICON_ACTIVE : TOOLBAR_ICON_IDLE}`}
-                    aria-label={viewMode === "grid" ? "عرض القائمة" : "عرض الشبكة"}
+                    aria-label={viewMode === "grid" ? (isArabic ? "عرض القائمة" : "View list") : (isArabic ? "عرض الشبكة" : "View grid")}
                     aria-pressed={viewMode === "list"}
                 >
                     {viewMode === "grid" ? (
@@ -119,10 +120,10 @@ function ProductsToolbar({
                     className={`${TOOLBAR_ICON_BTN} ${priceSort !== "none" ? TOOLBAR_ICON_ACTIVE : TOOLBAR_ICON_IDLE}`}
                     aria-label={
                         priceSort === "asc"
-                            ? "ترتيب من الأعلى للأقل"
+                            ? (isArabic ? "ترتيب من الأعلى للأقل" : "Sort from highest to lowest")
                             : priceSort === "desc"
-                              ? "إلغاء الترتيب"
-                              : "ترتيب حسب السعر"
+                                ? (isArabic ? "إلغاء الترتيب" : "Cancel sorting")
+                                : (isArabic ? "ترتيب حسب السعر" : "Sort by price")
                     }
                     aria-pressed={priceSort !== "none"}
                 >
@@ -145,7 +146,7 @@ function ProductsToolbar({
                     type="button"
                     onClick={onSearchOpen}
                     className={`${TOOLBAR_ICON_BTN} ${TOOLBAR_ICON_IDLE}`}
-                    aria-label="البحث في المنتجات"
+                    aria-label={isArabic ? "البحث في المنتجات" : "Search in products"}
                 >
                     <Search
                         className="h-[18px] w-[18px] sm:h-4 sm:w-4"
@@ -155,9 +156,9 @@ function ProductsToolbar({
                 </button>
             </div>
 
-            <p dir="rtl" className="text-sm font-medium text-gray-500 dark:text-gray-400 sm:text-[15px]">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 sm:text-[15px]">
                 <span className="tabular-nums">{total.toLocaleString("en-US")}</span>{" "}
-                منتج
+                {isArabic ? "منتج" : "Product"}
             </p>
         </div>
     );
@@ -167,18 +168,17 @@ interface SearchBarProps {
     value: string;
     onChange: (v: string) => void;
     onClose: () => void;
+    isArabic: boolean;
 }
 
-function SearchBar({ value, onChange, onClose }: SearchBarProps) {
+function SearchBar({ value, onChange, onClose, isArabic }: SearchBarProps) {
     const inputRef = useRef<HTMLInputElement>(null);
-
     useEffect(() => {
         inputRef.current?.focus();
     }, []);
 
     return (
         <div
-            dir="rtl"
             role="search"
             className={`flex animate-[slideDown_200ms_ease-out] items-center gap-2 bg-white py-2.5 dark:bg-gray-900 sm:gap-2.5 sm:py-3 ${SECTION_PADDING}`}
         >
@@ -191,11 +191,11 @@ function SearchBar({ value, onChange, onClose }: SearchBarProps) {
                 <input
                     ref={inputRef}
                     type="search"
-                    dir="rtl"
+                    dir={isArabic ? "rtl" : "ltr"}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    placeholder="ابحث في المنتجات..."
-                    aria-label="البحث في المنتجات"
+                    placeholder={isArabic ? "ابحث في المنتجات..." : "Search in products..."}
+                    aria-label={isArabic ? "البحث في المنتجات" : "Search in products"}
                     className={[
                         "w-full rounded-xl bg-gray-100 py-3 pe-10 ps-4 text-sm text-gray-700 placeholder:text-gray-400",
                         "focus:outline-none focus:ring-2 focus:ring-[#30913F]",
@@ -210,7 +210,7 @@ function SearchBar({ value, onChange, onClose }: SearchBarProps) {
             <button
                 type="button"
                 onClick={onClose}
-                aria-label="إغلاق البحث"
+                aria-label={isArabic ? "إغلاق البحث" : "Close search"}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-gray-100 text-gray-600 transition-colors active:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 dark:focus-visible:ring-offset-gray-950 sm:h-9 sm:w-9"
             >
                 <X
@@ -231,6 +231,7 @@ interface OfferItemsClientProps {
     hasMore: boolean;
     initialOffset: number;
     pageLimit: number;
+    isArabic: boolean;
 }
 
 export function OfferItemsClient({
@@ -241,6 +242,7 @@ export function OfferItemsClient({
     hasMore,
     initialOffset,
     pageLimit,
+    isArabic,
 }: OfferItemsClientProps) {
     const [searchOpen, setSearchOpen] = useState(false);
     const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -251,7 +253,6 @@ export function OfferItemsClient({
     const [loadingMore, setLoadingMore] = useState(false);
     const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
     const nextPageRef = useRef(initialOffset + 1);
-
     const search = useOfferSearch(offerId, moduleId);
 
     const isSearchActive = search.query.trim().length > 0;
@@ -301,7 +302,7 @@ export function OfferItemsClient({
             nextPageRef.current += 1;
             setHasMorePages(more);
         } catch {
-            setLoadMoreError("حدث خطأ أثناء تحميل المزيد");
+            setLoadMoreError(isArabic ? "حدث خطأ أثناء تحميل المزيد" : "An error occurred while loading more");
         } finally {
             setLoadingMore(false);
         }
@@ -309,7 +310,8 @@ export function OfferItemsClient({
 
     return (
         <section
-            aria-label="منتجات العرض"
+            dir={isArabic ? "rtl" : "ltr"}
+            aria-label={isArabic ? "منتجات العروض" : "Offer products"}
             className="bg-[#F6F5F8] pb-[calc(7rem+env(safe-area-inset-bottom))] dark:bg-gray-950"
         >
             {searchOpen ? (
@@ -317,6 +319,7 @@ export function OfferItemsClient({
                     value={search.query}
                     onChange={search.setQuery}
                     onClose={closeSearch}
+                    isArabic={isArabic}
                 />
             ) : (
                 <ProductsToolbar
@@ -326,6 +329,7 @@ export function OfferItemsClient({
                     onToggleView={toggleView}
                     onToggleSort={toggleSort}
                     onSearchOpen={openSearch}
+                    isArabic={isArabic}
                 />
             )}
 
@@ -365,7 +369,7 @@ export function OfferItemsClient({
                         disabled={loadingMore}
                         className="w-full rounded-xl bg-white py-3 text-sm font-semibold text-[#30913F] shadow-[0_2px_8px_rgba(0,0,0,0.07)] transition-colors active:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:opacity-60 dark:bg-gray-800 dark:text-[#4db860] dark:active:bg-gray-700 dark:focus-visible:ring-offset-gray-950 sm:mx-auto sm:block sm:max-w-md sm:text-[14px] md:max-w-lg lg:py-3.5 lg:text-[15px]"
                     >
-                        {loadingMore ? "جارٍ التحميل…" : "تحميل المزيد"}
+                        {loadingMore ? (isArabic ? "جارٍ التحميل…" : "Loading more...") : (isArabic ? "تحميل المزيد" : "Load more")}
                     </button>
                 </div>
             )}

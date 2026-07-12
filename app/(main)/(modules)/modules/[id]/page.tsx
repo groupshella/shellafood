@@ -11,6 +11,7 @@ import { Stores } from "@/features/markets/components/sections/Stores";
 import { Banners } from "@/features/hyper-market/StoreDetails/components/sections/Banners";
 import { Modules } from "@/features/hyper-market/StoreDetails/components/sections/Modules";
 import { AddressTopbarBanner } from "@/features/addresses/components/sections/AddressTopbarBanner";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 interface ModulePageRouteProps {
     params: Promise<{ id: string }>;
@@ -36,13 +37,14 @@ export default async function ModulePageRoute({ params, searchParams }: ModulePa
     const { id } = await params;
     const { module_name } = await searchParams;
     const moduleName = module_name || "";
-
+    const locale = await getServerLocale()
+    const isArabic = locale === "ar"
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
     const isAuthenticated = !!token;
 
     return (
-        <MarketsShell moduleId={id} moduleName={moduleName} isAuthenticated={isAuthenticated}>
+        <MarketsShell moduleId={id} moduleName={moduleName} isAuthenticated={isAuthenticated} isArabic={isArabic}>
             <Suspense
                 fallback={
                     <div className="px-4 sm:px-5">
@@ -51,33 +53,33 @@ export default async function ModulePageRoute({ params, searchParams }: ModulePa
                 }
             >
 
-                <AddressTopbarBanner isAuthenticated={isAuthenticated} className="px-4 sm:px-5" />
+                <AddressTopbarBanner isAuthenticated={isAuthenticated} isArabic={isArabic} className="px-4 sm:px-5" />
 
             </Suspense>
 
             <Suspense fallback={<Modules.skeleton />}>
-                <Modules moduleId={id} />
+                <Modules moduleId={id} isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<Banners.skeleton />}>
-                <Banners />
+                <Banners isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<Categories.skeleton />}>
-                <Categories moduleId={id} moduleName={moduleName} />
+                <Categories moduleId={id} moduleName={moduleName} isArabic={isArabic} />
             </Suspense>
 
             <Suspense fallback={<Offers.skeleton />}>
-                <Offers moduleId={id} />
+                <Offers moduleId={id} isArabic={isArabic} />
             </Suspense>
 
 
 
 
             <Suspense fallback={<PopularBrands.skeleton />}>
-                <PopularBrands moduleId={id} />
+                <PopularBrands moduleId={id} isArabic={isArabic} />
             </Suspense>
 
             <Suspense fallback={<Stores.skeleton />}>
-                <Stores moduleId={id} />
+                <Stores moduleId={id} isArabic={isArabic} />
             </Suspense>
         </MarketsShell>
     );

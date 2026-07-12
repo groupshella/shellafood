@@ -2,6 +2,6 @@ import { CartListClient } from "./CartListClient";
 
 export { default as skeleton } from "./skeleton";
 
-export function CartList() {
-  return <CartListClient />;
+export function CartList({ isArabic }: { isArabic: boolean }) {
+  return <CartListClient isArabic={isArabic} />;
 }

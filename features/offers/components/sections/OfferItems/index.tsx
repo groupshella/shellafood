@@ -6,15 +6,17 @@ import OfferItemsSkeleton from "./skeleton";
 interface OfferItemsProps {
     offerId: string;
     moduleId?: string;
+    isArabic: boolean;
 }
 
 export const OfferItems = Object.assign(
-    async function OfferItems({ offerId, moduleId = "3" }: OfferItemsProps) {
+    async function OfferItems({ offerId, moduleId = "3", isArabic }: OfferItemsProps) {
         const { items, total, offset, limit, hasMore } = await getOfferItems(
             offerId,
             1,
             50,
-            moduleId
+            moduleId,
+            isArabic
         );
 
         return (
@@ -26,6 +28,7 @@ export const OfferItems = Object.assign(
                 hasMore={hasMore}
                 initialOffset={offset}
                 pageLimit={limit}
+                isArabic={isArabic}
             />
         );
     },

@@ -21,9 +21,10 @@ interface ModuleCardProps {
     colorIndex: number;
     isActive: boolean;
     isDisabled: boolean;
+    isArabic: boolean;
 }
 
-export function ModuleCard({ module, colorIndex, isActive, isDisabled }: ModuleCardProps) {
+export function ModuleCard({ module, colorIndex, isActive, isDisabled, isArabic }: ModuleCardProps) {
     const { bg, text, darkBg, darkText } = PALETTE[colorIndex % PALETTE.length];
 
     return (
@@ -42,10 +43,10 @@ export function ModuleCard({ module, colorIndex, isActive, isDisabled }: ModuleC
                 "md:min-w-0 md:w-full md:max-w-none md:gap-3 md:px-4",
                 isActive
                     ? [
-                          "ring-2 ring-[var(--module-text)] ring-offset-1 ring-offset-[#F6F5F8]",
-                          "dark:ring-[var(--module-dark-text)] dark:ring-offset-gray-950",
-                          "shadow-sm dark:shadow-[0_2px_10px_rgba(0,0,0,0.35)]",
-                      ].join(" ")
+                        "ring-2 ring-[var(--module-text)] ring-offset-1 ring-offset-[#F6F5F8]",
+                        "dark:ring-[var(--module-dark-text)] dark:ring-offset-gray-950",
+                        "shadow-sm dark:shadow-[0_2px_10px_rgba(0,0,0,0.35)]",
+                    ].join(" ")
                     : "active:scale-[0.97]",
                 isDisabled
                     ? "opacity-40 grayscale dark:opacity-35 dark:grayscale"
@@ -59,6 +60,7 @@ export function ModuleCard({ module, colorIndex, isActive, isDisabled }: ModuleC
                     "--module-dark-text": darkText,
                 } as React.CSSProperties
             }
+            dir={isArabic ? "rtl" : "ltr"}
         >
             {module.icon_full_url ? (
                 <div

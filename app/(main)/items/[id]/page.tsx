@@ -4,6 +4,7 @@ import { ItemShell } from "@/features/item/components/ItemShell";
 import { AddToCart } from "@/features/cart/components/shared/AddToCart";
 import { ItemInfo } from "@/features/item/components/sections/ItemInfo";
 import { RelatedItems } from "@/features/item/components/sections/RelatedItems";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -71,17 +72,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
     const { id } = await params;
-
+    const locale = await getServerLocale()
+    const isArabic = locale === "ar";
     return (
-        <ItemShell>
+        <ItemShell isArabic={isArabic}>
             <Suspense fallback={<ItemInfo.skeleton />}>
-                <ItemInfo itemId={id} />
+                <ItemInfo itemId={id} isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<RelatedItems.skeleton />}>
-                <RelatedItems itemId={id} />
+                <RelatedItems itemId={id} isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<AddToCart.skeleton />}>
-                <AddToCart moduleId="3" />
+                <AddToCart moduleId="3" isArabic={isArabic} />
             </Suspense>
         </ItemShell>
     );

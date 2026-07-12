@@ -1,6 +1,6 @@
 "use client";
 
-import { QIDHA_STRINGS } from "@/features/profile/constants/qidha.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 import type { QidhaPaymentMethod } from "@/features/profile/types/qidha.types";
 
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
@@ -41,6 +41,8 @@ export function QidhaPaymentMethodCard({
     selected: boolean;
     onSelect: () => void;
 }) {
+    const { isArabic } = useLanguage();
+
     return (
         <button
             type="button"
@@ -61,7 +63,9 @@ export function QidhaPaymentMethodCard({
             >
                 {method.sublabel ?? method.label}
             </span>
-            <span className="sr-only">{QIDHA_STRINGS.choosePaymentMethod}</span>
+            <span className="sr-only">
+                {isArabic ? "اختر طريقة الدفع" : "Choose payment method"}
+            </span>
         </button>
     );
 }

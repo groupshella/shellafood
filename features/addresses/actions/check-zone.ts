@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 interface CheckZoneAddress {
   formatted_address?: string;
@@ -44,10 +45,15 @@ export async function checkZone(
 ): Promise<CheckZoneResult> {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
+  const locale = await getServerLocale();
+  const isArabic = locale === "ar";
+
   if (!token) {
     return {
       inZone: false,
-      message: "Authentication token is required",
+      message: isArabic
+        ? "يجب تسجيل الدخول أولاً"
+        : "Authentication token is required",
     };
   }
 
@@ -60,6 +66,7 @@ export async function checkZone(
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
           "Content-Type": "application/json",
+          "X-Localization": locale,
         },
         body: JSON.stringify({ latitude: lat, longitude: lng }),
       }
@@ -71,14 +78,22 @@ export async function checkZone(
     if (res.status === 401 || json.code === "auth-001") {
       return {
         inZone: false,
-        message: json.message ?? "Authentication token is required",
+        message:
+          json.message ??
+          (isArabic
+            ? "يجب تسجيل الدخول أولاً"
+            : "Authentication token is required"),
       };
     }
 
     if (!res.ok) {
       return {
         inZone: false,
-        message: json.message ?? "Failed to check service zone",
+        message:
+          json.message ??
+          (isArabic
+            ? "تعذر التحقق من منطقة الخدمة"
+            : "Failed to check service zone"),
       };
     }
 
@@ -98,7 +113,9 @@ export async function checkZone(
   } catch {
     return {
       inZone: false,
-      message: "Failed to check service zone",
+      message: isArabic
+        ? "تعذر التحقق من منطقة الخدمة"
+        : "Failed to check service zone",
     };
   }
 }

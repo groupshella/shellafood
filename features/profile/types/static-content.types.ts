@@ -13,5 +13,8 @@ export interface StaticContentResponse {
 
 export interface StaticContentPageConfig {
     slug: StaticContentSlug;
-    title: string;
+    title: {
+        ar: string;
+        en: string;
+    };
 }

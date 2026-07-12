@@ -8,13 +8,13 @@ function getBannerHref(banner: Banner): string | null {
 	return null;
 }
 
-export function BannerSlide({ banner, priority = false }: { banner: Banner; priority?: boolean }) {
+export function BannerSlide({ banner, priority = false, isArabic }: { banner: Banner; priority?: boolean; isArabic: boolean }) {
 	const href = getBannerHref(banner);
 
 	const image = (
 		<Image
 			src={banner.image_full_url}
-			alt={banner.title || "عرض ترويجي"}
+			alt={banner.title || isArabic ? "عرض ترويجي" : "Promotional banner"}
 			fill
 			priority={priority}
 			quality={85}

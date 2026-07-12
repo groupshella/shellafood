@@ -4,6 +4,7 @@ import { OffersShell } from "@/features/offers/components/OffersShell";
 import { OfferItems } from "@/features/offers/components/sections/OfferItems";
 import { getOffers } from "@/features/offers/api/getOffers";
 import { AddToCart } from "@/features/cart/components/shared/AddToCart";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 const MODULE_ID = "3";
 
@@ -16,13 +17,15 @@ export async function generateMetadata({ params, searchParams }: OfferPageProps)
     const { offerId } = await params;
     const { module_id } = await searchParams;
     const moduleId = module_id ?? MODULE_ID;
-    const offers = await getOffers(moduleId).catch(() => []);
+    const locale = await getServerLocale()
+    const isArabic = locale === "ar";
+    const offers = await getOffers(moduleId, isArabic).catch(() => []);
     const offer = offers.find((o) => String(o.id) === offerId);
 
     return {
         title: offer
-            ? `${offer.name} | عروض وخصومات | شلة فود`
-            : "عروض وخصومات | شلة فود",
+            ? `${offer.name} | ${isArabic ? "عروض وخصومات" : "Offers and discounts"} | شلة فود`
+            : `${isArabic ? "عروض وخصومات" : "Offers and discounts"} | شلة فود`,
     };
 }
 
@@ -30,17 +33,18 @@ export default async function OfferPage({ params, searchParams }: OfferPageProps
     const { offerId } = await params;
     const { module_id } = await searchParams;
     const moduleId = module_id ?? MODULE_ID;
-
-    const offers = await getOffers(moduleId).catch(() => []);
+    const locale = await getServerLocale()
+    const isArabic = locale === "ar";
+    const offers = await getOffers(moduleId, isArabic).catch(() => []);
     const offer = offers.find((o) => String(o.id) === offerId);
 
     return (
-        <OffersShell offerName={offer?.name}>
+        <OffersShell offerName={offer?.name} isArabic={isArabic}>
             <Suspense fallback={<OfferItems.skeleton />}>
-                <OfferItems offerId={offerId} moduleId={moduleId} />
+                <OfferItems offerId={offerId} moduleId={moduleId} isArabic={isArabic} />
             </Suspense>
 
-            <AddToCart moduleId={moduleId} />
+            <AddToCart moduleId={moduleId} isArabic={isArabic} />
         </OffersShell>
     );
 }

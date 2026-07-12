@@ -13,9 +13,10 @@ const SECTION_HEADING =
 
 interface ProductsTabClientProps {
     products: FavoriteProduct[];
+    isArabic: boolean;
 }
 
-export function ProductsTabClient({ products: initialProducts }: ProductsTabClientProps) {
+export function ProductsTabClient({ products: initialProducts, isArabic }: ProductsTabClientProps) {
     const [products, setProducts] = useState(initialProducts);
 
     function handleRemove(itemId: number) {
@@ -23,7 +24,7 @@ export function ProductsTabClient({ products: initialProducts }: ProductsTabClie
     }
 
     if (products.length === 0) {
-        return <EmptyFavorites />;
+        return <EmptyFavorites isArabic={isArabic} />;
     }
 
     const groups = groupByDate(products);
