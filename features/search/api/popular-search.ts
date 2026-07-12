@@ -1,10 +1,14 @@
+import { getServerLocale } from "@/features/language/getServerLocale";
 import { GetPopularSearchResponse, PopularSearchItem } from "@/features/search/types/popular-search.types";
 
 export async function getPopularSearch(moduleId: string): Promise<PopularSearchItem[]> {
+    const locale = await getServerLocale();
+    const isArabic = locale === "ar";
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v2/search/popular?limit=10`, {
         headers: {
             Accept: "application/json",
-            "X-Localization": "ar",
+            "Accept-Language": isArabic ? "ar" : "en",
+            "X-Localization": isArabic ? "ar" : "en",
             moduleId,
         },
         next: {

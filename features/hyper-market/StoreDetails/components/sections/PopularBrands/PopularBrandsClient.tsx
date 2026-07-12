@@ -33,7 +33,7 @@ function chunkByTwo(items: HyperMarketPopularBrand[]): HyperMarketPopularBrand[]
     return columns;
 }
 
-export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBrand[] }) {
+export function PopularBrandsClient({ brands, isArabic }: { brands: HyperMarketPopularBrand[]; isArabic: boolean }) {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const columns = chunkByTwo(brands);
@@ -42,17 +42,17 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
 
     return (
         <section
-            aria-label="أشهر العلامات التجارية"
+            aria-label={isArabic ? "أشهر العلامات التجارية" : "Popular brands"}
             className="w-full bg-transparent px-3 pb-5 pt-3 sm:px-5 lg:px-6"
-            dir="rtl"
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <div className="mb-3 flex items-center justify-between gap-3">
                 <h2 className="text-base font-bold text-[#111B18] dark:text-gray-50 sm:text-lg">
-                    أشهر العلامات التجارية
+                    {isArabic ? "أشهر العلامات التجارية" : "Popular brands"}
                 </h2>
 
                 <Link href={viewAllHref} className={VIEW_ALL_BTN}>
-                    <span>عرض الكل</span>
+                    <span>{isArabic ? "عرض الكل" : "View all"}      </span>
                     <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
                 </Link>
             </div>
@@ -67,7 +67,7 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
                             className={COLUMN_CLASS}
                         >
                             {column.map((brand) => (
-                                <BrandCard key={brand.id} brand={brand} />
+                                <BrandCard key={brand.id} brand={brand} isArabic={isArabic} />
                             ))}
                         </div>
                     ))}

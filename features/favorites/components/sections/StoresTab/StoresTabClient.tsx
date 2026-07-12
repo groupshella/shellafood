@@ -13,9 +13,10 @@ const SECTION_HEADING =
 
 interface StoresTabClientProps {
     stores: FavoriteStore[];
+    isArabic: boolean;
 }
 
-export function StoresTabClient({ stores: initialStores }: StoresTabClientProps) {
+export function StoresTabClient({ stores: initialStores, isArabic }: StoresTabClientProps) {
     const [stores, setStores] = useState(initialStores);
 
     function handleRemove(storeId: number) {
@@ -23,7 +24,7 @@ export function StoresTabClient({ stores: initialStores }: StoresTabClientProps)
     }
 
     if (stores.length === 0) {
-        return <EmptyFavorites />;
+        return <EmptyFavorites isArabic={isArabic} />;
     }
 
     const groups = groupByDate(stores);

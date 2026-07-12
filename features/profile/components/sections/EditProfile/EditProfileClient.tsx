@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useId } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Plus } from "lucide-react";
@@ -10,7 +10,6 @@ import { PrimaryButton } from "@/features/profile/components/shared/PrimaryButto
 import { ProfileAvatar } from "@/features/profile/components/shared/ProfileAvatar";
 import { ProfilePhotoCrop } from "@/features/profile/components/shared/ProfilePhotoCrop";
 import { ProfileRadioRow } from "@/features/profile/components/shared/ProfileRadioRow";
-import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 import { useProfileEdit } from "@/features/profile/context/ProfileEditContext";
 import { updateProfile } from "@/features/profile/actions/profile.actions";
 import { cropProfileImage } from "@/features/profile/lib/crop-image";
@@ -20,11 +19,9 @@ import {
     RequiredMark,
 } from "@/features/profile/components/shared/registration/formTokens";
 import { PhoneField } from "@/features/profile/components/shared/registration/PhoneInput";
-import {
-    getGenderLabel,
-    isValidEmail,
-} from "@/features/profile/lib/profile.lib";
+import { isValidEmail } from "@/features/profile/lib/profile.lib";
 import type { ProfileFieldErrors } from "@/features/profile/types/profile.types";
+import { useLanguage } from "@/features/language/useLanguage";
 
 function hasProfileChanges(
     draft: { fullName: string; email: string; pendingPhotoFile: File | null },
@@ -101,8 +98,9 @@ function FieldBlock({
 
 export function EditProfileClient({ user }: EditProfileClientProps) {
     const router = useRouter();
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const photoInputId = useId();
     const savingRef = useRef(false);
+    const { isArabic } = useLanguage();
     const { draft, setFullName, setEmail, setGender, setImagePreview, setPendingPhotoFile, resetFromUser } =
         useProfileEdit();
 
@@ -135,17 +133,17 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
         const email = draft.email.trim();
 
         if (!name) {
-            errors.name = PROFILE_STRINGS.invalidName;
+            errors.name = isArabic ? "يرجى إدخال الاسم" : "Please enter your name";
         }
 
         if (!email) {
-            errors.email = PROFILE_STRINGS.requiredField;
+            errors.email = isArabic ? "هذا الحقل مطلوب" : "This field is required";
         } else if (!isValidEmail(email)) {
-            errors.email = PROFILE_STRINGS.invalidEmail;
+            errors.email = isArabic ? "يرجى إدخال بريد إلكتروني صحيح" : "Please enter a valid email";
         }
 
         if (!user.phone?.trim()) {
-            errors.phone = PROFILE_STRINGS.missingPhone;
+            errors.phone = isArabic ? "رقم الهاتف غير متوفر في حسابك" : "Phone number is missing from your account";
         }
 
         return Object.keys(errors).length > 0 ? errors : null;
@@ -157,7 +155,11 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
         if (!file) return;
 
         if (!ACCEPTED_PHOTO_TYPES.has(file.type) || file.size > MAX_PHOTO_BYTES) {
-            setFieldErrors({ image: PROFILE_STRINGS.invalidPhoto });
+            setFieldErrors({
+                image: isArabic
+                    ? "يرجى اختيار صورة JPG أو PNG بحجم أقل من 5 ميجابايت"
+                    : "Please choose a JPG or PNG under 5 MB",
+            });
             return;
         }
 
@@ -240,7 +242,9 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
             setImagePreview(preview);
             goToForm();
         } catch {
-            setFieldErrors({ image: PROFILE_STRINGS.updateError });
+            setFieldErrors({
+                image: isArabic ? "تعذر حفظ التغييرات، حاول مرة أخرى" : "Could not save changes, please try again",
+            });
         } finally {
             setIsSaving(false);
         }
@@ -253,36 +257,36 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
 
     const shellConfig = {
         form: {
-            title: PROFILE_STRINGS.editTitle,
+            title: isArabic ? "إعدادات الحساب" : "Account settings",
             footer: (
                 <PrimaryButton
                     onClick={handleSaveForm}
                     disabled={isSaving}
                     className="h-12 rounded-xl py-3 text-[16px] font-bold"
                 >
-                    {isSaving ? "جاري الحفظ..." : PROFILE_STRINGS.save}
+                    {isSaving ? (isArabic ? "جاري الحفظ..." : "Saving...") : isArabic ? "حفظ" : "Save"}
                 </PrimaryButton>
             ),
             onBack: undefined,
         },
         gender: {
-            title: PROFILE_STRINGS.genderPageTitle,
+            title: isArabic ? "تحديد الجنس" : "Select gender",
             footer: (
                 <PrimaryButton onClick={handleSaveGender} className="h-12 rounded-xl py-3 text-[16px] font-bold">
-                    {PROFILE_STRINGS.save}
+                    {isArabic ? "حفظ" : "Save"}
                 </PrimaryButton>
             ),
             onBack: goToForm,
         },
         photo: {
-            title: PROFILE_STRINGS.photoTitle,
+            title: isArabic ? "صورة الملف الشخصي" : "Profile photo",
             footer: (
                 <PrimaryButton
                     onClick={handleSavePhoto}
                     disabled={isSaving}
                     className="h-12 rounded-xl py-3 text-[16px] font-bold"
                 >
-                    {PROFILE_STRINGS.save}
+                    {isArabic ? "حفظ" : "Save"}
                 </PrimaryButton>
             ),
             onBack: goToForm,
@@ -314,11 +318,10 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
                     )}
 
                     <div className="flex flex-col items-center gap-1.5 py-2 md:col-span-2">
-                        <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="group relative rounded-full transition-transform active:scale-[0.98]"
-                            aria-label="تغيير صورة الملف الشخصي"
+                        <label
+                            htmlFor={photoInputId}
+                            className="group relative cursor-pointer rounded-full transition-transform active:scale-[0.98]"
+                            aria-label={isArabic ? "تغيير صورة الملف الشخصي" : "Change profile photo"}
                         >
                             <ProfileAvatar
                                 src={draft.imagePreview}
@@ -332,18 +335,18 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
                             <span className="absolute bottom-0 end-0 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#30913F] text-white shadow-sm ring-2 ring-white dark:ring-gray-900 transition-colors group-hover:bg-[#267332]">
                                 <Plus className="h-3 w-3" strokeWidth={1.5} />
                             </span>
-                        </button>
+                            <input
+                                id={photoInputId}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                className="sr-only"
+                                onChange={handlePhotoPick}
+                            />
+                        </label>
                         <FieldError message={fieldErrors.image} />
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            className="hidden"
-                            onChange={handlePhotoPick}
-                        />
                     </div>
 
-                    <FieldBlock label={PROFILE_STRINGS.name} required error={fieldErrors.name}>
+                    <FieldBlock label={isArabic ? "الاسم" : "Name"} required error={fieldErrors.name}>
                         <input
                             type="text"
                             value={draft.fullName}
@@ -353,14 +356,14 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
                                 clearFieldError("general");
                             }}
                             className={`${fieldInputClass(Boolean(fieldErrors.name))} text-start`}
-                            dir="rtl"
+                            dir={isArabic ? "rtl" : "ltr"}
                             autoComplete="name"
                             aria-required
                             aria-invalid={Boolean(fieldErrors.name)}
                         />
                     </FieldBlock>
 
-                    <FieldBlock label={PROFILE_STRINGS.email} required error={fieldErrors.email}>
+                    <FieldBlock label={isArabic ? "البريد الالكتروني" : "Email"} required error={fieldErrors.email}>
                         <input
                             type="email"
                             value={draft.email}
@@ -378,14 +381,14 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
                     </FieldBlock>
 
                     <FieldBlock
-                        label={PROFILE_STRINGS.phone}
-                        hint={PROFILE_STRINGS.phoneNotEditable}
+                        label={isArabic ? "رقم الهاتف" : "Phone number"}
+                        hint={isArabic ? "(غير قابل للتعديل)" : "(not editable)"}
                         error={fieldErrors.phone}
                     >
                         <PhoneField value={user.phone} readOnly />
                     </FieldBlock>
 
-                    <FieldBlock label={PROFILE_STRINGS.gender}>
+                    <FieldBlock label={isArabic ? "الجنس" : "Gender"}>
                         <button
                             type="button"
                             onClick={openGender}
@@ -395,7 +398,17 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
                                 className={`text-[14px] font-medium leading-[160%] ${draft.gender ? "text-[#343434] dark:text-gray-200" : "text-[#707784] dark:text-gray-500"
                                     }`}
                             >
-                                {getGenderLabel(draft.gender)}
+                                {draft.gender === "male"
+                                    ? isArabic
+                                        ? "ذكر"
+                                        : "Male"
+                                    : draft.gender === "female"
+                                        ? isArabic
+                                            ? "أنثى"
+                                            : "Female"
+                                        : isArabic
+                                            ? "تحديد الجنس"
+                                            : "Select gender"}
                             </span>
                             <ChevronLeft className="h-5 w-5 shrink-0 text-[#555555] dark:text-gray-400" strokeWidth={1.5} />
 
@@ -406,7 +419,7 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
                         href="/profile/delete-account"
                         className="flex min-h-[50px] w-full items-center justify-center rounded-xl bg-[#F6F5F8] px-4 text-[16px] font-bold leading-[160%] text-[#EB4335] transition-colors active:opacity-80 dark:bg-gray-800 md:col-span-2"
                     >
-                        {PROFILE_STRINGS.deleteAccount}
+                        {isArabic ? "حذف الحساب" : "Delete account"}
                     </Link>
                 </div>
             )}
@@ -415,20 +428,22 @@ export function EditProfileClient({ user }: EditProfileClientProps) {
                 <div className="mx-auto flex w-full max-w-lg flex-col gap-6 sm:max-w-2xl lg:max-w-3xl">
                     <div className="rounded-2xl bg-white px-3 dark:bg-gray-900 sm:px-4">
                         <h2 className="text-[16px] font-bold text-[#111B18] dark:text-gray-100">
-                            {PROFILE_STRINGS.chooseGender}
+                            {isArabic ? "اختر جنسك" : "Choose your gender"}
                         </h2>
                         <p className="mt-2 text-[14px] leading-relaxed text-[#555555] dark:text-gray-400">
-                            {PROFILE_STRINGS.genderHelper}
+                            {isArabic
+                                ? "نستخدم هذه المعلومة لتحسين تجربتك داخل التطبيق."
+                                : "We use this to improve your experience in the app."}
                         </p>
                     </div>
                     <div>
                         <ProfileRadioRow
-                            label={PROFILE_STRINGS.genderMale}
+                            label={isArabic ? "ذكر" : "Male"}
                             selected={genderSelection === "male"}
                             onSelect={() => setGenderSelection("male")}
                         />
                         <ProfileRadioRow
-                            label={PROFILE_STRINGS.genderFemale}
+                            label={isArabic ? "أنثى" : "Female"}
                             selected={genderSelection === "female"}
                             onSelect={() => setGenderSelection("female")}
                         />

@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 
 type CouponsShellProps = {
 	children: ReactNode;
+	isArabic: boolean;
 };
 
 const SHELL_LAYOUT =
@@ -13,19 +14,19 @@ const SHELL_LAYOUT =
 
 const HEADER_PADDING = "px-3 py-3 sm:px-4 sm:py-3.5 md:px-5 lg:px-6";
 
-export function CouponsShell({ children }: CouponsShellProps) {
+export function CouponsShell({ children, isArabic }: CouponsShellProps) {
 	return (
-		<div className={SHELL_LAYOUT}>
+		<div className={SHELL_LAYOUT} dir={isArabic ? "rtl" : "ltr"}>
 			<header
-				dir="rtl"
+				dir={isArabic ? "rtl" : "ltr"}
 				className={`sticky top-0 z-10 flex items-center justify-between bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:bg-gray-900 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] ${HEADER_PADDING}`}
 			>
 				<h1 className="text-base font-extrabold text-gray-900 dark:text-gray-50 sm:text-lg lg:text-xl">
-					الكوبونات
+					{isArabic ? "الكوبونات" : "Coupons"}
 				</h1>
 				<Link
 					href="/profile"
-					aria-label="رجوع"
+					aria-label={isArabic ? "رجوع" : "Back"}
 					className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition-colors active:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:text-gray-400 dark:active:bg-gray-800 sm:h-11 sm:w-11"
 				>
 					<ChevronRight className="h-5 w-5 sm:h-[22px] sm:w-[22px]" aria-hidden />

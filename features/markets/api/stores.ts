@@ -5,11 +5,14 @@ function buildBackendParams(
     filters: StoreFilters,
     limit: number,
     offset: number,
+    isArabic: boolean = false,
 ): URLSearchParams {
     const params = new URLSearchParams({
         limit: String(limit),
         offset: String(offset),
         module_id: moduleId,
+        "X-localization": isArabic ? "ar" : "en",
+        "Accept-Language": isArabic ? "ar" : "en",
     });
 
     if (filters.categoryId !== null) params.set("category_id", String(filters.categoryId));
@@ -27,8 +30,9 @@ export async function getStores(
     filters: StoreFilters,
     limit = 12,
     offset = 0,
+    isArabic = false,
 ): Promise<GetStoresResponse> {
-    const backendParams = buildBackendParams(moduleId, filters, limit, offset);
+    const backendParams = buildBackendParams(moduleId, filters, limit, offset, isArabic);
 
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v2/stores?${backendParams}`,
@@ -36,7 +40,8 @@ export async function getStores(
             method: "GET",
             headers: {
                 Accept: "application/json",
-                "X-Localization": "ar",
+                "X-Localization": isArabic ? "ar" : "en",
+                "Accept-Language": isArabic ? "ar" : "en",
                 moduleId,
                 zoneId: process.env.ZONE_ID!,
                 latitude: process.env.NEXT_PUBLIC_LATITUDE!,

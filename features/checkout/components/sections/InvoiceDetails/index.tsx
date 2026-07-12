@@ -8,8 +8,8 @@ function formatInvoiceAmount(amount: number) {
 }
 
 export const InvoiceDetails = Object.assign(
-    async function InvoiceDetails() {
-        const items = await getCart();
+    async function InvoiceDetails({ isArabic }: { isArabic: boolean }) {
+        const items = await getCart({ isArabic });
         const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
         return (
@@ -21,6 +21,7 @@ export const InvoiceDetails = Object.assign(
                     discount: formatInvoiceAmount(0),
                     total: formatInvoiceAmount(subtotal),
                 }}
+                isArabic={isArabic}
             />
         );
     },

@@ -41,12 +41,12 @@ function formatItemsCount(count: number): string {
     return count.toLocaleString("en-US");
 }
 
-export function OfferSlide({ offer }: { offer: HyperMarketOffer; priority?: boolean }) {
+export function OfferSlide({ offer, isArabic }: { offer: HyperMarketOffer; isArabic: boolean; priority?: boolean }) {
     const percent = Math.max(0, Math.round(offer.discount_max || offer.discount_min || 0));
     const itemsLabel =
         offer.items_count > 0
-            ? `أكثر من ${formatItemsCount(offer.items_count)} منتج ضمن العروض`
-            : "على آلاف المنتجات المختارة";
+            ? `${isArabic ? "أكثر من" : "More than"} ${formatItemsCount(offer.items_count)} ${isArabic ? "منتج" : "product"} ${isArabic ? "ضمن العروض" : "within the offers"}`
+            : `${isArabic ? "على آلاف المنتجات المختارة" : "On thousands of selected products"}`;
 
     return (
         <Link
@@ -63,7 +63,8 @@ export function OfferSlide({ offer }: { offer: HyperMarketOffer; priority?: bool
                 "dark:bg-gray-900 dark:shadow-[0_2px_14px_rgba(0,0,0,0.35)]",
                 "dark:ring-white/10 dark:focus-visible:ring-offset-gray-950",
             ].join(" ")}
-            aria-label={offer.name || `خصومات حصرية حتى ${percent}%`}
+            aria-label={offer.name || `${isArabic ? "خصومات حصرية حتى" : "Exclusive discounts until"} ${percent}%`}
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <div
                 aria-hidden
@@ -88,32 +89,32 @@ export function OfferSlide({ offer }: { offer: HyperMarketOffer; priority?: bool
 
                 <span className="absolute -top-0.5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full border border-[#DFD3F5]/45 bg-[#7861A6]/90 px-2 py-0.5 text-[0.5rem] font-bold tracking-wide text-white shadow-sm sm:top-0 sm:px-2.5 sm:py-1 sm:text-[0.5625rem] md:text-[0.625rem] dark:border-[#DFD3F5]/25 dark:bg-[#6B5299]">
                     <TagIcon />
-                    خصم حصري
+                    {isArabic ? "خصم حصري" : "Exclusive discount"}
                 </span>
 
                 <div className="relative z-10 flex flex-col items-center text-center text-white">
                     <span className="text-[0.625rem] font-semibold tracking-wide text-white/90 sm:text-[0.6875rem] md:text-xs">
-                        خصم حتى
+                        {isArabic ? "خصم حتى" : "Discount until"}
                     </span>
                     <span className="text-[2rem] font-black leading-none tracking-tight sm:text-[2.35rem] md:text-[2.75rem]">
                         {percent}%
                     </span>
                     <span className="text-[0.5625rem] font-medium text-white/85 sm:text-[0.625rem] md:text-[0.6875rem]">
-                        لفترة محدودة
+                        {isArabic ? "لفترة محدودة" : "Limited time"}
                     </span>
                 </div>
             </div>
 
             <div
-                dir="rtl"
-                className="absolute inset-y-0 end-0 z-10 flex w-[58%] flex-col justify-between px-3.5 py-3.5 sm:w-[56%] sm:px-4 sm:py-4 md:w-[55%] md:px-5 md:py-5"
+                className={`absolute inset-y-0 ${isArabic ? "end-0" : "start-0"} z-10 flex w-[58%] flex-col justify-between px-3.5 py-3.5 sm:w-[56%] sm:px-4 sm:py-4 md:w-[55%] md:px-5 md:py-5`}
+                dir={isArabic ? "rtl" : "ltr"}
             >
                 <div className="flex flex-col gap-1 text-start sm:gap-1.5">
                     <h3 className="text-[0.8125rem] font-bold leading-snug text-[#1A1A1A] sm:text-[0.9375rem] md:text-base dark:text-gray-50">
-                        خصومات حصرية حتى {percent}%
+                        {isArabic ? "خصومات حصرية حتى" : "Exclusive discounts until"} {percent}%
                     </h3>
                     <p className="text-[0.6875rem] font-medium leading-snug text-[#6B7280] sm:text-xs md:text-[0.8125rem] dark:text-gray-400">
-                        على آلاف المنتجات المختارة
+                        {isArabic ? "على آلاف المنتجات المختارة" : ""}
                     </p>
                     <p className="mt-0.5 text-[0.6875rem] font-semibold leading-snug text-[#30913F] sm:text-xs md:text-[0.8125rem] dark:text-[#4aba5a]">
                         • {itemsLabel}
@@ -121,7 +122,7 @@ export function OfferSlide({ offer }: { offer: HyperMarketOffer; priority?: bool
                 </div>
 
                 <span className="inline-flex w-fit items-center gap-1.5 rounded-md bg-[#30913F] px-3 py-1.5 text-[0.625rem] font-bold text-white transition-colors group-hover:bg-[#267332] sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-[0.6875rem] md:text-xs dark:bg-[#2f9e45] dark:group-hover:bg-[#278a3a]">
-                    استكشف العروض
+                    {isArabic ? "استكشف العروض" : "Explore offers"}
                     <CtaArrowIcon />
                 </span>
             </div>

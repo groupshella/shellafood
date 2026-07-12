@@ -1,11 +1,11 @@
 "use client";
 
 import type { ReferralTab } from "@/features/profile/types/referral.types";
-import { REFERRAL_STRINGS } from "@/features/profile/constants/referral.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 
-const TABS: { id: ReferralTab; label: string }[] = [
-    { id: "link", label: REFERRAL_STRINGS.tabLink },
-    { id: "invited", label: REFERRAL_STRINGS.tabInvited },
+const TABS: { id: ReferralTab; label: { ar: string; en: string } }[] = [
+    { id: "link", label: { ar: "رابط الدعوة", en: "Invite link" } },
+    { id: "invited", label: { ar: "الأصدقاء المدعوين", en: "Invited friends" } },
 ];
 
 interface ReferralSegmentedControlProps {
@@ -14,10 +14,12 @@ interface ReferralSegmentedControlProps {
 }
 
 export function ReferralSegmentedControl({ active, onChange }: ReferralSegmentedControlProps) {
+    const { isArabic } = useLanguage();
+
     return (
         <div
             role="tablist"
-            aria-label={REFERRAL_STRINGS.pageTitle}
+            aria-label={isArabic ? "دعوة الأصدقاء" : "Invite friends"}
             className="mx-auto flex min-h-[44px] w-full rounded-[12px] bg-[#F6F5F8] p-[2px] dark:bg-gray-800 sm:max-w-md"
         >
             {TABS.map((tab) => {
@@ -36,7 +38,7 @@ export function ReferralSegmentedControl({ active, onChange }: ReferralSegmented
                                 : "bg-transparent text-[#082E0A] dark:text-gray-300",
                         ].join(" ")}
                     >
-                        {tab.label}
+                        {isArabic ? tab.label.ar : tab.label.en}
                     </button>
                 );
             })}

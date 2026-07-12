@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface NumericKeypadProps {
 	onPress: (key: string) => void;
@@ -36,6 +37,8 @@ const BackspaceIcon = memo(function BackspaceIcon() {
 });
 
 const NumericKeypad = memo(function NumericKeypad({ onPress, onBackspace }: NumericKeypadProps) {
+	const { isArabic } = useLanguage();
+
 	return (
 		<div
 			dir="ltr"
@@ -60,7 +63,13 @@ const NumericKeypad = memo(function NumericKeypad({ onPress, onBackspace }: Nume
 						]
 							.filter(Boolean)
 							.join(" ")}
-						aria-label={key.isBackspace ? "مسح" : key.main}
+						aria-label={
+							key.isBackspace
+								? isArabic
+									? "مسح"
+									: "Delete"
+								: key.main
+						}
 					>
 						{key.isBackspace ? (
 							<BackspaceIcon />

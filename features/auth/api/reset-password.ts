@@ -4,7 +4,17 @@ import { apiError, apiSuccess } from "@/shared/lib/api-response";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 
+function isArabicLocale(request: NextRequest): boolean {
+	const loc =
+		request.headers.get("x-localization") ??
+		request.headers.get("X-localization");
+	return loc !== "en";
+}
+
 export async function putResetPassword(request: NextRequest) {
+	const isArabic = isArabicLocale(request);
+	const locale = isArabic ? "ar" : "en";
+
 	try {
 		const body: ResetPasswordRequest = await request.json();
 
@@ -14,16 +24,28 @@ export async function putResetPassword(request: NextRequest) {
 			!body.password ||
 			!body.confirm_password
 		) {
-			return apiError("جميع الحقول مطلوبة", 422);
+			return apiError(
+				isArabic ? "جميع الحقول مطلوبة" : "All fields are required",
+				422,
+			);
 		}
 
 		if (body.password !== body.confirm_password) {
-			return apiError("كلمتا المرور غير متطابقتين", 422);
+			return apiError(
+				isArabic
+					? "كلمتا المرور غير متطابقتين"
+					: "Passwords do not match",
+				422,
+			);
 		}
 
 		const backendRes = await fetch(`${BACKEND_URL}/api/v1/auth/reset-password`, {
 			method: "PUT",
-			headers: { "Content-Type": "application/json", Accept: "application/json" },
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+				"X-localization": locale,
+			},
 			body: JSON.stringify({
 				phone: body.phone.trim(),
 				reset_token: body.reset_token.trim(),
@@ -35,12 +57,19 @@ export async function putResetPassword(request: NextRequest) {
 		const data = await backendRes.json();
 
 		if (!backendRes.ok) {
-			const message = data?.errors?.[0]?.message ?? "تعذر تغيير كلمة المرور";
+			const message =
+				data?.errors?.[0]?.message ??
+				(isArabic
+					? "تعذر تغيير كلمة المرور"
+					: "Could not change password");
 			return apiError(message, backendRes.status);
 		}
 
 		return apiSuccess<ResetPasswordResponse>(data, backendRes.status);
 	} catch {
-		return apiError("تعذر تغيير كلمة المرور", 500);
+		return apiError(
+			isArabic ? "تعذر تغيير كلمة المرور" : "Could not change password",
+			500,
+		);
 	}
 }

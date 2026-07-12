@@ -1,12 +1,12 @@
 import { RelatedItem } from "@/features/item/types/related-items.types";
 
-export async function getRelatedItems(itemId: string): Promise<RelatedItem[]> {
+export async function getRelatedItems(itemId: string, isArabic: boolean): Promise<RelatedItem[]> {
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v2/items/related-items/${itemId}`, {
         headers: {
             Accept: "application/json",
-            "Accept-Language": "ar",
-            "X-Localization": "ar",
+            "Accept-Language": isArabic ? "ar" : "en",
+            "X-Localization": isArabic ? "ar" : "en",
             zoneId: process.env.ZONE_ID!,
         },
         next: {

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { memo } from "react";
 import { HyperMarketPopularBrand } from "@/features/hyper-market/StoreDetails/types/popular-brands.types";
 
-export const BrandCard = memo(function BrandCard({ brand }: { brand: HyperMarketPopularBrand }) {
+export const BrandCard = memo(function BrandCard({ brand, isArabic }: { brand: HyperMarketPopularBrand; isArabic: boolean }) {
     const name = brand.name?.trim() || "";
 
     return (
@@ -16,6 +16,7 @@ export const BrandCard = memo(function BrandCard({ brand }: { brand: HyperMarket
                 "outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
             ].join(" ")}
             aria-label={name}
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-gray-50 ring-1 ring-black/[0.04] dark:bg-gray-700 dark:ring-white/[0.06] sm:h-14 sm:w-14">
                 {brand.image_full_url ? (

@@ -7,9 +7,10 @@ import { StoreCategory } from "@/features/hyper-market/Categories/types/categori
 
 interface CategoryCardProps {
     category: StoreCategory;
+    isArabic: boolean;
 }
 
-export const CategoryCard = memo(function CategoryCard({ category }: CategoryCardProps) {
+export const CategoryCard = memo(function CategoryCard({ category, isArabic }: CategoryCardProps) {
     const [imageError, setImageError] = useState(false);
 
     const handleImageError = useCallback(() => {
@@ -29,6 +30,7 @@ export const CategoryCard = memo(function CategoryCard({ category }: CategoryCar
                 focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900
             "
             aria-label={category.name}
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <div
                 aria-hidden

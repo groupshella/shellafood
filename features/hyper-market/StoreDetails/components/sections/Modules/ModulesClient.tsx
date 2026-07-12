@@ -10,9 +10,10 @@ const SECTION_HEADING =
 interface ModulesClientProps {
     modules: StoreModule[];
     moduleId: string;
+    isArabic: boolean;
 }
 
-export function ModulesClient({ modules, moduleId }: ModulesClientProps) {
+export function ModulesClient({ modules, moduleId, isArabic }: ModulesClientProps) {
     if (modules.length === 0) return null;
 
     const moduleCards = modules.map((module, index) => {
@@ -25,20 +26,21 @@ export function ModulesClient({ modules, moduleId }: ModulesClientProps) {
                 colorIndex={index}
                 isActive={isActive}
                 isDisabled={!isActive}
+                isArabic={isArabic}
             />
         );
     });
 
     return (
         <section
-            aria-label="خدماتنا"
+            aria-label={isArabic ? "خدماتنا" : "Our services"}
             className="space-y-2.5 bg-transparent px-3 pb-3 pt-3 sm:space-y-3.5 sm:px-5 sm:pb-4 sm:pt-4 lg:px-6"
         >
-            <h2 className={SECTION_HEADING}>خدماتنا</h2>
+            <h2 className={SECTION_HEADING}>{isArabic ? "خدماتنا" : "Our services"}</h2>
 
             {/* Mobile / tablet: horizontal snap scroll */}
             <div className="md:hidden">
-                <ScrollContainer ariaLabel="قائمة الخدمات">
+                <ScrollContainer ariaLabel={isArabic ? "قائمة الخدمات" : "Services list"}>
                     {moduleCards}
                 </ScrollContainer>
             </div>

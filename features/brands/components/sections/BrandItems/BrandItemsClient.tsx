@@ -196,9 +196,10 @@ interface BrandItemsClientProps {
     items: BrandItem[];
     total: number;
     brandId: string;
+    isArabic: boolean;
 }
 
-export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProps) {
+export function BrandItemsClient({ items, total, brandId, isArabic }: BrandItemsClientProps) {
     const [searchOpen, setSearchOpen] = useState(false);
     const [filterSheetOpen, setFilterSheetOpen] = useState(false);
     const [filterSheetVisible, setFilterSheetVisible] = useState(false);
@@ -302,6 +303,7 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
                     filter.clearFilters();
                     closeFilterSheet();
                 }}
+                isArabic={isArabic}
             />
         </section>
     );

@@ -1,33 +1,32 @@
-import { cookies } from "next/headers";
-
-import { LOCALE_COOKIE, type AppLocale } from "@/features/profile/constants/profile.strings";
+import { getServerLocale } from "@/features/language/getServerLocale";
 import type {
     StaticContentResponse,
     StaticContentSlug,
 } from "@/features/profile/types/static-content.types";
 
-async function getLocale(): Promise<AppLocale> {
-    const cookieStore = await cookies();
-    const locale = cookieStore.get(LOCALE_COOKIE)?.value;
-    return locale === "en" ? "en" : "ar";
-}
-
 export async function getStaticContent(slug: StaticContentSlug): Promise<string> {
-    const locale = await getLocale();
+    const locale = await getServerLocale();
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/${slug}`, {
-        headers: {
-            Accept: "application/json",
-            "X-localization": locale,
+    const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/${slug}?lang=${locale}`,
+        {
+            headers: {
+                Accept: "application/json",
+                "X-localization": locale,
+            },
+            next: {
+                revalidate: 86400,
+                tags: ["static-content", `static-content-${slug}-${locale}`],
+            },
         },
-        next: {
-            revalidate: 86400,
-            tags: ["static-content", `static-content-${slug}`],
-        },
-    });
+    );
 
     if (!res.ok) {
-        throw new Error(`Failed to fetch static content (${slug}): ${res.status}`);
+        throw new Error(
+            locale === "ar"
+                ? `تعذر تحميل المحتوى (${slug}): ${res.status}`
+                : `Failed to fetch static content (${slug}): ${res.status}`,
+        );
     }
 
     const json: StaticContentResponse = await res.json();

@@ -26,6 +26,7 @@ interface FilterSheetProps {
     open: boolean;
     onClose: () => void;
     onApply: (filters: FilterValues) => void;
+    isArabic: boolean;
 }
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
@@ -35,20 +36,20 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 ];
 
 const PRICE_RANGES: { value: PriceRange; label: string }[] = [
-    { value: "all",      label: "الجميع" },
-    { value: "0-10",     label: "0 - 10" },
-    { value: "0-20",     label: "0 - 20" },
-    { value: "70-40",    label: "40 - 70" },
-    { value: "70-100",   label: "70 - 100" },
-    { value: "100-150",  label: "100 - 150" },
-    { value: "150-200",  label: "150 - 200" },
-    { value: "200-300",  label: "200 - 300" },
-    { value: "300-500",  label: "300 - 500" },
-    { value: "500-700",  label: "500 - 700" },
+    { value: "all", label: "الجميع" },
+    { value: "0-10", label: "0 - 10" },
+    { value: "0-20", label: "0 - 20" },
+    { value: "70-40", label: "40 - 70" },
+    { value: "70-100", label: "70 - 100" },
+    { value: "100-150", label: "100 - 150" },
+    { value: "150-200", label: "150 - 200" },
+    { value: "200-300", label: "200 - 300" },
+    { value: "300-500", label: "300 - 500" },
+    { value: "500-700", label: "500 - 700" },
     { value: "700-1000", label: "700 - 1000" },
 ];
 
-export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
+export function FilterSheet({ open, onClose, onApply, isArabic }: FilterSheetProps) {
     const [sort, setSort] = useState<SortOption>("popular");
     const [price, setPrice] = useState<PriceRange>("all");
 
@@ -66,14 +67,14 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+            className="fixed inset-0 z-[999] flex items-end justify-center bg-black/40 sm:items-center"
             onClick={onClose}
         >
             <div
-                dir="rtl"
+                dir={isArabic ? "rtl" : "ltr"}
                 role="dialog"
                 aria-modal="true"
-                aria-label="فلتر"
+                aria-label={isArabic ? "فلتر" : "Filter"}
                 onClick={(e) => e.stopPropagation()}
                 className="flex max-h-[92dvh] w-full max-w-md flex-col overflow-y-auto rounded-t-3xl bg-white
                            px-4 pt-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] dark:bg-gray-900 sm:max-h-[90dvh] sm:rounded-3xl sm:px-5 sm:pb-6"
@@ -82,7 +83,7 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                     <button
                         type="button"
                         onClick={onClose}
-                        aria-label="إغلاق"
+                        aria-label={isArabic ? "إغلاق" : "Close"}
                         className="absolute end-0 flex h-8 w-8 items-center justify-center
                                    rounded-full bg-[#F6F5F8] text-[#111B18]
                                    transition-colors hover:bg-[#ECECEF]
@@ -91,11 +92,11 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                     >
                         <X className="h-3.5 w-3.5" strokeWidth={1.5} />
                     </button>
-                    <h2 className="text-base font-bold text-[#111B18] dark:text-gray-50">فلتر</h2>
+                    <h2 className="text-base font-bold text-[#111B18] dark:text-gray-50">{isArabic ? "فلتر" : "Filter"}</h2>
                 </div>
 
                 <section className="pb-6">
-                    <h3 className="pb-3 text-[15px] font-bold text-[#111B18] dark:text-gray-200">الترتيب حسب</h3>
+                    <h3 className="pb-3 text-[15px] font-bold text-[#111B18] dark:text-gray-200">{isArabic ? "الترتيب حسب" : "Sort by"}</h3>
                     <div className="flex flex-wrap gap-2.5">
                         {SORT_OPTIONS.map((option) => (
                             <Chip
@@ -103,13 +104,14 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                                 label={option.label}
                                 selected={sort === option.value}
                                 onClick={() => setSort(option.value)}
+                                isArabic={isArabic}
                             />
                         ))}
                     </div>
                 </section>
 
                 <section className="pb-6">
-                    <h3 className="pb-3 text-[15px] font-bold text-[#111B18] dark:text-gray-200">النطاق السعري</h3>
+                    <h3 className="pb-3 text-[15px] font-bold text-[#111B18] dark:text-gray-200">{isArabic ? "النطاق السعري" : "Price range"}</h3>
                     <div className="grid grid-cols-3 gap-2.5">
                         {PRICE_RANGES.map((option) => (
                             <Chip
@@ -118,6 +120,7 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                                 selected={price === option.value}
                                 onClick={() => setPrice(option.value)}
                                 fullWidth
+                                isArabic={isArabic}
                             />
                         ))}
                     </div>
@@ -131,7 +134,7 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                                    transition-transform active:scale-[0.98]
                                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                     >
-                        تم
+                        {isArabic ? "تم" : "Apply"}
                     </button>
                     <button
                         type="button"
@@ -141,7 +144,7 @@ export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
                                    dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700
                                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]"
                     >
-                        إعادة الضبط
+                        {isArabic ? "إعادة الضبط" : "Reset"}
                     </button>
                 </div>
             </div>
@@ -154,11 +157,13 @@ function Chip({
     selected,
     onClick,
     fullWidth,
+    isArabic,
 }: {
     label: string;
     selected: boolean;
     onClick: () => void;
     fullWidth?: boolean;
+    isArabic: boolean;
 }) {
     return (
         <button
@@ -175,7 +180,7 @@ function Chip({
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]",
             ].join(" ")}
         >
-            {label}
+            {isArabic ? label : label.split(" ").reverse().join(" ")}
         </button>
     );
 }

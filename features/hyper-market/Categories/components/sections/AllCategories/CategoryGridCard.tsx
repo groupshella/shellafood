@@ -7,9 +7,10 @@ import { StoreCategory } from "@/features/hyper-market/Categories/types/categori
 
 interface CategoryGridCardProps {
     category: StoreCategory;
+    isArabic: boolean;
 }
 
-export const CategoryGridCard = memo(function CategoryGridCard({ category }: CategoryGridCardProps) {
+export const CategoryGridCard = memo(function CategoryGridCard({ category, isArabic }: CategoryGridCardProps) {
     const [imageError, setImageError] = useState(false);
 
     const handleImageError = useCallback(() => {
@@ -19,12 +20,13 @@ export const CategoryGridCard = memo(function CategoryGridCard({ category }: Cat
     return (
         <Link
             href={`/hyper-market/categories?categoryId=${category.id}`}
+            dir={isArabic ? "rtl" : "ltr"}
             className={[
                 "relative flex aspect-[4/5] w-full flex-col overflow-hidden rounded-2xl bg-[#E8F9EE] dark:bg-[#0d2e12]/50",
                 "outline-none transition-transform duration-150 active:scale-[0.97]",
                 "focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
             ].join(" ")}
-            aria-label={category.name}
+            aria-label={isArabic ? category.name : category.name.split(" ").reverse().join(" ")}
         >
             <svg
                 className="pointer-events-none absolute -bottom-6 left-1/2 h-[70%] w-[120%] -translate-x-1/2 text-[#C8EDD4] dark:text-[#1a4d2e]"

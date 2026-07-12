@@ -19,6 +19,7 @@ import {
     isLoginSuccess,
 } from "@/features/auth/types/auth.types";
 import { saveGuestId, saveSession, getErrorMessage, toLocalPhone } from "@/features/auth/lib/auth.lib";
+import { useLanguage, type AppLocale } from "@/features/language/useLanguage";
 import { ApiResponse, unwrap } from "@/shared/lib/api-response";
 
 export interface UseAuthReturn {
@@ -57,20 +58,26 @@ export interface UseAuthReturn {
 // ── Shared fetch helpers ───────────────────────────────────────────────────────
 // Post/put to a Next.js proxy route, unwrap the envelope, throw on failure.
 
-async function post<T>(path: string, body: unknown): Promise<T> {
+async function post<T>(path: string, body: unknown, locale: AppLocale): Promise<T> {
     const res = await fetch(path, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            "X-localization": locale,
+        },
         body: JSON.stringify(body),
     });
     const json = (await res.json()) as ApiResponse<T>;
     return unwrap(json); // throws an error message string on success=false
 }
 
-async function put<T>(path: string, body: unknown): Promise<T> {
+async function put<T>(path: string, body: unknown, locale: AppLocale): Promise<T> {
     const res = await fetch(path, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            "X-localization": locale,
+        },
         body: JSON.stringify(body),
     });
     const json = (await res.json()) as ApiResponse<T>;
@@ -88,6 +95,7 @@ function authLog(event: string, payload?: Record<string, unknown>) {
 
 export function useAuth(): UseAuthReturn {
     const router = useRouter();
+    const { isArabic, locale } = useLanguage();
 
     const [step, setStep] = useState<AuthStep>("login");
     const [phone, setPhone] = useState("");
@@ -113,7 +121,7 @@ export function useAuth(): UseAuthReturn {
             const data = await post<LoginResponse>("/api/auth/login", {
                 phone: phoneNumber,
                 password,
-            });
+            }, locale);
 
             if (isLoginSuccess(data)) {
                 authLog("LOGIN_SUCCESS_PASSWORD", {
@@ -137,11 +145,11 @@ export function useAuth(): UseAuthReturn {
             setCooldownSeconds(data.retry_after_seconds ?? DEFAULT_COOLDOWN);
             setStep("otp");
         } catch (err) {
-            setError(getErrorMessage(err));
+            setError(getErrorMessage(err, isArabic));
         } finally {
             setIsLoading(false);
         }
-    }, [router]);
+    }, [router, locale, isArabic]);
 
     // ── Register ─────────────────────────────────────────────────────────────
 
@@ -162,7 +170,11 @@ export function useAuth(): UseAuthReturn {
         setError(null);
 
         if (password !== confirmPassword) {
-            setError("كلمتا المرور غير متطابقتين");
+            setError(
+                isArabic
+                    ? "كلمتا المرور غير متطابقتين"
+                    : "Passwords do not match",
+            );
             setIsLoading(false);
             return;
         }
@@ -179,7 +191,7 @@ export function useAuth(): UseAuthReturn {
                 password,
                 confirm_password: confirmPassword,
                 ...(email && { email }),
-            });
+            }, locale);
 
             authLog("REGISTER_OTP_REQUIRED", {
                 phone: data.phone,
@@ -192,11 +204,11 @@ export function useAuth(): UseAuthReturn {
             setCooldownSeconds(data.retry_after_seconds ?? DEFAULT_COOLDOWN);
             setStep("otp");
         } catch (err) {
-            setError(getErrorMessage(err));
+            setError(getErrorMessage(err, isArabic));
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [locale, isArabic]);
 
     // ── Verify OTP (branches on otpFlow) ────────────────────────────────────
 
@@ -206,32 +218,36 @@ export function useAuth(): UseAuthReturn {
 
         try {
             if (otpFlow === "registration") {
-                await post<VerifyPhoneResponse>("/api/auth/verify-phone", { phone, otp });
+                await post<VerifyPhoneResponse>("/api/auth/verify-phone", { phone, otp }, locale);
                 authLog("VERIFY_REGISTRATION_SUCCESS", { phone });
 
                 if (otpOrigin === "register") {
                     setStep("register-success");
                 } else {
                     // login-pending: verification done, user must log in normally now.
-                    setInfoMessage("تم تفعيل رقم هاتفك، يمكنك تسجيل الدخول الآن");
+                    setInfoMessage(
+                        isArabic
+                            ? "تم تفعيل رقم هاتفك، يمكنك تسجيل الدخول الآن"
+                            : "Your phone number is verified. You can sign in now",
+                    );
                     setStep("login");
                 }
             } else {
                 const data = await post<VerifyTokenResponse>("/api/auth/verify-token", {
                     phone,
                     reset_token: otp,
-                });
+                }, locale);
                 authLog("VERIFY_RESET_OTP_SUCCESS", { phone: data.phone });
                 setResetToken(otp);
                 setPhone(data.phone);
                 setStep("new-password");
             }
         } catch (err) {
-            setError(getErrorMessage(err));
+            setError(getErrorMessage(err, isArabic));
         } finally {
             setIsLoading(false);
         }
-    }, [otpFlow, otpOrigin, phone]);
+    }, [otpFlow, otpOrigin, phone, locale, isArabic]);
 
     // ── Resend OTP (branches on otpFlow) ────────────────────────────────────
 
@@ -243,18 +259,18 @@ export function useAuth(): UseAuthReturn {
                 const data = await post<SendOtpAgainResponse>("/api/auth/send-otp-again", {
                     phone,
                     otp_flow: "registration",
-                });
+                }, locale);
                 return { retry_after_seconds: data.retry_after_seconds ?? DEFAULT_COOLDOWN };
             }
 
             // forgot_password has no dedicated resend route — re-call forgot-password.
-            const data = await post<ForgotPasswordResponse>("/api/auth/forgot-password", { phone });
+            const data = await post<ForgotPasswordResponse>("/api/auth/forgot-password", { phone }, locale);
             return { retry_after_seconds: data.retry_after_seconds ?? DEFAULT_COOLDOWN };
         } catch (err) {
-            setError(getErrorMessage(err));
+            setError(getErrorMessage(err, isArabic));
             return undefined;
         }
-    }, [otpFlow, phone]);
+    }, [otpFlow, phone, locale, isArabic]);
 
     // ── Forgot password: request OTP ────────────────────────────────────────
 
@@ -265,7 +281,7 @@ export function useAuth(): UseAuthReturn {
         try {
             const data = await post<ForgotPasswordResponse>("/api/auth/forgot-password", {
                 phone: phoneNumber,
-            });
+            }, locale);
 
             authLog("FORGOT_PASSWORD_OTP_SENT", {
                 phone: data.phone,
@@ -278,11 +294,11 @@ export function useAuth(): UseAuthReturn {
             setCooldownSeconds(data.retry_after_seconds ?? DEFAULT_COOLDOWN);
             setStep("otp");
         } catch (err) {
-            setError(getErrorMessage(err));
+            setError(getErrorMessage(err, isArabic));
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [locale, isArabic]);
 
     // ── Reset password ───────────────────────────────────────────────────────
 
@@ -291,7 +307,11 @@ export function useAuth(): UseAuthReturn {
         setError(null);
 
         if (password !== confirmPassword) {
-            setError("كلمتا المرور غير متطابقتين");
+            setError(
+                isArabic
+                    ? "كلمتا المرور غير متطابقتين"
+                    : "Passwords do not match",
+            );
             setIsLoading(false);
             return;
         }
@@ -302,17 +322,17 @@ export function useAuth(): UseAuthReturn {
                 reset_token: resetToken,
                 password,
                 confirm_password: confirmPassword,
-            });
+            }, locale);
 
             authLog("RESET_PASSWORD_SUCCESS", { phone });
 
             setStep("reset-success");
         } catch (err) {
-            setError(getErrorMessage(err));
+            setError(getErrorMessage(err, isArabic));
         } finally {
             setIsLoading(false);
         }
-    }, [phone, resetToken]);
+    }, [phone, resetToken, locale, isArabic]);
 
     // ── Guest ─────────────────────────────────────────────────────────────────
 
@@ -321,16 +341,16 @@ export function useAuth(): UseAuthReturn {
         setError(null);
 
         try {
-            const data = await post<GuestRequestResponse>("/api/auth/guest", {});
+            const data = await post<GuestRequestResponse>("/api/auth/guest", {}, locale);
             await saveGuestId(String(data.guest_id));
             router.replace("/home");
         } catch (err) {
-            setError(getErrorMessage(err));
+            setError(getErrorMessage(err, isArabic));
             router.replace("/home");
         } finally {
             setIsLoading(false);
         }
-    }, [router]);
+    }, [router, locale, isArabic]);
 
     // ── Navigation ────────────────────────────────────────────────────────────
 

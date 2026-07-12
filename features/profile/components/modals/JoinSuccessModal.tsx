@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, X } from "lucide-react";
 import { useEffect } from "react";
-import { JOIN_STRINGS } from "@/features/profile/constants/join.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface JoinSuccessModalProps {
     isOpen: boolean;
@@ -11,6 +11,8 @@ interface JoinSuccessModalProps {
 }
 
 export function JoinSuccessModal({ isOpen, onClose }: JoinSuccessModalProps) {
+    const { isArabic, locale } = useLanguage();
+
     useEffect(() => {
         document.body.style.overflow = isOpen ? "hidden" : "";
         return () => {
@@ -35,8 +37,9 @@ export function JoinSuccessModal({ isOpen, onClose }: JoinSuccessModalProps) {
                         <motion.div
                             role="dialog"
                             aria-modal="true"
-                            aria-label={JOIN_STRINGS.successTitle}
-                            dir="rtl"
+                            aria-label={isArabic ? "تم إرسال طلب انضمامك بنجاح" : "Your join request was submitted successfully"}
+                            dir={isArabic ? "rtl" : "ltr"}
+                            lang={locale}
                             initial={{ opacity: 0, scale: 0.92, y: 12 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.92, y: 12 }}
@@ -47,7 +50,7 @@ export function JoinSuccessModal({ isOpen, onClose }: JoinSuccessModalProps) {
                                 type="button"
                                 onClick={onClose}
                                 className="absolute start-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:active:bg-gray-700"
-                                aria-label="إغلاق"
+                                aria-label={isArabic ? "إغلاق" : "Close"}
                             >
                                 <X className="h-4 w-4" />
                             </button>
@@ -74,10 +77,10 @@ export function JoinSuccessModal({ isOpen, onClose }: JoinSuccessModalProps) {
                                 </div>
 
                                 <h2 className="text-lg font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-[18px]">
-                                    {JOIN_STRINGS.successTitle}
+                                    {isArabic ? "تم إرسال طلب انضمامك بنجاح" : "Your join request was submitted successfully"}
                                 </h2>
                                 <p className="mt-2 text-[14px] leading-relaxed text-gray-600 dark:text-gray-300">
-                                    {JOIN_STRINGS.successSubtitle}
+                                    {isArabic ? "وسيتم التواصل معك قريباً" : "We will contact you soon"}
                                 </p>
                             </div>
                         </motion.div>

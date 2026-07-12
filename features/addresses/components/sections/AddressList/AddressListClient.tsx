@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { AddressListItem } from "@/features/addresses/types/address.types";
 import { deleteAddress } from "@/features/addresses/actions/delete-address";
+import { useLanguage } from "@/features/language/useLanguage";
 import { useNotification } from "@/shared/components/NotificationToast";
 import { AddressCard } from "./AddressCard";
 import { DeleteConfirmSheet } from "../../shared/DeleteConfirmSheet";
@@ -18,6 +19,7 @@ const primaryButtonClass =
 
 export function AddressListClient({ addresses }: AddressListClientProps) {
 	const router = useRouter();
+	const { isArabic } = useLanguage();
 	const { success, error: notifyError } = useNotification();
 	const [isPending, startTransition] = useTransition();
 	const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
@@ -53,13 +55,13 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 		startTransition(async () => {
 			const result = await deleteAddress(idToDelete);
 			if (result.success) {
-				success("تم حذف العنوان");
+				success(isArabic ? "تم حذف العنوان" : "Address deleted");
 				router.refresh();
 			} else {
-				notifyError("تعذّر حذف العنوان");
+				notifyError(isArabic ? "تعذّر حذف العنوان" : "Could not delete address");
 			}
 		});
-	}, [notifyError, pendingDeleteId, router, success]);
+	}, [isArabic, notifyError, pendingDeleteId, router, success]);
 
 	const handleAddAddress = useCallback(() => {
 		router.push("/addresses/add");
@@ -70,7 +72,7 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 			<ul
 				className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2 lg:gap-5"
 				role="list"
-				aria-label="قائمة العناوين"
+				aria-label={isArabic ? "قائمة العناوين" : "Address list"}
 			>
 				{addresses.map((address) => (
 					<li key={address.id}>
@@ -92,7 +94,7 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 				className={primaryButtonClass}
 			>
 				<Plus className="h-4 w-4 shrink-0" aria-hidden />
-				<span>أضف عنوان آخر</span>
+				<span>{isArabic ? "أضف عنوان آخر" : "Add another address"}</span>
 			</button>
 
 			<DeleteConfirmSheet

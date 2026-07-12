@@ -1,4 +1,6 @@
-import { POINTS_STRINGS } from "@/features/profile/constants/points.strings";
+"use client";
+
+import { useLanguage } from "@/features/language/useLanguage";
 import type { PointsHistoryGroup } from "@/features/profile/types/points.types";
 import { PointsHistoryEmpty } from "./PointsHistoryEmpty";
 import { PointsHistoryItemCard } from "./PointsHistoryItemCard";
@@ -10,6 +12,7 @@ export function PointsHistoryList({
 }: {
     groups: PointsHistoryGroup[];
 }) {
+    const { isArabic } = useLanguage();
     const hasItems = groups.some((g) => g.items.length > 0);
 
     return (
@@ -19,7 +22,7 @@ export function PointsHistoryList({
                 className="text-start text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[17px]"
                 style={TAJAWAL}
             >
-                {POINTS_STRINGS.historyTitle}
+                {isArabic ? "تاريخ النقاط" : "Points history"}
             </h2>
 
             {!hasItems ? (

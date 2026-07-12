@@ -8,7 +8,7 @@ function getBannerHref(banner: HyperMarketBanner): string | null {
     return null;
 }
 
-export function BannerSlide({ banner, priority = false }: { banner: HyperMarketBanner; priority?: boolean }) {
+export function BannerSlide({ banner, priority = false, isArabic }: { banner: HyperMarketBanner; priority?: boolean; isArabic: boolean }) {
     const href = getBannerHref(banner);
 
     const image = (
@@ -43,6 +43,7 @@ export function BannerSlide({ banner, priority = false }: { banner: HyperMarketB
                 rel={banner.link ? "noopener noreferrer" : undefined}
                 className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
                 draggable={false}
+                dir={isArabic ? "rtl" : "ltr"}
             >
                 {wrapper}
             </Link>

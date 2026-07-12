@@ -5,20 +5,33 @@ import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpag
 import { ChatBotAvatar } from "@/features/profile/components/shared/live-chat/ChatBotAvatar";
 import { ChatInputBar } from "@/features/profile/components/shared/live-chat/ChatInputBar";
 import { ChatMessageBubble } from "@/features/profile/components/shared/live-chat/ChatMessageBubble";
-import { LIVE_CHAT_STRINGS } from "@/features/profile/constants/live-chat.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 import type { ChatMessage } from "@/features/profile/types/live-chat.types";
 
-function createInitialMessages(): ChatMessage[] {
+function createInitialMessages(isArabic: boolean): ChatMessage[] {
     return [
-        { id: "bot-1", sender: "bot", text: LIVE_CHAT_STRINGS.greeting1, timestamp: null },
-        { id: "bot-2", sender: "bot", text: LIVE_CHAT_STRINGS.greeting2, timestamp: null },
+        { id: "bot-1", sender: "bot", text: isArabic ? "مرحباً بك في شلة" : "Welcome to Shella", timestamp: null },
+        { id: "bot-2", sender: "bot", text: isArabic ? "كيف أستطيع أن أساعدك؟" : "How can I help you?", timestamp: null },
     ];
 }
 
 export function LiveChatClient() {
-    const [messages, setMessages] = useState<ChatMessage[]>(createInitialMessages);
+    const { isArabic } = useLanguage();
+    const [messages, setMessages] = useState<ChatMessage[]>(() => createInitialMessages(isArabic));
     const [draft, setDraft] = useState("");
     const bottomRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setMessages((prev) =>
+            prev.map((message) =>
+                message.id === "bot-1"
+                    ? { ...message, text: isArabic ? "مرحباً بك في شلة" : "Welcome to Shella" }
+                    : message.id === "bot-2"
+                        ? { ...message, text: isArabic ? "كيف أستطيع أن أساعدك؟" : "How can I help you?" }
+                        : message,
+            ),
+        );
+    }, [isArabic]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,7 +58,7 @@ export function LiveChatClient() {
 
     return (
         <ProfileSubpageShell
-            title={LIVE_CHAT_STRINGS.pageTitle}
+            title={isArabic ? "الدردشة الحية" : "Live chat"}
             elevatedHeader
             showHeaderBorder={false}
             showFooterBorder={false}

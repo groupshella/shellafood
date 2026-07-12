@@ -9,9 +9,9 @@ import { Address, PickedLocation } from "@/features/addresses/types/address.type
 import { useNotification } from "@/shared/components/NotificationToast";
 
 const BUILDING_TYPES = [
-	{ value: "apartment", label: "شقة" },
-	{ value: "villa", label: "فيلا" },
-	{ value: "office", label: "مكتب" },
+	{ value: "apartment", label: { ar: "شقة", en: "Apartment" } },
+	{ value: "villa", label: { ar: "فيلا", en: "Villa" } },
+	{ value: "office", label: { ar: "مكتب", en: "Office" } },
 ];
 
 interface FieldErrors {
@@ -25,12 +25,23 @@ interface FieldErrors {
 interface AddressFormClientProps {
 	location: PickedLocation;
 	editAddress?: Address;
+	isArabic: boolean;
 }
 
 const cardClass =
 	"flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white px-3 py-3.5 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.2)] sm:gap-4 sm:px-4 sm:py-4 md:px-5";
 
-function FieldLabel({ text, required, htmlFor }: { text: string; required?: boolean; htmlFor?: string }) {
+function FieldLabel({
+	text,
+	required,
+	htmlFor,
+	isArabic,
+}: {
+	text: string;
+	required?: boolean;
+	htmlFor?: string;
+	isArabic: boolean;
+}) {
 	return (
 		<label
 			htmlFor={htmlFor}
@@ -42,12 +53,12 @@ function FieldLabel({ text, required, htmlFor }: { text: string; required?: bool
 					*
 				</span>
 			)}
-			{required && <span className="sr-only"> (مطلوب)</span>}
+			{required && <span className="sr-only"> {isArabic ? "(مطلوب)" : "(required)"}</span>}
 		</label>
 	);
 }
 
-export function AddressFormClient({ location, editAddress }: AddressFormClientProps) {
+export function AddressFormClient({ location, editAddress, isArabic }: AddressFormClientProps) {
 	const router = useRouter();
 	const { success, error: notifyError } = useNotification();
 	const [isPending, startTransition] = useTransition();
@@ -99,7 +110,15 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 				: await addAddress(payload);
 
 			if (result.success) {
-				success((isEdit ? "تم تحديث العنوان" : "تم حفظ العنوان"));
+				success(
+					isEdit
+						? isArabic
+							? "تم تحديث العنوان"
+							: "Address updated"
+						: isArabic
+							? "تم حفظ العنوان"
+							: "Address saved",
+				);
 				router.push("/addresses");
 				router.refresh();
 			} else if (result.errors) {
@@ -112,17 +131,20 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 	}
 
 	return (
-		<div className="flex flex-col gap-3 px-3 pb-8 pt-4 sm:gap-4 sm:px-5 sm:pt-5 lg:gap-5 lg:px-6 lg:pb-10">
-			<section aria-label="الموقع" className={cardClass}>
+		<div
+			className="flex flex-col gap-3 px-3 pb-8 pt-4 sm:gap-4 sm:px-5 sm:pt-5 lg:gap-5 lg:px-6 lg:pb-10"
+			dir={isArabic ? "rtl" : "ltr"}
+		>
+			<section aria-label={isArabic ? "الموقع" : "Location"} className={cardClass}>
 				<div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
 					<div className="flex flex-col">
-						<FieldLabel text="المدينة" required htmlFor="city" />
+						<FieldLabel text={isArabic ? "المدينة" : "City"} required htmlFor="city" isArabic={isArabic} />
 						<input
 							id="city"
 							name="city"
 							value={form.city}
 							onChange={handleChange}
-							placeholder="مثال: الرياض"
+							placeholder={isArabic ? "مثال: الرياض" : "e.g. Riyadh"}
 							autoComplete="address-level2"
 							className={inputClass(!!errors.city)}
 							aria-invalid={!!errors.city}
@@ -132,13 +154,13 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 					</div>
 
 					<div className="flex flex-col">
-						<FieldLabel text="المنطقة" required htmlFor="region" />
+						<FieldLabel text={isArabic ? "المنطقة" : "District"} required htmlFor="region" isArabic={isArabic} />
 						<input
 							id="region"
 							name="region"
 							value={form.region}
 							onChange={handleChange}
-							placeholder="مثال: الملقا"
+							placeholder={isArabic ? "الملقا" : "Al Malqa"}
 							className={inputClass(!!errors.region)}
 							aria-invalid={!!errors.region}
 							aria-describedby={errors.region ? "region-error" : undefined}
@@ -148,13 +170,13 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 				</div>
 
 				<div className="flex flex-col">
-					<FieldLabel text="اسم الشارع" required htmlFor="street_name" />
+					<FieldLabel text={isArabic ? "اسم الشارع" : "Street name"} required htmlFor="street_name" isArabic={isArabic} />
 					<input
 						id="street_name"
 						name="street_name"
 						value={form.street_name}
 						onChange={handleChange}
-						placeholder="مثال: طريق الأمير محمد بن سعد"
+						placeholder={isArabic ? "طريق الأمير محمد بن سعد" : "Prince Mohammed bin Saad Road"}
 						autoComplete="street-address"
 						className={inputClass(!!errors.street_name)}
 						aria-invalid={!!errors.street_name}
@@ -164,9 +186,9 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 				</div>
 			</section>
 
-			<section aria-label="تفاصيل المبنى" className={cardClass}>
+			<section aria-label={isArabic ? "تفاصيل المبنى" : "Building details"} className={cardClass}>
 				<div className="flex flex-col">
-					<FieldLabel text="نوع المبنى" htmlFor="building_type" />
+					<FieldLabel text={isArabic ? "نوع المبنى" : "Building type"} htmlFor="building_type" isArabic={isArabic} />
 					<select
 						id="building_type"
 						name="building_type"
@@ -174,10 +196,10 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 						onChange={handleChange}
 						className={inputClass(false)}
 					>
-						<option value="">اختر نوع المبنى</option>
+						<option value="">{isArabic ? "اختر نوع المبنى" : "Select building type"}</option>
 						{BUILDING_TYPES.map((t) => (
 							<option key={t.value} value={t.value}>
-								{t.label}
+								{isArabic ? t.label.ar : t.label.en}
 							</option>
 						))}
 					</select>
@@ -185,7 +207,7 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 
 				<div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
 					<div className="flex min-w-0 flex-col">
-						<FieldLabel text="رقم المبنى" htmlFor="building_number" />
+						<FieldLabel text={isArabic ? "رقم المبنى" : "Building number"} htmlFor="building_number" isArabic={isArabic} />
 						<input
 							id="building_number"
 							name="building_number"
@@ -197,7 +219,7 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 						/>
 					</div>
 					<div className="flex min-w-0 flex-col">
-						<FieldLabel text="رقم الطابق" htmlFor="floor_number" />
+						<FieldLabel text={isArabic ? "رقم الطابق" : "Floor"} htmlFor="floor_number" isArabic={isArabic} />
 						<input
 							id="floor_number"
 							name="floor_number"
@@ -209,7 +231,7 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 						/>
 					</div>
 					<div className="flex min-w-0 flex-col">
-						<FieldLabel text="رقم الشقة" htmlFor="apartment_number" />
+						<FieldLabel text={isArabic ? "رقم الشقة" : "Apartment"} htmlFor="apartment_number" isArabic={isArabic} />
 						<input
 							id="apartment_number"
 							name="apartment_number"
@@ -223,27 +245,27 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 				</div>
 			</section>
 
-			<section aria-label="معلومات إضافية" className={cardClass}>
-				<FieldLabel text="معلومات إضافية" htmlFor="additional_info" />
+			<section aria-label={isArabic ? "معلومات إضافية" : "Additional info"} className={cardClass}>
+				<FieldLabel text={isArabic ? "معلومات إضافية" : "Additional info"} htmlFor="additional_info" isArabic={isArabic} />
 				<textarea
 					id="additional_info"
 					name="additional_info"
 					value={form.additional_info}
 					onChange={handleChange}
-					placeholder="مثال: بالقرب من المسجد"
+					placeholder={isArabic ? "بالقرب من المسجد" : "Near the mosque"}
 					rows={3}
 					className={`${inputClass(false)} resize-none`}
 				/>
 			</section>
 
-			<section aria-label="تسمية العنوان" className={cardClass}>
-				<FieldLabel text="تسمية العنوان" required htmlFor="address_label" />
+			<section aria-label={isArabic ? "تسمية العنوان" : "Address label"} className={cardClass}>
+				<FieldLabel text={isArabic ? "تسمية العنوان" : "Address label"} required htmlFor="address_label" isArabic={isArabic} />
 				<input
 					id="address_label"
 					name="address_label"
 					value={form.address_label}
 					onChange={handleChange}
-					placeholder="مثال: المنزل"
+					placeholder={isArabic ? "المنزل" : "Home"}
 					className={inputClass(!!errors.address_label)}
 					aria-invalid={!!errors.address_label}
 					aria-describedby={errors.address_label ? "address_label-error" : undefined}
@@ -269,12 +291,12 @@ export function AddressFormClient({ location, editAddress }: AddressFormClientPr
 				{isPending ? (
 					<>
 						<Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-						<span>جاري الحفظ...</span>
+						<span>{isArabic ? "جاري الحفظ..." : "Saving..."}</span>
 					</>
 				) : isEdit ? (
-					"حفظ التعديلات"
+					isArabic ? "حفظ التعديلات" : "Save changes"
 				) : (
-					"حفظ العنوان"
+					isArabic ? "حفظ العنوان" : "Save address"
 				)}
 			</button>
 		</div>

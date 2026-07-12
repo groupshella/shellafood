@@ -1,6 +1,6 @@
 export default function StaticContentSkeleton() {
     return (
-        <div className="flex min-h-dvh animate-pulse flex-col bg-white dark:bg-gray-950" dir="rtl">
+        <div className="flex min-h-dvh animate-pulse flex-col bg-white dark:bg-gray-950">
             <header className="grid grid-cols-[auto_1fr_auto] items-center border-b border-gray-100 px-4 py-5 dark:border-gray-800 sm:px-5 md:px-6">
                 <div className="h-9 w-9 rounded-full bg-gray-100 dark:bg-gray-800" />
                 <div className="mx-auto h-5 w-32 rounded bg-gray-200 dark:bg-gray-700" />

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import {
     ChevronRight,
@@ -18,6 +19,7 @@ import type { OrderDetailView, OrderItem } from "@/features/my-orders/types/orde
 
 interface OrderDetailClientProps {
     order: OrderDetailView;
+    isArabic: boolean;
 }
 
 const SHELL_LAYOUT =
@@ -127,9 +129,10 @@ interface ConfirmAddressModalProps {
     onClose: () => void;
     onConfirm: () => void;
     address: string;
+    isArabic?: boolean;
 }
 
-function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address }: ConfirmAddressModalProps) {
+function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address, isArabic }: ConfirmAddressModalProps) {
     useEffect(() => {
         document.body.style.overflow = isOpen ? "hidden" : "";
         return () => { document.body.style.overflow = ""; };
@@ -148,8 +151,8 @@ function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address }:
             <div
                 role="dialog"
                 aria-modal
-                aria-label="تأكيد العنوان"
-                dir="rtl"
+                aria-label={isArabic ? "تأكيد العنوان" : "Confirm address"}
+                dir={isArabic ? "rtl" : "ltr"}
                 className={SHEET_LAYOUT}
                 style={{
                     transform: isVisible ? "translateY(0)" : "translateY(100%)",
@@ -161,12 +164,12 @@ function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address }:
                     <button
                         type="button"
                         onClick={onClose}
-                        aria-label="إغلاق"
+                        aria-label={isArabic ? "إغلاق" : "Close"}
                         className="absolute start-0 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:h-9 sm:w-9"
                     >
                         <X className="h-4 w-4" strokeWidth={2.5} aria-hidden />
                     </button>
-                    <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-[16px]">تأكيد العنوان</h2>
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-[16px]">{isArabic ? "تأكيد العنوان" : "Confirm address"}</h2>
                 </div>
                 <div className="mt-4 flex flex-col items-center">
                     <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-[#EBFEEB] dark:bg-[#0d2e12] sm:h-16 sm:w-16">
@@ -176,7 +179,7 @@ function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address }:
                         {address}
                     </p>
                     <p className="mt-1 text-center text-xs text-gray-400 dark:text-gray-500 sm:text-[13px]">
-                        هل هذا هو عنوان التوصيل الصحيح؟
+                        {isArabic ? "هل هذا هو عنوان التوصيل الصحيح؟" : "Is this the correct delivery address?"}
                     </p>
                 </div>
                 <div className="mt-6 flex gap-2.5 sm:gap-3">
@@ -185,14 +188,14 @@ function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address }:
                         onClick={onClose}
                         className="min-h-12 flex-1 rounded-xl bg-gray-100 py-3.5 text-sm font-semibold text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:text-[14px]"
                     >
-                        تغيير العنوان
+                        {isArabic ? "تغيير العنوان" : "Change address"}
                     </button>
                     <button
                         type="button"
                         onClick={onConfirm}
                         className="min-h-12 flex-1 rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 sm:text-[14px]"
                     >
-                        تأكيد الطلب
+                        {isArabic ? "تأكيد الطلب" : "Confirm order"}
                     </button>
                 </div>
             </div>
@@ -200,7 +203,7 @@ function ConfirmAddressModal({ isOpen, isVisible, onClose, onConfirm, address }:
     );
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
+function SectionTitle({ children, isArabic }: { children: React.ReactNode; isArabic: boolean }) {
     return (
         <p className="mb-3 text-start text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px] lg:text-base">
             {children}
@@ -213,14 +216,16 @@ function InvoiceRow({
     value,
     bold = false,
     green = false,
+    isArabic = false,
 }: {
     label: string;
     value: string;
     bold?: boolean;
     green?: boolean;
+    isArabic?: boolean;
 }) {
     return (
-        <div className="flex items-center justify-between py-2 sm:py-2.5" dir="rtl">
+        <div className="flex items-center justify-between py-2 sm:py-2.5" dir={isArabic ? "rtl" : "ltr"}>
             <span
                 className={[
                     bold ? "text-sm font-bold sm:text-[14px]" : "text-xs font-medium sm:text-[13px]",
@@ -241,14 +246,14 @@ function InvoiceRow({
     );
 }
 
-const OrderItemRow = memo(function OrderItemRow({ item }: { item: OrderItem }) {
+const OrderItemRow = memo(function OrderItemRow({ item, isArabic }: { item: OrderItem; isArabic?: boolean }) {
     return (
         <div className="flex items-start gap-2.5 border-b border-gray-100 py-3 last:border-b-0 dark:border-gray-700 sm:gap-3 sm:py-3.5">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-700 sm:h-[60px] sm:w-[60px]">
                 {item.imageUrl ? (
                     <Image
                         src={item.imageUrl}
-                        alt={item.name}
+                        alt={item.name || isArabic ? "صورة المنتج" : "Product image"}
                         width={60}
                         height={60}
                         className="h-full w-full object-cover"
@@ -260,23 +265,23 @@ const OrderItemRow = memo(function OrderItemRow({ item }: { item: OrderItem }) {
 
             <div className="min-w-0 flex-1">
                 <p className="text-start text-sm font-semibold leading-snug text-gray-900 dark:text-gray-50 sm:text-[14px]">
-                    {item.name}
+                    {item.name || isArabic ? "اسم المنتج" : "Product name"}
                 </p>
                 {item.description && (
                     <p className="mt-0.5 line-clamp-2 text-start text-xs leading-snug text-gray-400 dark:text-gray-500 sm:text-[12px]">
-                        {item.description}
+                        {item.description || isArabic ? "وصف المنتج" : "Product description"}
                     </p>
                 )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                    <span className="text-xs font-bold text-gray-900 dark:text-gray-50 sm:text-[13px]">{item.price}</span>
+                    <span className="text-xs font-bold text-gray-900 dark:text-gray-50 sm:text-[13px]">{item.price || isArabic ? "السعر" : "Price"}</span>
                     {item.originalPrice && (
-                        <span className="text-[11px] text-gray-300 line-through dark:text-gray-500 sm:text-[12px]">{item.originalPrice}</span>
+                        <span className="text-[11px] text-gray-300 line-through dark:text-gray-500 sm:text-[12px]">{item.originalPrice || isArabic ? "السعر الأصلي" : "Original price"}</span>
                     )}
                 </div>
             </div>
 
             <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#30913F] sm:h-7 sm:w-7">
-                <span className="text-[10px] font-bold text-white sm:text-[11px]">{item.quantity}</span>
+                <span className="text-[10px] font-bold text-white sm:text-[11px]">{item.quantity || isArabic ? "الكمية" : "Quantity"}</span>
             </div>
         </div>
     );
@@ -286,16 +291,12 @@ function Divider() {
     return <div className="my-1 h-px bg-gray-100 dark:bg-gray-700" />;
 }
 
-export function OrderDetailClient({ order }: OrderDetailClientProps) {
+export function OrderDetailClient({ order, isArabic }: OrderDetailClientProps) {
     const router = useRouter();
     const reorderSheet = useBottomSheet();
     const addressSheet = useBottomSheet();
 
     const { fees } = order;
-
-    const handleBack = useCallback(() => {
-        router.back();
-    }, [router]);
 
     const handleReorderConfirm = useCallback(() => {
         reorderSheet.close();
@@ -309,34 +310,27 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
 
     return (
         <>
-            <div className={SHELL_LAYOUT} dir="rtl">
+            <div className={SHELL_LAYOUT} dir={isArabic ? "rtl" : "ltr"}>
                 <header className="sticky top-0 z-20 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:bg-gray-900 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]">
                     <div className={`relative flex items-center justify-center py-3.5 sm:py-4 ${HEADER_PADDING}`}>
-                        <button
-                            type="button"
-                            onClick={handleBack}
-                            aria-label="رجوع"
-                            className="absolute end-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:end-4 sm:h-11 sm:w-11"
+
+                        <Link
+                            href="/my-orders"
+                            aria-label={isArabic ? "رجوع" : "Return"}
+                            className="absolute start-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:end-4 sm:h-11 sm:w-11"
                         >
                             <ChevronRight className="h-5 w-5 sm:h-[22px] sm:w-[22px]" strokeWidth={2} aria-hidden />
-                        </button>
+                        </Link>
+                        <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-[17px] lg:text-lg">{isArabic ? "تفاصيل طلبك" : "Order details"}</h1>
 
-                        <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-[17px] lg:text-lg">تفاصيل طلبك</h1>
 
-                        <button
-                            type="button"
-                            aria-label="حفظ الطلب"
-                            className="absolute start-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700 sm:start-4 sm:h-11 sm:w-11"
-                        >
-                            <Bookmark className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.8} aria-hidden />
-                        </button>
                     </div>
                 </header>
 
                 <div className={CONTENT_PADDING}>
                     <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] dark:bg-gray-800 dark:ring-white/[0.06] lg:rounded-3xl">
                         <div className="px-3 pb-2 pt-3.5 sm:px-4 sm:pt-4 md:px-5 md:pt-5">
-                            <SectionTitle>تفاصيل الطلب</SectionTitle>
+                            <SectionTitle isArabic={isArabic}>{isArabic ? "تفاصيل الطلب" : "Order details"}</SectionTitle>
 
                             <div className="mb-4 flex items-center justify-between gap-3">
                                 <div className="min-w-0 flex-1">
@@ -345,7 +339,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                                     </p>
                                     {order.storeDescription && (
                                         <p className="line-clamp-2 text-start text-xs text-gray-400 dark:text-gray-500 sm:text-[13px]">
-                                            {order.storeDescription}
+                                            {order.storeDescription || isArabic ? "وصف المتجر" : "Store description"}
                                         </p>
                                     )}
                                 </div>
@@ -353,7 +347,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                                     {order.storeLogoUrl ? (
                                         <Image
                                             src={order.storeLogoUrl}
-                                            alt={order.storeName}
+                                            alt={order.storeName || isArabic ? "صورة المتجر" : "Store image"}
                                             width={56}
                                             height={56}
                                             className="h-full w-full object-cover"
@@ -372,7 +366,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                                 </div>
                             ) : (
                                 <p className="py-4 text-center text-[13px] text-gray-400 dark:text-gray-500">
-                                    لا توجد منتجات في هذا الطلب
+                                    {isArabic ? "لا توجد منتجات في هذا الطلب" : "No products in this order"}
                                 </p>
                             )}
                         </div>
@@ -380,26 +374,27 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                         <Divider />
 
                         <div className="px-3 py-3 sm:px-4 md:px-5">
-                            <SectionTitle>تفاصيل الفاتورة</SectionTitle>
+                            <SectionTitle isArabic={isArabic}>{isArabic ? "تفاصيل الفاتورة" : "Invoice details"}</SectionTitle>
                             <InvoiceRow
-                                label="إجمالي المنتجات"
+                                label={isArabic ? "إجمالي المنتجات" : "Total products"}
+                                isArabic={isArabic}
                                 value={formatOrderMoney(fees.itemsSubtotal)}
                             />
                             <InvoiceRow
-                                label="مصاريف الشحن"
+                                label={isArabic ? "مصاريف الشحن" : "Shipping fees"}
                                 value={formatOrderMoney(fees.deliveryCharge)}
                             />
                             <InvoiceRow
-                                label="رسوم الخدمة"
+                                label={isArabic ? "رسوم الخدمة" : "Service fees"}
                                 value={formatOrderMoney(fees.serviceFee)}
                             />
                             <InvoiceRow
-                                label="كود خصم"
+                                label={isArabic ? "كود خصم" : "Discount code"}
                                 value={`- ${formatOrderMoney(fees.couponDiscount)}`}
                             />
                             <div className="my-2 h-px bg-gray-200 dark:bg-gray-700" />
                             <InvoiceRow
-                                label="إجمالي الطلب"
+                                label={isArabic ? "إجمالي الطلب" : "Total order"}
                                 value={formatOrderMoney(fees.total)}
                                 bold
                                 green
@@ -409,7 +404,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                         <Divider />
 
                         <div className="px-3 py-3 sm:px-4 md:px-5">
-                            <SectionTitle>طريقة الدفع</SectionTitle>
+                            <SectionTitle isArabic={isArabic}>{isArabic ? "طريقة الدفع" : "Payment method"}</SectionTitle>
                             <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-1">
                                     <CreditCard className="h-5 w-5 shrink-0 text-gray-500 dark:text-gray-400" strokeWidth={1.6} aria-hidden />
@@ -426,7 +421,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                         <Divider />
 
                         <div className="px-3 py-3 sm:px-4 md:px-5">
-                            <SectionTitle>عنوان توصيل</SectionTitle>
+                            <SectionTitle isArabic={isArabic}>{isArabic ? "عنوان توصيل" : "Delivery address"}</SectionTitle>
                             <div className="flex items-start gap-2">
                                 <MapPin className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[#30913F] dark:text-[#4db860]" strokeWidth={1.8} aria-hidden />
                                 <span className="text-start text-xs leading-relaxed text-gray-700 dark:text-gray-300 sm:text-[13px]">
@@ -438,7 +433,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                         <Divider />
 
                         <div className="px-3 pb-4 pt-3 sm:px-4 md:px-5">
-                            <SectionTitle>تاريخ الطلب</SectionTitle>
+                            <SectionTitle isArabic={isArabic}>{isArabic ? "تاريخ الطلب" : "Order date"}</SectionTitle>
                             <div className="flex items-center gap-2">
                                 <Clock className="h-[18px] w-[18px] shrink-0 text-[#30913F] dark:text-[#4db860]" strokeWidth={1.8} aria-hidden />
                                 <span className="text-start text-xs text-gray-700 dark:text-gray-300 sm:text-[13px]">
@@ -451,7 +446,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                             <>
                                 <Divider />
                                 <div className="px-3 py-3 pb-4 sm:px-4 md:px-5">
-                                    <SectionTitle>سبب الإلغاء</SectionTitle>
+                                    <SectionTitle isArabic={isArabic}>{isArabic ? "سبب الإلغاء" : "Cancellation reason"}</SectionTitle>
                                     <p className="text-start text-[13px] text-red-500 dark:text-red-400">
                                         {order.cancellationReason}
                                     </p>
@@ -467,7 +462,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
                         onClick={reorderSheet.open}
                         className="w-full rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 sm:mx-auto sm:block sm:max-w-md sm:text-[15px] md:max-w-lg lg:py-4"
                     >
-                        أعد طلب الأوردر
+                        {isArabic ? "أعد طلب الأوردر" : "Reorder the order"}
                     </button>
                 </div>
             </div>

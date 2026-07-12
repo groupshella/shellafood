@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export function NotificationsEmpty() {
+export function NotificationsEmpty({ isArabic }: { isArabic: boolean }) {
     return (
         <div className="flex min-h-[calc(100dvh-8.5rem)] flex-col items-center justify-center px-4 text-center sm:min-h-[calc(100dvh-9.5rem)] sm:px-6">
             <div className="relative mb-6 aspect-square w-full max-w-[12rem] sm:mb-8 sm:max-w-[14rem] md:max-w-[16rem]">
@@ -16,10 +16,10 @@ export function NotificationsEmpty() {
 
             <div className="space-y-1.5">
                 <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200 sm:text-xl">
-                    لا يوجد لديك إشعارات
+                    {isArabic ? "لا يوجد لديك إشعارات" : "No notifications"}
                 </h2>
                 <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">
-                    في الوقت الحالي
+                    {isArabic ? "في الوقت الحالي" : "At the current time"}
                 </h2>
             </div>
         </div>

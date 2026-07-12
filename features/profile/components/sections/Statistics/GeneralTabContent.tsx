@@ -3,7 +3,8 @@
 import { ChevronDown, ChevronUp, List } from "lucide-react";
 import Image from "next/image";
 
-import { TAJAWAL, CHART_PERIOD_OPTIONS, FREQUENCY_OPTIONS, MONTHS, WEEK_DAYS } from "@/features/profile/constants/statistics.constants";
+import { useLanguage } from "@/features/language/useLanguage";
+import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import type { useGeneralAnalytics } from "@/features/profile/hooks/useGeneralAnalytics";
 import type {
     ChartPeriod,
@@ -21,6 +22,45 @@ import { ErrorSectionCard } from "./shared/ErrorSectionCard";
 import { SarIcon } from "./shared/SarIcon";
 import { SectionTitle } from "./shared/SectionTitle";
 import { SkeletonBlock } from "./shared/SkeletonBlock";
+
+const WEEK_DAY_LABELS = [
+    { ar: "السبت", en: "Sat" },
+    { ar: "الأحد", en: "Sun" },
+    { ar: "الاثنين", en: "Mon" },
+    { ar: "الثلاثاء", en: "Tue" },
+    { ar: "الأربعاء", en: "Wed" },
+    { ar: "الخميس", en: "Thu" },
+    { ar: "الجمعة", en: "Fri" },
+] as const;
+
+const MONTH_LABELS = [
+    { ar: "يناير", en: "January" },
+    { ar: "فبراير", en: "February" },
+    { ar: "مارس", en: "March" },
+    { ar: "إبريل", en: "April" },
+    { ar: "مايو", en: "May" },
+    { ar: "يونيو", en: "June" },
+    { ar: "يوليو", en: "July" },
+] as const;
+
+const CHART_PERIOD_LABELS: { id: ChartPeriod; ar: string; en: string }[] = [
+    { id: "week", ar: "أسبوع", en: "Week" },
+    { id: "month", ar: "شهر", en: "Month" },
+];
+
+const FREQUENCY_LABELS = [
+    { id: "week", ar: "الأسبوع", en: "Week" },
+    { id: "month", ar: "الشهر", en: "Month" },
+    { id: "all", ar: "كل الوقت", en: "All time" },
+] as const;
+
+function translateChartLabel(label: string, isArabic: boolean) {
+    const knownLabel = [...WEEK_DAY_LABELS, ...MONTH_LABELS].find(
+        (item) => item.ar === label || item.en === label,
+    );
+    if (!knownLabel) return label;
+    return isArabic ? knownLabel.ar : knownLabel.en;
+}
 
 function LayoutToggleIcon({ mode }: { mode: ProductLayout }) {
     if (mode === "list") {
@@ -70,6 +110,7 @@ export function GeneralTabContent({
     onLayoutToggle: () => void;
     onToggleHeart: (id: number) => void;
 }) {
+    const { isArabic } = useLanguage();
     const {
         summary,
         trend,
@@ -82,9 +123,21 @@ export function GeneralTabContent({
         retryTrend,
     } = analytics;
 
-    const chartLabels = trend?.labels ?? (chartPeriod === "week" ? WEEK_DAYS : MONTHS);
+    const fallbackChartLabels =
+        chartPeriod === "week"
+            ? WEEK_DAY_LABELS.map((day) => (isArabic ? day.ar : day.en))
+            : MONTH_LABELS.map((month) => (isArabic ? month.ar : month.en));
+    const chartLabels = (trend?.labels ?? fallbackChartLabels).map((label) =>
+        translateChartLabel(label, isArabic),
+    );
     const chartValues = trend?.values ?? [];
     const hasTrendData = chartValues.some((v) => v > 0);
+    const selectedChartPeriod =
+        CHART_PERIOD_LABELS.find((option) => option.id === chartPeriod) ??
+        CHART_PERIOD_LABELS[0];
+    const selectedFilter =
+        FREQUENCY_LABELS.find((option) => option.id === filterValue) ??
+        FREQUENCY_LABELS[0];
 
     return (
         <div className="flex flex-col gap-6">
@@ -95,19 +148,23 @@ export function GeneralTabContent({
                 </div>
             ) : coreStatus === "error" && !summary ? (
                 <ErrorSectionCard
-                    message="تعذّر تحميل ملخص الإنفاق"
+                    message={
+                        isArabic
+                            ? "تعذّر تحميل ملخص الإنفاق"
+                            : "Could not load spending summary"
+                    }
                     onRetry={retryCore}
                 />
             ) : (
                 <div className="grid grid-cols-2 gap-2 md:gap-4">
                     <StatSpendingCard
-                        label="الإنفاق الأسبوعي"
+                        label={isArabic ? "الإنفاق الأسبوعي" : "Weekly spending"}
                         amount={summary?.weeklyAmount ?? "00.00"}
                         changePercent={summary?.weeklyChangePercent ?? null}
                         hasData={summary?.hasData ?? false}
                     />
                     <StatSpendingCard
-                        label="الإنفاق الشهري"
+                        label={isArabic ? "الإنفاق الشهري" : "Monthly spending"}
                         amount={summary?.monthlyAmount ?? "00.00"}
                         changePercent={summary?.monthlyChangePercent ?? null}
                         hasData={summary?.hasData ?? false}
@@ -117,7 +174,7 @@ export function GeneralTabContent({
 
             <section className="flex flex-col gap-4">
                 <div className="flex min-h-[33px] items-center justify-between gap-3">
-                    <SectionTitle>الرسوم البيانية</SectionTitle>
+                    <SectionTitle>{isArabic ? "الرسوم البيانية" : "Charts"}</SectionTitle>
                     <div className="relative shrink-0">
                         <button
                             type="button"
@@ -132,18 +189,20 @@ export function GeneralTabContent({
                                 className="text-[14px] font-medium text-[#111B18] dark:text-gray-100"
                                 style={TAJAWAL}
                             >
-                                {CHART_PERIOD_OPTIONS.find((o) => o.id === chartPeriod)?.label}
+                                {isArabic ? selectedChartPeriod.ar : selectedChartPeriod.en}
                             </span>
                         </button>
                         <DropdownMenu
                             open={chartDropdownOpen}
-                            items={CHART_PERIOD_OPTIONS.map((o) => o.label)}
+                            items={CHART_PERIOD_LABELS.map((o) =>
+                                isArabic ? o.ar : o.en,
+                            )}
                             selected={
-                                CHART_PERIOD_OPTIONS.find((o) => o.id === chartPeriod)!.label
+                                isArabic ? selectedChartPeriod.ar : selectedChartPeriod.en
                             }
                             onSelect={(label) => {
-                                const option = CHART_PERIOD_OPTIONS.find(
-                                    (i) => i.label === label,
+                                const option = CHART_PERIOD_LABELS.find(
+                                    (i) => (isArabic ? i.ar : i.en) === label,
                                 );
                                 if (option) onChartPeriodChange(option.id);
                             }}
@@ -154,7 +213,11 @@ export function GeneralTabContent({
 
                 {trendStatus === "error" && !trend ? (
                     <ErrorSectionCard
-                        message="تعذّر تحميل الرسم البياني"
+                        message={
+                            isArabic
+                                ? "تعذّر تحميل الرسم البياني"
+                                : "Could not load chart"
+                        }
                         onRetry={retryTrend}
                     />
                 ) : (
@@ -165,13 +228,13 @@ export function GeneralTabContent({
                                     className="text-[16px] font-bold text-[#1F2937] dark:text-gray-100"
                                     style={TAJAWAL}
                                 >
-                                    تحليل الإنفاق
+                                    {isArabic ? "تحليل الإنفاق" : "Spending analysis"}
                                 </p>
                                 <p
                                     className="text-[12px] font-normal text-[#6B7280] dark:text-gray-400"
                                     style={TAJAWAL}
                                 >
-                                    يونيو 2026
+                                    {isArabic ? "يونيو 2026" : "June 2026"}
                                 </p>
                             </div>
                             <div className="flex shrink-0 flex-col items-center rounded-[9.72px] bg-[#E8F5E9] dark:bg-[#30913F]/15 px-2 py-1 sm:px-[9.72px] sm:py-[4.86px]">
@@ -179,7 +242,7 @@ export function GeneralTabContent({
                                     className="text-center text-[10px] font-medium text-[#30913F] sm:text-[10.69px]"
                                     style={TAJAWAL}
                                 >
-                                    إجمالي الإنفاق
+                                    {isArabic ? "إجمالي الإنفاق" : "Total spending"}
                                 </p>
                                 <div className="flex items-center gap-0.5 text-[#30913F]">
                                     <SarIcon width={13.72} height={15.36} />
@@ -215,7 +278,7 @@ export function GeneralTabContent({
             </section>
 
             <section className="flex flex-col gap-3">
-                <SectionTitle>فئات الإنفاق</SectionTitle>
+                <SectionTitle>{isArabic ? "فئات الإنفاق" : "Spending categories"}</SectionTitle>
                 {coreStatus === "loading" && !categories ? (
                     <div className="flex flex-col gap-3">
                         <SkeletonBlock className="h-[72px]" />
@@ -223,7 +286,11 @@ export function GeneralTabContent({
                     </div>
                 ) : coreStatus === "error" && !categories ? (
                     <ErrorSectionCard
-                        message="تعذّر تحميل فئات الإنفاق"
+                        message={
+                            isArabic
+                                ? "تعذّر تحميل فئات الإنفاق"
+                                : "Could not load spending categories"
+                        }
                         onRetry={retryCore}
                     />
                 ) : categories && categories.length > 0 ? (
@@ -233,17 +300,23 @@ export function GeneralTabContent({
                         ))}
                     </div>
                 ) : (
-                    <EmptySectionCard>لا توجد فئات لعرضها حتى الأن</EmptySectionCard>
+                    <EmptySectionCard>
+                        {isArabic
+                            ? "لا توجد فئات لعرضها حتى الأن"
+                            : "No categories to show yet"}
+                    </EmptySectionCard>
                 )}
             </section>
 
             <section className="flex flex-col gap-4">
                 <div className="flex min-h-[33px] items-center justify-between gap-3">
-                    <SectionTitle>المنتجات الأكثر شراء</SectionTitle>
+                    <SectionTitle>
+                        {isArabic ? "المنتجات الأكثر شراء" : "Most purchased products"}
+                    </SectionTitle>
                     <div className="flex shrink-0 items-center gap-2">
                         <button
                             type="button"
-                            aria-label="تبديل طريقة العرض"
+                            aria-label={isArabic ? "تبديل طريقة العرض" : "Toggle view"}
                             onClick={onLayoutToggle}
                             className="flex h-10 w-10 items-center justify-center rounded-[4px] bg-[#EBFEEB] dark:bg-[#30913F]/15 p-1 sm:h-11 sm:w-11"
                         >
@@ -270,14 +343,21 @@ export function GeneralTabContent({
                                     className="text-[14px] font-medium text-[#111B18] dark:text-gray-100"
                                     style={TAJAWAL}
                                 >
-                                    {filterValue}
+                                    {isArabic ? selectedFilter.ar : selectedFilter.en}
                                 </span>
                             </button>
                             <DropdownMenu
                                 open={filterDropdownOpen}
-                                items={FREQUENCY_OPTIONS}
-                                selected={filterValue}
-                                onSelect={onFilterChange}
+                                items={FREQUENCY_LABELS.map((o) =>
+                                    isArabic ? o.ar : o.en,
+                                )}
+                                selected={isArabic ? selectedFilter.ar : selectedFilter.en}
+                                onSelect={(label) => {
+                                    const option = FREQUENCY_LABELS.find(
+                                        (i) => (isArabic ? i.ar : i.en) === label,
+                                    );
+                                    if (option) onFilterChange(option.id);
+                                }}
                                 onClose={onFilterDropdownClose}
                                 className="h-[96px]"
                             />
@@ -302,7 +382,11 @@ export function GeneralTabContent({
                     </div>
                 ) : coreStatus === "error" && !products ? (
                     <ErrorSectionCard
-                        message="تعذّر تحميل المنتجات الأكثر شراء"
+                        message={
+                            isArabic
+                                ? "تعذّر تحميل المنتجات الأكثر شراء"
+                                : "Could not load most purchased products"
+                        }
                         onRetry={retryCore}
                     />
                 ) : products && products.length > 0 ? (
@@ -347,19 +431,23 @@ export function GeneralTabContent({
                             className="text-center text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[18px]"
                             style={TAJAWAL}
                         >
-                            لا توجد منتجات للعرض
+                            {isArabic ? "لا توجد منتجات للعرض" : "No products to show"}
                         </p>
                     </div>
                 )}
             </section>
 
             <section className="flex flex-col gap-3">
-                <SectionTitle>ملاحظات تحليلية</SectionTitle>
+                <SectionTitle>{isArabic ? "ملاحظات تحليلية" : "Insights"}</SectionTitle>
                 {coreStatus === "loading" && !insights ? (
                     <SkeletonBlock className="h-[64px]" />
                 ) : coreStatus === "error" && !insights ? (
                     <ErrorSectionCard
-                        message="تعذّر تحميل الملاحظات التحليلية"
+                        message={
+                            isArabic
+                                ? "تعذّر تحميل الملاحظات التحليلية"
+                                : "Could not load insights"
+                        }
                         onRetry={retryCore}
                     />
                 ) : insights && insights.length > 0 ? (
@@ -369,7 +457,11 @@ export function GeneralTabContent({
                         ))}
                     </div>
                 ) : (
-                    <EmptySectionCard>لا توجد ملاحظات تحليلية حتى الأن</EmptySectionCard>
+                    <EmptySectionCard>
+                        {isArabic
+                            ? "لا توجد ملاحظات تحليلية حتى الأن"
+                            : "No insights to show yet"}
+                    </EmptySectionCard>
                 )}
             </section>
         </div>

@@ -5,7 +5,6 @@ import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { useGetPaymentMethods } from "@/features/payment/hooks/useGetPaymentMethods";
 import { useProcessPayment } from "@/features/payment/hooks/useProcessPayment";
 import type { PaymentMethod } from "@/features/payment/types/payment.types";
-
 export const INVOICE_STORAGE_KEY = "mf_pending_invoice_id";
 
 interface HostedPaymentFlowProps {
@@ -15,6 +14,7 @@ interface HostedPaymentFlowProps {
     customerName: string;
     customerPhone: string;
     customerEmail: string;
+    isArabic: boolean;
 }
 
 type ScreenState = "loading_methods" | "select_method" | "processing" | "failed";
@@ -39,12 +39,12 @@ function MethodLogo({ method }: { method: PaymentMethod }) {
         code === "vm" || code === "visa"
             ? "VISA"
             : code === "md" || code === "mada"
-              ? "mada"
-              : code === "stc"
-                ? "STC"
-                : code === "ap" || code.includes("apple")
-                  ? "Pay"
-                  : method.PaymentMethodEn.slice(0, 4).toUpperCase();
+                ? "mada"
+                : code === "stc"
+                    ? "STC"
+                    : code === "ap" || code.includes("apple")
+                        ? "Pay"
+                        : method.PaymentMethodEn.slice(0, 4).toUpperCase();
 
     return (
         <div className="flex h-8 w-14 items-center justify-center rounded-md bg-gray-100 text-[10px] font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
@@ -60,6 +60,7 @@ export function HostedPaymentFlow({
     customerName,
     customerPhone,
     customerEmail,
+    isArabic,
 }: HostedPaymentFlowProps) {
     const { getPaymentMethods } = useGetPaymentMethods();
     const { processPayment } = useProcessPayment();
@@ -134,10 +135,10 @@ export function HostedPaymentFlow({
     const totalAmount = selectedMethod?.TotalAmount ?? amount + serviceCharge;
 
     return (
-        <div className="space-y-4" dir="rtl">
+        <div className="space-y-4" dir={isArabic ? "rtl" : "ltr"}>
             <div className="rounded-xl border border-gray-100 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
                 <p className="text-[13px] text-gray-500 dark:text-gray-400">
-                    طلب رقم #{orderId}
+                    {isArabic ? "طلب رقم #" : "Order #"} #{orderId}
                 </p>
                 <p className="mt-1 text-[20px] font-bold tabular-nums text-gray-900 dark:text-gray-50">
                     {amount.toFixed(2)}{" "}
@@ -162,7 +163,7 @@ export function HostedPaymentFlow({
                 >
                     <Loader2 className="h-6 w-6 animate-spin text-gray-400 dark:text-gray-500" />
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        جاري تحميل طرق الدفع...
+                        {isArabic ? "جاري تحميل طرق الدفع..." : "Loading payment methods..."}
                     </p>
                 </div>
             )}
@@ -174,7 +175,7 @@ export function HostedPaymentFlow({
                 >
                     <Loader2 className="h-6 w-6 animate-spin text-[#30913F] dark:text-[#4db860]" />
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        جاري تجهيز صفحة الدفع...
+                        {isArabic ? "جاري تجهيز صفحة الدفع..." : "Preparing payment page..."}
                     </p>
                 </div>
             )}
@@ -183,14 +184,14 @@ export function HostedPaymentFlow({
                 <div className="flex flex-col items-center gap-3 py-12 text-center">
                     <AlertCircle className="h-8 w-8 text-red-500" />
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                        {error ?? "تعذر تحميل طرق الدفع"}
+                        {error ?? (isArabic ? "تعذر تحميل طرق الدفع" : "Failed to load payment methods")}
                     </p>
                     <button
                         type="button"
                         onClick={() => window.location.reload()}
                         className="rounded-xl bg-[#30913F] px-5 py-2.5 text-sm font-semibold text-white"
                     >
-                        إعادة المحاولة
+                        {isArabic ? "إعادة المحاولة" : "Retry"}
                     </button>
                 </div>
             )}
@@ -198,15 +199,15 @@ export function HostedPaymentFlow({
             {screen === "select_method" && (
                 <>
                     <h2 className="text-[15px] font-semibold text-gray-800 dark:text-gray-100 sm:text-base">
-                        اختر طريقة الدفع
+                        {isArabic ? "اختر طريقة الدفع" : "Select payment method"}
                     </h2>
 
                     {methods.length === 0 ? (
                         <p className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                            لا توجد طرق دفع متاحة حالياً
+                            {isArabic ? "لا توجد طرق دفع متاحة حالياً" : "No payment methods available currently"}
                         </p>
                     ) : (
-                        <div className="space-y-3" role="radiogroup" aria-label="طرق الدفع">
+                        <div className="space-y-3" role="radiogroup" aria-label={isArabic ? "طرق الدفع" : "Payment methods"}>
                             {methods.map((method) => {
                                 const isSelected =
                                     selectedMethodId === method.PaymentMethodId;
@@ -238,7 +239,7 @@ export function HostedPaymentFlow({
                                             </p>
                                             {(method.ServiceCharge ?? 0) > 0 && (
                                                 <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                                                    رسوم الخدمة: {method.ServiceCharge}{" "}
+                                                    {isArabic ? "رسوم الخدمة:" : "Service charge:"} {method.ServiceCharge}{" "}
                                                     {currency}
                                                 </p>
                                             )}
@@ -260,21 +261,21 @@ export function HostedPaymentFlow({
                         <div className="space-y-3 pt-2">
                             <div className="space-y-1 rounded-xl bg-gray-50 p-3 text-[13px] text-gray-600 dark:bg-gray-800 dark:text-gray-300">
                                 <div className="flex justify-between gap-4">
-                                    <span>المبلغ</span>
+                                    <span>{isArabic ? "المبلغ" : "Amount"}</span>
                                     <span className="tabular-nums">
                                         {amount.toFixed(2)} {currency}
                                     </span>
                                 </div>
                                 {serviceCharge > 0 && (
                                     <div className="flex justify-between gap-4">
-                                        <span>رسوم الخدمة</span>
+                                        <span>{isArabic ? "رسوم الخدمة" : "Service charge"}</span>
                                         <span className="tabular-nums">
                                             {serviceCharge} {currency}
                                         </span>
                                     </div>
                                 )}
                                 <div className="flex justify-between gap-4 border-t border-gray-200 pt-1 font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-50">
-                                    <span>الإجمالي</span>
+                                    <span>{isArabic ? "الإجمالي" : "Total"}</span>
                                     <span className="tabular-nums">
                                         {Number(totalAmount).toFixed(2)} {currency}
                                     </span>
@@ -286,7 +287,7 @@ export function HostedPaymentFlow({
                                 onClick={handlePay}
                                 className="min-h-[48px] w-full rounded-xl bg-[#30913F] py-3.5 text-[15px] font-semibold text-white transition-opacity active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
                             >
-                                ادفع الآن — {methodLabel(selectedMethod)}
+                                {isArabic ? "ادفع الآن —" : "Pay now —"}     {methodLabel(selectedMethod)}
                             </button>
                         </div>
                     )}

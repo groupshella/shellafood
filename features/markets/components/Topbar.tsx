@@ -11,18 +11,20 @@ const ICON_BTN = [
 export function Topbar({
     moduleName,
     moduleId,
+    isArabic,
 }: {
     moduleName: string;
     moduleId: string;
     isAuthenticated: boolean;
+    isArabic: boolean;
 }) {
     return (
-        <header className="sticky top-0 z-20 border-b border-black/[0.04] bg-white/95 backdrop-blur-md dark:border-white/[0.06] dark:bg-gray-900/95">
+        <header dir={isArabic ? "rtl" : "ltr"} className="sticky top-0 z-20 border-b border-black/[0.04] bg-white/95 backdrop-blur-md dark:border-white/[0.06] dark:bg-gray-900/95">
             <div className="relative mx-auto flex min-h-11 w-full max-w-lg items-center justify-center px-3 py-2.5 sm:min-h-12 sm:max-w-2xl sm:px-5 sm:py-3.5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">
                 <Link
                     href="/home"
                     className={`${ICON_BTN} absolute start-3 sm:start-5 lg:start-6`}
-                    aria-label="العودة إلى الرئيسية"
+                    aria-label={isArabic ? "العودة إلى الرئيسية" : "Return to Home"}
                 >
                     <ArrowRight className="h-5 w-5" strokeWidth={2} aria-hidden />
                 </Link>
@@ -34,7 +36,7 @@ export function Topbar({
                 <Link
                     href={`/search?module_id=${moduleId}`}
                     className={`${ICON_BTN} absolute end-3 sm:end-5 lg:end-6`}
-                    aria-label="بحث"
+                    aria-label={isArabic ? "بحث" : "Search"}
                 >
                     <Search className="h-5 w-5" strokeWidth={2} aria-hidden />
                 </Link>

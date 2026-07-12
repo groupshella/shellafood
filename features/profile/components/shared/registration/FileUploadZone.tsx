@@ -2,7 +2,7 @@
 
 import { Check, FileImage, ImagePlus, Trash2 } from "lucide-react";
 import { useRef } from "react";
-import { JOIN_STRINGS } from "@/features/profile/constants/join.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 import { formatFileSize } from "@/features/profile/lib/upload.lib";
 
 interface UploadedFile {
@@ -22,14 +22,16 @@ interface FileUploadZoneProps {
 
 export function FileUploadZone({
     title,
-    helperText = JOIN_STRINGS.uploadHelper,
+    helperText,
     uploaded,
     onSelect,
     onRemove,
     accept = "image/*",
     variant = "image",
 }: FileUploadZoneProps) {
+    const { isArabic } = useLanguage();
     const inputRef = useRef<HTMLInputElement>(null);
+    const resolvedHelperText = helperText ?? (isArabic ? "برجاء التأكد أن الصورة واضحة وبحد أقصى 2 ميجا." : "Please ensure the image is clear and max 2 MB.");
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -48,7 +50,7 @@ export function FileUploadZone({
                         {uploaded.previewName || uploaded.file.name}
                     </p>
                     <p className="mt-0.5 text-[12px] text-gray-500 dark:text-gray-400">
-                        {JOIN_STRINGS.fileSize(formatFileSize(uploaded.file.size))}
+                        {isArabic ? `حجم الصورة ${formatFileSize(uploaded.file.size)}` : `Image size ${formatFileSize(uploaded.file.size)}`}
                     </p>
                 </div>
 
@@ -56,7 +58,7 @@ export function FileUploadZone({
                     type="button"
                     onClick={onRemove}
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-red-500 transition-colors active:bg-red-50 dark:active:bg-red-950/30"
-                    aria-label="حذف الملف"
+                    aria-label={isArabic ? "حذف الملف" : "Delete file"}
                 >
                     <Trash2 className="h-5 w-5" />
                 </button>
@@ -76,7 +78,7 @@ export function FileUploadZone({
                 <Icon className="h-7 w-7 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
                 <p className="text-[14px] font-semibold text-gray-900 dark:text-gray-100">{title}</p>
                 <p className="max-w-[260px] text-center text-[12px] leading-relaxed text-gray-500 dark:text-gray-400">
-                    {helperText}
+                    {resolvedHelperText}
                 </p>
             </button>
             <input
@@ -99,8 +101,10 @@ interface TermsCheckboxProps {
 export function TermsCheckbox({
     checked,
     onChange,
-    label = JOIN_STRINGS.agreeTerms,
+    label,
 }: TermsCheckboxProps) {
+    const { isArabic } = useLanguage();
+
     return (
         <label className="flex cursor-pointer items-center gap-3 py-1">
             <button
@@ -117,7 +121,7 @@ export function TermsCheckbox({
                 {checked && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
             </button>
             <span className="min-w-0 flex-1 text-start text-[14px] leading-relaxed text-gray-800 dark:text-gray-200 sm:text-[15px]">
-                {label}
+                {label ?? (isArabic ? "أوافق على الشروط وسياسة الخصوصية" : "I agree to the terms and privacy policy")}
             </span>
         </label>
     );

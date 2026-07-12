@@ -1,3 +1,5 @@
+import { useLanguage } from "@/features/language/useLanguage";
+
 function EmptyCartIllustration(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -90,10 +92,11 @@ function EmptyCartIllustration(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 export function CartEmpty() {
+  const { isArabic } = useLanguage();
   return (
     <div
       className="flex flex-1 flex-col items-center bg-white px-4 text-center dark:bg-gray-900 sm:px-6"
-      dir="rtl"
+      dir={isArabic ? "rtl" : "ltr"}
     >
       <div className="mx-auto mt-12 flex w-full max-w-xs flex-col items-center sm:mt-20 md:mt-24 lg:mt-28">
         <div
@@ -104,10 +107,10 @@ export function CartEmpty() {
           <EmptyCartIllustration className="h-full w-full object-contain" aria-hidden="true" />
         </div>
 
-        <h2 className="mt-5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-6 sm:text-xl">سلتك فارغة</h2>
+        <h2 className="mt-5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-6 sm:text-xl">{isArabic ? "سلتك فارغة" : "Your cart is empty"}</h2>
 
         <p className="mt-2 max-w-[260px] text-sm leading-relaxed text-gray-500 dark:text-gray-400 sm:max-w-sm sm:text-[15px]">
-          ابدأ بإضافة المنتجات أو الخدمات التي تحتاجها.
+          {isArabic ? "ابدأ بإضافة المنتجات أو الخدمات التي تحتاجها." : "Start by adding products or services you need."}
         </p>
       </div>
     </div>

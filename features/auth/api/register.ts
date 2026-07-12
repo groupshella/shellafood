@@ -4,7 +4,17 @@ import { apiError, apiSuccess } from "@/shared/lib/api-response";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 
+function isArabicLocale(request: NextRequest): boolean {
+	const loc =
+		request.headers.get("x-localization") ??
+		request.headers.get("X-localization");
+	return loc !== "en";
+}
+
 export async function postRegister(request: NextRequest) {
+	const isArabic = isArabicLocale(request);
+	const locale = isArabic ? "ar" : "en";
+
 	try {
 		const body: RegisterRequest = await request.json();
 
@@ -14,7 +24,12 @@ export async function postRegister(request: NextRequest) {
 			!body.password ||
 			!body.confirm_password
 		) {
-			return apiError("الاسم ورقم الهاتف وكلمة المرور مطلوبة", 422);
+			return apiError(
+				isArabic
+					? "الاسم ورقم الهاتف وكلمة المرور مطلوبة"
+					: "Name, phone number, and password are required",
+				422,
+			);
 		}
 
 		// Backend needs `name` AND f_name/l_name — never rely on f_name/l_name alone.
@@ -36,7 +51,7 @@ export async function postRegister(request: NextRequest) {
 			headers: {
 				"Content-Type": "application/json",
 				Accept: "application/json",
-				"X-localization": "ar",
+				"X-localization": locale,
 			},
 			body: JSON.stringify(payload),
 		});
@@ -44,12 +59,17 @@ export async function postRegister(request: NextRequest) {
 		const data = await backendRes.json();
 
 		if (!backendRes.ok) {
-			const message = data?.errors?.[0]?.message ?? "تعذر إنشاء الحساب";
+			const message =
+				data?.errors?.[0]?.message ??
+				(isArabic ? "تعذر إنشاء الحساب" : "Could not create account");
 			return apiError(message, backendRes.status);
 		}
 
 		return apiSuccess<RegisterResponse>(data, backendRes.status);
 	} catch {
-		return apiError("تعذر إنشاء الحساب", 500);
+		return apiError(
+			isArabic ? "تعذر إنشاء الحساب" : "Could not create account",
+			500,
+		);
 	}
 }

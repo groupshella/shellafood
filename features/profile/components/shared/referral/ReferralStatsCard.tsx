@@ -1,11 +1,13 @@
 import type { ReferralStats } from "@/features/profile/types/referral.types";
-import { REFERRAL_STRINGS } from "@/features/profile/constants/referral.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface ReferralStatsCardProps {
     stats: ReferralStats;
 }
 
 export function ReferralStatsCard({ stats }: ReferralStatsCardProps) {
+    const { isArabic } = useLanguage();
+
     return (
         <div
             className="relative min-h-[88px] w-full overflow-hidden rounded-2xl sm:min-h-[104px]"
@@ -25,11 +27,11 @@ export function ReferralStatsCard({ stats }: ReferralStatsCardProps) {
                             {stats.totalRewards}
                         </span>
                         <span className="text-[14px] font-medium leading-none text-white sm:text-[16px]">
-                            {stats.currency ?? REFERRAL_STRINGS.currencySymbol}
+                            {stats.currency ?? "﷼"}
                         </span>
                     </div>
                     <p className="mt-1 text-center text-[12px] font-normal leading-snug text-white sm:text-[13px]">
-                        {REFERRAL_STRINGS.statsTotalRewards}
+                        {isArabic ? "إجمالي المكافآت" : "Total rewards"}
                     </p>
                 </div>
 
@@ -38,7 +40,7 @@ export function ReferralStatsCard({ stats }: ReferralStatsCardProps) {
                         {stats.totalInvites}
                     </span>
                     <p className="mt-1 text-center text-[11.5px] font-normal leading-snug text-white sm:text-[13px]">
-                        {REFERRAL_STRINGS.statsTotalInvites}
+                        {isArabic ? "عدد الدعوات" : "Total invites"}
                     </p>
                 </div>
             </div>

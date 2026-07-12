@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { PaymentShell } from "@/features/payment/components/PaymentShell";
 import { PaymentReturnView } from "@/features/payment/components/PaymentReturnView";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
+import { getServerLocale } from "@/features/language/getServerLocale";
 
 export const metadata: Metadata = {
     title: "نتيجة الدفع | شيلة فود",
@@ -27,12 +28,15 @@ export default async function PaymentReturnPage({ searchParams }: ReturnPageProp
     }
 
     const params = await searchParams;
+    const locale = await getServerLocale()
+    const isArabic = locale === "ar";
 
     return (
-        <PaymentShell>
+        <PaymentShell isArabic={isArabic}>
             <PaymentReturnView
                 invoiceIdParam={params.invoiceId}
                 paymentIdParam={params.paymentId}
+                isArabic={isArabic}
             />
         </PaymentShell>
     );

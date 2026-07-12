@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 
 interface ItemShellProps {
     children: React.ReactNode;
+    isArabic: boolean;
 }
 
-export function ItemShell({ children }: ItemShellProps) {
+export function ItemShell({ children, isArabic }: ItemShellProps) {
     const router = useRouter();
 
     const handleBack = useCallback(() => {
@@ -23,12 +24,12 @@ export function ItemShell({ children }: ItemShellProps) {
                         type="button"
                         onClick={handleBack}
                         className="flex h-10 w-10 items-center justify-center rounded-full transition-colors active:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:active:bg-gray-800 sm:h-11 sm:w-11"
-                        aria-label="رجوع"
+                        aria-label={isArabic ? "رجوع" : "Back"}
                     >
                         <ChevronRight className="h-5 w-5 text-gray-900 dark:text-gray-100 sm:h-6 sm:w-6" strokeWidth={2} aria-hidden />
                     </button>
                     <h1 className="min-w-0 truncate text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
-                        تفاصيل السلعة
+                        {isArabic ? "تفاصيل السلعة" : "Item details"}
                     </h1>
                     <div className="w-10 sm:w-11" aria-hidden />
                 </div>

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { unwrap, type ApiResponse } from "@/shared/lib/api-response";
 import type { OfferItem, OfferItemsResult } from "../types/offer.types";
-
+import { useLanguage } from "@/features/language/useLanguage";
 interface UseOfferSearchReturn {
     query: string;
     setQuery: (q: string) => void;
@@ -22,7 +22,7 @@ export function useOfferSearch(offerId: string, moduleId = "3"): UseOfferSearchR
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const abortRef = useRef<AbortController | null>(null);
-
+    const { isArabic } = useLanguage();
     const runSearch = useDebouncedCallback(async (q: string) => {
         abortRef.current?.abort();
         const controller = new AbortController();
@@ -31,7 +31,7 @@ export function useOfferSearch(offerId: string, moduleId = "3"): UseOfferSearchR
         try {
             const res = await fetch(
                 `/api/offers/${offerId}/search?query=${encodeURIComponent(q)}&offset=1&limit=50&module_id=${moduleId}`,
-                { signal: controller.signal },
+                { signal: controller.signal, headers: { "X-Localization": isArabic ? "ar" : "en" } },
             );
             const json = (await res.json()) as ApiResponse<OfferItemsResult>;
             const data = unwrap(json);
@@ -39,7 +39,7 @@ export function useOfferSearch(offerId: string, moduleId = "3"): UseOfferSearchR
             setTotal(data.total);
         } catch (err) {
             if ((err as Error).name === "AbortError") return;
-            setError("حدث خطأ أثناء البحث");
+            setError(isArabic ? "حدث خطأ أثناء البحث" : "An error occurred while searching");
             setResults([]);
             setTotal(0);
         } finally {

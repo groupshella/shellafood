@@ -3,11 +3,11 @@ import { PopularBrandsClient } from "./PopularBrandsClient";
 import PopularBrandsSkeleton from "./skeleton";
 
 export const PopularBrands = Object.assign(
-    async function PopularBrands({ moduleId }: { moduleId: string }) {
-        const brands = await getHyperMarketPopularBrands(moduleId);
+    async function PopularBrands({ moduleId, isArabic }: { moduleId: string; isArabic: boolean }) {
+        const brands = await getHyperMarketPopularBrands(moduleId, isArabic);
         if (brands.length === 0) return null;
 
-        return <PopularBrandsClient brands={brands} />;
+        return <PopularBrandsClient brands={brands} isArabic={isArabic} />;
     },
     { skeleton: PopularBrandsSkeleton },
 );

@@ -17,10 +17,12 @@ function FilterChip({
     label,
     active,
     onClick,
+    isArabic,
 }: {
     label: string;
     active: boolean;
     onClick: () => void;
+    isArabic: boolean;
 }) {
     return (
         <button
@@ -35,6 +37,7 @@ function FilterChip({
                     : "bg-white text-gray-700 ring-1 ring-gray-200 hover:ring-[#30913F]/40 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700",
             ].join(" ")}
             aria-pressed={active}
+            dir={isArabic ? "rtl" : "ltr"}
         >
             {active && <Check className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />}
             {label}
@@ -48,12 +51,14 @@ function CategorySheet({
     categories,
     selected,
     onSelect,
+    isArabic,
 }: {
     open: boolean;
     onClose: () => void;
     categories: Category[];
     selected: number | null;
     onSelect: (id: number | null) => void;
+    isArabic: boolean;
 }) {
     const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -102,19 +107,19 @@ function CategorySheet({
                         role="dialog"
                         aria-modal="true"
                         aria-label="فلترة حسب التصنيف"
-                        dir="rtl"
+                        dir={isArabic ? "rtl" : "ltr"}
                     >
                         <div className="flex justify-center pb-1 pt-3">
                             <div className="h-1 w-10 rounded-full bg-gray-200 dark:bg-gray-700" />
                         </div>
 
                         <div className="flex items-center justify-between px-4 py-3 sm:px-5">
-                            <h2 className="text-base font-bold text-gray-900 dark:text-gray-50">اختر التصنيف</h2>
+                            <h2 className="text-base font-bold text-gray-900 dark:text-gray-50">{isArabic ? "اختر التصنيف" : "Select Category"}</h2>
                             <button
                                 type="button"
                                 onClick={onClose}
                                 className="rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                                aria-label="إغلاق"
+                                aria-label={isArabic ? "إغلاق" : "Close"}
                             >
                                 <X className="h-4 w-4" aria-hidden />
                             </button>
@@ -132,7 +137,7 @@ function CategorySheet({
                                     }}
                                     className="flex min-h-[52px] w-full items-center justify-between px-4 py-3.5 text-start transition-colors hover:bg-gray-50 active:bg-gray-100 dark:hover:bg-gray-800 dark:active:bg-gray-700 sm:px-5 sm:py-4"
                                 >
-                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-50">جميع التصنيفات</span>
+                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{isArabic ? "جميع التصنيفات" : "All Categories"}</span>
                                     <span
                                         className={[
                                             "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
@@ -188,10 +193,12 @@ function FilterBar({
     filters,
     onChange,
     categories,
+    isArabic,
 }: {
     filters: StoreFilters;
     onChange: (f: StoreFilters) => void;
     categories: Category[];
+    isArabic: boolean;
 }) {
     const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -210,7 +217,7 @@ function FilterBar({
                     "flex items-center gap-2 overflow-x-auto overscroll-x-contain pb-1",
                     "snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
                 ].join(" ")}
-                dir="rtl"
+                dir={isArabic ? "rtl" : "ltr"}
                 role="group"
                 aria-label="فلاتر المتاجر"
             >
@@ -229,12 +236,12 @@ function FilterBar({
                     aria-expanded={sheetOpen}
                 >
                     <SlidersHorizontal className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
-                    {selectedCategoryName ?? "التصنيف"}
+                    {selectedCategoryName ?? (isArabic ? "التصنيف" : "Category")}
                     {filters.categoryId !== null && (
                         <span
                             role="button"
                             tabIndex={0}
-                            aria-label="إزالة فلتر التصنيف"
+                            aria-label={isArabic ? "إزالة فلتر التصنيف" : "Remove Category Filter"}
                             className="ms-0.5 rounded-full hover:bg-white/20"
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -253,18 +260,20 @@ function FilterBar({
                     )}
                 </button>
 
-                <FilterChip label="عروض" active={filters.hasOffer} onClick={() => toggle("hasOffer")} />
+                <FilterChip label={isArabic ? "عروض" : "Offers"} active={filters.hasOffer} onClick={() => toggle("hasOffer")} isArabic={isArabic} />
                 <FilterChip
-                    label="توصيل مجاني"
+                    label={isArabic ? "توصيل مجاني" : "Free Delivery"}
                     active={filters.freeDelivery}
                     onClick={() => toggle("freeDelivery")}
+                    isArabic={isArabic}
                 />
-                <FilterChip label="تقييم عالي" active={filters.topRated} onClick={() => toggle("topRated")} />
-                <FilterChip label="مفتوح الآن" active={filters.openNow} onClick={() => toggle("openNow")} />
+                <FilterChip label={isArabic ? "تقييم عالي" : "Top Rated"} active={filters.topRated} onClick={() => toggle("topRated")} isArabic={isArabic} />
+                <FilterChip label={isArabic ? "مفتوح الآن" : "Open Now"} active={filters.openNow} onClick={() => toggle("openNow")} isArabic={isArabic} />
                 <FilterChip
-                    label="توصيل سريع"
+                    label={isArabic ? "توصيل سريع" : "Fast Delivery"}
                     active={filters.under30Min}
                     onClick={() => toggle("under30Min")}
+                    isArabic={isArabic}
                 />
 
                 {hasActiveFilters(filters) && (
@@ -277,10 +286,10 @@ function FilterBar({
                             "transition-colors hover:bg-red-50 dark:text-red-400 dark:ring-red-900/50 dark:hover:bg-red-950/30",
                             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300",
                         ].join(" ")}
-                        aria-label="مسح جميع الفلاتر"
+                        aria-label={isArabic ? "مسح جميع الفلاتر" : "Clear All Filters"}
                     >
                         <X className="h-3 w-3" aria-hidden />
-                        مسح
+                        {isArabic ? "مسح" : "Clear"}
                     </button>
                 )}
             </div>
@@ -291,19 +300,20 @@ function FilterBar({
                 categories={categories}
                 selected={filters.categoryId}
                 onSelect={(id) => onChange({ ...filters, categoryId: id })}
+                isArabic={isArabic}
             />
         </>
     );
 }
 
-function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () => void }) {
+function EmptyState({ hasFilters, onClear, isArabic }: { hasFilters: boolean; onClear: () => void; isArabic: boolean }) {
     return (
-        <div className="flex flex-col items-center justify-center gap-3 px-4 py-14 text-center" dir="rtl">
+        <div className="flex flex-col items-center justify-center gap-3 px-4 py-14 text-center" dir={isArabic ? "rtl" : "ltr"}>
             <span className="text-4xl" aria-hidden>
                 🏪
             </span>
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                {hasFilters ? "لا توجد متاجر تطابق الفلتر" : "لا توجد متاجر متاحة حالياً"}
+                {hasFilters ? (isArabic ? "لا توجد متاجر تطابق الفلتر" : "No stores match the filter") : (isArabic ? "لا توجد متاجر متاحة حالياً" : "No stores available currently")}
             </p>
             {hasFilters && (
                 <button
@@ -311,7 +321,7 @@ function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () 
                     onClick={onClear}
                     className="min-h-[40px] rounded-xl bg-[#F6F5F8] px-5 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
-                    مسح الفلاتر
+                    {isArabic ? "مسح الفلاتر" : "Clear Filters"}
                 </button>
             )}
         </div>
@@ -321,9 +331,11 @@ function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () 
 export function StoresClient({
     categories,
     initialStores,
+    isArabic,
 }: {
     categories: Category[];
     initialStores: GetStoresResponse;
+    isArabic: boolean;
 }) {
     const {
         stores,
@@ -348,18 +360,18 @@ export function StoresClient({
             id="module-stores"
             className="mx-auto w-full max-w-lg scroll-mt-4 space-y-3 px-3 sm:max-w-2xl sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl"
             aria-label="المتاجر"
-            dir="rtl"
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <div className="flex items-center justify-between gap-3">
                 <h2 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
-                    {filtersActive ? "نتائج الفلتر" : "المتاجر القريبة منك"}
+                    {filtersActive ? (isArabic ? "نتائج الفلتر" : "Filter Results") : (isArabic ? "المتاجر القريبة منك" : "Nearby Stores")}
                 </h2>
                 {!isLoading && stores.length > 0 && (
-                    <span className="text-xs text-gray-400 dark:text-gray-500">{stores.length} متجر</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">{stores.length} {isArabic ? "متجر" : "Store"}</span>
                 )}
             </div>
 
-            <FilterBar filters={filters} onChange={setFilters} categories={categories} />
+            <FilterBar filters={filters} onChange={setFilters} categories={categories} isArabic={isArabic} />
 
             {isLoading ? (
                 <div className="grid grid-cols-1 gap-2.5 sm:gap-3 md:grid-cols-2 lg:gap-4">
@@ -377,9 +389,9 @@ export function StoresClient({
                     ))}
                 </div>
             ) : error ? (
-                <EmptyState hasFilters={filtersActive} onClear={() => setFilters(DEFAULT_FILTERS)} />
+                <EmptyState hasFilters={filtersActive} onClear={() => setFilters(DEFAULT_FILTERS)} isArabic={isArabic} />
             ) : stores.length === 0 ? (
-                <EmptyState hasFilters={filtersActive} onClear={() => setFilters(DEFAULT_FILTERS)} />
+                <EmptyState hasFilters={filtersActive} onClear={() => setFilters(DEFAULT_FILTERS)} isArabic={isArabic} />
             ) : (
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -391,7 +403,7 @@ export function StoresClient({
                         className="grid grid-cols-1 gap-2.5 sm:gap-3 md:grid-cols-2 lg:gap-4"
                     >
                         {stores.map((store) => (
-                            <StoreCard key={store.id} store={store} />
+                            <StoreCard key={store.id} store={store} isArabic={isArabic} />
                         ))}
                     </motion.div>
                 </AnimatePresence>
@@ -410,7 +422,7 @@ export function StoresClient({
                             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/30",
                         ].join(" ")}
                     >
-                        {isLoadingMore ? "جاري التحميل..." : "عرض المزيد"}
+                        {isLoadingMore ? (isArabic ? "جاري التحميل..." : "Loading...") : (isArabic ? "عرض المزيد" : "View More")}
                     </button>
                 </div>
             )}

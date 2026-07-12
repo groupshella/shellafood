@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { WALLET_STRINGS } from "@/features/profile/constants/wallet.strings";
+import { useLanguage } from "@/features/language/useLanguage";
 import type {
     WalletHistoryFilter,
     WalletHistoryGroup,
@@ -18,6 +18,7 @@ export function WalletHistoryList({
 }: {
     groups: WalletHistoryGroup[];
 }) {
+    const { isArabic } = useLanguage();
     const [filter, setFilter] = useState<WalletHistoryFilter>("all");
 
     const visibleGroups = useMemo(() => {
@@ -42,7 +43,7 @@ export function WalletHistoryList({
                     className="text-start text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[17px]"
                     style={TAJAWAL}
                 >
-                    {WALLET_STRINGS.historyTitle}
+                    {isArabic ? "تاريخ المحفظة" : "Wallet history"}
                 </h2>
                 <WalletFilterDropdown value={filter} onChange={setFilter} />
             </div>

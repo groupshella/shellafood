@@ -6,9 +6,10 @@ import { Brand } from "@/features/brands/types/brands.types";
 
 interface BrandGridCardProps {
     brand: Brand;
+    isArabic: boolean;
 }
 
-export const BrandGridCard = memo(function BrandGridCard({ brand }: BrandGridCardProps) {
+export const BrandGridCard = memo(function BrandGridCard({ brand, isArabic }: BrandGridCardProps) {
     const [imageError, setImageError] = useState(false);
     const name = brand.name?.trim() || "";
 
@@ -24,6 +25,7 @@ export const BrandGridCard = memo(function BrandGridCard({ brand }: BrandGridCar
                 "transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/80",
             ].join(" ")}
             aria-label={name}
+            dir={isArabic ? "rtl" : "ltr"}
         >
             <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-gray-50 ring-1 ring-black/[0.04] dark:bg-gray-700 dark:ring-white/[0.06] sm:h-14 sm:w-14">
                 {!imageError && brand.image_full_url ? (

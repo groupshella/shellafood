@@ -10,10 +10,12 @@ import { RelatedItem } from "@/features/item/types/related-items.types";
 
 interface RelatedProductCardProps {
     product: RelatedItem;
+    isArabic: boolean;
 }
 
 export const RelatedProductCard = memo(function RelatedProductCard({
     product,
+    isArabic,
 }: RelatedProductCardProps) {
     const [imgErr, setImgErr] = useState(false);
     const discounted = product.discount > 0;
@@ -38,8 +40,8 @@ export const RelatedProductCard = memo(function RelatedProductCard({
     return (
         <Link
             href={`/items/${product.id}`}
-            dir="rtl"
-            aria-label={product.name}
+            dir={isArabic ? "rtl" : "ltr"}
+            aria-label={product.name || isArabic ? "اسم المنتج" : "Product name"}
             className={[
                 "flex min-w-0 flex-col overflow-hidden rounded-xl",
                 "bg-white dark:bg-gray-800",
@@ -68,7 +70,7 @@ export const RelatedProductCard = memo(function RelatedProductCard({
                 {!imgErr && product.image_full_url ? (
                     <Image
                         src={product.image_full_url}
-                        alt={product.name}
+                        alt={product.name || isArabic ? "صورة المنتج" : "Product image"}
                         fill
                         className="object-contain p-2 sm:p-2.5"
                         sizes="(max-width: 640px) 30vw, (max-width: 1024px) 20vw, 160px"
@@ -85,7 +87,7 @@ export const RelatedProductCard = memo(function RelatedProductCard({
             {/* Body */}
             <div className="flex flex-1 flex-col gap-1 px-1.5 pb-2 pt-1.5 sm:px-2 sm:pb-2.5">
                 <p className="line-clamp-2 min-h-[2.4em] text-start text-[11px] font-medium leading-snug text-gray-900 dark:text-gray-100 sm:text-xs lg:text-[13px]">
-                    {product.name}
+                    {product.name || isArabic ? "اسم المنتج" : "Product name"}
                 </p>
 
                 <div className="mt-auto flex flex-col gap-0.5">

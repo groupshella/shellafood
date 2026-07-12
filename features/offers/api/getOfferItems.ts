@@ -4,7 +4,7 @@ import type {
     GetOfferNewItemsApiResponse,
     OfferItemsResult,
 } from "@/features/offers/types/offer.types";
-
+import { getServerLocale } from "@/features/language/getServerLocale";
 export async function getOfferItems(
     offerId: string,
     offset = 1,
@@ -12,22 +12,24 @@ export async function getOfferItems(
     moduleId = "3",
     noStore = false
 ): Promise<OfferItemsResult> {
+    const locale = await getServerLocale();
+    const isArabic = locale === "ar";
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/offers/${offerId}/newitems?offset=${offset}&limit=${limit}`,
         {
-            headers: offerFetchHeaders(moduleId),
+            headers: offerFetchHeaders(moduleId, isArabic ? "ar" : "en"),
             ...(noStore
                 ? { cache: "no-store" as const }
                 : {
-                      next: {
-                          revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
-                          tags: ["offers", `offer-${offerId}-items`],
-                      },
-                  }),
+                    next: {
+                        revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
+                        tags: ["offers", `offer-${offerId}-items`],
+                    },
+                }),
         }
     );
 
-    if (!res.ok) throw new Error(`Failed to fetch offer items: ${res.status}`);
+    if (!res.ok) throw new Error(isArabic ? "فشل تحميل عناصر العرض" : `Failed to fetch offer items: ${res.status}`);
 
     const json = (await res.json()) as GetOfferNewItemsApiResponse;
     return mapNewItemsResponse(json);

@@ -3,12 +3,12 @@ import type {
     HyperMarketOffer,
 } from "@/features/hyper-market/StoreDetails/types/offers.types";
 
-export async function getHyperMarketOffers(moduleId: string): Promise<HyperMarketOffer[]> {
+export async function getHyperMarketOffers(moduleId: string, isArabic: boolean): Promise<HyperMarketOffer[]> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/offers/active`, {
         method: "GET",
         headers: {
             Accept: "application/json",
-            "X-Localization": "ar",
+            "X-Localization": isArabic ? "ar" : "en",
             zoneId: process.env.ZONE_ID!,
             moduleId,
         },

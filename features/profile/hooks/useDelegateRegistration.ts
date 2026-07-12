@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLanguage } from "@/features/language/useLanguage";
 import { fetchDelegateStatus, registerDelegate } from "@/features/profile/actions/join.actions";
 import { validateUploadFile } from "@/features/profile/lib/upload.lib";
-import { JOIN_STRINGS, MAX_UPLOAD_BYTES } from "@/features/profile/constants/join.strings";
+import { MAX_UPLOAD_BYTES } from "@/features/profile/constants/join.strings";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import type { DelegateStatus, JoinActionResult } from "@/features/profile/types/join.types";
@@ -54,6 +55,7 @@ function readAuthUser(): AuthUser | null {
 }
 
 export function useDelegateRegistration(): UseDelegateRegistrationReturn {
+    const { isArabic } = useLanguage();
     const [form, setFormState] = useState<DelegateFormState>(INITIAL_FORM);
     const [delegateStatus, setDelegateStatus] = useState<DelegateStatus | null>(null);
     const [isLoadingStatus, setIsLoadingStatus] = useState(true);
@@ -106,10 +108,10 @@ export function useDelegateRegistration(): UseDelegateRegistrationReturn {
 
     const handleSetPhoto = useCallback((file: File): string | null => {
         const err = validateUploadFile(file, MAX_UPLOAD_BYTES);
-        if (err) return JOIN_STRINGS.fileTooLarge;
+        if (err) return isArabic ? "حجم الملف يجب ألا يتجاوز 2 ميجا" : "File size must not exceed 2 MB";
         setFormState((prev) => ({ ...prev, idPhoto: file }));
         return null;
-    }, []);
+    }, [isArabic]);
 
     const handleRemovePhoto = useCallback(() => {
         setFormState((prev) => ({ ...prev, idPhoto: null }));
@@ -118,16 +120,16 @@ export function useDelegateRegistration(): UseDelegateRegistrationReturn {
     const validate = (f: DelegateFormState): Partial<Record<string, string>> | null => {
         const errors: Record<string, string> = {};
 
-        if (!f.firstName.trim()) errors.firstName = JOIN_STRINGS.requiredField;
-        if (!f.lastName.trim()) errors.lastName = JOIN_STRINGS.requiredField;
+        if (!f.firstName.trim()) errors.firstName = isArabic ? "هذا الحقل مطلوب" : "This field is required";
+        if (!f.lastName.trim()) errors.lastName = isArabic ? "هذا الحقل مطلوب" : "This field is required";
 
         if (!f.mobile.trim()) {
-            errors.mobile = JOIN_STRINGS.requiredField;
+            errors.mobile = isArabic ? "هذا الحقل مطلوب" : "This field is required";
         } else if (!isValidSaudiPhone(f.mobile)) {
-            errors.mobile = JOIN_STRINGS.invalidPhone;
+            errors.mobile = isArabic ? "صيغة رقم الهاتف غير صالحة" : "Invalid phone number format";
         }
 
-        if (!f.idPhoto) errors.idPhoto = JOIN_STRINGS.requiredField;
+        if (!f.idPhoto) errors.idPhoto = isArabic ? "هذا الحقل مطلوب" : "This field is required";
 
         return Object.keys(errors).length > 0 ? errors : null;
     };
@@ -140,7 +142,11 @@ export function useDelegateRegistration(): UseDelegateRegistrationReturn {
         const clientErrors = validate(form);
         if (clientErrors) {
             setFieldErrors(clientErrors);
-            return { success: false, message: JOIN_STRINGS.requiredField, fieldErrors: clientErrors };
+            return {
+                success: false,
+                message: isArabic ? "هذا الحقل مطلوب" : "This field is required",
+                fieldErrors: clientErrors,
+            };
         }
 
         submittingRef.current = true;
@@ -168,7 +174,7 @@ export function useDelegateRegistration(): UseDelegateRegistrationReturn {
             setIsSubmitting(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form, isSubmitting]);
+    }, [form, isArabic, isSubmitting]);
 
     return {
         form,

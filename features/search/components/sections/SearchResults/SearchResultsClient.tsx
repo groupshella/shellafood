@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import { useLanguage } from "@/features/language/useLanguage";
 import { useSearchContext } from "@/features/search/components/SearchContext";
 import { AddToCart } from "@/features/cart/components/shared/AddToCart";
 import { CategoryProductCard } from "@/features/hyper-market/Categories/components/sections/CategoryDetail/CategoryProductCard";
@@ -42,8 +43,9 @@ function ProductCardSkeleton() {
 }
 
 function SearchLoadingState() {
+	const { isArabic, locale } = useLanguage();
 	return (
-		<div className={`space-y-6 sm:space-y-8 ${RESULTS_PADDING}`} aria-busy="true" aria-label="جاري البحث">
+		<div className={`space-y-6 sm:space-y-8 ${RESULTS_PADDING}`} aria-busy="true" aria-label={isArabic ? "جاري البحث" : "Searching"} dir={isArabic ? "rtl" : "ltr"} lang={locale}>
 			<div className="space-y-3 sm:space-y-4">
 				<div className="h-5 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700 sm:h-6 sm:w-28" />
 				<div className={PRODUCTS_GRID}>
@@ -68,22 +70,24 @@ function SearchLoadingState() {
 }
 
 function SearchErrorState({ message }: { message: string }) {
+	const { isArabic, locale } = useLanguage();
 	return (
-		<div className="rounded-2xl bg-red-50 px-4 py-5 text-center text-sm font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400 sm:px-6 sm:py-6 sm:text-base">
+		<div className="rounded-2xl bg-red-50 px-4 py-5 text-center text-sm font-medium text-red-700 dark:bg-red-950/50 dark:text-red-400 sm:px-6 sm:py-6 sm:text-base" dir={isArabic ? "rtl" : "ltr"} lang={locale}>
 			{message}
 		</div>
 	);
 }
 
 function StoresSection({ stores }: { stores: Store[] }) {
+	const { isArabic, locale } = useLanguage();
 	if (stores.length === 0) return null;
 
 	return (
-		<section aria-label="نتائج المتاجر" className="space-y-3 sm:space-y-4">
-			<h2 className={SECTION_HEADING}>المتاجر</h2>
+		<section aria-label={isArabic ? "نتائج المتاجر" : "Store results"} className="space-y-3 sm:space-y-4" dir={isArabic ? "rtl" : "ltr"} lang={locale}>
+			<h2 className={SECTION_HEADING}>{isArabic ? "المتاجر" : "Stores"}</h2>
 			<div className={STORES_GRID}>
 				{stores.map((store) => (
-					<StoreCard key={store.id} store={store} />
+					<StoreCard key={store.id} store={store} isArabic={isArabic} />
 				))}
 			</div>
 		</section>
@@ -101,11 +105,12 @@ function ProductsSection({
 	isLoadingMore: boolean;
 	onLoadMore: () => void;
 }) {
+	const { isArabic, locale } = useLanguage();
 	if (products.length === 0) return null;
 
 	return (
-		<section aria-label="نتائج المنتجات" className="space-y-3 sm:space-y-4">
-			<h2 className={SECTION_HEADING}>المنتجات</h2>
+		<section aria-label={isArabic ? "نتائج المنتجات" : "Product results"} className="space-y-3 sm:space-y-4" dir={isArabic ? "rtl" : "ltr"} lang={locale}>
+			<h2 className={SECTION_HEADING}>{isArabic ? "المنتجات" : "Products"}</h2>
 
 			<div className={PRODUCTS_GRID}>
 				{products.map((product) => (
@@ -128,10 +133,10 @@ function ProductsSection({
 					{isLoadingMore ? (
 						<>
 							<Loader2 className="h-4 w-4 animate-spin sm:h-[18px] sm:w-[18px]" aria-hidden />
-							<span>جاري التحميل...</span>
+							<span>{isArabic ? "جاري التحميل..." : "Loading more..."}</span>
 						</>
 					) : (
-						"عرض المزيد"
+						isArabic ? "عرض المزيد" : "Show more"
 					)}
 				</button>
 			)}
@@ -140,6 +145,7 @@ function ProductsSection({
 }
 
 export function SearchResultsClient() {
+	const { isArabic, locale } = useLanguage();
 	const {
 		results,
 		isSearching,
@@ -155,7 +161,7 @@ export function SearchResultsClient() {
 		return (
 			<>
 				<SearchLoadingState />
-				<AddToCart moduleId={moduleId} />
+				<AddToCart moduleId={moduleId} isArabic={isArabic} />
 			</>
 		);
 	}
@@ -164,7 +170,7 @@ export function SearchResultsClient() {
 		return (
 			<>
 				<SearchErrorState message={error} />
-				<AddToCart moduleId={moduleId} />
+				<AddToCart moduleId={moduleId} isArabic={isArabic} />
 			</>
 		);
 	}
@@ -178,14 +184,14 @@ export function SearchResultsClient() {
 		return (
 			<>
 				<SearchEmptyState query={query} />
-				<AddToCart moduleId={moduleId} />
+				<AddToCart moduleId={moduleId} isArabic={isArabic} />
 			</>
 		);
 	}
 
 	return (
 		<>
-			<div className={`flex flex-col gap-6 sm:gap-8 lg:gap-10 ${RESULTS_PADDING}`}>
+			<div className={`flex flex-col gap-6 sm:gap-8 lg:gap-10 ${RESULTS_PADDING}`} dir={isArabic ? "rtl" : "ltr"} lang={locale}>
 				<StoresSection stores={stores} />
 				<ProductsSection
 					products={products}
@@ -194,7 +200,7 @@ export function SearchResultsClient() {
 					onLoadMore={loadMore}
 				/>
 			</div>
-			<AddToCart moduleId={moduleId} />
+			<AddToCart moduleId={moduleId} isArabic={isArabic} />
 		</>
 	);
 }

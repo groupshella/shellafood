@@ -8,6 +8,7 @@ import {
     SearchStoresResponse,
 } from "@/features/search/types/search.types";
 import { ApiResponse, unwrap } from "@/shared/lib/api-response";
+import { useLanguage } from "@/features/language/useLanguage";
 
 const ITEMS_PER_PAGE = 30;
 
@@ -34,7 +35,7 @@ export function useSearch(moduleId: string) {
     const currentQuery = useRef<string>("");
     const moduleIdRef = useRef(moduleId);
     const abortRef = useRef<AbortController | null>(null);
-
+    const { isArabic } = useLanguage();
     useEffect(() => {
         moduleIdRef.current = moduleId;
     }, [moduleId]);
@@ -65,6 +66,8 @@ export function useSearch(moduleId: string) {
                 module_id: activeModuleId,
                 offset: "1",
                 limit: String(ITEMS_PER_PAGE),
+                "Accept-Language": isArabic ? "ar" : "en",
+                "X-Localization": isArabic ? "ar" : "en",
             });
 
             const [itemsData, storesData] = await Promise.all([
@@ -116,6 +119,8 @@ export function useSearch(moduleId: string) {
                 module_id: moduleIdRef.current,
                 offset: String(nextPage),
                 limit: String(ITEMS_PER_PAGE),
+                "Accept-Language": isArabic ? "ar" : "en",
+                "X-Localization": isArabic ? "ar" : "en",
             });
 
             const itemsData = await fetchSearchEndpoint<SearchItemsResponse>(
@@ -129,12 +134,12 @@ export function useSearch(moduleId: string) {
             setResults((prev) =>
                 prev
                     ? {
-                          ...prev,
-                          items: {
-                              ...prev.items,
-                              products: accumulatedProducts.current,
-                          },
-                      }
+                        ...prev,
+                        items: {
+                            ...prev.items,
+                            products: accumulatedProducts.current,
+                        },
+                    }
                     : prev,
             );
         } catch (err) {

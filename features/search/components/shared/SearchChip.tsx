@@ -2,13 +2,15 @@ interface SearchChipProps {
     label: string;
     isActive?: boolean;
     onClick: () => void;
+    isArabic: boolean;
 }
 
-export function SearchChip({ label, isActive = false, onClick }: SearchChipProps) {
+export function SearchChip({ label, isActive = false, onClick, isArabic }: SearchChipProps) {
     return (
         <button
             type="button"
             onClick={onClick}
+            dir={isArabic ? "rtl" : "ltr"}
             className={[
                 "min-h-10 rounded-full px-3.5 py-2 text-sm font-bold transition-all duration-150 active:scale-[0.97]",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",

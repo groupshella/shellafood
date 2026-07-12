@@ -3,11 +3,9 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { useLanguage } from "@/features/language/useLanguage";
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
-import {
-    QIDHA_PAYMENT_METHODS,
-    QIDHA_STRINGS,
-} from "@/features/profile/constants/qidha.strings";
+import { QIDHA_PAYMENT_METHODS } from "@/features/profile/constants/qidha.strings";
 import type {
     QidhaPayOption,
     QidhaPaymentMethodId,
@@ -33,6 +31,7 @@ export function QidhaWalletClient({
     fullAmountDue = 0,
     minimumAmountDue = 0,
 }: QidhaWalletClientProps) {
+    const { isArabic } = useLanguage();
     const [payOption, setPayOption] = useState<QidhaPayOption>("full");
     const [customAmount, setCustomAmount] = useState("");
     const [method, setMethod] = useState<QidhaPaymentMethodId>("stc_pay");
@@ -60,20 +59,29 @@ export function QidhaWalletClient({
                 });
                 const json = await res.json();
                 if (!res.ok || !json.success) {
-                    error(json?.message ?? "فشلت عملية الدفع");
+                    error(
+                        json?.message ??
+                            (isArabic
+                                ? "فشلت عملية الدفع"
+                                : "Payment failed"),
+                    );
                     return;
                 }
-                success("تمت عملية الدفع بنجاح");
+                success(
+                    isArabic
+                        ? "تمت عملية الدفع بنجاح"
+                        : "Payment completed successfully",
+                );
                 router.refresh();
             } catch {
-                error("فشلت عملية الدفع");
+                error(isArabic ? "فشلت عملية الدفع" : "Payment failed");
             }
         });
     }
 
     return (
         <ProfileSubpageShell
-            title={QIDHA_STRINGS.pageTitle}
+            title={isArabic ? "محفظة قيدها" : "Qidha wallet"}
             relaxedHeader
             showHeaderBorder={false}
             showFooterBorder={false}
@@ -87,7 +95,13 @@ export function QidhaWalletClient({
                         className="flex h-12 w-full items-center justify-center rounded-[12px] bg-[#30913F] text-[15px] font-bold text-white transition-opacity enabled:active:opacity-90 disabled:opacity-50 sm:h-[52px] sm:text-[16px]"
                         style={TAJAWAL}
                     >
-                        {isPending ? "جاري الدفع..." : QIDHA_STRINGS.payNow}
+                        {isPending
+                            ? isArabic
+                                ? "جاري الدفع..."
+                                : "Paying..."
+                            : isArabic
+                              ? "ادفع الآن"
+                              : "Pay now"}
                     </button>
                 </div>
             }
@@ -100,7 +114,7 @@ export function QidhaWalletClient({
                         className="text-start text-[16px] font-bold text-[#111B18] dark:text-gray-100"
                         style={TAJAWAL}
                     >
-                        {QIDHA_STRINGS.paymentOptions}
+                        {isArabic ? "خيارات الدفع" : "Payment options"}
                     </h2>
                     <div className="flex flex-col gap-2.5">
                         <QidhaPayOptionRow
@@ -123,7 +137,7 @@ export function QidhaWalletClient({
                         className="text-start text-[16px] font-bold text-[#111B18] dark:text-gray-100"
                         style={TAJAWAL}
                     >
-                        {QIDHA_STRINGS.enterOtherAmount}
+                        {isArabic ? "أدخل مبلغ آخر" : "Enter another amount"}
                     </h2>
                     <label className="flex h-[52px] items-center gap-2 rounded-[12px] border border-[#E8ECEF] bg-white px-3 dark:border-gray-700 dark:bg-gray-800 sm:h-14 sm:px-4">
                         <SarIcon
@@ -145,7 +159,11 @@ export function QidhaWalletClient({
                             }}
                             className="w-full bg-transparent text-end text-[18px] font-bold tabular-nums text-[#111B18] outline-none placeholder:text-[#C6C8CE] dark:text-gray-100 dark:placeholder:text-gray-500"
                             style={AFACAD}
-                            aria-label={QIDHA_STRINGS.enterOtherAmount}
+                            aria-label={
+                                isArabic
+                                    ? "أدخل مبلغ آخر"
+                                    : "Enter another amount"
+                            }
                         />
                     </label>
                 </section>
@@ -155,7 +173,9 @@ export function QidhaWalletClient({
                         className="text-start text-[16px] font-bold text-[#111B18] dark:text-gray-100"
                         style={TAJAWAL}
                     >
-                        {QIDHA_STRINGS.choosePaymentMethod}
+                        {isArabic
+                            ? "اختر طريقة الدفع"
+                            : "Choose payment method"}
                     </h2>
                     <div className="-mx-1 flex gap-2.5 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         {QIDHA_PAYMENT_METHODS.map((item) => (

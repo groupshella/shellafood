@@ -13,6 +13,7 @@ interface AddressTopbarBannerClientProps {
 	isAuthenticated: boolean;
 	addresses: AddressListItem[];
 	className?: string;
+	isArabic: boolean;
 }
 
 const pillClass =
@@ -23,11 +24,13 @@ function LocationPill({
 	onClick,
 	href,
 	ariaLabel,
+	isArabic,
 }: {
 	children: React.ReactNode;
 	onClick?: () => void;
 	href?: string;
 	ariaLabel: string;
+	isArabic: boolean;
 }) {
 	const content = (
 		<>
@@ -67,11 +70,14 @@ export function AddressTopbarBannerClient({
 	isAuthenticated,
 	addresses,
 	className = "",
+	isArabic,
 }: AddressTopbarBannerClientProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const { selectedAddress, selectedId, setSelectedAddressId } = useSelectedAddress(addresses);
 
-	const placeholder = "انضم إلينا ، واستمتع بخدمات شلة";
+	const placeholder = isArabic
+		? "انضم إلينا ، واستمتع بخدمات شلة"
+		: "Join us and enjoy Shella services";
 
 	const handleOpen = useCallback(() => {
 		setIsOpen(true);
@@ -83,8 +89,8 @@ export function AddressTopbarBannerClient({
 
 	if (!isAuthenticated) {
 		return (
-			<div className={`flex min-w-0 justify-start ${className}`}>
-				<LocationPill href="/auth" ariaLabel={placeholder}>
+			<div className={`flex min-w-0 justify-start ${className}`} dir={isArabic ? "rtl" : "ltr"}>
+				<LocationPill href="/auth" ariaLabel={placeholder} isArabic={isArabic}>
 					{placeholder}
 				</LocationPill>
 			</div>
@@ -92,15 +98,24 @@ export function AddressTopbarBannerClient({
 	}
 
 	const selectedLine = selectedAddress
-		? formatAddressLine(selectedAddress)
+		? formatAddressLine(selectedAddress, isArabic)
 		: placeholder;
 
 	return (
 		<>
-			<div className={`flex min-w-0 justify-start ${className}`}>
+			<div className={`flex min-w-0 justify-start ${className}`} dir={isArabic ? "rtl" : "ltr"}>
 				<LocationPill
+					isArabic={isArabic}
 					onClick={handleOpen}
-					ariaLabel={selectedAddress ? `العنوان المحدد: ${selectedLine}` : "اختر عنوان التوصيل"}
+					ariaLabel={
+						selectedAddress
+							? isArabic
+								? `العنوان المحدد: ${selectedLine}`
+								: `Selected address: ${selectedLine}`
+							: isArabic
+								? "اختر عنوان التوصيل"
+								: "Choose delivery address"
+					}
 				>
 					{selectedLine}
 				</LocationPill>

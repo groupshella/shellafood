@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Check, X } from "lucide-react";
+import { useLanguage } from "@/features/language/useLanguage";
 import { formatAddressLine } from "../../lib/format-address-line";
 import { AddressListItem } from "../../types/address.types";
 
@@ -27,6 +28,7 @@ export function AddressPickerSheet({
 	selectedId,
 	onSelect,
 }: AddressPickerSheetProps) {
+	const { isArabic, locale } = useLanguage();
 	const closeButtonRef = useRef<HTMLButtonElement>(null);
 
 	useEffect(() => {
@@ -60,15 +62,16 @@ export function AddressPickerSheet({
 				type="button"
 				className="fixed inset-0 z-40 cursor-default bg-black/40 transition-opacity dark:bg-black/60"
 				onClick={onClose}
-				aria-label="إغلاق"
+				aria-label={isArabic ? "إغلاق" : "Close"}
 			/>
 
 			<div
 				role="dialog"
 				aria-modal="true"
-				aria-label="إختار العنوان"
+				aria-label={isArabic ? "إختار العنوان" : "Choose address"}
+				lang={locale}
 				className="fixed inset-x-0 bottom-[calc(58px+env(safe-area-inset-bottom))] z-50 max-h-[85dvh] overflow-y-auto rounded-t-3xl bg-white px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4 shadow-xl dark:bg-gray-800 sm:px-5 sm:pb-[calc(2rem+env(safe-area-inset-bottom))] sm:pt-5 md:inset-x-auto md:bottom-auto md:start-1/2 md:top-1/2 md:w-full md:max-w-md md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-2xl md:pb-8 lg:max-w-lg"
-				dir="rtl"
+				dir={isArabic ? "rtl" : "ltr"}
 			>
 				<div className="mx-auto mb-4 h-1 w-10 rounded-full bg-gray-200 dark:bg-gray-600 md:hidden" aria-hidden />
 
@@ -77,18 +80,26 @@ export function AddressPickerSheet({
 						ref={closeButtonRef}
 						type="button"
 						onClick={onClose}
-						aria-label="إغلاق"
+						aria-label={isArabic ? "إغلاق" : "Close"}
 						className="absolute start-0 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 active:bg-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 sm:h-11 sm:w-11"
 					>
 						<X className="h-4 w-4" strokeWidth={2.5} aria-hidden />
 					</button>
-					<h2 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">إختار العنوان</h2>
+					<h2 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">
+						{isArabic ? "إختار العنوان" : "Choose address"}
+					</h2>
 				</div>
 
-				<div className="mb-4 max-h-[min(50vh,320px)] space-y-2 overflow-y-auto sm:mb-5 md:max-h-[min(45vh,360px)]" role="listbox" aria-label="العناوين المحفوظة">
+				<div
+					className="mb-4 max-h-[min(50vh,320px)] space-y-2 overflow-y-auto sm:mb-5 md:max-h-[min(45vh,360px)]"
+					role="listbox"
+					aria-label={isArabic ? "العناوين المحفوظة" : "Saved addresses"}
+				>
 					{addresses.length === 0 ? (
 						<p className="rounded-xl bg-gray-50 px-4 py-5 text-center text-sm text-gray-500 dark:bg-gray-700/50 dark:text-gray-400 sm:py-6">
-							لا توجد عناوين محفوظة بعد
+							{isArabic
+								? "لا توجد عناوين محفوظة بعد"
+								: "No saved addresses yet"}
 						</p>
 					) : (
 						addresses.map((address) => {
@@ -116,7 +127,7 @@ export function AddressPickerSheet({
 											({address.address_label})
 										</span>
 										<span className="mt-0.5 block text-xs leading-relaxed text-gray-600 dark:text-gray-400 sm:text-[13px]">
-											{formatAddressLine(address)}
+											{formatAddressLine(address, isArabic)}
 										</span>
 									</span>
 									<span
@@ -138,11 +149,11 @@ export function AddressPickerSheet({
 
 				<div className="space-y-2.5 sm:space-y-3">
 					<Link href="/addresses/add" onClick={onClose} className={primaryButtonClass}>
-						أضف عنوان جديد
+						{isArabic ? "أضف عنوان جديد" : "Add a new address"}
 					</Link>
 
 					<Link href="/addresses" onClick={onClose} className={secondaryButtonClass}>
-						تعديل العناوين
+						{isArabic ? "تعديل العناوين" : "Edit addresses"}
 					</Link>
 				</div>
 			</div>

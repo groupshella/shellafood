@@ -30,20 +30,29 @@ export async function clearSession() {
     await fetch("/api/auth/session", { method: "DELETE" });
 }
 
-export const ACCOUNT_EXISTS_ERROR =
-    "يوجد حساب مرتبط بهذا الرقم بالفعل. يمكنك تسجيل الدخول أو استعادة كلمة المرور.";
+export function getAccountExistsError(isArabic: boolean): string {
+    return isArabic
+        ? "يوجد حساب مرتبط بهذا الرقم بالفعل. يمكنك تسجيل الدخول أو استعادة كلمة المرور."
+        : "An account is already linked to this number. You can sign in or recover your password.";
+}
 
-export function getErrorMessage(err: unknown): string {
+export const ACCOUNT_EXISTS_ERROR = getAccountExistsError(true);
+
+export function getErrorMessage(err: unknown, isArabic = true): string {
     if (err instanceof Error) return err.message;
     if (typeof err === "string") return err;
-    return "حدث خطأ غير متوقع";
+    return isArabic ? "حدث خطأ غير متوقع" : "An unexpected error occurred";
 }
 
 export function isAccountExistsError(message: string | null | undefined): boolean {
     if (!message) return false;
+    const lower = message.toLowerCase();
     return (
         message.includes("يوجد حساب مرتبط بهذا الرقم") ||
-        message.includes("مرتبط بهذا الرقم بالفعل")
+        message.includes("مرتبط بهذا الرقم بالفعل") ||
+        lower.includes("already linked to this number") ||
+        lower.includes("account already exists") ||
+        lower.includes("phone has already been taken")
     );
 }
 

@@ -9,9 +9,10 @@ type Step = "map" | "form";
 
 interface EditAddressClientProps {
   address: Address;
+  isArabic: boolean;
 }
 
-export function EditAddressClient({ address }: EditAddressClientProps) {
+export function EditAddressClient({ address, isArabic }: EditAddressClientProps) {
   const [step, setStep] = useState<Step>("map");
   const [location, setLocation] = useState<PickedLocation | null>(null);
 
@@ -26,6 +27,7 @@ export function EditAddressClient({ address }: EditAddressClientProps) {
         <MapPickerClient
           onConfirm={handleLocationConfirmed}
           initialPosition={{ lat: address.latitude, lng: address.longitude }}
+          isArabic={isArabic}
         />
       </div>
     );
@@ -33,7 +35,7 @@ export function EditAddressClient({ address }: EditAddressClientProps) {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <AddressFormClient location={location} editAddress={address} />
+      <AddressFormClient location={location} editAddress={address} isArabic={isArabic} />
     </div>
   );
 }

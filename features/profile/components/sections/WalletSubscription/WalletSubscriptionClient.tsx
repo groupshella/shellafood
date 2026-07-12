@@ -3,6 +3,7 @@
 import { ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useLanguage } from "@/features/language/useLanguage";
 import { WalletStepper } from "../../shared/wallet/WalletStepper";
 import type { WalletStep } from "../../shared/wallet/WalletStepper";
 import { PersonalInfoStep } from "./steps/PersonalInfoStep";
@@ -34,15 +35,16 @@ const initialFormData: WalletFormData = {
     uploadedDoc: null,
 };
 
-const STEP_TITLES: Record<WalletStep, string> = {
-    "personal-info": "الاشتراك قيدها",
-    income: "الاشتراك قيدها",
-    contract: "الاشتراك قيدها",
-    pending: "",
+const STEP_TITLES: Record<WalletStep, { ar: string; en: string }> = {
+    "personal-info": { ar: "الاشتراك قيدها", en: "Qidha subscription" },
+    income: { ar: "الاشتراك قيدها", en: "Qidha subscription" },
+    contract: { ar: "الاشتراك قيدها", en: "Qidha subscription" },
+    pending: { ar: "", en: "" },
 };
 
 export function WalletSubscriptionClient() {
     const router = useRouter();
+    const { isArabic, locale } = useLanguage();
     const [currentStep, setCurrentStep] = useState<WalletStep>("personal-info");
     const [formData, setFormData] = useState<WalletFormData>(initialFormData);
 
@@ -63,24 +65,24 @@ export function WalletSubscriptionClient() {
     };
 
     const showStepper = currentStep !== "pending";
-    const stepperLabel = STEP_TITLES[currentStep];
+    const stepperLabel = STEP_TITLES[currentStep][locale];
 
     return (
-        <div className="flex min-h-dvh flex-col overflow-x-hidden bg-white dark:bg-gray-950" dir="rtl">
+        <div className="flex min-h-dvh flex-col overflow-x-hidden bg-white dark:bg-gray-950" dir={isArabic ? "rtl" : "ltr"} lang={locale}>
             <header className="sticky top-0 z-10 grid grid-cols-[auto_1fr_auto] items-center border-b border-[#F6F5F8] bg-white px-4 py-5 shadow-[0px_6px_25.1px_rgba(0,0,0,0.05)] dark:border-gray-800 dark:bg-gray-900 dark:shadow-[0px_6px_25.1px_rgba(0,0,0,0.25)] sm:px-5 md:px-6">
                 <button
                     type="button"
                     onClick={handleBack}
-                    aria-label="رجوع"
+                    aria-label={isArabic ? "رجوع" : "Back"}
                     className="-me-1 flex h-9 w-9 items-center justify-center rounded-full transition-colors active:bg-gray-100 dark:active:bg-gray-800"
                 >
                     <ChevronRight
-                        className="h-6 w-6 text-[#111B18] dark:text-gray-100"
+                        className={`h-6 w-6 text-[#111B18] dark:text-gray-100 ${isArabic ? "" : "rotate-180"}`}
                         strokeWidth={1.5}
                     />
                 </button>
                 <h1 className="truncate text-center text-[18px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100">
-                    محفظة قيدها
+                    {isArabic ? "محفظة قيدها" : "Qidha wallet"}
                 </h1>
                 <div className="w-9" aria-hidden />
             </header>

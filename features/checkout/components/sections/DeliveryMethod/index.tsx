@@ -5,15 +5,16 @@ import { DeliveryMethodClient } from "./DeliveryMethodClient";
 import DeliveryMethodSkeleton from "./skeleton";
 
 export const DeliveryMethod = Object.assign(
-    async function DeliveryMethod() {
+    async function DeliveryMethod({ isArabic }: { isArabic: boolean }) {
         const cookieStore = await cookies();
         const isAuthenticated = !!cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
-        const addresses = isAuthenticated ? await getAddresses() : [];
+        const addresses = isAuthenticated ? await getAddresses({ isArabic }) : [];
 
         return (
             <DeliveryMethodClient
                 isAuthenticated={isAuthenticated}
                 addresses={addresses}
+                isArabic={isArabic}
             />
         );
     },

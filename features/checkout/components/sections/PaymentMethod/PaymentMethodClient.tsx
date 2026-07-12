@@ -6,7 +6,7 @@ import { CheckoutBottomSheet } from "@/features/checkout/components/shared/Check
 import { useBottomSheet } from "@/features/checkout/components/shared/useBottomSheet";
 import { useCheckout } from "@/features/checkout/context/CheckoutContext";
 import type { ElectronicPaymentType, PaymentMethodType } from "@/features/checkout/types/checkout.types";
-
+import { useLanguage } from "@/features/language/useLanguage";
 interface PaymentTabProps {
     selected: boolean;
     onSelect: () => void;
@@ -168,13 +168,14 @@ function ElectronicPaymentSheet({
     selected,
     onSelect,
 }: ElectronicPaymentSheetProps) {
+    const { isArabic } = useLanguage();
     return (
         <CheckoutBottomSheet
             isOpen={isOpen}
             isVisible={isVisible}
             onClose={onClose}
-            ariaLabel="اختر طريقة الدفع الالكتروني"
-            title="اختر طريقة الدفع الالكتروني"
+            ariaLabel={isArabic ? "اختر طريقة الدفع الالكتروني" : "Select electronic payment method"}
+            title={isArabic ? "اختر طريقة الدفع الالكتروني" : "Select electronic payment method"}
             showCloseButton
         >
             <p className="mb-5 text-center text-2xl font-bold text-[#30913F] sm:text-3xl">{total}</p>
@@ -212,13 +213,13 @@ function ElectronicPaymentSheet({
                 onClick={onConfirm}
                 className="w-full rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] sm:py-4 sm:text-[15px]"
             >
-                اختيار طريقة الدفع
+                {isArabic ? "اختيار طريقة الدفع" : "Select payment method"}
             </button>
         </CheckoutBottomSheet>
     );
 }
 
-export function PaymentMethodClient() {
+export function PaymentMethodClient({ isArabic }: { isArabic: boolean }) {
     const {
         data,
         selected,
@@ -256,31 +257,30 @@ export function PaymentMethodClient() {
     };
 
     const selectedLabel = getSelectedPaymentLabel(selected, electronicMethod);
-
     return (
-        <div dir="rtl">
-            <h2 className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">طريقة الدفع</h2>
+        <div dir={isArabic ? "rtl" : "ltr"}>
+            <h2 className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">{isArabic ? "طريقة الدفع" : "Payment method"}</h2>
 
             <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] sm:gap-2.5 md:mx-0 md:grid md:grid-cols-3 md:gap-3 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
                 <PaymentTab
                     selected={selected === "my-wallet"}
                     onSelect={() => handleSelectPayment("my-wallet")}
                     icon={<Wallet className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.8} />}
-                    label="محفظتي"
+                    label={isArabic ? "محفظتي" : "My wallet"}
                     subValue={data.myWalletBalance}
                 />
                 <PaymentTab
                     selected={selected === "qidha-wallet"}
                     onSelect={() => handleSelectPayment("qidha-wallet")}
                     icon={<CreditCard className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.8} />}
-                    label="محفظة قيدها"
+                    label={isArabic ? "محفظة قيدها" : "Qidha wallet"}
                     subValue={data.walletBalance}
                 />
                 <PaymentTab
                     selected={selected === "electronic"}
                     onSelect={() => handleSelectPayment("electronic")}
                     icon={<CreditCard className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.8} />}
-                    label="دفع الكتروني"
+                    label={isArabic ? "دفع الكتروني" : "Electronic payment"}
                 />
             </div>
 
@@ -293,7 +293,7 @@ export function PaymentMethodClient() {
                 showPaymentWarning && (
                     <div className="mt-3 flex items-center gap-2 rounded-xl bg-amber-50 p-3 dark:bg-amber-950/40 sm:mt-4 sm:p-3.5">
                         <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
-                        <p className="flex-1 text-xs text-amber-800 dark:text-amber-300 sm:text-[13px]">بالرجاء تحديد طريقة الدفع</p>
+                        <p className="flex-1 text-xs text-amber-800 dark:text-amber-300 sm:text-[13px]">{isArabic ? "بالرجاء تحديد طريقة الدفع" : "Please select a payment method"}</p>
                     </div>
                 )
             )}
@@ -302,12 +302,12 @@ export function PaymentMethodClient() {
                 isOpen={emptyWalletSheet.isOpen}
                 isVisible={emptyWalletSheet.isVisible}
                 onClose={emptyWalletSheet.close}
-                ariaLabel="المحفظة فارغة من الرصيد"
+                ariaLabel={isArabic ? "المحفظة فارغة من الرصيد" : "Empty wallet"}
             >
                 <WalletSheetContent
-                    title="المحفظة فارغة من الرصيد"
-                    description="يمكنك إضافة رصيد في المحفظة لتتمكن من إكمال مرحلة الدفع"
-                    actionLabel="إضافة رصيد"
+                    title={isArabic ? "المحفظة فارغة من الرصيد" : "Empty wallet"}
+                    description={isArabic ? "يمكنك إضافة رصيد في المحفظة لتتمكن من إكمال مرحلة الدفع" : "You can add balance to your wallet to complete the payment process"}
+                    actionLabel={isArabic ? "إضافة رصيد" : "Add balance"}
                     onAction={() => router.push("/profile?tab=wallet")}
                 />
             </CheckoutBottomSheet>
@@ -316,12 +316,12 @@ export function PaymentMethodClient() {
                 isOpen={qidhaSheet.isOpen}
                 isVisible={qidhaSheet.isVisible}
                 onClose={qidhaSheet.close}
-                ariaLabel="الاشتراك في قيدها المطلوب"
+                ariaLabel={isArabic ? "الاشتراك في قيدها المطلوب" : "Subscribe to Qidha required"}
             >
                 <WalletSheetContent
-                    title="الاشتراك في قيدها المطلوب"
-                    description="لاستخدام محفظة قيدها، يجب الاشتراك وتفعيل المحفظة أولاً"
-                    actionLabel="اشترك الآن"
+                    title={isArabic ? "الاشتراك في قيدها المطلوب" : "Subscribe to Qidha required"}
+                    description={isArabic ? "لاستخدام محفظة قيدها، يجب الاشتراك وتفعيل المحفظة أولاً" : "To use Qidha wallet, you must subscribe and activate the wallet first"}
+                    actionLabel={isArabic ? "اشترك الآن" : "Subscribe now"}
                     onAction={() => router.push("/profile?tab=qidha")}
                 />
             </CheckoutBottomSheet>

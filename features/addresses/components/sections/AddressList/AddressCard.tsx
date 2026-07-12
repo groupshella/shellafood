@@ -1,6 +1,10 @@
+"use client";
+
 import { memo } from "react";
 import { Trash2, MapPin, Pencil } from "lucide-react";
+import { formatAddressLine } from "@/features/addresses/lib/format-address-line";
 import { AddressListItem } from "@/features/addresses/types/address.types";
+import { useLanguage } from "@/features/language/useLanguage";
 
 interface AddressCardProps {
 	address: AddressListItem;
@@ -22,9 +26,8 @@ export const AddressCard = memo(function AddressCard({
 	onEdit,
 	isDeleting = false,
 }: AddressCardProps) {
-	const addressLine = [address.city, address.region, address.street_name]
-		.filter(Boolean)
-		.join(" ، ");
+	const { isArabic } = useLanguage();
+	const addressLine = formatAddressLine(address, isArabic);
 
 	return (
 		<article
@@ -37,7 +40,11 @@ export const AddressCard = memo(function AddressCard({
 				type="button"
 				onClick={() => onClick(address.id)}
 				className="flex min-w-0 flex-1 items-start gap-2.5 text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 rounded-xl dark:focus-visible:ring-offset-gray-800 sm:gap-3"
-				aria-label={`عرض تفاصيل عنوان ${address.address_label}`}
+				aria-label={
+					isArabic
+						? `عرض تفاصيل عنوان ${address.address_label}`
+						: `View details for address ${address.address_label}`
+				}
 			>
 				<div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#30913F]/10 dark:bg-[#30913F]/20 sm:h-11 sm:w-11">
 					<MapPin className="h-4 w-4 text-[#30913F] dark:text-[#3da84f]" aria-hidden />
@@ -61,7 +68,11 @@ export const AddressCard = memo(function AddressCard({
 						onEdit(address.id);
 					}}
 					className={`${actionButtonClass} text-[#30913F] hover:bg-[#30913F]/10 active:bg-[#30913F]/20 dark:text-[#3da84f] dark:hover:bg-[#30913F]/20`}
-					aria-label={`تعديل عنوان ${address.address_label}`}
+					aria-label={
+						isArabic
+							? `تعديل عنوان ${address.address_label}`
+							: `Edit address ${address.address_label}`
+					}
 					disabled={isDeleting}
 				>
 					<Pencil className="h-4 w-4" aria-hidden />
@@ -75,7 +86,11 @@ export const AddressCard = memo(function AddressCard({
 							onDelete(address.id);
 						}}
 						className={`${actionButtonClass} text-red-400 hover:bg-red-50 active:bg-red-100 dark:text-red-400 dark:hover:bg-red-950/40 dark:active:bg-red-950/60`}
-						aria-label={`حذف عنوان ${address.address_label}`}
+						aria-label={
+							isArabic
+								? `حذف عنوان ${address.address_label}`
+								: `Delete address ${address.address_label}`
+						}
 						disabled={isDeleting}
 					>
 						<Trash2 className="h-4 w-4" aria-hidden />

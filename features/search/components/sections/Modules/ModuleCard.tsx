@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useLanguage } from "@/features/language/useLanguage";
 import { SearchModule } from "@/features/search/types/modules.types";
 
 const PALETTE = [
@@ -16,6 +17,7 @@ interface ModuleCardProps {
     isActive: boolean;
     isDisabled: boolean;
     onSelect: (moduleId: string) => void;
+    isArabic: boolean;
 }
 
 export function ModuleCard({
@@ -24,6 +26,7 @@ export function ModuleCard({
     isActive,
     isDisabled,
     onSelect,
+    isArabic,
 }: ModuleCardProps) {
     const { bg, text, darkBg, darkText } = PALETTE[colorIndex % PALETTE.length];
 
@@ -33,7 +36,8 @@ export function ModuleCard({
             onClick={() => onSelect(String(module.id))}
             disabled={isActive}
             aria-pressed={isActive}
-            aria-label={module.module_name}
+            aria-label={isArabic ? module.module_name : module.module_name}
+            dir={isArabic ? "rtl" : "ltr"}
             className={[
                 "flex shrink-0 snap-start items-center justify-between gap-2",
                 "min-w-[8.25rem] max-w-[11rem] rounded-xl px-3 py-2.5",

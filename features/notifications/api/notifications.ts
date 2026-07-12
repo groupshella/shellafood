@@ -44,10 +44,9 @@ function normalizeNotifications(body: unknown): Notification[] {
     return [];
 }
 
-export async function getNotifications(): Promise<Notification[]> {
+export async function getNotifications(isArabic: boolean): Promise<Notification[]> {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
-
     if (!token) return [];
 
     const res = await fetch(
@@ -57,7 +56,7 @@ export async function getNotifications(): Promise<Notification[]> {
                 Accept: "application/json",
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
-                "X-Localization": "ar",
+                "X-Localization": isArabic ? "ar" : "en",
             },
             next: {
                 revalidate: 60,
@@ -68,7 +67,7 @@ export async function getNotifications(): Promise<Notification[]> {
 
     if (!res.ok) {
         if (res.status === 401) return [];
-        throw new Error(`Failed to fetch notifications: ${res.status}`);
+        throw new Error(isArabic ? "فشل تحميل الإشعارات" : `Failed to fetch notifications: ${res.status}`);
     }
 
     const body: unknown = await res.json();

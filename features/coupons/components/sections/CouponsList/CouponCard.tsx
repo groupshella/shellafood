@@ -18,6 +18,7 @@ type CouponCardProps = {
 	variant: "available" | "expired";
 	isCopied: boolean;
 	onCopyCode: (code: string) => void;
+	isArabic: boolean;
 };
 
 function discountValue(coupon: Coupon) {
@@ -53,6 +54,7 @@ export const CouponCard = memo(function CouponCard({
 	variant,
 	isCopied,
 	onCopyCode,
+	isArabic,
 }: CouponCardProps) {
 	const isUsable = "isUsable" in coupon ? coupon.isUsable : variant === "expired" ? false : !coupon.is_used;
 	const expiringSoon = variant === "available" && isCouponExpiringSoon(coupon);
@@ -74,7 +76,7 @@ export const CouponCard = memo(function CouponCard({
 
 	return (
 		<div
-			dir="ltr"
+			dir={isArabic ? "rtl" : "ltr"}
 			className={[
 				"relative flex h-full min-w-0 w-full overflow-hidden transition-opacity",
 				variant === "expired" || !isUsable ? "opacity-55" : "",
@@ -90,7 +92,7 @@ export const CouponCard = memo(function CouponCard({
 				<span
 					className={`whitespace-nowrap text-sm font-bold leading-none [transform:rotate(-90deg)] sm:text-[15px] ${ribbon.text}`}
 				>
-					خصم
+					{isArabic ? "خصم" : "Discount"}
 				</span>
 				<span
 					className={`mt-1 whitespace-nowrap text-base font-black leading-none [transform:rotate(-90deg)] sm:text-lg ${ribbon.text}`}

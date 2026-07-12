@@ -11,9 +11,10 @@ import { useNotification } from "@/shared/components/NotificationToast";
 
 interface ItemInfoClientProps {
     item: ItemDetails;
+    isArabic: boolean;
 }
 
-export function ItemInfoClient({ item }: ItemInfoClientProps) {
+export function ItemInfoClient({ item, isArabic }: ItemInfoClientProps) {
     const { success, error: notifyError } = useNotification();
     const [imgError, setImgError] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
@@ -57,7 +58,7 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
     }
 
     return (
-        <div className="bg-white dark:bg-gray-900" dir="rtl">
+        <div className="bg-white dark:bg-gray-900" dir={isArabic ? "rtl" : "ltr"}>
             <div className="md:grid md:grid-cols-2 md:items-start md:gap-6 md:px-5 md:pt-5 lg:gap-10 lg:px-6">
                 {/* Product image */}
                 <div className="relative mx-3 mt-3 aspect-square overflow-hidden rounded-2xl bg-gray-50 dark:bg-gray-800 sm:mx-5 md:mx-0 md:mt-0">
@@ -69,7 +70,7 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                     {!imgError && item.image_full_url ? (
                         <Image
                             src={item.image_full_url}
-                            alt={item.name}
+                            alt={item.name || isArabic ? "صورة المنتج" : "Product image"}
                             fill
                             className="object-contain p-5 sm:p-6 lg:p-8"
                             sizes="(max-width: 640px) calc(100vw - 24px), (max-width: 768px) calc(100vw - 40px), (max-width: 1024px) 320px, 440px"
@@ -87,13 +88,13 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                 <div className="px-3 pb-6 pt-4 sm:px-5 md:flex md:min-h-full md:flex-col md:px-0 md:pb-8 md:pt-1">
                     <div className="flex items-start justify-between gap-3">
                         <h1 className="flex-1 text-start text-lg font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-xl lg:text-2xl">
-                            {item.name}
+                            {item.name || isArabic ? "اسم المنتج" : "Product name"}
                         </h1>
                         <button
                             type="button"
                             onClick={toggleWishlist}
                             disabled={wishlistPending}
-                            aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                            aria-label={wishlisted ? (isArabic ? "إزالة من المفضلة" : "Remove from favorites") : (isArabic ? "إضافة إلى المفضلة" : "Add to favorites")}
                             aria-pressed={wishlisted}
                             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60 dark:bg-gray-800 dark:active:bg-gray-700 sm:h-11 sm:w-11"
                         >
@@ -112,7 +113,7 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
 
                     {item.description?.trim() && (
                         <p className="mt-2 text-start text-sm leading-relaxed text-gray-500 dark:text-gray-400 lg:text-base">
-                            {item.description}
+                            {item.description || isArabic ? "وصف المنتج" : "Product description"}
                         </p>
                     )}
 
@@ -141,7 +142,7 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
 
                     {!item.is_available && (
                         <p className="mt-3 text-start text-xs font-semibold text-red-500 dark:text-red-400 sm:text-sm">
-                            غير متوفر حالياً
+                            {isArabic ? "غير متوفر حالياً" : "Not available currently"}
                         </p>
                     )}
                 </div>

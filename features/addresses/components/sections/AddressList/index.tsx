@@ -6,8 +6,8 @@ import AddressListSkeleton from "./skeleton";
 
 export { AddressListSkeleton as skeleton };
 
-export async function AddressList() {
-	const addresses = await getAddresses();
+export async function AddressList({ isArabic }: { isArabic: boolean }) {
+	const addresses = await getAddresses({ isArabic });
 
 	if (addresses.length === 0) {
 		return (

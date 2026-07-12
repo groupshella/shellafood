@@ -13,6 +13,7 @@ import { useCheckout } from "@/features/checkout/context/CheckoutContext";
 interface DeliveryMethodClientProps {
     isAuthenticated: boolean;
     addresses: AddressListItem[];
+    isArabic: boolean;
 }
 
 const SECTION_HEADING = "mb-3 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]";
@@ -58,7 +59,7 @@ function DeliveryOptionCard({ selected, onSelect, label, subLabel }: DeliveryOpt
     );
 }
 
-export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMethodClientProps) {
+export function DeliveryMethodClient({ isAuthenticated, addresses, isArabic }: DeliveryMethodClientProps) {
     const [method, setMethod] = useState<DeliveryMethodType>("delivery");
     const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
     const { updateDeliveryAddress } = useCheckout();
@@ -71,21 +72,23 @@ export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMet
     }
 
     return (
-        <div dir="rtl">
-            <h2 className={SECTION_HEADING}>طريقة الاستلام</h2>
+        <div dir={isArabic ? "rtl" : "ltr"}>
+            <h2 className={SECTION_HEADING}>
+                {isArabic ? "طريقة الاستلام" : "Delivery method"}
+            </h2>
 
             <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-3">
                 <DeliveryOptionCard
                     selected={method === "delivery"}
                     onSelect={() => setMethod("delivery")}
-                    label="توصيل الطلبات للعنوان"
-                    subLabel="إضافي 31.95 ﷼"
+                    label={isArabic ? "توصيل الطلبات للعنوان" : "Deliver to address"}
+                    subLabel={isArabic ? "إضافي 31.95 ﷼" : "Extra 31.95 ﷼"}
                 />
                 <DeliveryOptionCard
                     selected={method === "pickup"}
                     onSelect={() => setMethod("pickup")}
-                    label="استلام من المتجر"
-                    subLabel="مجاني"
+                    label={isArabic ? "استلام من المتجر" : "Pickup from store"}
+                    subLabel={isArabic ? "مجاني" : "Free"}
                 />
             </div>
 
@@ -97,16 +100,24 @@ export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMet
                             className="inline-flex min-h-10 items-center gap-1.5 rounded-lg text-sm font-medium text-[#30913F] transition-colors active:text-[#267332] dark:text-[#4db860] sm:text-[15px]"
                         >
                             <MapPin className="h-4 w-4 shrink-0 sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
-                            <span>سجل الدخول لإضافة عنوان</span>
+                            <span>
+                                {isArabic
+                                    ? "سجل الدخول لإضافة عنوان"
+                                    : "Sign in to add an address"}
+                            </span>
                         </Link>
                     ) : !selectedAddress ? (
                         <div className="space-y-1.5">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-[13px]">لا يوجد عنوان محفوظ بعد</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-[13px]">
+                                {isArabic
+                                    ? "لا يوجد عنوان محفوظ بعد"
+                                    : "No saved address yet"}
+                            </p>
                             <Link
                                 href="/addresses/add"
                                 className="inline-flex min-h-10 items-center text-sm font-medium text-[#30913F] transition-colors active:text-[#267332] dark:text-[#4db860] sm:text-[15px]"
                             >
-                                أضف عنوان جديد
+                                {isArabic ? "أضف عنوان جديد" : "Add a new address"}
                             </Link>
                         </div>
                     ) : (
@@ -116,7 +127,11 @@ export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMet
                                 onClick={() => setIsAddressSheetOpen(true)}
                                 className="mb-2 flex min-h-10 items-center gap-1 text-sm font-medium text-[#30913F] transition-colors active:text-[#267332] dark:text-[#4db860] sm:text-[15px]"
                             >
-                                <span>سيصلك على {selectedAddress.address_label}</span>
+                                <span>
+                                    {isArabic
+                                        ? `سيصلك على ${selectedAddress.address_label}`
+                                        : `Delivering to ${selectedAddress.address_label}`}
+                                </span>
                                 <ChevronDown className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2.5} />
                             </button>
                             <div className="flex items-start gap-2 sm:gap-2.5">
@@ -125,7 +140,7 @@ export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMet
                                     strokeWidth={2}
                                 />
                                 <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-400 sm:text-[13px]">
-                                    {formatAddressLine(selectedAddress)}
+                                    {formatAddressLine(selectedAddress, isArabic)}
                                 </p>
                             </div>
                         </>
@@ -135,11 +150,15 @@ export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMet
 
             {method === "pickup" && (
                 <div className="mt-4 sm:mt-5">
-                    <h3 className="mb-2 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">عنوان المتجر</h3>
+                    <h3 className="mb-2 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
+                        {isArabic ? "عنوان المتجر" : "Store address"}
+                    </h3>
                     <div className="flex items-start gap-2 sm:gap-2.5">
                         <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#30913F] dark:text-[#4db860] sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
                         <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-400 sm:text-[13px]">
-                            سيتم عرض عنوان المتجر عند تأكيد الطلب
+                            {isArabic
+                                ? "سيتم عرض عنوان المتجر عند تأكيد الطلب"
+                                : "Store address will be shown when you confirm the order"}
                         </p>
                     </div>
                 </div>

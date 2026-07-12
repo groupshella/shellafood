@@ -2,8 +2,11 @@
 
 import { Calendar, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/features/language/useLanguage";
 import { PhoneField } from "@/features/profile/components/shared/registration/PhoneInput";
 import type { WalletFormData } from "../types";
+
+type LocalizedOption = { ar: string; en: string };
 
 const inputCls =
     "h-14 w-full rounded-xl border border-[#F6F5F8] bg-[#F6F5F8] px-3 py-[14px] text-end text-[14px] text-[#111B18] outline-none placeholder:text-[#555555] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 sm:px-4";
@@ -39,18 +42,23 @@ function WDropdown({
     value,
     options,
     placeholder,
+    locale,
     onChange,
     extra,
 }: {
     label: string;
     required?: boolean;
     value: string;
-    options: string[];
+    options: LocalizedOption[];
     placeholder: string;
+    locale: "ar" | "en";
     onChange: (v: string) => void;
     extra?: React.ReactNode;
 }) {
     const [open, setOpen] = useState(false);
+    const selectedOption = options.find((opt) => opt.ar === value || opt.en === value);
+    const displayValue = selectedOption ? selectedOption[locale] : value;
+
     return (
         <WField label={label} required={required}>
             <div className="relative">
@@ -68,27 +76,27 @@ function WDropdown({
                         <span
                             className={`text-[14px] ${value ? "text-[#111B18] dark:text-gray-100" : "text-[#555555] dark:text-gray-500"}`}
                         >
-                            {value || placeholder}
+                            {displayValue || placeholder}
                         </span>
                     </div>
                 </button>
                 {open && (
                     <ul className="absolute inset-x-0 top-[calc(100%+4px)] z-20 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
                         {options.map((opt, i) => (
-                            <li key={opt}>
+                            <li key={opt.ar}>
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        onChange(opt);
+                                        onChange(opt[locale]);
                                         setOpen(false);
                                     }}
                                     className={`w-full px-4 py-3 text-end text-[14px] transition-colors active:bg-gray-50 dark:active:bg-gray-700 ${
-                                        value === opt
+                                        value === opt.ar || value === opt.en
                                             ? "font-semibold text-[#30913F] dark:text-[#4db860]"
                                             : "text-[#111B18] dark:text-gray-100"
                                     } ${i > 0 ? "border-t border-gray-100 dark:border-gray-700" : ""}`}
                                 >
-                                    {opt}
+                                    {opt[locale]}
                                 </button>
                             </li>
                         ))}
@@ -103,11 +111,13 @@ function WRadioGroup({
     label,
     options,
     value,
+    locale,
     onChange,
 }: {
     label: string;
-    options: string[];
+    options: LocalizedOption[];
     value: string;
+    locale: "ar" | "en";
     onChange: (v: string) => void;
 }) {
     return (
@@ -115,23 +125,23 @@ function WRadioGroup({
             <div className="overflow-hidden rounded-xl bg-[#F6F5F8] dark:bg-gray-800">
                 {options.map((opt, i) => (
                     <button
-                        key={opt}
+                        key={opt.ar}
                         type="button"
-                        onClick={() => onChange(opt)}
+                        onClick={() => onChange(opt[locale])}
                         className={`flex w-full items-center justify-between px-4 py-4 text-[16px] text-[#111B18] dark:text-gray-100 ${
                             i > 0 ? "border-t border-[#F6F5F8] bg-white dark:border-gray-700 dark:bg-gray-900" : ""
                         }`}
                     >
                         <span
                             className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                                value === opt ? "border-[#111B18] dark:border-gray-200" : "border-[#D1D5DB] dark:border-gray-600"
+                                value === opt.ar || value === opt.en ? "border-[#111B18] dark:border-gray-200" : "border-[#D1D5DB] dark:border-gray-600"
                             }`}
                         >
-                            {value === opt && (
+                            {(value === opt.ar || value === opt.en) && (
                                 <span className="h-2.5 w-2.5 rounded-full bg-[#111B18] dark:bg-gray-200" />
                             )}
                         </span>
-                        <span className="text-[16px] font-medium text-[#111B18] dark:text-gray-100">{opt}</span>
+                        <span className="text-[16px] font-medium text-[#111B18] dark:text-gray-100">{opt[locale]}</span>
                     </button>
                 ))}
             </div>
@@ -139,10 +149,31 @@ function WRadioGroup({
     );
 }
 
-const NATIONALITY_OPTIONS = ["سعودي", "مصري", "كويتي", "إماراتي", "أردني"];
-const MARITAL_OPTIONS = ["أعذب", "متزوج", "مطلق"];
-const HOME_TYPE_OPTIONS = ["منزل", "شقة", "فيلا"];
-const CITY_OPTIONS = ["الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر"];
+const NATIONALITY_OPTIONS: LocalizedOption[] = [
+    { ar: "سعودي", en: "Saudi" },
+    { ar: "مصري", en: "Egyptian" },
+    { ar: "كويتي", en: "Kuwaiti" },
+    { ar: "إماراتي", en: "Emirati" },
+    { ar: "أردني", en: "Jordanian" },
+];
+const MARITAL_OPTIONS: LocalizedOption[] = [
+    { ar: "أعذب", en: "Single" },
+    { ar: "متزوج", en: "Married" },
+    { ar: "مطلق", en: "Divorced" },
+];
+const HOME_TYPE_OPTIONS: LocalizedOption[] = [
+    { ar: "منزل", en: "House" },
+    { ar: "شقة", en: "Apartment" },
+    { ar: "فيلا", en: "Villa" },
+];
+const CITY_OPTIONS: LocalizedOption[] = [
+    { ar: "الرياض", en: "Riyadh" },
+    { ar: "جدة", en: "Jeddah" },
+    { ar: "مكة المكرمة", en: "Makkah" },
+    { ar: "المدينة المنورة", en: "Madinah" },
+    { ar: "الدمام", en: "Dammam" },
+    { ar: "الخبر", en: "Khobar" },
+];
 
 interface PersonalInfoStepProps {
     data: WalletFormData;
@@ -157,56 +188,58 @@ export function PersonalInfoStep({
     onNext,
     onViewContract,
 }: PersonalInfoStepProps) {
+    const { isArabic, locale } = useLanguage();
+
     return (
         <div className="flex flex-col gap-4 pb-6 sm:gap-5">
             {/* Personal Information Card */}
             <div className="rounded-2xl bg-[#F6F5F8] p-3 dark:bg-gray-800/50 sm:p-4">
                 <h2 className="mb-4 text-center text-[16px] font-bold text-[#555555] dark:text-gray-400">
-                    المعلومات الشخصية
+                    {isArabic ? "المعلومات الشخصية" : "Personal information"}
                 </h2>
                 <div className="grid grid-cols-1 gap-4 rounded-2xl bg-white p-3 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] dark:bg-gray-900 dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.2)] sm:p-4 md:grid-cols-2">
-                    <WField label="الاسم الأول" required>
+                    <WField label={isArabic ? "الاسم الأول" : "First name"} required>
                         <input
                             className={inputCls}
-                            placeholder="الاسم الأول"
+                            placeholder={isArabic ? "الاسم الأول" : "First name"}
                             value={data.firstName}
                             onChange={(e) => onChange({ firstName: e.target.value })}
-                            dir="rtl"
+                            dir={isArabic ? "rtl" : "ltr"}
                         />
                     </WField>
 
-                    <WField label="اسم الاب" required>
+                    <WField label={isArabic ? "اسم الاب" : "Father's name"} required>
                         <input
                             className={inputCls}
-                            placeholder="اسم الاب"
+                            placeholder={isArabic ? "اسم الاب" : "Father's name"}
                             value={data.fatherName}
                             onChange={(e) => onChange({ fatherName: e.target.value })}
-                            dir="rtl"
+                            dir={isArabic ? "rtl" : "ltr"}
                         />
                     </WField>
 
-                    <WField label="اسم الجد">
+                    <WField label={isArabic ? "اسم الجد" : "Grandfather's name"}>
                         <input
                             className={inputCls}
-                            placeholder="اسم الجد"
+                            placeholder={isArabic ? "اسم الجد" : "Grandfather's name"}
                             value={data.grandfatherName}
                             onChange={(e) => onChange({ grandfatherName: e.target.value })}
-                            dir="rtl"
+                            dir={isArabic ? "rtl" : "ltr"}
                         />
                     </WField>
 
-                    <WField label="اسم العائلة" required>
+                    <WField label={isArabic ? "اسم العائلة" : "Family name"} required>
                         <input
                             className={inputCls}
-                            placeholder="اسم العائلة"
+                            placeholder={isArabic ? "اسم العائلة" : "Family name"}
                             value={data.familyName}
                             onChange={(e) => onChange({ familyName: e.target.value })}
-                            dir="rtl"
+                            dir={isArabic ? "rtl" : "ltr"}
                         />
                     </WField>
 
                     {/* Birth date */}
-                    <WField label="تاريخ الميلاد" required>
+                    <WField label={isArabic ? "تاريخ الميلاد" : "Date of birth"} required>
                         <div className={inputWithIconCls + " justify-between"}>
                             <Calendar
                                 className="h-6 w-6 shrink-0 text-[#555555] dark:text-gray-400"
@@ -224,14 +257,15 @@ export function PersonalInfoStep({
 
                     {/* Nationality */}
                     <WDropdown
-                        label="اختر الجنسية"
+                        label={isArabic ? "اختر الجنسية" : "Select nationality"}
                         required
                         value={data.nationality}
                         options={NATIONALITY_OPTIONS}
-                        placeholder="اختر الجنسية"
+                        placeholder={isArabic ? "اختر الجنسية" : "Select nationality"}
+                        locale={locale}
                         onChange={(v) => onChange({ nationality: v })}
                         extra={
-                            data.nationality === "سعودي" ? (
+                            data.nationality === "سعودي" || data.nationality === "Saudi" ? (
                                 <span className="text-lg leading-none">🇸🇦</span>
                             ) : null
                         }
@@ -239,14 +273,15 @@ export function PersonalInfoStep({
 
                     {/* Marital status */}
                     <WRadioGroup
-                        label="الحالة الاجتماعية"
+                        label={isArabic ? "الحالة الاجتماعية" : "Marital status"}
                         options={MARITAL_OPTIONS}
                         value={data.maritalStatus}
+                        locale={locale}
                         onChange={(v) => onChange({ maritalStatus: v })}
                     />
 
                     {/* Family count */}
-                    <WField label="عدد أفراد الأسرة" required>
+                    <WField label={isArabic ? "عدد أفراد الأسرة" : "Number of family members"} required>
                         <input
                             className={inputCls}
                             type="number"
@@ -259,7 +294,7 @@ export function PersonalInfoStep({
                     </WField>
 
                     {/* ID number */}
-                    <WField label="رقم بطاقة الأحوال" required>
+                    <WField label={isArabic ? "رقم بطاقة الأحوال" : "National ID number"} required>
                         <input
                             className={inputCls}
                             placeholder="xxxxxxx-xxxxx-x"
@@ -270,7 +305,7 @@ export function PersonalInfoStep({
                     </WField>
 
                     {/* ID expiry */}
-                    <WField label="تاريخ الانتهاء" required>
+                    <WField label={isArabic ? "تاريخ الانتهاء" : "Expiry date"} required>
                         <div className={inputWithIconCls + " justify-between"}>
                             <Calendar
                                 className="h-6 w-6 shrink-0 text-[#555555] dark:text-gray-400"
@@ -287,7 +322,7 @@ export function PersonalInfoStep({
                     </WField>
 
                     {/* Phone */}
-                    <WField label="رقم الهاتف" required>
+                    <WField label={isArabic ? "رقم الهاتف" : "Phone number"} required>
                         <PhoneField
                             value={data.phone}
                             onChange={(phone) => onChange({ phone })}
@@ -300,32 +335,34 @@ export function PersonalInfoStep({
             {/* Housing Information Card */}
             <div className="rounded-2xl bg-[#F6F5F8] p-3 dark:bg-gray-800/50 sm:p-4">
                 <h2 className="mb-4 text-center text-[16px] font-bold text-[#555555] dark:text-gray-400">
-                    بيانات السكن
+                    {isArabic ? "بيانات السكن" : "Housing details"}
                 </h2>
                 <div className="grid grid-cols-1 gap-4 rounded-2xl bg-white p-3 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] dark:bg-gray-900 dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.2)] sm:p-4 md:grid-cols-2">
                     <WRadioGroup
-                        label="نوع المنزل"
+                        label={isArabic ? "نوع المنزل" : "Home type"}
                         options={HOME_TYPE_OPTIONS}
                         value={data.homeType}
+                        locale={locale}
                         onChange={(v) => onChange({ homeType: v })}
                     />
 
                     <WDropdown
-                        label="المدينة"
+                        label={isArabic ? "المدينة" : "City"}
                         required
                         value={data.city}
                         options={CITY_OPTIONS}
-                        placeholder="اختر المدينة"
+                        placeholder={isArabic ? "اختر المدينة" : "Select city"}
+                        locale={locale}
                         onChange={(v) => onChange({ city: v })}
                     />
 
-                    <WField label="الحي" required>
+                    <WField label={isArabic ? "الحي" : "Neighborhood"} required>
                         <input
                             className={inputCls}
-                            placeholder="اسم الحي"
+                            placeholder={isArabic ? "اسم الحي" : "Neighborhood name"}
                             value={data.neighborhood}
                             onChange={(e) => onChange({ neighborhood: e.target.value })}
-                            dir="rtl"
+                            dir={isArabic ? "rtl" : "ltr"}
                         />
                     </WField>
                 </div>
@@ -338,14 +375,14 @@ export function PersonalInfoStep({
                     onClick={onNext}
                     className="min-h-[48px] w-full rounded-xl bg-[#30913F] px-4 text-[16px] font-bold text-white active:bg-[#267332] sm:min-h-[52px]"
                 >
-                    التالي
+                    {isArabic ? "التالي" : "Next"}
                 </button>
                 <button
                     type="button"
                     onClick={onViewContract}
                     className="min-h-[50px] w-full rounded-xl bg-[#F6F6F6] px-4 text-[16px] font-bold text-[#43474F] active:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:active:bg-gray-700"
                 >
-                    استعراض العقد قبل التوقيع
+                    {isArabic ? "استعراض العقد قبل التوقيع" : "Review contract before signing"}
                 </button>
             </div>
         </div>

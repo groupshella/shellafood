@@ -1,21 +1,32 @@
-import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 import type { StaticContentPageConfig } from "@/features/profile/types/static-content.types";
 
 export const STATIC_CONTENT_PAGES = {
     aboutUs: {
         slug: "about-us",
-        title: PROFILE_STRINGS.aboutUs,
+        title: {
+            ar: "معلومات عنا",
+            en: "About us",
+        },
     },
     privacyPolicy: {
         slug: "privacy-policy",
-        title: PROFILE_STRINGS.privacy,
+        title: {
+            ar: "الخصوصية",
+            en: "Privacy",
+        },
     },
     refundPolicy: {
         slug: "refund-policy",
-        title: PROFILE_STRINGS.refundPolicy,
+        title: {
+            ar: "سياسة استرداد الأموال",
+            en: "Refund policy",
+        },
     },
     termsAndConditions: {
         slug: "terms-and-conditions",
-        title: PROFILE_STRINGS.terms,
+        title: {
+            ar: "الشروط والأحكام",
+            en: "Terms & conditions",
+        },
     },
 } as const satisfies Record<string, StaticContentPageConfig>;

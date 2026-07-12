@@ -16,11 +16,14 @@ function buildParams(
     filters: StoreFilters,
     limit: number,
     offset: number,
+    isArabic: boolean = false,
 ): URLSearchParams {
     const params = new URLSearchParams({
         module_id: moduleId,
         limit: String(limit),
         offset: String(offset),
+        "X-localization": isArabic ? "ar" : "en",
+        "Accept-Language": isArabic ? "ar" : "en",
     });
 
     if (filters.categoryId !== null) params.set("category_id", String(filters.categoryId));
@@ -33,7 +36,7 @@ function buildParams(
     return params;
 }
 
-export function useStores(moduleId: string) {
+export function useStores(moduleId: string, isArabic: boolean = false) {
     const [stores, setStores] = useState<GetStoresResponse["stores"]>([]);
     const [totalSize, setTotalSize] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -57,7 +60,7 @@ export function useStores(moduleId: string) {
             append ? setIsLoadingMore(true) : setIsLoading(true);
 
             try {
-                const params = buildParams(moduleId, activeFilters, PAGE_SIZE, nextOffset);
+                const params = buildParams(moduleId, activeFilters, PAGE_SIZE, nextOffset, isArabic);
                 const res = await fetch(`/api/module/stores?${params}`, { signal });
                 const json = (await res.json()) as ApiResponse<GetStoresResponse>;
                 const data = unwrap(json);

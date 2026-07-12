@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Notification } from "@/features/notifications/types/notifications.types";
+import { useLanguage } from "@/features/language/useLanguage";
 
 function formatTime(dateStr: string): string {
     const date = new Date(dateStr);
@@ -34,16 +35,16 @@ function DeliveryIcon() {
 
 interface NotificationCardProps {
     notification: Notification;
+    isArabic: boolean;
 }
 
-export function NotificationCard({ notification }: NotificationCardProps) {
+export function NotificationCard({ notification, isArabic }: NotificationCardProps) {
     const imageUrl = notification.image_full_url ?? notification.image;
     const isUnread = notification.status === 0;
-
     return (
         <article
-            dir="rtl"
-            aria-label={isUnread ? `${notification.title} — غير مقروء` : notification.title}
+            dir={isArabic ? "rtl" : "ltr"}
+            aria-label={isUnread ? (isArabic ? `${notification.title} — غير مقروء` : `${notification.title} — Unread`) : (isArabic ? `${notification.title} — ${notification.description}` : `${notification.title} — ${notification.description}`)}
             className={[
                 "flex w-full min-w-0 items-start gap-3 rounded-2xl px-3.5 py-3.5 sm:gap-3.5 sm:px-4 sm:py-4",
                 "bg-white dark:bg-black",

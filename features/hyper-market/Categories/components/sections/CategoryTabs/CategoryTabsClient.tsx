@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StoreCategory } from "@/features/hyper-market/Categories/types/categories.types";
 
 const ALL_CATEGORIES_HREF = "/hyper-market/categories";
@@ -17,9 +17,10 @@ const PIN_BTN = [
 interface Props {
     categories: StoreCategory[];
     activeCategoryId: string;
+    isArabic: boolean;
 }
 
-export function CategoryTabsClient({ categories, activeCategoryId }: Props) {
+export function CategoryTabsClient({ categories, activeCategoryId, isArabic }: Props) {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -30,16 +31,16 @@ export function CategoryTabsClient({ categories, activeCategoryId }: Props) {
 
     return (
         <nav
-            dir="rtl"
-            aria-label="تصنيفات المتجر"
+            dir={isArabic ? "rtl" : "ltr"}
+            aria-label={isArabic ? "تصنيفات المتجر" : "Categories"}
             className="sticky top-0 z-50 flex h-11 items-stretch border-b border-white/15 bg-[#30913F] sm:h-[44px]"
         >
             <Link
                 href={BACK_HREF}
                 className={`${PIN_BTN} border-r border-white/15 px-3 sm:px-4`}
-                aria-label="العودة إلى هايبر ماركت"
+                aria-label={isArabic ? "العودة إلى هايبر ماركت" : "Return to Hyper Market"}
             >
-                <ChevronRight className="h-5 w-5 text-white" strokeWidth={2} />
+                {!isArabic ? <ChevronLeft className="h-5 w-5 text-white" strokeWidth={2} /> : <ChevronRight className="h-5 w-5 text-white" strokeWidth={2} />}
             </Link>
 
             <div
@@ -76,7 +77,7 @@ export function CategoryTabsClient({ categories, activeCategoryId }: Props) {
             <Link
                 href={ALL_CATEGORIES_HREF}
                 className={`${PIN_BTN} border-l border-white/15 px-3 sm:px-4`}
-                aria-label="عرض جميع الأقسام"
+                aria-label={isArabic ? "عرض جميع الأقسام" : "View all categories"}
             >
                 <Image
                     src="/hyper-market/categories-grid.png"

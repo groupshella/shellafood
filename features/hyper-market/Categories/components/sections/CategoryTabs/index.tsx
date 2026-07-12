@@ -6,14 +6,16 @@ export const CategoryTabs = Object.assign(
     async function CategoryTabs({
         storeId,
         activeCategoryId,
+        isArabic,
     }: {
         storeId: string;
         activeCategoryId: string;
+        isArabic: boolean;
     }) {
-        const categories = await getStoreCategories(storeId);
+        const categories = await getStoreCategories(storeId, isArabic);
         if (categories.length === 0) return null;
 
-        return <CategoryTabsClient categories={categories} activeCategoryId={activeCategoryId} />;
+        return <CategoryTabsClient categories={categories} activeCategoryId={activeCategoryId} isArabic={isArabic} />;
     },
     { skeleton: CategoryTabsSkeleton }
 );

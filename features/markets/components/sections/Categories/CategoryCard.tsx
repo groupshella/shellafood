@@ -13,6 +13,7 @@ interface CategoryCardProps {
     moduleId: string;
     layout?: "scroll" | "grid";
     mode?: "filter" | "navigate";
+    isArabic: boolean;
 }
 
 function scrollToStores() {
@@ -24,6 +25,7 @@ export const CategoryCard = memo(function CategoryCard({
     moduleId,
     layout = "scroll",
     mode = "navigate",
+    isArabic,
 }: CategoryCardProps) {
     const [imageError, setImageError] = useState(false);
     const storeContext = useMarketsStoreOptional();
@@ -109,6 +111,7 @@ export const CategoryCard = memo(function CategoryCard({
     return (
         <Link
             href={`/modules/${moduleId}`}
+            dir={isArabic ? "rtl" : "ltr"}
             className={sharedClassName}
             aria-label={category.name}
         >

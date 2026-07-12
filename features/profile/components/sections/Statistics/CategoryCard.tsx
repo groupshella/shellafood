@@ -1,7 +1,12 @@
+"use client";
+
+import { useLanguage } from "@/features/language/useLanguage";
 import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import type { StatisticsCategory } from "@/features/profile/types/statistics.types";
 
 export function CategoryCard({ category }: { category: StatisticsCategory }) {
+    const { isArabic } = useLanguage();
+
     return (
         <div className="flex min-h-[72px] w-full items-center justify-between gap-3 rounded-[14px] border border-[#F0EEF3] bg-white px-3.5 py-3 shadow-[0px_1px_8px_rgba(0,0,0,0.04)] dark:border-gray-700 dark:bg-gray-800">
             {/* First in RTL = right: icon + name */}
@@ -18,7 +23,11 @@ export function CategoryCard({ category }: { category: StatisticsCategory }) {
                         className="text-[11px] font-medium text-[#8A8F98] dark:text-gray-400"
                         style={TAJAWAL}
                     >
-                        {category.purchaseCount} عملية شراء
+                        {isArabic
+                            ? `${category.purchaseCount} عملية شراء`
+                            : `${category.purchaseCount} ${
+                                  category.purchaseCount === 1 ? "purchase" : "purchases"
+                              }`}
                     </span>
                 </div>
             </div>

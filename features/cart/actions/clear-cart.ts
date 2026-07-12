@@ -3,17 +3,20 @@
 import { cookies } from "next/headers";
 import { updateTag } from "next/cache";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
+import { getServerLocale } from "@/features/language/getServerLocale";
 import { CartActionResult } from "../types/cart.types";
 
 export async function clearCart(): Promise<CartActionResult> {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
   const guestId = cookieStore.get(COOKIE_KEYS.GUEST_ID)?.value;
+  const locale = await getServerLocale();
+  const isArabic = locale === "ar";
 
   const headers: Record<string, string> = {
     Accept: "application/json",
     "Content-Type": "application/json",
-    "X-Localization": "ar",
+    "X-Localization": locale,
     moduleId: process.env.MODULE_ID ?? "3",
     zoneId: process.env.ZONE_ID!,
   };
@@ -30,7 +33,10 @@ export async function clearCart(): Promise<CartActionResult> {
   });
 
   if (!res.ok) {
-    return { success: false, message: "تعذّر تفريغ السلة" };
+    return {
+      success: false,
+      message: isArabic ? "تعذّر تفريغ السلة" : "Could not clear the cart",
+    };
   }
 
   updateTag("cart");

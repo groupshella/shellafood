@@ -9,6 +9,7 @@ import type { AvailableCoupon, Coupon, CouponTab } from "@/features/coupons/type
 type CouponsListClientProps = {
 	available: AvailableCoupon[];
 	expired: Coupon[];
+	isArabic: boolean;
 };
 
 const TABS: { id: CouponTab; label: string }[] = [
@@ -19,7 +20,7 @@ const TABS: { id: CouponTab; label: string }[] = [
 const CONTENT_PADDING = "px-3 pb-8 pt-4 sm:px-4 sm:pb-10 sm:pt-5 md:px-5 lg:px-6";
 const COUPONS_GRID = "grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:gap-5";
 
-export function CouponsListClient({ available, expired }: CouponsListClientProps) {
+export function CouponsListClient({ available, expired, isArabic }: CouponsListClientProps) {
 	const [activeTab, setActiveTab] = useState<CouponTab>("available");
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
@@ -71,12 +72,13 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 						activeTab === "available"
 							? "لا يوجد كوبونات في الوقت الحالي"
 							: "لا يوجد كوبونات منتهية الصلاحية"
-					}
+					} isArabic={isArabic}
 				/>
 			) : (
 				<div className={COUPONS_GRID}>
 					{activeList.map((coupon, index) => (
 						<CouponCard
+							isArabic={isArabic}
 							key={coupon.id}
 							coupon={coupon}
 							index={index}

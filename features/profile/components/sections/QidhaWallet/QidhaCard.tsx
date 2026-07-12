@@ -1,4 +1,6 @@
-import { QIDHA_STRINGS } from "@/features/profile/constants/qidha.strings";
+"use client";
+
+import { useLanguage } from "@/features/language/useLanguage";
 import type { QidhaWalletCard } from "@/features/profile/types/qidha.types";
 import { SarIcon } from "./shared/SarIcon";
 
@@ -10,13 +12,17 @@ function formatCardNumber(value: string) {
 }
 
 export function QidhaCard({ card }: { card: QidhaWalletCard }) {
+    const { isArabic } = useLanguage();
     const usedRatio =
         card.creditLimit > 0
             ? Math.min(1, Math.max(0, card.usedBalance / card.creditLimit))
             : 0;
 
     return (
-        <section className="relative w-full" aria-label={QIDHA_STRINGS.pageTitle}>
+        <section
+            className="relative w-full"
+            aria-label={isArabic ? "محفظة قيدها" : "Qidha wallet"}
+        >
             <div
                 className="relative overflow-hidden rounded-[20px] px-4 pb-14 pt-4 sm:px-5 sm:pb-16 sm:pt-5"
                 style={{
@@ -39,7 +45,13 @@ export function QidhaCard({ card }: { card: QidhaWalletCard }) {
                             className="rounded-[10px] border border-white/25 bg-white/15 px-3 py-1.5 text-[12px] font-medium backdrop-blur-sm"
                             style={TAJAWAL}
                         >
-                            {card.statusLabel || QIDHA_STRINGS.available}
+                            {card.statusLabel &&
+                            card.statusLabel !== "available" &&
+                            card.statusLabel !== "متاح"
+                                ? card.statusLabel
+                                : isArabic
+                                  ? "متاح"
+                                  : "Available"}
                         </span>
 
                         <div className="flex flex-col items-end gap-0.5 text-end">
@@ -47,7 +59,7 @@ export function QidhaCard({ card }: { card: QidhaWalletCard }) {
                                 className="text-[13px] font-medium text-white/85 sm:text-[14px]"
                                 style={TAJAWAL}
                             >
-                                {QIDHA_STRINGS.availableBalance}
+                                {isArabic ? "الرصيد المتاح" : "Available balance"}
                             </span>
                             <div className="flex items-center gap-1">
                                 <SarIcon width={18} height={20} className="text-white" />
@@ -69,7 +81,11 @@ export function QidhaCard({ card }: { card: QidhaWalletCard }) {
                             {formatCardNumber(card.cardNumber)}
                         </span>
                         <div className="flex items-center gap-2 text-[12px] font-medium text-white/90 sm:text-[13px]">
-                            <span style={TAJAWAL}>{QIDHA_STRINGS.expiryLabel}</span>
+                            <span style={TAJAWAL}>
+                                {isArabic
+                                    ? "تاريخ انتهاء الشهر"
+                                    : "Month end date"}
+                            </span>
                             <span className="tabular-nums" style={AFACAD}>
                                 {card.expiryDate}
                             </span>
@@ -84,7 +100,7 @@ export function QidhaCard({ card }: { card: QidhaWalletCard }) {
                         className="text-[12px] font-medium text-[#555555] dark:text-gray-400 sm:text-[13px]"
                         style={TAJAWAL}
                     >
-                        {QIDHA_STRINGS.usedBalance}
+                        {isArabic ? "الرصيد المستخدم" : "Used balance"}
                     </span>
                 </div>
 
@@ -109,7 +125,7 @@ export function QidhaCard({ card }: { card: QidhaWalletCard }) {
                         className="text-[12px] font-bold text-[#30913F] sm:text-[13px]"
                         style={TAJAWAL}
                     >
-                        {QIDHA_STRINGS.selectCard}
+                        {isArabic ? "حدد البطاقة" : "Select card"}
                     </span>
                 </div>
             </div>
