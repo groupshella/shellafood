@@ -15,7 +15,20 @@ export interface WalletHistoryItem {
     title: string;
     subtitle: string;
     tone: WalletTxnTone;
+    transactionType?: WalletHistoryFilter;
     href?: string;
+}
+
+// ── Raw backend shape ─────────────────────────────────────────────────────────
+export interface WalletTransactionRaw {
+    id: number;
+    transaction_type: string;
+    credit: number;
+    debit: number;
+    balance: number;
+    note?: string | null;
+    order_id?: number | null;
+    created_at: string;
 }
 
 export interface WalletHistoryGroup {

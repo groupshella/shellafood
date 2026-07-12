@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import { ProfileShell } from "@/features/profile/components/ProfileShell";
 import { ProfileHome } from "@/features/profile/components/sections/ProfileHome";
 import { ProfileEditProvider } from "@/features/profile/context/ProfileEditContext";
 import { getProfileUser, isProfileAuthenticated } from "@/features/profile/lib/get-profile-user";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+    title: "حسابي | شيلة فود",
+    description: "إدارة حسابك ومحفظتك وإعداداتك في شيلة فود",
+};
 
 export default async function ProfilePage() {
     const isAuthenticated = await isProfileAuthenticated();

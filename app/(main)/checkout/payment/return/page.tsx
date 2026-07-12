@@ -6,7 +6,8 @@ import { PaymentReturnView } from "@/features/payment/components/PaymentReturnVi
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 
 export const metadata: Metadata = {
-    title: "نتيجة الدفع | شيلافود",
+    title: "نتيجة الدفع | شيلة فود",
+    description: "عرض نتيجة عملية الدفع",
 };
 
 interface ReturnPageProps {

@@ -6,7 +6,8 @@ import { AuthRequiredScreen } from "@/features/layout/components/AuthRequiredScr
 import { isAuthenticated } from "@/features/layout/lib/is-authenticated";
 
 export const metadata: Metadata = {
-  title: "السلة | شيلافود",
+  title: "السلة | شيلة فود",
+  description: "راجع منتجات سلتك وأكمل طلبك",
 };
 
 export default async function CartPage() {

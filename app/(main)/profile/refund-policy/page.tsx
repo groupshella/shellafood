@@ -4,7 +4,8 @@ import { RefundPolicy } from "@/features/profile/components/sections/StaticConte
 import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 
 export const metadata = {
-    title: PROFILE_STRINGS.refundPolicy,
+    title: `${PROFILE_STRINGS.refundPolicy} | شيلة فود`,
+    description: "سياسة استرداد الأموال في شيلة فود",
 };
 
 export default function RefundPolicyPage() {

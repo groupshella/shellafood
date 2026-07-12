@@ -9,7 +9,8 @@ interface OrderDetailPageProps {
 }
 
 export const metadata: Metadata = {
-    title: "تفاصيل طلبك | شيلافود",
+    title: "تفاصيل طلبك | شيلة فود",
+    description: "متابعة حالة طلبك وتفاصيله",
 };
 
 export default async function OrderDetailPage({ params }: OrderDetailPageProps) {

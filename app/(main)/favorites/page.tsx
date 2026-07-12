@@ -8,7 +8,8 @@ import { AuthRequiredScreen } from "@/features/layout/components/AuthRequiredScr
 import { isAuthenticated } from "@/features/layout/lib/is-authenticated";
 
 export const metadata: Metadata = {
-    title: "مفضلاتي | شلة فود",
+    title: "مفضلاتي | شيلة فود",
+    description: "المنتجات والمتاجر والطلبات المحفوظة في مفضلتك",
 };
 
 export default async function FavoritesPage() {

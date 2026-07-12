@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle2, CreditCard, Wallet } from "lucide-react";
 import { CheckoutBottomSheet } from "@/features/checkout/components/shared/CheckoutBottomSheet";
 import { useBottomSheet } from "@/features/checkout/components/shared/useBottomSheet";
@@ -129,15 +130,17 @@ interface WalletSheetContentProps {
     title: string;
     description: string;
     actionLabel: string;
+    onAction: () => void;
 }
 
-function WalletSheetContent({ title, description, actionLabel }: WalletSheetContentProps) {
+function WalletSheetContent({ title, description, actionLabel, onAction }: WalletSheetContentProps) {
     return (
         <div className="px-1 pb-4 pt-2 text-center sm:px-2">
             <h3 className="mb-3 text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg">{title}</h3>
             <p className="mb-6 text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:text-[15px]">{description}</p>
             <button
                 type="button"
+                onClick={onAction}
                 className="w-full rounded-xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors active:bg-[#267332] sm:py-4 sm:text-[15px]"
             >
                 {actionLabel}
@@ -224,14 +227,13 @@ export function PaymentMethodClient() {
         setSelected,
         setElectronicMethod,
     } = useCheckout();
+    const router = useRouter();
 
     const emptyWalletSheet = useBottomSheet();
     const qidhaSheet = useBottomSheet();
     const electronicSheet = useBottomSheet();
 
     const handleSelectPayment = (id: PaymentMethodType) => {
-        setSelected(id);
-
         if (id === "my-wallet" && isEmptyBalance(data.myWalletBalance)) {
             emptyWalletSheet.open();
             return;
@@ -241,6 +243,8 @@ export function PaymentMethodClient() {
             qidhaSheet.open();
             return;
         }
+
+        setSelected(id);
 
         if (id === "electronic") {
             electronicSheet.open();
@@ -302,8 +306,9 @@ export function PaymentMethodClient() {
             >
                 <WalletSheetContent
                     title="المحفظة فارغة من الرصيد"
-                    description="يمكنك إضافة رصيد فالمحفظة لتتمكن من إكمال مرحلة الدفع"
+                    description="يمكنك إضافة رصيد في المحفظة لتتمكن من إكمال مرحلة الدفع"
                     actionLabel="إضافة رصيد"
+                    onAction={() => router.push("/profile?tab=wallet")}
                 />
             </CheckoutBottomSheet>
 
@@ -315,8 +320,9 @@ export function PaymentMethodClient() {
             >
                 <WalletSheetContent
                     title="الاشتراك في قيدها المطلوب"
-                    description="لاستخدام محفظة قيدها ، يجب الاشتراك وتفعيل المحفظة أولاً"
+                    description="لاستخدام محفظة قيدها، يجب الاشتراك وتفعيل المحفظة أولاً"
                     actionLabel="اشترك الآن"
+                    onAction={() => router.push("/profile?tab=qidha")}
                 />
             </CheckoutBottomSheet>
 

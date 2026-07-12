@@ -4,7 +4,8 @@ import { InviteFriends } from "@/features/profile/components/sections/InviteFrie
 import { REFERRAL_STRINGS } from "@/features/profile/constants/referral.strings";
 
 export const metadata = {
-    title: REFERRAL_STRINGS.pageTitle,
+    title: `${REFERRAL_STRINGS.pageTitle} | شيلة فود`,
+    description: "ادعُ أصدقاءك واكسب نقاط ومكافآت مع شيلة فود",
 };
 
 export default function ReferralPage() {

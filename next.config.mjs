@@ -122,6 +122,21 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'portal.myfatoorah.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'demo.myfatoorah.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.myfatoorah.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'hungerstation.dhmedia.io',
         pathname: '/**',
       },

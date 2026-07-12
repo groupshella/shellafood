@@ -4,7 +4,8 @@ import { PrivacyPolicy } from "@/features/profile/components/sections/StaticCont
 import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 
 export const metadata = {
-    title: PROFILE_STRINGS.privacy,
+    title: `${PROFILE_STRINGS.privacy} | شيلة فود`,
+    description: "سياسة الخصوصية وحماية بياناتك في شيلة فود",
 };
 
 export default function PrivacyPolicyPage() {

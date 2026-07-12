@@ -4,7 +4,8 @@ import { TermsAndConditions } from "@/features/profile/components/sections/Stati
 import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 
 export const metadata = {
-    title: PROFILE_STRINGS.terms,
+    title: `${PROFILE_STRINGS.terms} | شيلة فود`,
+    description: "الشروط والأحكام لاستخدام منصة شيلة فود",
 };
 
 export default function TermsAndConditionsPage() {

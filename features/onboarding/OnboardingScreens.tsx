@@ -58,9 +58,33 @@ const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
 ];
 
 const DISCOUNT_BADGES = [
-	{ id: "b50", value: 50, top: 14, left: 113, size: 72, bg: "#EBFEEB", textColor: "#237D2D", fontSize: 42 },
-	{ id: "b20", value: 20, top: 96, left: 4, size: 60, bg: "#47AF57", textColor: "#EBFEEB", fontSize: 30 },
-	{ id: "b30", value: 30, top: 82, left: 218, size: 60, bg: "#47AF57", textColor: "#EBFEEB", fontSize: 25 },
+	{
+		id: "b50",
+		value: 50,
+		top: 14,
+		left: 113,
+		size: 72,
+		fontSize: 42,
+		className: "bg-[#EBFEEB] text-[#237D2D] dark:bg-[#1A3D22] dark:text-[#4DB860]",
+	},
+	{
+		id: "b20",
+		value: 20,
+		top: 96,
+		left: 4,
+		size: 60,
+		fontSize: 30,
+		className: "bg-[#47AF57] text-[#EBFEEB] dark:bg-[#30913F]",
+	},
+	{
+		id: "b30",
+		value: 30,
+		top: 82,
+		left: 218,
+		size: 60,
+		fontSize: 25,
+		className: "bg-[#47AF57] text-[#EBFEEB] dark:bg-[#30913F]",
+	},
 ] as const;
 
 const slideVariants = {
@@ -73,7 +97,7 @@ function BlurredGradientBackground() {
 	return (
 		<div
 			aria-hidden
-			className="pointer-events-none absolute inset-x-0 top-0 h-[min(55vh,480px)] overflow-hidden opacity-70"
+			className="pointer-events-none absolute inset-x-0 top-0 h-[min(55vh,480px)] overflow-hidden opacity-70 dark:opacity-40"
 		>
 			<motion.div
 				className="absolute rounded-full"
@@ -127,7 +151,7 @@ function BlurredGradientBackground() {
 				animate={{ rotate: [0, -6, 0] }}
 				transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
 			/>
-			<div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/30 to-white" />
+			<div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/30 to-white dark:via-gray-900/40 dark:to-gray-900" />
 		</div>
 	);
 }
@@ -188,8 +212,8 @@ function Stage({ children }: { children: ReactNode }) {
 			</div>
 			<div
 				aria-hidden
-				className="mx-auto"
-				style={{ width: STAGE_W, maxWidth: "100%", borderTop: "0.81px solid #213134" }}
+				className="mx-auto border-t-[0.81px] border-[#213134] dark:border-gray-600"
+				style={{ width: STAGE_W, maxWidth: "100%" }}
 			/>
 		</div>
 	);
@@ -228,14 +252,12 @@ function DiscountIllustration() {
 				{DISCOUNT_BADGES.map((b, i) => (
 					<motion.div
 						key={b.id}
-						className="absolute flex items-center justify-center rounded-full font-bold"
+						className={`absolute flex items-center justify-center rounded-full font-bold ${b.className}`}
 						style={{
 							top: b.top,
 							left: b.left,
 							width: b.size,
 							height: b.size,
-							background: b.bg,
-							color: b.textColor,
 							fontSize: b.fontSize,
 						}}
 						initial={{ opacity: 0, y: 20 }}
@@ -352,22 +374,21 @@ function LanguageSelector({
 						role="radio"
 						aria-checked={selected}
 						onClick={() => onChange(opt.code)}
-						className={`flex w-full items-center justify-between py-4 ${idx === 0 ? "border-b border-[#F6F5F8]" : ""}`}
+						className={`flex w-full items-center justify-between py-4 ${idx === 0 ? "border-b border-[#F6F5F8] dark:border-gray-700" : ""}`}
 					>
-						<span className="text-right text-[14px] font-bold leading-[160%] text-[#111B18]">
+						<span className="text-right text-[14px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100">
 							{opt.label}
 						</span>
 						<span
-							className="relative flex shrink-0 items-center justify-center rounded-full"
-							style={{
-								width: 20,
-								height: 20,
-								background: selected ? "#111B18" : "#D1D5DB",
-							}}
+							className={[
+								"relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full",
+								selected
+									? "bg-[#111B18] dark:bg-gray-100"
+									: "bg-[#D1D5DB] dark:bg-gray-600",
+							].join(" ")}
 						>
 							<motion.span
-								className="rounded-full bg-white"
-								style={{ width: 10, height: 10 }}
+								className="h-2.5 w-2.5 rounded-full bg-white dark:bg-gray-900"
 								initial={false}
 								animate={{ scale: selected ? 1 : 0 }}
 								transition={{ duration: 0.2 }}
@@ -393,7 +414,7 @@ function ProgressRingButton({
 		<motion.button
 			type="button"
 			onClick={onClick}
-			className="relative flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+			className="relative flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
 			style={{ width: RING_SIZE, height: RING_SIZE }}
 			whileHover={{ scale: 1.05 }}
 			whileTap={{ scale: 0.95 }}
@@ -412,7 +433,7 @@ function ProgressRingButton({
 					cy={RING_SIZE / 2}
 					r={RING_RADIUS}
 					fill="none"
-					stroke="#F8F8F8"
+					className="stroke-[#F8F8F8] dark:stroke-gray-700"
 					strokeWidth={RING_STROKE}
 				/>
 				<motion.circle
@@ -470,7 +491,7 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 
 	return (
 		<div
-			className="relative flex min-h-dvh w-full flex-col overflow-hidden bg-white"
+			className="relative flex min-h-dvh w-full flex-col overflow-hidden bg-white dark:bg-gray-900"
 			dir="rtl"
 			lang="ar"
 		>
@@ -480,7 +501,7 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 				<motion.button
 					type="button"
 					onClick={finish}
-					className="absolute top-6 z-20 rounded-full border border-[#F6F5F8] bg-white/25 px-6 py-2.5 text-[14px] font-medium text-[#2D2F35] backdrop-blur-sm start-6"
+					className="absolute top-6 z-20 rounded-full border border-[#F6F5F8] bg-white/25 px-6 py-2.5 text-[14px] font-medium text-[#2D2F35] backdrop-blur-sm start-6 dark:border-gray-700 dark:bg-gray-800/40 dark:text-gray-200"
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.15 }}
@@ -509,11 +530,11 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 							delay={0.2}
 							className="mx-auto mt-6 flex max-w-[300px] flex-col items-center gap-2 text-center sm:mt-8"
 						>
-							<h1 className="w-full text-[20px] font-bold leading-6 text-black sm:text-[22px]">
+							<h1 className="w-full text-[20px] font-bold leading-6 text-black dark:text-gray-50 sm:text-[22px]">
 								{current.title}
 							</h1>
 							{current.description ? (
-								<p className="w-full whitespace-pre-line text-[15px] font-medium leading-[18px] text-black">
+								<p className="w-full whitespace-pre-line text-[15px] font-medium leading-[18px] text-black dark:text-gray-300">
 									{current.description}
 								</p>
 							) : null}
@@ -530,7 +551,7 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 						<motion.button
 							type="button"
 							onClick={handleNext}
-							className="w-full max-w-[343px] rounded-xl bg-[#30913F] py-3 text-[16px] font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2"
+							className="w-full max-w-[343px] rounded-xl bg-[#30913F] py-3 text-[16px] font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
 							transition={{ duration: 0.2 }}

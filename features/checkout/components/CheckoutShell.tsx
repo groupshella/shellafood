@@ -21,8 +21,18 @@ const HEADER_PADDING = "px-3 py-3 sm:px-4 sm:py-3.5 md:px-5 lg:px-6";
 const CONTENT_PADDING = "px-3 py-4 pb-36 sm:px-4 sm:py-5 sm:pb-40 md:px-5 lg:px-6 lg:pb-44";
 const FOOTER_PADDING = "px-3 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-4 sm:pt-4 md:px-5 lg:px-6";
 
+const CONFIRM_BUTTON_LABELS: Record<string, string> = {
+    "my-wallet": "ادفع من محفظتي",
+    "qidha-wallet": "ادفع من محفظة قيدها",
+    "electronic": "انتقل للدفع الإلكتروني",
+};
+
 function CheckoutShellInner({ children }: CheckoutShellInnerProps) {
-    const { confirmPayment, isPlacingOrder, orderError } = useCheckout();
+    const { confirmPayment, isPlacingOrder, orderError, selected } = useCheckout();
+
+    const buttonLabel = isPlacingOrder
+        ? "جاري تأكيد الطلب..."
+        : (selected ? (CONFIRM_BUTTON_LABELS[selected] ?? "تأكيد الدفع") : "تأكيد الدفع");
 
     return (
         <div className={SHELL_LAYOUT} dir="rtl">
@@ -59,7 +69,7 @@ function CheckoutShellInner({ children }: CheckoutShellInnerProps) {
                         disabled={isPlacingOrder}
                         className="w-full rounded-2xl bg-[#30913F] py-3.5 text-sm font-semibold text-white shadow-sm transition-colors active:bg-[#267332] disabled:cursor-not-allowed disabled:opacity-60 sm:py-4 sm:text-[15px] lg:max-w-md lg:ms-auto lg:block"
                     >
-                        {isPlacingOrder ? "جاري تأكيد الطلب..." : "تأكيد الدفع"}
+                        {buttonLabel}
                     </button>
                 </div>
             </div>

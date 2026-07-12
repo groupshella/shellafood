@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import "./global.css";
 
 export const metadata: Metadata = {
-	title: "شلة فود",
-	description: "منصة التوصيل والخدمات الشاملة",
-	authors: [{ name: "شلة فود" }],
-	creator: "شلة فود",
-	publisher: "شلة فود",
+	title: "شيلة فود",
+	description: "منصة التوصيل والتسوق الإلكتروني — هايبر ماركت ومتاجر في منطقتك",
+	authors: [{ name: "شيلة فود" }],
+	creator: "شيلة فود",
+	publisher: "شيلة فود",
 	metadataBase: new URL("https://shellafood.com"),
 };
 

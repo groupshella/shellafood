@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
 import {
@@ -12,6 +13,7 @@ import type {
     QidhaPaymentMethodId,
     QidhaWalletCard,
 } from "@/features/profile/types/qidha.types";
+import { useNotification } from "@/shared/components/NotificationToast";
 import { QidhaCard } from "./QidhaCard";
 import { QidhaPayOptionRow } from "./QidhaPayOptionRow";
 import { QidhaPaymentMethodCard } from "./QidhaPaymentMethodCard";
@@ -28,12 +30,15 @@ interface QidhaWalletClientProps {
 
 export function QidhaWalletClient({
     card,
-    fullAmountDue = 31.95,
-    minimumAmountDue = 31.95,
+    fullAmountDue = 0,
+    minimumAmountDue = 0,
 }: QidhaWalletClientProps) {
     const [payOption, setPayOption] = useState<QidhaPayOption>("full");
     const [customAmount, setCustomAmount] = useState("");
     const [method, setMethod] = useState<QidhaPaymentMethodId>("stc_pay");
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
+    const { success, error } = useNotification();
 
     const payAmount = useMemo(() => {
         if (payOption === "full") return fullAmountDue;
@@ -43,6 +48,28 @@ export function QidhaWalletClient({
     }, [payOption, fullAmountDue, minimumAmountDue, customAmount]);
 
     const canPay = payAmount > 0;
+
+    function handlePay() {
+        if (!canPay) return;
+        startTransition(async () => {
+            try {
+                const res = await fetch("/api/profile/qidha/pay", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ amount: payAmount, payment_method: method }),
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) {
+                    error(json?.message ?? "فشلت عملية الدفع");
+                    return;
+                }
+                success("تمت عملية الدفع بنجاح");
+                router.refresh();
+            } catch {
+                error("فشلت عملية الدفع");
+            }
+        });
+    }
 
     return (
         <ProfileSubpageShell
@@ -55,11 +82,12 @@ export function QidhaWalletClient({
                 <div className="pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
                     <button
                         type="button"
-                        disabled={!canPay}
+                        disabled={!canPay || isPending}
+                        onClick={handlePay}
                         className="flex h-12 w-full items-center justify-center rounded-[12px] bg-[#30913F] text-[15px] font-bold text-white transition-opacity enabled:active:opacity-90 disabled:opacity-50 sm:h-[52px] sm:text-[16px]"
                         style={TAJAWAL}
                     >
-                        {QIDHA_STRINGS.payNow}
+                        {isPending ? "جاري الدفع..." : QIDHA_STRINGS.payNow}
                     </button>
                 </div>
             }

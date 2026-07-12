@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
 import {
@@ -9,6 +10,7 @@ import {
     WALLET_STRINGS,
 } from "@/features/profile/constants/wallet.strings";
 import type { WalletPaymentMethodId } from "@/features/profile/types/wallet.types";
+import { useNotification } from "@/shared/components/NotificationToast";
 import { SarIcon } from "./shared/SarIcon";
 
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
@@ -60,6 +62,32 @@ function PaymentLogo({ id }: { id: WalletPaymentMethodId }) {
 export function AddBalanceClient() {
     const [amount, setAmount] = useState(0);
     const [method, setMethod] = useState<WalletPaymentMethodId>("visa_master");
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
+    const { success, error } = useNotification();
+
+    function handleAddFund() {
+        if (amount <= 0) return;
+        startTransition(async () => {
+            try {
+                const res = await fetch("/api/profile/wallet/add-fund", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ amount, payment_method: method }),
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) {
+                    error(json?.message ?? "فشل في إضافة الرصيد");
+                    return;
+                }
+                success("تمت إضافة الرصيد بنجاح");
+                router.push("/profile/wallet");
+                router.refresh();
+            } catch {
+                error("فشل في إضافة الرصيد");
+            }
+        });
+    }
 
     const displayAmount = useMemo(() => {
         if (!amount) return "00";
@@ -77,11 +105,12 @@ export function AddBalanceClient() {
                 <div className="pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
                     <button
                         type="button"
-                        disabled={amount <= 0}
+                        disabled={amount <= 0 || isPending}
+                        onClick={handleAddFund}
                         className="flex h-12 w-full items-center justify-center rounded-[12px] bg-[#30913F] text-[15px] font-bold text-white transition-opacity enabled:active:opacity-90 disabled:opacity-50 sm:h-[52px] sm:text-[16px]"
                         style={TAJAWAL}
                     >
-                        {WALLET_STRINGS.addBalance}
+                        {isPending ? "جاري الإضافة..." : WALLET_STRINGS.addBalance}
                     </button>
                 </div>
             }
