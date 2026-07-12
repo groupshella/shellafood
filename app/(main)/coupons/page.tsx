@@ -4,7 +4,8 @@ import { CouponsShell } from "@/features/coupons/components/CouponsShell";
 import { CouponsList } from "@/features/coupons/components/sections/CouponsList";
 
 export const metadata = {
-	title: "الكوبونات",
+	title: "الكوبونات | شيلة فود",
+	description: "عرض واستخدام قسائم الخصم المتاحة لحسابك",
 };
 
 export default function CouponsPage() {

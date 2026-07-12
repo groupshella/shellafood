@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import { EditProfilePageClient } from "@/features/profile/components/sections/EditProfile";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+    title: "تعديل الحساب | شيلة فود",
+    description: "حدّث بيانات حسابك الشخصية وصورة الملف الشخصي",
+};
 
 export default async function EditProfilePage() {
     const cookieStore = await cookies();

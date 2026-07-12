@@ -8,6 +8,7 @@ import { useSelectedAddress } from "@/features/addresses/hooks/useSelectedAddres
 import { formatAddressLine } from "@/features/addresses/lib/format-address-line";
 import type { AddressListItem } from "@/features/addresses/types/address.types";
 import type { DeliveryMethodType } from "@/features/checkout/types/checkout.types";
+import { useCheckout } from "@/features/checkout/context/CheckoutContext";
 
 interface DeliveryMethodClientProps {
     isAuthenticated: boolean;
@@ -60,7 +61,14 @@ function DeliveryOptionCard({ selected, onSelect, label, subLabel }: DeliveryOpt
 export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMethodClientProps) {
     const [method, setMethod] = useState<DeliveryMethodType>("delivery");
     const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
+    const { updateDeliveryAddress } = useCheckout();
     const { selectedAddress, selectedId, setSelectedAddressId } = useSelectedAddress(addresses);
+
+    function handleSelectAddress(id: number) {
+        setSelectedAddressId(id);
+        const addr = addresses.find((a) => a.id === id);
+        if (addr) updateDeliveryAddress(addr);
+    }
 
     return (
         <div dir="rtl">
@@ -143,7 +151,7 @@ export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMet
                     onClose={() => setIsAddressSheetOpen(false)}
                     addresses={addresses}
                     selectedId={selectedId}
-                    onSelect={setSelectedAddressId}
+                    onSelect={handleSelectAddress}
                 />
             )}
         </div>

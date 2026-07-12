@@ -20,10 +20,14 @@ export function WalletHistoryList({
 }) {
     const [filter, setFilter] = useState<WalletHistoryFilter>("all");
 
-    // Filter UI is ready; until a history API exists every filter shows the same groups.
     const visibleGroups = useMemo(() => {
-        void filter;
-        return groups;
+        if (filter === "all") return groups;
+        return groups
+            .map((g) => ({
+                ...g,
+                items: g.items.filter((i) => i.transactionType === filter),
+            }))
+            .filter((g) => g.items.length > 0);
     }, [groups, filter]);
     const hasItems = visibleGroups.some((g) => g.items.length > 0);
 

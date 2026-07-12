@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+	title: "شيلة فود",
+	description: "منصة التوصيل والتسوق الإلكتروني — هايبر ماركت ومتاجر في منطقتك",
+};
 
 export default async function MainPage() {
 	const cookieStore = await cookies();

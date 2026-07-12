@@ -4,7 +4,8 @@ import { AddressesShell } from "@/features/addresses/components/AddressesShell";
 import { AddressList, skeleton as AddressListSkeleton } from "@/features/addresses/components/sections/AddressList";
 
 export const metadata: Metadata = {
-  title: "عناوين التوصيل | شيلافود",
+  title: "عناوين التوصيل | شيلة فود",
+  description: "إدارة عناوين التوصيل المحفوظة",
 };
 
 export default function AddressesPage() {

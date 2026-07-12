@@ -56,7 +56,7 @@ export interface PlaceOrderResult {
 }
 
 export interface CheckoutData {
-    orderId: number;
+    orderId?: number;
     cartItems: CartItem[];
     cartCount: number;
     deliveryMethod: DeliveryMethodType;

@@ -18,8 +18,14 @@ export async function placeOrder(
     return { success: false, message: "غير مصرح" };
   }
 
-  if (!payload.cart?.length || !payload.order_amount || !payload.store_id) {
-    return { success: false, message: "بيانات الطلب غير مكتملة" };
+  if (!payload.cart?.length) {
+    return { success: false, message: "السلة فارغة" };
+  }
+  if (!payload.order_amount) {
+    return { success: false, message: "لم يتم احتساب مبلغ الطلب" };
+  }
+  if (!payload.store_id) {
+    return { success: false, message: "لم يتم التعرف على المتجر — يرجى إعادة تحميل الصفحة" };
   }
 
   try {
@@ -45,11 +51,19 @@ export async function placeOrder(
     if (!res.ok) {
       return {
         success: false,
-        message: json?.message ?? "تعذر إتمام الطلب",
+        message: json?.message ?? json?.errors?.[0] ?? "تعذر إتمام الطلب",
       };
     }
 
-    const orderId = json?.order_id ?? json?.data?.order_id;
+    // Handle multiple response shapes from the backend
+    const orderId =
+      json?.order_id ??
+      json?.data?.order_id ??
+      json?.data?.id ??
+      json?.id ??
+      json?.order?.id ??
+      json?.data?.order?.id;
+
     if (!orderId) {
       return { success: false, message: "تم الطلب لكن لم يُرجع رقم الطلب" };
     }

@@ -7,7 +7,8 @@ import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 
 export const metadata: Metadata = {
-    title: "الدفع | شيلافود",
+    title: "الدفع | شيلة فود",
+    description: "أكمل عملية الدفع عبر MyFatoorah",
 };
 
 interface PaymentPageProps {

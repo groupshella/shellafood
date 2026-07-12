@@ -8,7 +8,8 @@ interface Props {
 }
 
 export const metadata: Metadata = {
-  title: "تفاصيل العنوان | شيلافود",
+  title: "تفاصيل العنوان | شيلة فود",
+  description: "عرض تفاصيل عنوان التوصيل",
 };
 
 export default async function AddressDetailPage({ params }: Props) {

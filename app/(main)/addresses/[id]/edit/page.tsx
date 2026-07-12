@@ -8,7 +8,8 @@ interface Props {
 }
 
 export const metadata: Metadata = {
-  title: "تعديل العنوان | شيلافود",
+  title: "تعديل العنوان | شيلة فود",
+  description: "تعديل بيانات عنوان التوصيل",
 };
 
 export default async function EditAddressPage({ params }: Props) {
