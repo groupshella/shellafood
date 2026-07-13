@@ -55,9 +55,9 @@ export function ProfileListRow({
                 )}
             </div>
 
-            <div className="flex shrink-0 items-center">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
                 {trailing}
-                {showChevron && !trailing && (
+                {showChevron && (
                     <ChevronLeft className="h-5 w-5 text-[#555555] dark:text-gray-400" strokeWidth={1.5} />
                 )}
             </div>

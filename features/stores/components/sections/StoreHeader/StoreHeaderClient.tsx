@@ -193,7 +193,7 @@ export function StoreHeaderClient({
                 <div className="flex items-start justify-between gap-2.5 sm:gap-3">
                     <div className="flex min-w-0 items-end gap-2 sm:gap-2.5">
                         <div
-                            className="relative h-[72px] w-[64px] shrink-0 overflow-hidden rounded border-[3px] border-gray-100 bg-[#3EC856] dark:border-gray-800 sm:h-[80px] sm:w-[72px] sm:border-4 md:h-[88px] md:w-[80px]"
+                            className="relative h-[72px] w-[64px] shrink-0 overflow-hidden rounded  sm:h-[80px] sm:w-[72px]  md:h-[88px] md:w-[80px]"
                             style={{ transform: "rotate(-0.15deg)" }}
                         >
                             {store.store_logo_url ? (

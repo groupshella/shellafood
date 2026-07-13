@@ -3,7 +3,7 @@ import { CategoryDetails } from "@/features/hyper-market/Categories/types/catego
 export async function getCategoryDetail(
     storeId: string,
     categoryId: string,
-    limit = 40
+    limit = 100
 ): Promise<CategoryDetails> {
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v2/stores/${storeId}/categories/${categoryId}?limit=${limit}`,

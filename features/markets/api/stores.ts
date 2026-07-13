@@ -26,7 +26,7 @@ export async function getStores(
     moduleId: string,
     filters: StoreFilters,
     limit = 12,
-    offset = 0,
+    offset = 1,
 ): Promise<GetStoresResponse> {
     const backendParams = buildBackendParams(moduleId, filters, limit, offset);
 

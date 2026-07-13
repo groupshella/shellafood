@@ -1,24 +1,15 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { updateTag } from "next/cache";
-import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
+import { revalidatePath, updateTag } from "next/cache";
+import {
+    buildWishlistHeaders,
+    getFavoritesApiUrl,
+} from "@/features/favorites/lib/wishlist-request";
 
-async function buildHeaders(): Promise<Record<string, string>> {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
-
-    const headers: Record<string, string> = {
-        "Content-Type": "application/json; charset=UTF-8",
-        "X-localization": "ar",
-        zoneId: process.env.ZONE_ID!,
-    };
-
-    if (token) {
-        headers.Authorization = `Bearer ${token}`;
-    }
-
-    return headers;
+function invalidateWishlistCache() {
+    updateTag("wishlist");
+    updateTag("favorite-orders");
+    revalidatePath("/favorites");
 }
 
 export async function addToWishlist({
@@ -28,11 +19,19 @@ export async function addToWishlist({
     itemId?: number;
     storeId?: number;
 }): Promise<{ success: boolean; message: string }> {
-    const headers = await buildHeaders();
+    if (itemId == null && storeId == null) {
+        return { success: false, message: "معرّف العنصر غير صالح" };
+    }
+
+    const { headers, token } = await buildWishlistHeaders({ withModuleId: true });
+    if (!token) {
+        return { success: false, message: "يجب تسجيل الدخول لإضافة المفضلة" };
+    }
+
     const params = itemId != null ? `item_id=${itemId}` : `store_id=${storeId}`;
 
     const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/customer/wish-list/add?${params}`,
+        getFavoritesApiUrl(`/api/v1/customer/wish-list/add?${params}`),
         {
             method: "POST",
             headers,
@@ -44,7 +43,8 @@ export async function addToWishlist({
         return { success: false, message: "فشل في الإضافة إلى المفضلة" };
     }
 
-    updateTag("wishlist");
+    invalidateWishlistCache();
+
     const json = await res.json();
     return { success: true, message: json.message ?? "تمت الإضافة إلى المفضلة" };
 }
@@ -56,11 +56,19 @@ export async function removeFromWishlist({
     itemId?: number;
     storeId?: number;
 }): Promise<{ success: boolean; message: string }> {
-    const headers = await buildHeaders();
+    if (itemId == null && storeId == null) {
+        return { success: false, message: "معرّف العنصر غير صالح" };
+    }
+
+    const { headers, token } = await buildWishlistHeaders({ withModuleId: true });
+    if (!token) {
+        return { success: false, message: "يجب تسجيل الدخول لإدارة المفضلة" };
+    }
+
     const params = itemId != null ? `item_id=${itemId}` : `store_id=${storeId}`;
 
     const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/customer/wish-list/remove?${params}`,
+        getFavoritesApiUrl(`/api/v1/customer/wish-list/remove?${params}`),
         {
             method: "DELETE",
             headers,
@@ -71,7 +79,8 @@ export async function removeFromWishlist({
         return { success: false, message: "فشل في إزالة المفضلة" };
     }
 
-    updateTag("wishlist");
+    invalidateWishlistCache();
+
     const json = await res.json();
     return { success: true, message: json.message ?? "تمت الإزالة من المفضلة" };
 }

@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
     const limit = searchParams.get("limit") ?? "12";
 
-    const offset = searchParams.get("offset") ?? "0";
+    const offset = searchParams.get("offset") ?? "1";
 
     const latitude = searchParams.get("latitude") ?? LATITUDE!;
 

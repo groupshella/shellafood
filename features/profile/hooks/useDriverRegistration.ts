@@ -10,10 +10,13 @@ import {
 import { validateUploadFile } from "@/features/profile/lib/upload.lib";
 import { JOIN_STRINGS, MAX_UPLOAD_BYTES } from "@/features/profile/constants/join.strings";
 import { isValidEmail } from "@/features/profile/lib/profile.lib";
+import type { AuthUser } from "@/features/auth/types/auth.types";
+import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import type {
     EarningType,
     IdentityType,
     JoinActionResult,
+    JoinRegistrationState,
     Vehicle,
     Zone,
 } from "@/features/profile/types/join.types";
@@ -36,6 +39,12 @@ export interface DriverFormState {
     agreed: boolean;
 }
 
+export interface DriverLockedFields {
+    firstName: boolean;
+    email: boolean;
+    phone: boolean;
+}
+
 const INITIAL_FORM: DriverFormState = {
     firstName: "",
     lastName: "",
@@ -54,14 +63,29 @@ const INITIAL_FORM: DriverFormState = {
     agreed: false,
 };
 
-/** Saudi phone: 9 digits, must start with 5 */
 function isValidSaudiPhone(digits: string): boolean {
     return /^5\d{8}$/.test(digits.replace(/^\+966/, "").replace(/\D/g, ""));
+}
+
+function readAuthUser(): AuthUser | null {
+    if (typeof document === "undefined") return null;
+    try {
+        const match = document.cookie.match(
+            new RegExp(`(?:^|; )${COOKIE_KEYS.USER}=([^;]*)`),
+        );
+        if (!match) return null;
+        return JSON.parse(decodeURIComponent(match[1])) as AuthUser;
+    } catch {
+        return null;
+    }
 }
 
 export interface UseDriverRegistrationReturn {
     form: DriverFormState;
     setField: <K extends keyof DriverFormState>(key: K, value: DriverFormState[K]) => void;
+    lockedFields: DriverLockedFields;
+    registrationStatus: JoinRegistrationState | null;
+    isLoadingStatus: boolean;
     zones: Zone[];
     vehicles: Vehicle[];
     isLoadingMeta: boolean;
@@ -79,10 +103,19 @@ export interface UseDriverRegistrationReturn {
         index: number,
     ) => void;
     submit: () => Promise<JoinActionResult>;
+    isFormLocked: boolean;
 }
 
 export function useDriverRegistration(): UseDriverRegistrationReturn {
     const [form, setForm] = useState<DriverFormState>(INITIAL_FORM);
+    const [lockedFields, setLockedFields] = useState<DriverLockedFields>({
+        firstName: false,
+        email: false,
+        phone: false,
+    });
+    const [registrationStatus, setRegistrationStatus] =
+        useState<JoinRegistrationState | null>(null);
+    const [isLoadingStatus, setIsLoadingStatus] = useState(true);
     const [zones, setZones] = useState<Zone[]>([]);
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
     const [isLoadingMeta, setIsLoadingMeta] = useState(true);
@@ -91,6 +124,41 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
     const [fieldErrors, setFieldErrors] = useState<Partial<Record<string, string>>>({});
     const submittingRef = useRef(false);
     const [metaRetryKey, setMetaRetryKey] = useState(0);
+
+    useEffect(() => {
+        const user = readAuthUser();
+        if (!user) return;
+
+        const firstName = user.f_name?.trim() ?? "";
+        const email = user.email?.trim() ?? "";
+        const phone = user.phone?.trim() ?? "";
+
+        setForm((prev) => ({
+            ...prev,
+            firstName: firstName || prev.firstName,
+            lastName: user.l_name?.trim() || prev.lastName,
+            email: email || prev.email,
+            phone: phone || prev.phone,
+        }));
+
+        setLockedFields({
+            firstName: Boolean(firstName),
+            email: Boolean(email),
+            phone: Boolean(phone),
+        });
+    }, []);
+
+    useEffect(() => {
+        setIsLoadingStatus(true);
+        const user = readAuthUser();
+        checkDriverRegistration({
+            phone: user?.phone || undefined,
+            email: user?.email || undefined,
+        })
+            .then((res) => setRegistrationStatus(res.status))
+            .catch(() => setRegistrationStatus("none"))
+            .finally(() => setIsLoadingStatus(false));
+    }, []);
 
     useEffect(() => {
         setIsLoadingMeta(true);
@@ -195,15 +263,31 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
         return Object.keys(errors).length > 0 ? errors : null;
     };
 
+    const isFormLocked =
+        registrationStatus === "registered" ||
+        registrationStatus === "approved" ||
+        registrationStatus === "active" ||
+        registrationStatus === "pending";
+
     const submit = useCallback(async (): Promise<JoinActionResult> => {
-        if (submittingRef.current || isSubmitting) {
-            return { success: false, message: "" };
+        if (submittingRef.current || isSubmitting || isFormLocked) {
+            return {
+                success: false,
+                message: isFormLocked ? JOIN_STRINGS.alreadyRegistered : "",
+            };
         }
 
         const clientErrors = validate(form);
         if (clientErrors) {
-            setFieldErrors(clientErrors);
-            return { success: false, message: JOIN_STRINGS.requiredField, fieldErrors: clientErrors };
+            setFieldErrors({
+                ...clientErrors,
+                general: JOIN_STRINGS.fillRequiredFields,
+            });
+            return {
+                success: false,
+                message: JOIN_STRINGS.fillRequiredFields,
+                fieldErrors: clientErrors,
+            };
         }
 
         submittingRef.current = true;
@@ -212,9 +296,18 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
 
         try {
             const {
-                firstName, email, phone, password,
-                identityType, identityNumber, zoneId, vehicleId, earning,
-                identityImages, drivingLicenseImages, driverLicenseImages,
+                firstName,
+                email,
+                phone,
+                password,
+                identityType,
+                identityNumber,
+                zoneId,
+                vehicleId,
+                earning,
+                identityImages,
+                drivingLicenseImages,
+                driverLicenseImages,
             } = form;
 
             const alreadyResult = await checkDriverRegistration({
@@ -224,6 +317,7 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
             });
             if (alreadyResult.isRegistered) {
                 const msg = alreadyResult.message ?? JOIN_STRINGS.alreadyRegistered;
+                setRegistrationStatus(alreadyResult.status);
                 setFieldErrors({ general: msg });
                 return { success: false, message: msg };
             }
@@ -244,7 +338,14 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
             });
 
             if (!result.success && result.fieldErrors) {
-                setFieldErrors(result.fieldErrors);
+                setFieldErrors({
+                    ...result.fieldErrors,
+                    general: result.message || JOIN_STRINGS.scrollToFix,
+                });
+            }
+
+            if (result.success) {
+                setRegistrationStatus("pending");
             }
 
             return result;
@@ -252,12 +353,15 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
             submittingRef.current = false;
             setIsSubmitting(false);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form, isSubmitting]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [form, isSubmitting, isFormLocked]);
 
     return {
         form,
         setField,
+        lockedFields,
+        registrationStatus,
+        isLoadingStatus,
         zones,
         vehicles,
         isLoadingMeta,
@@ -269,5 +373,6 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
         handleAddFile,
         handleRemoveFile,
         submit,
+        isFormLocked,
     };
 }

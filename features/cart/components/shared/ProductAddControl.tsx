@@ -1,7 +1,7 @@
 "use client";
 
-import { memo, useEffect, useRef } from "react";
-import { Plus } from "lucide-react";
+import { memo, useEffect, useRef, useState } from "react";
+import { Loader2, Plus } from "lucide-react";
 import { QuantityPill } from "./QuantityPill";
 import { ProductCartMeta } from "../../lib/match-cart-line";
 import { useProductCart } from "../../hooks/useProductCart";
@@ -29,6 +29,27 @@ export const ProductAddControl = memo(function ProductAddControl({
     const { quantity, isPending, error, handleAdd, handleIncrease, handleDecrease } =
         useProductCart(product, isAvailable);
 
+    // The cart context updates `quantity` optimistically the instant a
+    // request fires, then rolls it back if the backend rejects it (e.g.
+    // adding a product from a different store). Reading `quantity` directly
+    // means the user sees the count bump up and then snap back the moment
+    // the error arrives - the "flash" this is meant to fix.
+    //
+    // Instead we keep showing the last CONFIRMED quantity for the entire
+    // time a request is pending (with a spinner as feedback), and only
+    // adopt the new value once the request has settled. A rejected request
+    // then never visibly changes anything - it just fires the error toast,
+    // as before.
+    const [confirmedQuantity, setConfirmedQuantity] = useState(quantity);
+
+    useEffect(() => {
+        if (!isPending) {
+            setConfirmedQuantity(quantity);
+        }
+    }, [isPending, quantity]);
+
+    const displayQuantity = isPending && quantity > 1 ? quantity : confirmedQuantity;
+
     useEffect(() => {
         onError?.(error);
         if (error && error !== lastNotifiedError.current) {
@@ -38,10 +59,10 @@ export const ProductAddControl = memo(function ProductAddControl({
         if (!error) lastNotifiedError.current = null;
     }, [error, notifyError, onError]);
 
-    if (quantity > 0) {
+    if (displayQuantity > 0) {
         return (
             <QuantityPill
-                quantity={quantity}
+                quantity={displayQuantity}
                 onIncrease={handleIncrease}
                 onDecrease={handleDecrease}
                 disabled={!isAvailable}
@@ -54,7 +75,7 @@ export const ProductAddControl = memo(function ProductAddControl({
 
     const isSm = size === "sm";
     const isSoft = variant === "soft";
-    const isDisabled = !isAvailable;
+    const isDisabled = !isAvailable || isPending;
 
     return (
         <button
@@ -73,22 +94,33 @@ export const ProductAddControl = memo(function ProductAddControl({
                 isSoft
                     ? "bg-[#E8F8EA] shadow-[0_2px_10px_rgba(48,145,63,0.18)]"
                     : "bg-[#45C553] shadow-md",
-                isDisabled ? "cursor-not-allowed bg-gray-200 shadow-none" : "",
+                !isAvailable ? "cursor-not-allowed bg-gray-200 shadow-none" : "",
                 className,
             ].join(" ")}
         >
-            <Plus
-                className={[
-                    isSm ? "h-4 w-4 sm:h-3.5 sm:w-3.5" : "h-5 w-5 sm:h-[22px] sm:w-[22px]",
-                    isDisabled
-                        ? "text-gray-400"
-                        : isSoft
-                            ? "text-[#30913F]"
-                            : "text-white",
-                ].join(" ")}
-                strokeWidth={2.5}
-                aria-hidden
-            />
+            {isPending ? (
+                <Loader2
+                    className={[
+                        "animate-spin",
+                        isSm ? "h-4 w-4 sm:h-3.5 sm:w-3.5" : "h-5 w-5 sm:h-[22px] sm:w-[22px]",
+                        isSoft ? "text-[#30913F]" : "text-white",
+                    ].join(" ")}
+                    aria-hidden
+                />
+            ) : (
+                <Plus
+                    className={[
+                        isSm ? "h-4 w-4 sm:h-3.5 sm:w-3.5" : "h-5 w-5 sm:h-[22px] sm:w-[22px]",
+                        !isAvailable
+                            ? "text-gray-400"
+                            : isSoft
+                                ? "text-[#30913F]"
+                                : "text-white",
+                    ].join(" ")}
+                    strokeWidth={2.5}
+                    aria-hidden
+                />
+            )}
         </button>
     );
 });

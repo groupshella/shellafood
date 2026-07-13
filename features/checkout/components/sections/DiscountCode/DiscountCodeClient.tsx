@@ -9,7 +9,7 @@ export function DiscountCodeClient() {
         <div dir="rtl">
             <h2 className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">لديك كود خصم؟</h2>
 
-            <div className="flex flex-col gap-2 rounded-xl bg-gray-100 p-1.5 dark:bg-gray-800 sm:flex-row sm:items-center sm:gap-2 sm:p-2">
+            <div className="flex flex-col gap-2 rounded-xl p-1.5 sm:flex-row sm:items-center sm:gap-2 sm:p-2">
                 <input
                     type="text"
                     dir="ltr"

@@ -4,8 +4,6 @@ import { ScrollContainer } from "@/features/home/components/shared/ScrollContain
 import { StoreModule } from "@/features/hyper-market/StoreDetails/types/modules.types";
 import { ModuleCard } from "./ModuleCard";
 
-const SECTION_HEADING =
-    "px-0.5 text-sm font-semibold text-gray-500 dark:text-gray-400 sm:text-base lg:text-lg";
 
 interface ModulesClientProps {
     modules: StoreModule[];
@@ -34,7 +32,8 @@ export function ModulesClient({ modules, moduleId }: ModulesClientProps) {
             aria-label="خدماتنا"
             className="space-y-2.5 bg-transparent px-3 pb-3 pt-3 sm:space-y-3.5 sm:px-5 sm:pb-4 sm:pt-4 lg:px-6"
         >
-            <h2 className={SECTION_HEADING}>خدماتنا</h2>
+            <h2 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
+                خدماتنا</h2>
 
             {/* Mobile / tablet: horizontal snap scroll */}
             <div className="md:hidden">

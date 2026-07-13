@@ -49,7 +49,7 @@ export const RelatedProductCard = memo(function RelatedProductCard({
             ].join(" ")}
         >
             {/* Image */}
-            <div className="relative aspect-square w-full overflow-hidden rounded-t-xl bg-gray-50 dark:bg-gray-700">
+            <div className="relative aspect-square w-full overflow-hidden rounded-t-xl ">
                 {discounted && (
                     <span className="absolute start-1.5 top-1.5 z-10 rounded-md bg-red-500 px-1.5 py-0.5 text-[9px] font-bold leading-none text-white sm:text-[10px]">
                         -{product.discount}%

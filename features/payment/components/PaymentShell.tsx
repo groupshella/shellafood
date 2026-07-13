@@ -23,9 +23,9 @@ export function PaymentShell({ children }: PaymentShellProps) {
                 <div className="mx-auto flex w-full max-w-lg items-center gap-3 px-4 py-3 sm:max-w-xl sm:px-5 lg:max-w-2xl">
                     <button
                         type="button"
-                        onClick={() => router.back()}
                         aria-label="رجوع"
                         className={BACK_BTN}
+                        onClick={() => router.push('/cart')}
                     >
                         <ChevronRight className="h-5 w-5" aria-hidden />
                     </button>

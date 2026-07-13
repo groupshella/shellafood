@@ -60,7 +60,7 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
         <div className="bg-white dark:bg-gray-900" dir="rtl">
             <div className="md:grid md:grid-cols-2 md:items-start md:gap-6 md:px-5 md:pt-5 lg:gap-10 lg:px-6">
                 {/* Product image */}
-                <div className="relative mx-3 mt-3 aspect-square overflow-hidden rounded-2xl bg-gray-50 dark:bg-gray-800 sm:mx-5 md:mx-0 md:mt-0">
+                <div className="relative mx-3 mt-3 aspect-square overflow-hidden rounded-2xl  sm:mx-5 md:mx-0 md:mt-0">
                     {discounted && (
                         <span className="absolute start-3 top-3 z-10 rounded-lg bg-red-500 px-2 py-1 text-[11px] font-bold text-white sm:text-xs">
                             -{item.discount}%

@@ -251,6 +251,27 @@ export interface FavoriteStore {
     module_type?: string;
 }
 
+export interface WishlistApiResponse {
+    item?: WishlistProductEntryRaw[];
+    store?: WishlistStoreEntryRaw[];
+}
+
+/** Wrapper returned for each wishlisted product */
+export interface WishlistProductEntryRaw {
+    id: number;
+    item: Record<string, unknown> | null;
+    unavailable?: boolean;
+    wishlisted_at: string;
+}
+
+/** Wrapper returned for each wishlisted store */
+export interface WishlistStoreEntryRaw {
+    id: number;
+    store: Record<string, unknown> | null;
+    unavailable?: boolean;
+    wishlisted_at?: string;
+}
+
 export interface WishlistResponse {
     item: FavoriteProduct[];
     store: FavoriteStore[];
@@ -258,12 +279,20 @@ export interface WishlistResponse {
 
 // ── Orders tab (GET /api/v1/customer/order/list) ─────────────────────────────
 
-export interface ApiOrder {
+export interface OrderListApiResponse {
+    total_size: number;
+    limit: string;
+    offset: number;
+    orders: OrderListOrderRaw[];
+}
+
+export interface OrderListOrderRaw {
     id: number;
     order_status: string;
     order_amount: number;
-    wishlisted_at: string;
-    updated_at: string;
+    wishlisted_at?: string;
+    updated_at?: string;
+    created_at?: string;
     restaurant?: {
         id: number;
         name: string;
@@ -278,15 +307,26 @@ export interface ApiOrder {
     delivery_address?: { address: string } | null;
     details_count?: number;
     order_time?: string;
+    order_date?: string;
     schedule_at?: string | null;
 }
 
-export interface OrderListResponse {
-    total_size: number;
-    limit: string;
-    offset: number;
-    orders: ApiOrder[];
+/** Normalized order shape consumed by the favorites UI */
+export interface FavoriteOrder {
+    id: number;
+    order_status: string;
+    order_amount: number;
+    order_time: string;
+    store_name: string;
+    store_logo_url: string | null;
+    wishlisted_at: string;
 }
+
+/** @deprecated use OrderListApiResponse */
+export type OrderListResponse = OrderListApiResponse;
+
+/** @deprecated use OrderListOrderRaw or FavoriteOrder */
+export type ApiOrder = OrderListOrderRaw;
 
 // ── Tabs ─────────────────────────────────────────────────────────────────────
 

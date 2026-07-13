@@ -40,7 +40,7 @@ function PaymentTab({ selected, onSelect, icon, label, subValue }: PaymentTabPro
                 {label}
             </span>
             {subValue !== undefined && (
-                <span className="text-[11px] text-gray-500 dark:text-gray-400 sm:text-xs">{subValue} ﷼</span>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400 sm:text-xs">{subValue} </span>
             )}
         </button>
     );

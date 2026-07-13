@@ -13,6 +13,37 @@ import {
 import { useMarketsStore } from "@/features/markets/context/MarketsStoreContext";
 import { StoreCard } from "./StoreCard";
 
+const FILTER_CHIP_BASE = [
+    "inline-flex shrink-0 snap-start items-center gap-1.5 rounded-full",
+    "min-h-9 px-3.5 py-2 sm:min-h-10 sm:gap-2 sm:px-4",
+    "text-xs font-semibold leading-none sm:text-[13px]",
+    "touch-manipulation select-none",
+    "motion-safe:transition-[background-color,box-shadow,transform,ring-color] motion-safe:duration-200",
+    "motion-safe:active:scale-[0.97]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 focus-visible:ring-offset-1",
+    "dark:focus-visible:ring-offset-gray-900",
+].join(" ");
+
+const FILTER_CHIP_IDLE = [
+    "bg-white text-gray-700",
+    "ring-1 ring-black/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.04)]",
+    "dark:bg-gray-800 dark:text-gray-300 dark:ring-white/[0.08]",
+    "md:hover:ring-[#30913F]/25 md:hover:shadow-[0_2px_6px_rgba(0,0,0,0.05)]",
+    "md:dark:hover:shadow-[0_2px_6px_rgba(0,0,0,0.2)]",
+].join(" ");
+
+const FILTER_CHIP_ACTIVE = [
+    "bg-[#30913F] text-white",
+    "shadow-[0_2px_8px_rgba(48,145,63,0.25)] ring-1 ring-[#30913F]/40",
+    "dark:shadow-[0_2px_8px_rgba(48,145,63,0.32)]",
+].join(" ");
+
+const FILTER_SCROLL_TRACK = [
+    "flex items-center gap-2 overflow-x-auto overscroll-x-contain",
+    "snap-x snap-mandatory pb-1 pt-0.5",
+    "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+].join(" ");
+
 function FilterChip({
     label,
     active,
@@ -26,18 +57,11 @@ function FilterChip({
         <button
             type="button"
             onClick={onClick}
-            className={[
-                "inline-flex min-h-[32px] shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5",
-                "text-xs font-semibold transition-all duration-150",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40",
-                active
-                    ? "bg-[#30913F] text-white shadow-sm"
-                    : "bg-white text-gray-700 ring-1 ring-gray-200 hover:ring-[#30913F]/40 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700",
-            ].join(" ")}
+            className={[FILTER_CHIP_BASE, active ? FILTER_CHIP_ACTIVE : FILTER_CHIP_IDLE].join(" ")}
             aria-pressed={active}
         >
-            {active && <Check className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />}
-            {label}
+            {active && <Check className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" strokeWidth={2.5} aria-hidden />}
+            <span className="whitespace-nowrap">{label}</span>
         </button>
     );
 }
@@ -203,86 +227,102 @@ function FilterBar({
             ? (categories.find((c) => c.id === filters.categoryId)?.name ?? "تصنيف")
             : null;
 
+    const categoryActive = filters.categoryId !== null;
+
     return (
         <>
-            <div
-                className={[
-                    "flex items-center gap-2 overflow-x-auto overscroll-x-contain pb-1",
-                    "snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-                ].join(" ")}
-                dir="rtl"
-                role="group"
-                aria-label="فلاتر المتاجر"
-            >
-                <button
-                    type="button"
-                    onClick={() => setSheetOpen(true)}
-                    className={[
-                        "inline-flex min-h-[32px] shrink-0 snap-start items-center gap-1.5 rounded-full px-3.5 py-1.5",
-                        "text-xs font-semibold transition-all duration-150",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40",
-                        filters.categoryId !== null
-                            ? "bg-[#30913F] text-white shadow-sm"
-                            : "bg-white text-gray-700 ring-1 ring-gray-200 hover:ring-[#30913F]/40 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700",
-                    ].join(" ")}
-                    aria-haspopup="dialog"
-                    aria-expanded={sheetOpen}
+            <div className="-mx-3 sm:-mx-5 lg:-mx-6">
+                <div
+                    className={FILTER_SCROLL_TRACK}
+                    dir="rtl"
+                    role="group"
+                    aria-label="فلاتر المتاجر"
                 >
-                    <SlidersHorizontal className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
-                    {selectedCategoryName ?? "التصنيف"}
-                    {filters.categoryId !== null && (
-                        <span
-                            role="button"
-                            tabIndex={0}
-                            aria-label="إزالة فلتر التصنيف"
-                            className="ms-0.5 rounded-full hover:bg-white/20"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                onChange({ ...filters, categoryId: null });
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                    e.stopPropagation();
-                                    onChange({ ...filters, categoryId: null });
-                                }
-                            }}
-                        >
-                            <X className="h-3 w-3" />
-                        </span>
-                    )}
-                </button>
+                    <div className="w-3 shrink-0 snap-none sm:w-5 lg:w-6" aria-hidden />
 
-                <FilterChip label="عروض" active={filters.hasOffer} onClick={() => toggle("hasOffer")} />
-                <FilterChip
-                    label="توصيل مجاني"
-                    active={filters.freeDelivery}
-                    onClick={() => toggle("freeDelivery")}
-                />
-                <FilterChip label="تقييم عالي" active={filters.topRated} onClick={() => toggle("topRated")} />
-                <FilterChip label="مفتوح الآن" active={filters.openNow} onClick={() => toggle("openNow")} />
-                <FilterChip
-                    label="توصيل سريع"
-                    active={filters.under30Min}
-                    onClick={() => toggle("under30Min")}
-                />
-
-                {hasActiveFilters(filters) && (
                     <button
                         type="button"
-                        onClick={() => onChange(DEFAULT_FILTERS)}
+                        onClick={() => setSheetOpen(true)}
                         className={[
-                            "inline-flex min-h-[32px] shrink-0 items-center gap-1 rounded-full px-3 py-1.5",
-                            "text-xs font-semibold text-red-500 ring-1 ring-red-200",
-                            "transition-colors hover:bg-red-50 dark:text-red-400 dark:ring-red-900/50 dark:hover:bg-red-950/30",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300",
+                            FILTER_CHIP_BASE,
+                            categoryActive ? FILTER_CHIP_ACTIVE : FILTER_CHIP_IDLE,
+                            "max-w-[11rem] sm:max-w-[13rem]",
                         ].join(" ")}
-                        aria-label="مسح جميع الفلاتر"
+                        aria-haspopup="dialog"
+                        aria-expanded={sheetOpen}
+                        aria-pressed={categoryActive}
                     >
-                        <X className="h-3 w-3" aria-hidden />
-                        مسح
+                        <SlidersHorizontal
+                            className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4"
+                            strokeWidth={2.5}
+                            aria-hidden
+                        />
+                        <span className="min-w-0 truncate">
+                            {selectedCategoryName ?? "التصنيف"}
+                        </span>
+                        {categoryActive && (
+                            <span
+                                role="button"
+                                tabIndex={0}
+                                aria-label="إزالة فلتر التصنيف"
+                                className={[
+                                    "ms-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full",
+                                    "transition-colors hover:bg-white/20 active:bg-white/30",
+                                ].join(" ")}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    onChange({ ...filters, categoryId: null });
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        onChange({ ...filters, categoryId: null });
+                                    }
+                                }}
+                            >
+                                <X className="h-3 w-3" aria-hidden />
+                            </span>
+                        )}
                     </button>
-                )}
+
+                    <FilterChip label="عروض" active={filters.hasOffer} onClick={() => toggle("hasOffer")} />
+                    <FilterChip
+                        label="توصيل مجاني"
+                        active={filters.freeDelivery}
+                        onClick={() => toggle("freeDelivery")}
+                    />
+                    <FilterChip label="تقييم عالي" active={filters.topRated} onClick={() => toggle("topRated")} />
+                    <FilterChip label="مفتوح الآن" active={filters.openNow} onClick={() => toggle("openNow")} />
+                    <FilterChip
+                        label="توصيل سريع"
+                        active={filters.under30Min}
+                        onClick={() => toggle("under30Min")}
+                    />
+
+                    {hasActiveFilters(filters) && (
+                        <button
+                            type="button"
+                            onClick={() => onChange(DEFAULT_FILTERS)}
+                            className={[
+                                FILTER_CHIP_BASE,
+                                "gap-1 bg-red-50 text-red-600",
+                                "ring-1 ring-red-200/80 shadow-[0_1px_3px_rgba(239,68,68,0.08)]",
+                                "md:hover:bg-red-100 md:hover:ring-red-300/80",
+                                "dark:bg-red-950/25 dark:text-red-400 dark:ring-red-900/40",
+                                "dark:md:hover:bg-red-950/40",
+                                "focus-visible:ring-red-300/60",
+                            ].join(" ")}
+                            aria-label="مسح جميع الفلاتر"
+                        >
+                            <X className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" aria-hidden />
+                            <span className="whitespace-nowrap">مسح</span>
+                        </button>
+                    )}
+
+                    <div className="w-3 shrink-0 snap-none sm:w-5 lg:w-6" aria-hidden />
+                </div>
             </div>
 
             <CategorySheet
@@ -335,6 +375,7 @@ export function StoresClient({
         setFilters,
         loadMore,
         hydrateFromServer,
+        totalSize,
     } = useMarketsStore();
 
     useEffect(() => {
@@ -355,7 +396,7 @@ export function StoresClient({
                     {filtersActive ? "نتائج الفلتر" : "المتاجر القريبة منك"}
                 </h2>
                 {!isLoading && stores.length > 0 && (
-                    <span className="text-xs text-gray-400 dark:text-gray-500">{stores.length} متجر</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">{totalSize} متجر</span>
                 )}
             </div>
 

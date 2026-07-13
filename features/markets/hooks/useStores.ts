@@ -15,12 +15,12 @@ function buildParams(
     moduleId: string,
     filters: StoreFilters,
     limit: number,
-    offset: number,
+    page: number,
 ): URLSearchParams {
     const params = new URLSearchParams({
         module_id: moduleId,
         limit: String(limit),
-        offset: String(offset),
+        offset: String(page),
     });
 
     if (filters.categoryId !== null) params.set("category_id", String(filters.categoryId));
@@ -40,7 +40,8 @@ export function useStores(moduleId: string) {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [filters, setFiltersState] = useState<StoreFilters>(DEFAULT_FILTERS);
-    const loadedCountRef = useRef(0);
+    /** 1-based page index for the next fetch (page 1 = first page). */
+    const loadedCountRef = useRef(1);
     /** Skip the next filters-effect fetch (used after SSR hydrate). */
     const skipNextFetchRef = useRef(false);
     /** Become true after SSR hydrate or fallback timeout so we don't race the server render. */
@@ -48,7 +49,7 @@ export function useStores(moduleId: string) {
 
     const fetchStores = useCallback(
         async (
-            nextOffset: number,
+            page: number,
             append: boolean,
             activeFilters: StoreFilters,
             signal?: AbortSignal,
@@ -57,24 +58,23 @@ export function useStores(moduleId: string) {
             append ? setIsLoadingMore(true) : setIsLoading(true);
 
             try {
-                const params = buildParams(moduleId, activeFilters, PAGE_SIZE, nextOffset);
+                const params = buildParams(moduleId, activeFilters, PAGE_SIZE, page);
                 const res = await fetch(`/api/module/stores?${params}`, { signal });
                 const json = (await res.json()) as ApiResponse<GetStoresResponse>;
                 const data = unwrap(json);
-                setStores((prev) => {
-                    const next = append
+                setStores((prev) =>
+                    append
                         ? [...prev, ...(data.stores ?? [])]
-                        : (data.stores ?? []);
-                    loadedCountRef.current = next.length;
-                    return next;
-                });
+                        : (data.stores ?? []),
+                );
                 setTotalSize(data.total_size ?? 0);
+                loadedCountRef.current = page + 1;
             } catch (err) {
                 if ((err as Error).name === "AbortError") return;
                 setError(err instanceof Error ? err.message : "Failed to load stores");
                 if (!append) {
                     setStores([]);
-                    loadedCountRef.current = 0;
+                    loadedCountRef.current = 1;
                 }
             } finally {
                 setIsLoading(false);
@@ -96,7 +96,7 @@ export function useStores(moduleId: string) {
 
         setStores(data.stores ?? []);
         setTotalSize(data.total_size ?? 0);
-        loadedCountRef.current = data.stores?.length ?? 0;
+        loadedCountRef.current = 2;
         setIsLoading(false);
         setError(null);
         skipNextFetchRef.current = true;
@@ -123,8 +123,8 @@ export function useStores(moduleId: string) {
         }
 
         const controller = new AbortController();
-        loadedCountRef.current = 0;
-        void fetchStores(0, false, filters, controller.signal);
+        loadedCountRef.current = 1;
+        void fetchStores(1, false, filters, controller.signal);
         return () => controller.abort();
     }, [fetchEnabled, fetchStores, filters]);
 

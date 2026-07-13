@@ -4,8 +4,7 @@ import OrdersTabSkeleton from "./skeleton";
 
 export const OrdersTab = Object.assign(
     async function OrdersTab() {
-        const data = await getFavoriteOrders();
-        const orders = data.orders ?? [];
+        const orders = await getFavoriteOrders();
         return <OrdersTabClient orders={orders} />;
     },
     { skeleton: OrdersTabSkeleton }

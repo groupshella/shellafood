@@ -37,7 +37,8 @@ export function CategoriesClient({ categories, moduleId, moduleName }: Categorie
             dir="rtl"
         >
             <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-3 px-3 sm:max-w-2xl sm:px-5 lg:max-w-4xl lg:px-6 xl:max-w-5xl 2xl:max-w-6xl">
-                <h2 className="text-base font-semibold text-gray-500 dark:text-gray-400 sm:text-lg">الأقسام</h2>
+                <h2 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
+                    الأقسام</h2>
 
                 <Link href={allCategoriesHref} className={VIEW_MORE_BTN}>
                     تطلع على المزيد

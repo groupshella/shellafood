@@ -4,7 +4,7 @@ import { memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, Clock, ChevronLeft, Store } from "lucide-react";
-import type { ApiOrder } from "@/features/favorites/types/favorites.types";
+import type { FavoriteOrder } from "@/features/favorites/types/favorites.types";
 
 const STATUS_LABEL: Record<string, string> = {
     pending: "قيد الانتظار",
@@ -30,23 +30,21 @@ function getStyle(status: string) {
     return STATUS_STYLE[status] ?? { bg: "bg-gray-100 dark:bg-gray-700", text: "text-gray-600 dark:text-gray-400" };
 }
 
-export const OrderCard = memo(function OrderCard({ order }: { order: ApiOrder }) {
-    const storeName = order.restaurant?.name ?? order.store?.name ?? "المتجر";
-    const logoUrl = order.restaurant?.logo_full_url ?? order.store?.logo_full_url;
+export const OrderCard = memo(function OrderCard({ order }: { order: FavoriteOrder }) {
     const style = getStyle(order.order_status);
     const statusLabel = STATUS_LABEL[order.order_status] ?? order.order_status;
 
     return (
         <Link
             href={`/my-orders/${order.id}`}
-            aria-label={`طلب ${storeName} رقم ${order.id}`}
+            aria-label={`طلب ${order.store_name} رقم ${order.id}`}
             className="flex h-full min-w-0 items-stretch overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:bg-gray-800 dark:ring-white/[0.06] dark:focus-visible:ring-offset-gray-950"
         >
             <div className="relative w-16 shrink-0 self-stretch bg-gray-100 dark:bg-gray-700 sm:w-[4.5rem] md:w-20">
-                {logoUrl ? (
+                {order.store_logo_url ? (
                     <Image
-                        src={logoUrl}
-                        alt={storeName}
+                        src={order.store_logo_url}
+                        alt={order.store_name}
                         fill
                         className="object-cover"
                         sizes="(max-width: 640px) 64px, 80px"
@@ -72,7 +70,7 @@ export const OrderCard = memo(function OrderCard({ order }: { order: ApiOrder })
                 </div>
 
                 <p className="truncate text-start text-sm font-semibold text-gray-800 dark:text-gray-100 sm:text-[15px]">
-                    {storeName}
+                    {order.store_name}
                 </p>
 
                 <span

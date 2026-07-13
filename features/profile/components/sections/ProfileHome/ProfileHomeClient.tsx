@@ -1,26 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-    BarChart3,
-    Bell,
-    FileText,
-    Globe,
-    Headphones,
-    HelpCircle,
-    Info,
-    LogOut,
-    MapPin,
-    MessageCircle,
-    Moon,
-    RefreshCw,
-    Settings,
-    Shield,
-    Tag,
-    Truck,
-    UserPlus,
-    Users,
-} from "lucide-react";
+import { Settings } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -33,12 +14,31 @@ import { ProfileListRow } from "@/features/profile/components/shared/ProfileList
 import { ProfileSection } from "@/features/profile/components/shared/ProfileSection";
 import { ProfileAvatar } from "@/features/profile/components/shared/ProfileAvatar";
 import { StatCard } from "@/features/profile/components/shared/StatCard";
-import { LOCALE_LABELS, PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
+import { JoinStatusBadge } from "@/features/profile/components/shared/JoinStatusBadge";
+import type { ProfileJoinStatuses } from "@/features/profile/types/join.types";
 import {
     applyDarkMode,
     readDarkModePreference,
     setDarkModePreference,
 } from "@/shared/lib/dark-mode";
+import {
+    ProfileAboutIcon,
+    ProfileAddressIcon,
+    ProfileCouponsIcon,
+    ProfileDarkModeIcon,
+    ProfileDriverIcon,
+    ProfileLanguageIcon,
+    ProfileLiveChatIcon,
+    ProfileLogoutIcon,
+    ProfileNotificationsIcon,
+    ProfilePrivacyIcon,
+    ProfileReferralIcon,
+    ProfileRefundIcon,
+    ProfileStatisticsIcon,
+    ProfileSupportIcon,
+    ProfileTermsIcon,
+    ProfileVoucherRepIcon,
+} from "./ProfileHomeIcons";
 
 interface ToggleRowProps {
     icon: React.ReactNode;
@@ -86,9 +86,10 @@ function ToggleRow({ icon, label, checked, onChange }: ToggleRowProps) {
 
 interface ProfileHomeClientProps {
     user: AuthUser;
+    joinStatuses: ProfileJoinStatuses;
 }
 
-export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
+export function ProfileHomeClient({ user, joinStatuses }: ProfileHomeClientProps) {
     const router = useRouter();
     const logoutSheet = useBottomSheet();
     const qidhaSheet = useBottomSheet();
@@ -127,7 +128,6 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
 
     return (
         <>
-            {/* Profile summary card */}
             <section className="mx-auto w-full">
                 <div className="flex flex-col items-start gap-2 rounded-2xl bg-white py-4 shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] dark:bg-gray-800 dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.2)] sm:py-5">
                     <div className="flex w-full items-center gap-3 px-3 sm:gap-4 sm:px-5 lg:px-6">
@@ -142,35 +142,37 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                             className="flex min-w-0 flex-1 flex-col items-start gap-1 text-start"
                         >
                             <p className="w-full text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[17px] lg:text-lg">
-                                {PROFILE_STRINGS.welcome(displayName || user.f_name)}
+                                أهلاً {displayName || user.f_name}
                             </p>
                             <span className="flex items-center gap-2 text-[15px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[16px]">
-                                <Settings className="h-5 w-5 shrink-0 text-[#30913F] sm:h-6 sm:w-6" strokeWidth={2} />
-                                {PROFILE_STRINGS.accountSettings}
+                                <Settings
+                                    className="h-5 w-5 shrink-0 text-[#30913F] sm:h-6 sm:w-6"
+                                    strokeWidth={2}
+                                />
+                                إعدادات الحساب
                             </span>
                         </Link>
                     </div>
                 </div>
             </section>
 
-            {/* Stat cards */}
             <section className="mx-auto mb-4 grid w-full max-w-sm grid-cols-3 items-stretch justify-items-center gap-2 overflow-visible sm:gap-3 md:max-w-xl md:gap-4">
                 <StatCard
                     variant="points"
-                    title={PROFILE_STRINGS.yourPoints}
+                    title="نقاطك"
                     value={user.loyalty_point}
                     href="/profile/points"
                 />
                 <StatCard
                     variant="wallet"
-                    title={PROFILE_STRINGS.myWallet}
+                    title="محفظتي"
                     value={user.wallet_balance}
                     showCurrency
                     href="/profile/wallet"
                 />
                 <StatCard
                     variant="qidha"
-                    title={PROFILE_STRINGS.qidhaWallet}
+                    title="محفظة قيدها"
                     value={qidhaActive ? qidhaBalance : 0}
                     showCurrency
                     href={qidhaActive ? "/profile/qidha" : undefined}
@@ -178,97 +180,94 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                 />
             </section>
 
-            <ProfileSection title={PROFILE_STRINGS.sectionMyAccount}>
+            <ProfileSection title="حسابي">
                 <ProfileListRow
-                    icon={<MapPin strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.deliveryAddresses}
+                    icon={<ProfileAddressIcon />}
+                    label="عناوين التوصيل"
                     href="/addresses"
                 />
                 <ProfileListRow
-                    icon={<Globe strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.language}
-                    subLabel={LOCALE_LABELS["ar"]}
+                    icon={<ProfileLanguageIcon />}
+                    label="اللغة"
+                    subLabel="العربية (المملكة العربية السعودية)"
                     href="/profile/language"
                 />
                 <ToggleRow
-                    icon={<Moon strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.darkMode}
+                    icon={<ProfileDarkModeIcon />}
+                    label="تفعيل الوضع الداكن"
                     checked={darkModeEnabled}
                     onChange={handleDarkModeChange}
                 />
                 <ToggleRow
-                    icon={<Bell strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.notifications}
+                    icon={<ProfileNotificationsIcon />}
+                    label="الإشعارات"
                     checked={notificationsEnabled}
                     onChange={setNotificationsEnabled}
                 />
             </ProfileSection>
 
-            <ProfileSection title={PROFILE_STRINGS.sectionPromo}>
+            <ProfileSection title="النشاط الترويجي والأرباح">
                 <ProfileListRow
-                    icon={<Tag strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.coupons}
+                    icon={<ProfileCouponsIcon />}
+                    label="الكوبونات"
                     href="/coupons"
                 />
                 <ProfileListRow
-                    icon={<BarChart3 strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.statistics}
+                    icon={<ProfileStatisticsIcon />}
+                    label="إحصائيات"
                     href="/profile/statistics"
                 />
                 <ProfileListRow
-                    icon={<Users strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.earnWithFriends}
+                    icon={<ProfileReferralIcon />}
+                    label="اكسب مع مشاركة الأصدقاء"
                     href="/profile/referral"
                 />
                 <ProfileListRow
-                    icon={<Truck strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.joinAsDriver}
+                    icon={<ProfileDriverIcon />}
+                    label="انضم كرجل توصيل"
                     href="/profile/join-driver"
+                    trailing={<JoinStatusBadge status={joinStatuses.driver} />}
                 />
                 <ProfileListRow
-                    icon={<UserPlus strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.voucherRep}
+                    icon={<ProfileVoucherRepIcon />}
+                    label="مندوب تسويق قسائم شرائية"
                     href="/profile/join-voucher-rep"
+                    trailing={<JoinStatusBadge status={joinStatuses.delegate} />}
                 />
             </ProfileSection>
 
-            <ProfileSection title={PROFILE_STRINGS.sectionHelp}>
+            <ProfileSection title="المساعدة والدعم">
                 <ProfileListRow
-                    icon={<MessageCircle strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.liveChat}
+                    icon={<ProfileLiveChatIcon />}
+                    label="الدردشة الحية"
                     href="/profile/live-chat"
                 />
                 <ProfileListRow
-                    icon={<Headphones strokeWidth={1.25} />}
-                    label={PROFILE_STRINGS.technicalSupport}
+                    icon={<ProfileSupportIcon />}
+                    label="المساعدة والدعم الفني"
                     href="/profile/help-support"
                 />
                 <ProfileListRow
-                    icon={<RefreshCw strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.checkUpdates}
-                    onClick={() => { }}
-                />
-                <ProfileListRow
-                    icon={<Info strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.aboutUs}
+                    icon={<ProfileAboutIcon />}
+                    label="معلومات عنا"
                     href="/profile/about-us"
                 />
             </ProfileSection>
 
-            <ProfileSection title={PROFILE_STRINGS.sectionLegal}>
+            <ProfileSection title="المستندات القانونية">
                 <ProfileListRow
-                    icon={<Shield strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.privacy}
+                    icon={<ProfilePrivacyIcon />}
+                    label="الخصوصية"
                     href="/profile/privacy-policy"
                 />
                 <ProfileListRow
-                    icon={<FileText strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.terms}
+                    icon={<ProfileTermsIcon />}
+                    label="الشروط والأحكام"
                     href="/profile/terms-and-conditions"
                 />
                 <ProfileListRow
-                    icon={<HelpCircle strokeWidth={1.5} />}
-                    label={PROFILE_STRINGS.refundPolicy}
+                    icon={<ProfileRefundIcon />}
+                    label="سياسة استرداد الأموال"
                     href="/profile/refund-policy"
                 />
             </ProfileSection>
@@ -280,9 +279,9 @@ export function ProfileHomeClient({ user }: ProfileHomeClientProps) {
                         onClick={logoutSheet.open}
                         className="flex min-h-[44px] w-full items-center justify-start gap-2 transition-opacity active:opacity-80"
                     >
-                        <LogOut className="h-5 w-5 text-[#555555] dark:text-gray-400" strokeWidth={1.5} />
+                        <ProfileLogoutIcon className="h-5 w-5 text-[#555555] dark:text-gray-400" />
                         <span className="text-[14px] font-bold leading-[160%] text-[#555555] dark:text-gray-400">
-                            {PROFILE_STRINGS.logout}
+                            تسجيل الخروج
                         </span>
                     </button>
                 </div>

@@ -128,15 +128,38 @@ export async function checkDriverRegistration(payload: {
         }
 
         const json = await res.json();
-        const isRegistered: boolean =
-            json?.is_registered === true ||
-            json?.registered === true ||
-            json?.exists === true ||
-            false;
+        const rawStatus = String(
+            json?.status ??
+                json?.registration_status ??
+                json?.delivery_man_status ??
+                json?.application_status ??
+                "",
+        ).toLowerCase();
 
-        return { isRegistered, message: typeof json?.message === "string" ? json.message : undefined };
+        const mappedStatus: CheckRegistrationResult["status"] =
+            rawStatus === "pending"
+                ? "pending"
+                : rawStatus === "approved" || rawStatus === "active"
+                  ? rawStatus === "active"
+                      ? "active"
+                      : "approved"
+                  : rawStatus === "rejected"
+                    ? "rejected"
+                    : json?.is_registered === true ||
+                        json?.registered === true ||
+                        json?.exists === true
+                      ? "registered"
+                      : "none";
+
+        const isRegistered = mappedStatus !== "none";
+
+        return {
+            isRegistered,
+            status: mappedStatus,
+            message: typeof json?.message === "string" ? json.message : undefined,
+        };
     } catch {
-        return { isRegistered: false };
+        return { isRegistered: false, status: "none" };
     }
 }
 
@@ -212,12 +235,17 @@ export async function fetchDelegateStatus(): Promise<DelegateStatusResult> {
         if (!res.ok) return { status: "none" };
 
         const json = await res.json();
-        const raw = String(json?.delegate_status ?? json?.status ?? "none");
-        const status = (["pending", "approved", "rejected"].includes(raw) ? raw : "none") as
-            | "pending"
-            | "approved"
-            | "rejected"
-            | "none";
+        const raw = String(
+            json?.delegate_status ?? json?.status ?? "none",
+        ).toLowerCase();
+
+        const status = (
+            ["pending", "approved", "rejected", "active"].includes(raw)
+                ? raw === "active"
+                    ? "approved"
+                    : raw
+                : "none"
+        ) as "pending" | "approved" | "rejected" | "none";
 
         return { status };
     } catch {

@@ -16,12 +16,16 @@ const H_SCROLL = [
     "-mx-0.5 px-0.5",
 ].join(" ");
 
-const VIEW_ALL_BTN = [
-    "inline-flex min-h-[36px] items-center gap-1 rounded-lg px-2.5 py-1.5",
-    "bg-[#EBFEEB] text-xs font-bold text-[#30913F]",
-    "dark:bg-[#30913F]/15 dark:text-[#4db860]",
-    "transition-colors active:bg-[#DCF5DC] dark:active:bg-[#30913F]/25",
-    "sm:gap-1.5 sm:px-3 sm:py-2 sm:text-sm",
+function buildAllBrandsHref() {
+    return "/brands";
+}
+
+const VIEW_MORE_BTN = [
+    "inline-flex min-h-[36px] shrink-0 items-center rounded-lg px-3 py-1.5",
+    "bg-[#F0F0F0] text-xs font-medium text-gray-800",
+    "dark:bg-gray-800 dark:text-gray-200",
+    "transition-colors active:bg-[#E4E4E4] dark:active:bg-gray-700",
+    "sm:px-3.5 sm:py-2 sm:text-sm",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900",
 ].join(" ");
 
@@ -38,7 +42,6 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
 
     const columns = chunkByTwo(brands);
     const hasMultipleColumns = columns.length > 3;
-    const viewAllHref = "/brands";
 
     return (
         <section
@@ -51,9 +54,8 @@ export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBran
                     أشهر العلامات التجارية
                 </h2>
 
-                <Link href={viewAllHref} className={VIEW_ALL_BTN}>
-                    <span>عرض الكل</span>
-                    <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                <Link href={'/brands'} className={VIEW_MORE_BTN}>
+                    تطلع على المزيد
                 </Link>
             </div>
 

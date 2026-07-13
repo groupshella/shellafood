@@ -38,10 +38,8 @@ export function BannerSlide({ banner, priority = false }: { banner: HyperMarketB
     if (href) {
         return (
             <Link
-                href={href}
-                target={banner.link ? "_blank" : undefined}
-                rel={banner.link ? "noopener noreferrer" : undefined}
-                className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
+                href={"/hyper-market/"}
+                className="block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 sm:rounded-2xl dark:focus-visible:ring-offset-gray-900"
                 draggable={false}
             >
                 {wrapper}

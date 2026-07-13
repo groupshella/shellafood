@@ -30,6 +30,7 @@ function isValidSaudiPhone(digits: string): boolean {
 export interface UseDelegateRegistrationReturn {
     form: DelegateFormState;
     setField: <K extends keyof DelegateFormState>(key: K, value: DelegateFormState[K]) => void;
+    lockedFields: { firstName: boolean; lastName: boolean; mobile: boolean };
     delegateStatus: DelegateStatus | null;
     isLoadingStatus: boolean;
     statusLoadError: boolean;
@@ -40,6 +41,7 @@ export interface UseDelegateRegistrationReturn {
     handleSetPhoto: (file: File) => string | null;
     handleRemovePhoto: () => void;
     submit: () => Promise<JoinActionResult>;
+    isFormLocked: boolean;
 }
 
 function readAuthUser(): AuthUser | null {
@@ -55,6 +57,11 @@ function readAuthUser(): AuthUser | null {
 
 export function useDelegateRegistration(): UseDelegateRegistrationReturn {
     const [form, setFormState] = useState<DelegateFormState>(INITIAL_FORM);
+    const [lockedFields, setLockedFields] = useState({
+        firstName: false,
+        lastName: false,
+        mobile: false,
+    });
     const [delegateStatus, setDelegateStatus] = useState<DelegateStatus | null>(null);
     const [isLoadingStatus, setIsLoadingStatus] = useState(true);
     const [statusLoadError, setStatusLoadError] = useState(false);
@@ -66,12 +73,20 @@ export function useDelegateRegistration(): UseDelegateRegistrationReturn {
     useEffect(() => {
         const user = readAuthUser();
         if (user) {
+            const firstName = user.f_name ?? "";
+            const lastName = user.l_name ?? "";
+            const mobile = user.phone ?? "";
             setFormState((prev) => ({
                 ...prev,
-                firstName: user.f_name ?? "",
-                lastName: user.l_name ?? "",
-                mobile: user.phone ?? "",
+                firstName,
+                lastName,
+                mobile,
             }));
+            setLockedFields({
+                firstName: Boolean(firstName.trim()),
+                lastName: Boolean(lastName.trim()),
+                mobile: Boolean(mobile.trim()),
+            });
         }
     }, []);
 
@@ -132,15 +147,28 @@ export function useDelegateRegistration(): UseDelegateRegistrationReturn {
         return Object.keys(errors).length > 0 ? errors : null;
     };
 
+    const isFormLocked =
+        delegateStatus === "approved" || delegateStatus === "pending";
+
     const submit = useCallback(async (): Promise<JoinActionResult> => {
-        if (submittingRef.current || isSubmitting) {
-            return { success: false, message: "" };
+        if (submittingRef.current || isSubmitting || isFormLocked) {
+            return {
+                success: false,
+                message: isFormLocked ? JOIN_STRINGS.alreadyRegistered : "",
+            };
         }
 
         const clientErrors = validate(form);
         if (clientErrors) {
-            setFieldErrors(clientErrors);
-            return { success: false, message: JOIN_STRINGS.requiredField, fieldErrors: clientErrors };
+            setFieldErrors({
+                ...clientErrors,
+                general: JOIN_STRINGS.fillRequiredFields,
+            });
+            return {
+                success: false,
+                message: JOIN_STRINGS.fillRequiredFields,
+                fieldErrors: clientErrors,
+            };
         }
 
         submittingRef.current = true;
@@ -159,7 +187,14 @@ export function useDelegateRegistration(): UseDelegateRegistrationReturn {
             });
 
             if (!result.success && result.fieldErrors) {
-                setFieldErrors(result.fieldErrors);
+                setFieldErrors({
+                    ...result.fieldErrors,
+                    general: result.message || JOIN_STRINGS.scrollToFix,
+                });
+            }
+
+            if (result.success) {
+                setDelegateStatus("pending");
             }
 
             return result;
@@ -168,11 +203,12 @@ export function useDelegateRegistration(): UseDelegateRegistrationReturn {
             setIsSubmitting(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form, isSubmitting]);
+    }, [form, isSubmitting, isFormLocked]);
 
     return {
         form,
         setField,
+        lockedFields,
         delegateStatus,
         isLoadingStatus,
         statusLoadError,
@@ -183,5 +219,6 @@ export function useDelegateRegistration(): UseDelegateRegistrationReturn {
         handleSetPhoto,
         handleRemovePhoto,
         submit,
+        isFormLocked,
     };
 }

@@ -21,8 +21,18 @@ export interface Vehicle {
     type: string;
 }
 
+export type JoinRegistrationState =
+    | "none"
+    | "pending"
+    | "approved"
+    | "active"
+    | "rejected"
+    | "registered";
+
 export interface CheckRegistrationResult {
     isRegistered: boolean;
+    /** Normalized status for UI badges / banners */
+    status: JoinRegistrationState;
     message?: string;
 }
 
@@ -48,6 +58,11 @@ export type DelegateStatus = "pending" | "approved" | "rejected" | "none";
 export interface DelegateStatusResult {
     status: DelegateStatus;
     message?: string;
+}
+
+export interface ProfileJoinStatuses {
+    driver: JoinRegistrationState;
+    delegate: DelegateStatus;
 }
 
 export interface RegisterDelegatePayload {

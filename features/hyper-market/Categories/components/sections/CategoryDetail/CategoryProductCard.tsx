@@ -84,11 +84,16 @@ export const CategoryProductCard = memo(function CategoryProductCard({
             aria-pressed={wishlisted}
             onClick={toggleWishlist}
             disabled={wishlistPending}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(246,245,248,0.8)] transition-colors active:bg-[#F6F5F8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60 dark:bg-gray-800/80 dark:active:bg-gray-700"
+            className={[
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-9 sm:w-9",
+                "bg-white/90 shadow-[0_1px_4px_rgba(0,0,0,0.08)] ring-1 ring-black/[0.04] backdrop-blur-sm",
+                "transition-colors active:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]",
+                "disabled:opacity-60 dark:bg-gray-800/90 dark:ring-white/[0.08] dark:active:bg-gray-800",
+            ].join(" ")}
         >
             <Heart
                 className={[
-                    "h-5 w-5 transition-colors",
+                    "h-4 w-4 transition-colors sm:h-[18px] sm:w-[18px]",
                     wishlisted
                         ? "fill-[#30913F] text-[#30913F] dark:fill-[#4db860] dark:text-[#4db860]"
                         : "fill-none text-[#30913F] dark:text-[#4db860]",
@@ -103,115 +108,168 @@ export const CategoryProductCard = memo(function CategoryProductCard({
         return (
             <div
                 dir="rtl"
-                className="flex h-full w-full min-w-0 flex-row-reverse items-center gap-2.5 rounded-2xl bg-white px-2.5 py-2.5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] dark:bg-gray-800 dark:shadow-[0_1px_4px_rgba(0,0,0,0.2)] dark:ring-white/[0.06] sm:gap-3 sm:px-4 sm:py-3"
+                className={[
+                    "group flex h-full w-full min-w-0 items-center gap-3 rounded-2xl bg-white p-3",
+                    "shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.06)]",
+                    "ring-1 ring-black/[0.05]",
+                    "dark:bg-gray-800 dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_4px_16px_rgba(0,0,0,0.14)]",
+                    "dark:ring-white/[0.06]",
+                    "touch-manipulation",
+                    "motion-safe:transition-[transform,box-shadow,background-color] motion-safe:duration-200",
+                    "motion-safe:active:scale-[0.99] active:bg-gray-50/80 dark:active:bg-gray-700/50",
+                    "sm:gap-3.5 sm:p-3.5",
+                    "md:hover:-translate-y-px md:hover:shadow-[0_2px_6px_rgba(0,0,0,0.05),0_8px_24px_rgba(0,0,0,0.08)]",
+                    "md:dark:hover:shadow-[0_2px_6px_rgba(0,0,0,0.25),0_8px_24px_rgba(0,0,0,0.2)]",
+                ].join(" ")}
             >
-                <div className="flex shrink-0 flex-col items-center justify-between gap-3 self-stretch p-0.5">
-                    {WishlistButton}
-                    <ProductAddControl
-                        product={cartProduct}
-                        isAvailable={true}
-                        size="sm"
-                        variant="soft"
-                        className="h-9 w-9"
-                    />
+                <div className="relative shrink-0">
+                    <Link
+                        href={itemHref}
+                        tabIndex={-1}
+                        aria-hidden
+                        className={[
+                            "relative block h-[4.5rem] w-[4.5rem] overflow-hidden rounded-2xl sm:h-20 sm:w-20 md:h-[5.5rem] md:w-[5.5rem]",
+                            "bg-[#F8F8FA] ring-1 ring-black/[0.06]",
+                            "shadow-[0_2px_8px_rgba(0,0,0,0.06)]",
+                            "dark:bg-gray-900/50 dark:ring-white/[0.08] dark:shadow-[0_2px_8px_rgba(0,0,0,0.22)]",
+                        ].join(" ")}
+                    >
+                        {hasDiscount && (
+                            <span className="absolute start-1 top-1 z-10 rounded-md bg-[#FFDCDC] px-1.5 py-0.5 text-[10px] font-bold leading-none text-[#DB2626] sm:text-[11px] dark:bg-red-900/45 dark:text-red-300">
+                                -{Math.round(discountPercent)}%
+                            </span>
+                        )}
+                        {showImage ? (
+                            <Image
+                                src={product.full_image_url}
+                                alt={product.name}
+                                fill
+                                className={[
+                                    "object-contain p-2 sm:p-2.5",
+                                    "motion-safe:transition-transform motion-safe:duration-200",
+                                    "md:group-hover:scale-[1.03]",
+                                ].join(" ")}
+                                sizes="(max-width: 640px) 72px, 88px"
+                                loading="lazy"
+                                onError={() => setImgError(true)}
+                            />
+                        ) : (
+                            <div
+                                className={[
+                                    "flex h-full w-full items-center justify-center",
+                                    "bg-gradient-to-br from-[#F6F5F8] to-[#EBEBEF]",
+                                    "dark:from-gray-800 dark:to-gray-900/60",
+                                ].join(" ")}
+                            >
+                                <ShoppingBag
+                                    className="h-7 w-7 text-gray-300 dark:text-gray-600 sm:h-8 sm:w-8"
+                                    aria-hidden
+                                />
+                            </div>
+                        )}
+                    </Link>
+
+                    <div className="absolute -start-1.5 -top-1.5 z-20 sm:-start-2 sm:-top-2">
+                        {WishlistButton}
+                    </div>
                 </div>
 
                 <Link
                     href={itemHref}
                     aria-label={product.name}
-                    className="min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
+                    className={[
+                        "flex min-h-11 min-w-0 flex-1 flex-col justify-center py-0.5",
+                        "outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+                        "dark:focus-visible:ring-offset-gray-900",
+                    ].join(" ")}
                 >
-                    <p className="line-clamp-2 text-start text-sm font-bold leading-snug text-[#111B18] dark:text-gray-50">
+                    <p className="line-clamp-2 text-start text-sm font-bold leading-snug text-[#111B18] dark:text-gray-50 sm:text-[15px] sm:leading-snug">
                         {product.name}
                     </p>
-                    <div className="mt-2 flex items-center gap-2">
+                    <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 sm:mt-2">
                         <PriceTag
                             amount={displayPrice}
                             size="sm"
-                            className="text-[15px] font-bold leading-none text-[#111B18] dark:text-gray-50"
+                            className="text-[15px] font-bold leading-none text-[#111B18] dark:text-gray-50 sm:text-base"
                         />
                         {hasDiscount && (
                             <PriceTag
                                 amount={product.price}
                                 size="sm"
-                                className="text-xs leading-none text-[#707784] line-through decoration-[#CD1625] dark:text-gray-500"
+                                className="text-[11px] leading-none text-[#707784] line-through decoration-[#CD1625] dark:text-gray-500 sm:text-xs"
                             />
                         )}
                     </div>
                 </Link>
 
-                <Link
-                    href={itemHref}
-                    tabIndex={-1}
-                    aria-hidden
-                    className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#F6F5F8] outline-none dark:bg-gray-700 sm:h-20 sm:w-20"
-                >
-                    {hasDiscount && (
-                        <span className="absolute start-0 top-0  z-10 rounded-ss-md rounded-es-md bg-[#FFDCDC] px-1.5 py-0.5 text-[11px] font-bold leading-none text-[#DB2626] dark:bg-red-900/40 dark:text-red-300">
-                            -{Math.round(discountPercent)}%
-                        </span>
-                    )}
-                    {showImage ? (
-                        <Image
-                            src={product.full_image_url}
-                            alt={product.name}
-                            fill
-                            className="object-contain p-1.5"
-                            sizes="80px"
-                            loading="lazy"
-                            onError={() => setImgError(true)}
-                        />
-                    ) : (
-                        <div className="flex h-full items-center justify-center">
-                            <ShoppingBag className="h-7 w-7 text-gray-300 dark:text-gray-600" aria-hidden />
-                        </div>
-                    )}
-                </Link>
+                <div className="flex shrink-0 self-center">
+                    <ProductAddControl
+                        product={cartProduct}
+                        isAvailable={true}
+                        size="sm"
+                        variant="soft"
+                        className="h-10 w-10 sm:h-11 sm:w-11"
+                    />
+                </div>
             </div>
         );
     }
 
+    // ---- GRID LAYOUT ----
+    // Image now scales with the card (aspect-square, full width) instead of a
+    // fixed pixel box, so it stays large and sharp at any grid-column width,
+    // especially on narrow mobile columns. Content sits below in its own
+    // block so text doesn't compete with the image for horizontal space.
     return (
         <div
             dir="rtl"
-            className="relative flex min-h-[172px] w-full min-w-0 flex-row items-center gap-2 overflow-hidden rounded-lg bg-white shadow-[0_7px_19.8px_rgba(0,0,0,0.04)] dark:bg-gray-800 dark:shadow-[0_7px_19.8px_rgba(0,0,0,0.2)] sm:min-h-[190px]"
+            className="group flex h-full w-full min-w-0 flex-col overflow-hidden rounded-xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.03] transition-shadow hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.2)] dark:ring-white/[0.05]"
         >
-            {hasDiscount && (
-                <span className="absolute start-0 top-[5px] z-10 flex min-w-[38px] items-center justify-center rounded-ss-md rounded-es-md bg-[#FFDCDC] px-[11px] py-0.5 text-[13px] font-bold leading-[1] text-[#DB2626] dark:bg-red-900/40 dark:text-red-300">
-                    {Math.round(discountPercent)}%-
-                </span>
-            )}
-
             <Link
                 href={itemHref}
                 aria-label={product.name}
-                className="flex flex-1 flex-col items-end gap-2 self-stretch pb-2 pe-2 pt-2 outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] sm:pe-2.5 sm:pt-2.5"
+                className="relative block aspect-square w-full shrink-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-inset dark:bg-gray-900/40"
             >
-                <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl p-[5px] sm:h-[60px] sm:w-[60px]">
-                    {showImage ? (
-                        <div className="relative h-full w-full">
-                            <Image
-                                src={product.full_image_url}
-                                alt={product.name}
-                                fill
-                                className="object-contain"
-                                sizes="60px"
-                                loading="lazy"
-                                onError={() => setImgError(true)}
-                            />
-                        </div>
-                    ) : (
-                        <ShoppingBag className="h-7 w-7 text-gray-300 dark:text-gray-600" aria-hidden />
-                    )}
-                </div>
+                {hasDiscount && (
+                    <span className="absolute start-2 top-2 z-10 flex items-center justify-center rounded-md bg-[#FFDCDC] px-2 py-1 text-[12px] font-bold leading-none text-[#DB2626] dark:bg-red-900/50 dark:text-red-300">
+                        {Math.round(discountPercent)}%-
+                    </span>
+                )}
 
-                <div className="flex w-full flex-col items-start justify-between gap-3 px-1 sm:gap-4">
-                    <p className="line-clamp-2 w-full text-start text-[13px] font-bold leading-[1.4] text-[#111B18] dark:text-gray-50 sm:text-[14px]">
+                <div className="absolute end-2 top-2 z-10">{WishlistButton}</div>
+
+                {showImage ? (
+                    <Image
+                        src={product.full_image_url}
+                        alt={product.name}
+                        fill
+                        className="object-contain p-4 transition-transform duration-300 group-hover:scale-[1.04] sm:p-5"
+                        sizes="(max-width: 480px) 44vw, (max-width: 768px) 30vw, (max-width: 1024px) 22vw, 200px"
+                        quality={90}
+                        loading="lazy"
+                        onError={() => setImgError(true)}
+                    />
+                ) : (
+                    <div className="flex h-full items-center justify-center">
+                        <ShoppingBag className="h-10 w-10 text-gray-300 dark:text-gray-600" aria-hidden />
+                    </div>
+                )}
+            </Link>
+
+            <div className="flex flex-1 flex-col gap-2.5 p-2.5 sm:p-3">
+                <Link
+                    href={itemHref}
+                    aria-label={product.name}
+                    className="outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]"
+                >
+                    <p className="line-clamp-2 min-h-[2.5em] text-start text-[13px] font-bold leading-[1.4] text-[#111B18] dark:text-gray-50 sm:text-[14px]">
                         {product.name}
                     </p>
+                </Link>
 
-                    <div className="flex items-start gap-1">
-                        <span className="inline-flex items-center gap-0.5 text-[15px] font-medium leading-[1.4] text-[#111B18] dark:text-gray-50 sm:text-[16px]">
+                <div className="mt-auto flex items-end justify-between gap-2">
+                    <div className="flex flex-col items-start gap-0.5">
+                        <span className="inline-flex items-center gap-0.5 text-[15px] font-bold leading-[1.2] text-[#111B18] dark:text-gray-50 sm:text-[16px]">
                             {formatPrice(displayPrice)}
                             <SarIcon size={16} />
                         </span>
@@ -227,18 +285,15 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                             </span>
                         )}
                     </div>
-                </div>
-            </Link>
 
-            <div className="flex shrink-0 flex-col items-center justify-between gap-3 self-stretch p-0.5">
-                {WishlistButton}
-                <ProductAddControl
-                    product={cartProduct}
-                    isAvailable={true}
-                    size="sm"
-                    variant="solid"
-                    className="h-9 w-9"
-                />
+                    <ProductAddControl
+                        product={cartProduct}
+                        isAvailable={true}
+                        size="sm"
+                        variant="solid"
+                        className="h-9 w-9 shrink-0"
+                    />
+                </div>
             </div>
         </div>
     );

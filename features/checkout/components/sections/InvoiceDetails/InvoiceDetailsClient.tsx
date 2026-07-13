@@ -44,7 +44,7 @@ export function InvoiceDetailsClient({ invoice }: InvoiceDetailsClientProps) {
         <div dir="rtl">
             <h2 className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">تفاصيل الفاتورة</h2>
 
-            <div className="rounded-2xl bg-gray-100 p-3.5 dark:bg-gray-800 sm:p-4 lg:rounded-3xl lg:p-5">
+            <div className="rounded-2xl p-3.5 sm:p-4 lg:rounded-3xl lg:p-5">
                 <div className="space-y-3 sm:space-y-3.5">
                     <InvoiceRow label="إجمالي المنتجات" value={invoice.subtotal} />
                     <InvoiceRow label="مصاريف الشحن" value={invoice.deliveryFee} />

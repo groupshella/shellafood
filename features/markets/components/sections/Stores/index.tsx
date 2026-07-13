@@ -10,7 +10,7 @@ export const Stores = Object.assign(
     async function Stores({ moduleId }: { moduleId: string }) {
         const [categories, initialStores] = await Promise.all([
             getCategories(moduleId),
-            getStores(moduleId, DEFAULT_FILTERS, PAGE_SIZE, 0),
+            getStores(moduleId, DEFAULT_FILTERS, PAGE_SIZE, 1),
         ]);
 
         return (

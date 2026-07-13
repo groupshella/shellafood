@@ -6,6 +6,8 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { Heart, ShoppingBag } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
+import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
+import { useNotification } from "@/shared/components/NotificationToast";
 import type { BrandItem } from "@/features/brands/types/brands.types";
 
 interface BrandItemCardProps {
@@ -13,8 +15,10 @@ interface BrandItemCardProps {
 }
 
 export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCardProps) {
+    const { success, error: notifyError } = useNotification();
     const [imgError, setImgError] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
+    const [wishlistPending, setWishlistPending] = useState(false);
     const hasDiscount = item.discount_percentage > 0 && item.discounted_price < item.price;
     const displayPrice = hasDiscount ? item.discounted_price : item.price;
     const showImage = !imgError && !!item.image_full_url;
@@ -33,11 +37,31 @@ export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCard
         setImgError(true);
     }, []);
 
-    const handleToggleWishlist = useCallback((e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setWishlisted((prev) => !prev);
-    }, []);
+    const handleToggleWishlist = useCallback(
+        async (e: React.MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (wishlistPending) return;
+
+            setWishlistPending(true);
+            const wasLiked = wishlisted;
+            setWishlisted(!wasLiked);
+
+            const result = wasLiked
+                ? await removeFromWishlist({ itemId: item.id })
+                : await addToWishlist({ itemId: item.id });
+
+            if (!result.success) {
+                setWishlisted(wasLiked);
+                notifyError(result.message);
+            } else {
+                success(result.message);
+            }
+
+            setWishlistPending(false);
+        },
+        [wishlistPending, wishlisted, item.id, notifyError, success],
+    );
 
     return (
         <div
@@ -104,13 +128,14 @@ export const BrandItemCard = memo(function BrandItemCard({ item }: BrandItemCard
                 </div>
             </Link>
 
-            <div className="flex shrink-0 flex-col items-center gap-2">
+            <div className="flex shrink-0 flex-col items-end gap-2">
                 <button
                     type="button"
                     aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
                     aria-pressed={wishlisted}
                     onClick={handleToggleWishlist}
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EBFEEB] transition-colors active:bg-[#DCF5DC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:bg-[#30913F]/15 dark:active:bg-[#30913F]/25 sm:h-8 sm:w-8"
+                    disabled={wishlistPending}
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EBFEEB] transition-colors active:bg-[#DCF5DC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60 dark:bg-[#30913F]/15 dark:active:bg-[#30913F]/25 sm:h-8 sm:w-8"
                 >
                     <Heart
                         className={[

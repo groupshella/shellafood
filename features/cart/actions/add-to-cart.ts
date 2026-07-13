@@ -24,6 +24,7 @@ export async function addToCart(payload: AddToCartPayload): Promise<CartActionRe
     Accept: "application/json",
     "Content-Type": "application/json",
     "X-Localization": "ar",
+    "Accept-Language": "ar",
     moduleId: process.env.MODULE_ID ?? "3",
     zoneId: process.env.ZONE_ID!,
   };

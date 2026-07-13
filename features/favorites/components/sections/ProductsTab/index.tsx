@@ -1,11 +1,10 @@
-import { getWishlist } from "@/features/favorites/api/favorites";
+import { getFavoriteProducts } from "@/features/favorites/api/favorites";
 import { ProductsTabClient } from "./ProductsTabClient";
 import ProductsTabSkeleton from "./skeleton";
 
 export const ProductsTab = Object.assign(
     async function ProductsTab() {
-        const data = await getWishlist();
-        const products = data.item ?? [];
+        const products = await getFavoriteProducts();
         return <ProductsTabClient products={products} />;
     },
     { skeleton: ProductsTabSkeleton }

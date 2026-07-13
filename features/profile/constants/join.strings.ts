@@ -51,7 +51,34 @@ export const JOIN_STRINGS = {
     networkError: "تعذر الاتصال بالخادم، تحقق من اتصالك وحاول مرة أخرى",
 
     dropdownPlaceholder: "مثال",
+
+    statusNone: "غير مسجّل",
+    statusPending: "قيد المراجعة",
+    statusApproved: "مقبول",
+    statusActive: "نشط",
+    statusRejected: "مرفوض",
+    statusRegistered: "مسجّل",
+
+    driverAlreadyRegisteredBanner:
+        "أنت مسجّل مسبقاً كرجل توصيل. لا يمكن إرسال طلب جديد.",
+    driverPendingBanner: "طلب انضمامك كرجل توصيل قيد المراجعة.",
+    driverActiveBanner: "حسابك كرجل توصيل نشط.",
+    submitting: "جاري الإرسال...",
+    fillRequiredFields: "يرجى تعبئة الحقول المطلوبة",
+    scrollToFix: "يرجى تصحيح الحقول المشار إليها باللون الأحمر",
 } as const;
+
+export const JOIN_STATUS_LABEL: Record<
+    "none" | "pending" | "approved" | "active" | "rejected" | "registered",
+    string
+> = {
+    none: JOIN_STRINGS.statusNone,
+    pending: JOIN_STRINGS.statusPending,
+    approved: JOIN_STRINGS.statusApproved,
+    active: JOIN_STRINGS.statusActive,
+    rejected: JOIN_STRINGS.statusRejected,
+    registered: JOIN_STRINGS.statusRegistered,
+};
 
 export const JOIN_DROPDOWN_OPTIONS = [
     "مثال 1",
