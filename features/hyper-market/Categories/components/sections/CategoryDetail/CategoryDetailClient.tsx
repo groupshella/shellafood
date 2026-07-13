@@ -2,19 +2,106 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LayoutGrid, List, SlidersHorizontal } from "lucide-react";
-import {
+import type {
     CategoryDetails,
     CategoryProduct,
     SubCategory,
 } from "@/features/hyper-market/Categories/types/category-detail.types";
+import { loadMoreSubCategoryProducts } from "@/features/hyper-market/Categories/components/shared/LoadMoreResult";
+import {
+    FilterSheet,
+    type FilterValues,
+    DEFAULT_FILTER_VALUES,
+} from "../../shared/FilterSheet";
+import { useNotification } from "@/shared/components/NotificationToast";
 import { CategoryProductCard } from "./CategoryProductCard";
-import { FilterSheet, FilterValues } from "../../shared/FilterSheet";
 
 type ViewMode = "grid" | "list";
 
 const CATEGORY_NAV_H = 44;
-const SUB_NAV_H = 44;
-const SCROLL_OFFSET = CATEGORY_NAV_H + SUB_NAV_H + 8;
+const SUB_NAV_H = 48;
+const TOOLBAR_H = 52;
+const LOAD_MORE_LIMIT = 20;
+
+type SubCategoryState = {
+    products: CategoryProduct[];
+    totalProducts: number;
+    hasMore: boolean;
+    /** Last fetched page number (1-based) */
+    page: number;
+    isLoadingMore: boolean;
+};
+
+/** Scroll only the tab strip — avoids page jump from element.scrollIntoView. */
+function scrollTabIntoView(container: HTMLElement, tab: HTMLElement) {
+    const containerRect = container.getBoundingClientRect();
+    const tabRect = tab.getBoundingClientRect();
+    const delta =
+        tabRect.left -
+        containerRect.left -
+        (container.clientWidth - tab.offsetWidth) / 2;
+    container.scrollBy({ left: delta, behavior: "smooth" });
+}
+
+function getDisplayPrice(product: CategoryProduct): number {
+    return product.discounted_price ?? product.price;
+}
+
+function applyFilterToProducts(
+    products: CategoryProduct[],
+    filter: FilterValues,
+): CategoryProduct[] {
+    let result = [...products];
+
+    if (filter.price !== "all") {
+        const [minStr, maxStr] = filter.price.split("-");
+        const min = Number(minStr);
+        const max = Number(maxStr);
+        const [lo, hi] = min <= max ? [min, max] : [max, min];
+        result = result.filter((p) => {
+            const price = getDisplayPrice(p);
+            return price >= lo && price <= hi;
+        });
+    }
+
+    if (filter.sort === "price-asc") {
+        result.sort((a, b) => getDisplayPrice(a) - getDisplayPrice(b));
+    } else if (filter.sort === "price-desc") {
+        result.sort((a, b) => getDisplayPrice(b) - getDisplayPrice(a));
+    }
+
+    return result;
+}
+
+function isDefaultFilter(f: FilterValues) {
+    return f.sort === "popular" && f.price === "all";
+}
+
+function buildInitialState(
+    subCategories: SubCategory[],
+): Record<number, SubCategoryState> {
+    return Object.fromEntries(
+        subCategories.map((sc) => [
+            sc.id,
+            {
+                products: sc.products,
+                totalProducts: sc.total_products,
+                hasMore: sc.has_more,
+                page: 1,
+                isLoadingMore: false,
+            } satisfies SubCategoryState,
+        ]),
+    );
+}
+
+function mergeProducts(
+    existing: CategoryProduct[],
+    incoming: CategoryProduct[],
+): CategoryProduct[] {
+    const seen = new Set(existing.map((p) => p.id));
+    const appended = incoming.filter((p) => !seen.has(p.id));
+    return appended.length === 0 ? existing : [...existing, ...appended];
+}
 
 function ToolbarBtn({
     label,
@@ -56,19 +143,22 @@ function ProductsToolbar({
     totalProducts,
     viewMode,
     hasActiveFilter,
+    stickyTop,
     onToggleView,
     onOpenFilter,
 }: {
     totalProducts: number;
     viewMode: ViewMode;
     hasActiveFilter: boolean;
+    stickyTop: number;
     onToggleView: () => void;
     onOpenFilter: () => void;
 }) {
     return (
         <div
             dir="ltr"
-            className="flex items-center justify-between gap-3 bg-white px-3 py-2.5 dark:bg-gray-900 sm:px-5 lg:px-6"
+            className="sticky z-20 flex items-center justify-between gap-3 border-b border-gray-100 bg-white px-3 py-2.5 dark:border-gray-800 dark:bg-gray-900 sm:px-5 lg:px-6"
+            style={{ top: stickyTop }}
         >
             <div className="flex items-center gap-2">
                 <ToolbarBtn
@@ -76,10 +166,11 @@ function ProductsToolbar({
                     onClick={onToggleView}
                     active={viewMode === "list"}
                 >
-                    {viewMode === "grid"
-                        ? <List className="h-[18px] w-[18px]" strokeWidth={2.25} />
-                        : <LayoutGrid className="h-[18px] w-[18px]" strokeWidth={2.25} />
-                    }
+                    {viewMode === "grid" ? (
+                        <List className="h-[18px] w-[18px]" strokeWidth={2.25} />
+                    ) : (
+                        <LayoutGrid className="h-[18px] w-[18px]" strokeWidth={2.25} />
+                    )}
                 </ToolbarBtn>
 
                 <ToolbarBtn
@@ -92,7 +183,10 @@ function ProductsToolbar({
             </div>
 
             <p dir="rtl" className="text-sm font-medium text-[#707784] dark:text-gray-400">
-                <span className="tabular-nums">{totalProducts.toLocaleString("en-US")}</span> منتج
+                <span className="tabular-nums">
+                    {totalProducts.toLocaleString("en-US")}
+                </span>{" "}
+                منتج
             </p>
         </div>
     );
@@ -110,9 +204,18 @@ function SubCategoryTabs({
     const barRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        barRef.current
-            ?.querySelector<HTMLElement>(`[data-sub-id="${activeId}"]`)
-            ?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        const container = barRef.current;
+        if (!container || activeId == null) return;
+
+        const tab = container.querySelector<HTMLElement>(
+            `[data-sub-id="${activeId}"]`,
+        );
+        if (!tab) return;
+
+        const frame = requestAnimationFrame(() =>
+            scrollTabIntoView(container, tab),
+        );
+        return () => cancelAnimationFrame(frame);
     }, [activeId]);
 
     return (
@@ -121,8 +224,7 @@ function SubCategoryTabs({
             dir="rtl"
             role="tablist"
             aria-label="أقسام فرعية"
-            className="sticky z-20 flex h-12 gap-2 overflow-x-auto overscroll-x-contain border-b border-gray-100 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-900 sm:px-5 lg:px-6
-                       scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="sticky z-30 flex h-12 gap-2 overflow-x-auto overscroll-x-contain border-b border-gray-100 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-900 sm:px-5 lg:px-6 scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             style={{ top: CATEGORY_NAV_H }}
         >
             {subCategories.map((sc) => {
@@ -155,19 +257,17 @@ function SubCategorySection({
     displayProducts,
     sectionRef,
     onLoadMore,
+    canLoadMore,
+    isLoadingMore,
     viewMode,
-    hasActiveFilter,
-    onToggleView,
-    onOpenFilter,
 }: {
     subCategory: SubCategory;
     displayProducts: CategoryProduct[];
     sectionRef: (el: HTMLElement | null) => void;
     onLoadMore: () => void;
+    canLoadMore: boolean;
+    isLoadingMore: boolean;
     viewMode: ViewMode;
-    hasActiveFilter: boolean;
-    onToggleView: () => void;
-    onOpenFilter: () => void;
 }) {
     return (
         <section
@@ -182,96 +282,82 @@ function SubCategorySection({
                 </h2>
             </div>
 
-            <ProductsToolbar
-                totalProducts={displayProducts.length}
-                viewMode={viewMode}
-                hasActiveFilter={hasActiveFilter}
-                onToggleView={onToggleView}
-                onOpenFilter={onOpenFilter}
-            />
-
             {displayProducts.length === 0 ? (
-                <p dir="rtl" className="px-3 py-8 text-center text-sm text-[#707784] dark:text-gray-500">
+                <p
+                    dir="rtl"
+                    className="px-3 py-8 text-center text-sm text-[#707784] dark:text-gray-500"
+                >
                     لا توجد منتجات تطابق الفلتر الحالي
                 </p>
             ) : viewMode === "grid" ? (
                 <div className="grid grid-cols-2 gap-2 px-3 pt-2 sm:grid-cols-3 sm:gap-2.5 sm:px-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-3 lg:px-6 xl:grid-cols-5">
                     {displayProducts.map((product) => (
-                        <CategoryProductCard key={product.id} product={product} layout="grid" />
+                        <CategoryProductCard
+                            key={product.id}
+                            product={product}
+                            layout="grid"
+                        />
                     ))}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-2.5 px-3 pt-2 sm:px-5 md:grid-cols-2 md:gap-3 lg:px-6">
                     {displayProducts.map((product) => (
-                        <CategoryProductCard key={product.id} product={product} layout="list" />
+                        <CategoryProductCard
+                            key={product.id}
+                            product={product}
+                            layout="list"
+                        />
                     ))}
                 </div>
             )}
 
-            {subCategory.has_more && !hasActiveFilter && (
-                <div className="flex justify-center pb-2 pt-3">
-                    <button
-                        type="button"
-                        onClick={onLoadMore}
-                        className="min-h-[40px] rounded-full border border-[#30913F] bg-white px-5 py-2 text-xs font-semibold text-[#30913F] transition-opacity active:opacity-70 dark:bg-gray-900 dark:text-[#4db860] dark:border-[#30913F]/50 sm:text-sm"
-                    >
-                        عرض المزيد
-                    </button>
-                </div>
-            )}
         </section>
     );
 }
 
-const DEFAULT_FILTER: FilterValues = { sort: "popular", price: "all" };
-
-function getDisplayPrice(product: CategoryProduct): number {
-    return product.discounted_price ?? product.price;
-}
-
-function applyFilterToProducts(products: CategoryProduct[], filter: FilterValues): CategoryProduct[] {
-    let result = [...products];
-
-    if (filter.price !== "all") {
-        const [minStr, maxStr] = filter.price.split("-");
-        const min = Number(minStr);
-        const max = Number(maxStr);
-        const [lo, hi] = min <= max ? [min, max] : [max, min];
-        result = result.filter((p) => {
-            const dp = getDisplayPrice(p);
-            return dp >= lo && dp <= hi;
-        });
-    }
-
-    if (filter.sort === "price-asc") {
-        result.sort((a, b) => getDisplayPrice(a) - getDisplayPrice(b));
-    } else if (filter.sort === "price-desc") {
-        result.sort((a, b) => getDisplayPrice(b) - getDisplayPrice(a));
-    }
-
-    return result;
-}
-
-function isDefaultFilter(f: FilterValues) {
-    return f.sort === "popular" && f.price === "all";
-}
-
 interface Props {
     detail: CategoryDetails;
+    storeId: string;
 }
 
-export function CategoryDetailClient({ detail }: Props) {
+export function CategoryDetailClient({ detail, storeId }: Props) {
+    const { error: notifyError } = useNotification();
+    const hasSubTabs = detail.sub_categories.length > 1;
+    const scrollOffset =
+        CATEGORY_NAV_H + (hasSubTabs ? SUB_NAV_H : 0) + TOOLBAR_H + 8;
+    const toolbarStickyTop = CATEGORY_NAV_H + (hasSubTabs ? SUB_NAV_H : 0);
+
     const [activeSubId, setActiveSubId] = useState<number | null>(
-        detail.sub_categories[0]?.id ?? null
+        detail.sub_categories[0]?.id ?? null,
     );
     const [viewMode, setViewMode] = useState<ViewMode>("grid");
     const [filterOpen, setFilterOpen] = useState(false);
-    const [appliedFilter, setAppliedFilter] = useState<FilterValues>(DEFAULT_FILTER);
+    const [filter, setFilter] = useState<FilterValues>(DEFAULT_FILTER_VALUES);
+    const [subCategoriesState, setSubCategoriesState] = useState(() =>
+        buildInitialState(detail.sub_categories),
+    );
 
-    const hasActiveFilter = !isDefaultFilter(appliedFilter);
-
+    const stateRef = useRef(subCategoriesState);
     const sectionRefs = useRef<Map<number, HTMLElement>>(new Map());
+    const observerRef = useRef<IntersectionObserver | null>(null);
     const isProgrammatic = useRef(false);
+    const loadingIdsRef = useRef<Set<number>>(new Set());
+
+    // Reset pagination when navigating to another category (or after HMR
+    // leaves stale state that still uses the old item-based `offset` field).
+    useEffect(() => {
+        const next = buildInitialState(detail.sub_categories);
+        setSubCategoriesState(next);
+        stateRef.current = next;
+        loadingIdsRef.current.clear();
+        setActiveSubId(detail.sub_categories[0]?.id ?? null);
+        // Only reset when the category itself changes — not on every RSC payload.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [detail.category_id]);
+
+    useEffect(() => {
+        stateRef.current = subCategoriesState;
+    }, [subCategoriesState]);
 
     const toggleView = useCallback(() => {
         setViewMode((prev) => (prev === "grid" ? "list" : "grid"));
@@ -281,43 +367,169 @@ export function CategoryDetailClient({ detail }: Props) {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (isProgrammatic.current) return;
+
                 const best = entries
                     .filter((e) => e.isIntersecting)
                     .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-                if (best) {
-                    setActiveSubId(
-                        Number((best.target as HTMLElement).dataset.subcategoryId)
-                    );
-                }
+
+                if (!best) return;
+
+                const nextId = Number(
+                    (best.target as HTMLElement).dataset.subcategoryId,
+                );
+                if (!Number.isFinite(nextId)) return;
+
+                setActiveSubId((prev) => (prev === nextId ? prev : nextId));
             },
             {
-                threshold: [0, 0.25, 0.5, 0.75, 1],
-                rootMargin: `-${SCROLL_OFFSET}px 0px -35% 0px`,
-            }
+                threshold: [0, 0.15, 0.35, 0.55, 0.75],
+                rootMargin: `-${scrollOffset}px 0px -40% 0px`,
+            },
         );
 
+        observerRef.current = observer;
         sectionRefs.current.forEach((el) => observer.observe(el));
-        return () => observer.disconnect();
-    }, [detail]);
+
+        return () => {
+            observer.disconnect();
+            observerRef.current = null;
+        };
+    }, [detail.category_id, scrollOffset]);
 
     const registerSection = useCallback((id: number, el: HTMLElement | null) => {
-        if (el) sectionRefs.current.set(id, el);
-        else sectionRefs.current.delete(id);
+        const prev = sectionRefs.current.get(id);
+        if (prev && prev !== el) {
+            observerRef.current?.unobserve(prev);
+            sectionRefs.current.delete(id);
+        }
+
+        if (el) {
+            sectionRefs.current.set(id, el);
+            observerRef.current?.observe(el);
+        }
     }, []);
 
-    const scrollToSection = useCallback((id: number) => {
-        const el = sectionRefs.current.get(id);
-        if (!el) return;
-        isProgrammatic.current = true;
-        setActiveSubId(id);
-        const top = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET;
-        window.scrollTo({ top, behavior: "smooth" });
-        setTimeout(() => { isProgrammatic.current = false; }, 650);
-    }, []);
+    const scrollToSection = useCallback(
+        (id: number) => {
+            const el = sectionRefs.current.get(id);
+            if (!el) return;
+
+            isProgrammatic.current = true;
+            setActiveSubId(id);
+
+            const top =
+                el.getBoundingClientRect().top + window.scrollY - scrollOffset;
+            window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+
+            const clearFlag = () => {
+                isProgrammatic.current = false;
+                window.removeEventListener("scrollend", clearFlag);
+            };
+
+            if ("onscrollend" in window) {
+                window.addEventListener("scrollend", clearFlag, { once: true });
+            } else {
+                setTimeout(clearFlag, 700);
+            }
+        },
+        [scrollOffset],
+    );
+
+    const handleLoadMore = useCallback(
+        async (subCategoryId: number) => {
+            if (loadingIdsRef.current.has(subCategoryId)) return;
+
+            const current = stateRef.current[subCategoryId];
+            if (!current || current.isLoadingMore || !current.hasMore) return;
+
+            // Coerce: HMR / stale state may still have old `offset` and no `page`.
+            const currentPage = Math.max(
+                1,
+                Number(current.page) ||
+                Number((current as { offset?: number }).offset) ||
+                1,
+            );
+            // If legacy state stored item-count in `offset` (e.g. 50), treat as page 1.
+            const safePage = currentPage > 100 ? 1 : currentPage;
+            const nextPage = safePage + 1;
+
+            loadingIdsRef.current.add(subCategoryId);
+
+            setSubCategoriesState((prev) => ({
+                ...prev,
+                [subCategoryId]: {
+                    ...prev[subCategoryId],
+                    page: safePage,
+                    isLoadingMore: true,
+                },
+            }));
+
+            try {
+                const result = await loadMoreSubCategoryProducts({
+                    storeId,
+                    subCategoryId,
+                    limit: LOAD_MORE_LIMIT,
+                    offset: nextPage,
+                });
+
+                if (!result.success) {
+                    notifyError(result.message);
+                    setSubCategoriesState((prev) => ({
+                        ...prev,
+                        [subCategoryId]: {
+                            ...prev[subCategoryId],
+                            isLoadingMore: false,
+                        },
+                    }));
+                    return;
+                }
+
+                const { products: pageProducts, total_products, has_more } =
+                    result.subCategory;
+
+                setSubCategoriesState((prev) => {
+                    const entry = prev[subCategoryId];
+                    if (!entry) return prev;
+
+                    const products = mergeProducts(entry.products, pageProducts);
+
+                    return {
+                        ...prev,
+                        [subCategoryId]: {
+                            products,
+                            totalProducts: total_products,
+                            hasMore: has_more && pageProducts.length > 0,
+                            page: nextPage,
+                            isLoadingMore: false,
+                        },
+                    };
+                });
+            } finally {
+                loadingIdsRef.current.delete(subCategoryId);
+            }
+        },
+        [storeId, notifyError],
+    );
+
+    const hasActiveFilter = !isDefaultFilter(filter);
+
+    const sections = detail.sub_categories.map((sc) => {
+        const state = subCategoriesState[sc.id];
+        const displayProducts = applyFilterToProducts(
+            state?.products ?? sc.products,
+            filter,
+        );
+        return { sc, state, displayProducts };
+    });
+
+    const visibleProductCount = sections.reduce(
+        (sum, s) => sum + s.displayProducts.length,
+        0,
+    );
 
     return (
         <div>
-            {detail.sub_categories.length > 1 && (
+            {hasSubTabs && (
                 <SubCategoryTabs
                     subCategories={detail.sub_categories}
                     activeId={activeSubId}
@@ -325,30 +537,36 @@ export function CategoryDetailClient({ detail }: Props) {
                 />
             )}
 
+            <ProductsToolbar
+                totalProducts={visibleProductCount}
+                viewMode={viewMode}
+                hasActiveFilter={hasActiveFilter}
+                stickyTop={toolbarStickyTop}
+                onToggleView={toggleView}
+                onOpenFilter={() => setFilterOpen(true)}
+            />
+
             <div className="pb-28">
-                {detail.sub_categories.map((sc) => {
-                    const displayProducts = applyFilterToProducts(sc.products, appliedFilter);
-                    return (
-                        <SubCategorySection
-                            key={sc.id}
-                            subCategory={sc}
-                            displayProducts={displayProducts}
-                            sectionRef={(el) => registerSection(sc.id, el)}
-                            onLoadMore={() => { /* hook into your loadMoreProducts here */ }}
-                            viewMode={viewMode}
-                            hasActiveFilter={hasActiveFilter}
-                            onToggleView={toggleView}
-                            onOpenFilter={() => setFilterOpen(true)}
-                        />
-                    );
-                })}
+                {sections.map(({ sc, state, displayProducts }) => (
+                    <SubCategorySection
+                        key={sc.id}
+                        subCategory={sc}
+                        displayProducts={displayProducts}
+                        sectionRef={(el) => registerSection(sc.id, el)}
+                        onLoadMore={() => handleLoadMore(sc.id)}
+                        canLoadMore={Boolean(state?.hasMore) && !hasActiveFilter}
+                        isLoadingMore={Boolean(state?.isLoadingMore)}
+                        viewMode={viewMode}
+                    />
+                ))}
             </div>
 
             <FilterSheet
                 open={filterOpen}
                 onClose={() => setFilterOpen(false)}
-                onApply={(f) => {
-                    setAppliedFilter(f);
+                initialValues={filter}
+                onApply={(next) => {
+                    setFilter(next);
                     setFilterOpen(false);
                 }}
             />

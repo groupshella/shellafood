@@ -2,6 +2,7 @@ export interface CategoryProduct {
     id: number;
     name: string;
     full_image_url: string;
+    image_full_url?: string;
     price: number;
     discounted_price: number | null;
     discount_percentage: number | null;

@@ -10,10 +10,10 @@ export const CategoryDetail = Object.assign(
         storeId: string;
         categoryId: string;
     }) {
-        const detail = await getCategoryDetail(storeId, categoryId);
+        const detail = await getCategoryDetail(storeId, categoryId, 50, 1);
         if (!detail.sub_categories.length) return null;
 
-        return <CategoryDetailClient detail={detail} />;
+        return <CategoryDetailClient detail={detail} storeId={storeId} />;
     },
     { skeleton: CategoryDetailSkeleton }
 );

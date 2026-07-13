@@ -156,7 +156,7 @@ export function ProfileHomeClient({ user, joinStatuses }: ProfileHomeClientProps
                 </div>
             </section>
 
-            <section className="mx-auto mb-4 grid w-full max-w-sm grid-cols-3 items-stretch justify-items-center gap-2 overflow-visible sm:gap-3 md:max-w-xl md:gap-4">
+            <section className="mx-auto mb-4 grid w-full max-w-md grid-cols-3 items-stretch gap-2 sm:max-w-xl sm:gap-3 md:max-w-2xl md:gap-4 lg:max-w-3xl">
                 <StatCard
                     variant="points"
                     title="نقاطك"

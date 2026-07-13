@@ -2,7 +2,6 @@
 
 import { Minus, Plus } from "lucide-react";
 import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
-import Image from "next/image";
 
 interface ProfilePhotoCropProps {
     photoSrc: string;
@@ -11,7 +10,16 @@ interface ProfilePhotoCropProps {
     error?: string | null;
 }
 
-export function ProfilePhotoCrop({ photoSrc, zoom, onZoomChange, error }: ProfilePhotoCropProps) {
+/**
+ * Uses a plain <img> so local data:/blob: previews work without next/image
+ * sizing requirements (which previously blanked the photo confirm screen).
+ */
+export function ProfilePhotoCrop({
+    photoSrc,
+    zoom,
+    onZoomChange,
+    error,
+}: ProfilePhotoCropProps) {
     const adjustZoom = (delta: number) => {
         onZoomChange(Math.min(3, Math.max(1, Number((zoom + delta).toFixed(1)))));
     };
@@ -20,11 +28,12 @@ export function ProfilePhotoCrop({ photoSrc, zoom, onZoomChange, error }: Profil
         <div className="flex w-full flex-col items-center gap-6 sm:gap-8">
             <div className="relative aspect-square w-full max-w-48 overflow-hidden rounded-full bg-[#F6F5F8] ring-1 ring-[#F6F5F8] dark:bg-gray-800 dark:ring-gray-700 sm:max-w-56 md:max-w-64">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <Image
+                <img
                     src={photoSrc}
                     alt=""
                     className="h-full w-full object-cover transition-transform duration-200"
                     style={{ transform: `scale(${zoom})` }}
+                    draggable={false}
                 />
             </div>
 
@@ -68,7 +77,10 @@ export function ProfilePhotoCrop({ photoSrc, zoom, onZoomChange, error }: Profil
             </div>
 
             {error && (
-                <p className="w-full text-center text-[13px] text-red-600 dark:text-red-400" role="alert">
+                <p
+                    className="w-full text-center text-[13px] text-red-600 dark:text-red-400"
+                    role="alert"
+                >
                     {error}
                 </p>
             )}

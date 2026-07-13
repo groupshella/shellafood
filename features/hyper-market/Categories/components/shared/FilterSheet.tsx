@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 type SortOption = "popular" | "price-asc" | "price-desc";
@@ -22,10 +22,14 @@ export interface FilterValues {
     price: PriceRange;
 }
 
+export const DEFAULT_FILTER_VALUES: FilterValues = { sort: "popular", price: "all" };
+
 interface FilterSheetProps {
     open: boolean;
     onClose: () => void;
     onApply: (filters: FilterValues) => void;
+    /** Current filter values when the sheet opens. Defaults to "popular"/"all". */
+    initialValues?: FilterValues;
 }
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
@@ -35,22 +39,31 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 ];
 
 const PRICE_RANGES: { value: PriceRange; label: string }[] = [
-    { value: "all",      label: "الجميع" },
-    { value: "0-10",     label: "0 - 10" },
-    { value: "0-20",     label: "0 - 20" },
-    { value: "70-40",    label: "40 - 70" },
-    { value: "70-100",   label: "70 - 100" },
-    { value: "100-150",  label: "100 - 150" },
-    { value: "150-200",  label: "150 - 200" },
-    { value: "200-300",  label: "200 - 300" },
-    { value: "300-500",  label: "300 - 500" },
-    { value: "500-700",  label: "500 - 700" },
+    { value: "all", label: "الجميع" },
+    { value: "0-10", label: "0 - 10" },
+    { value: "0-20", label: "0 - 20" },
+    { value: "70-40", label: "40 - 70" },
+    { value: "70-100", label: "70 - 100" },
+    { value: "100-150", label: "100 - 150" },
+    { value: "150-200", label: "150 - 200" },
+    { value: "200-300", label: "200 - 300" },
+    { value: "300-500", label: "300 - 500" },
+    { value: "500-700", label: "500 - 700" },
     { value: "700-1000", label: "700 - 1000" },
 ];
 
-export function FilterSheet({ open, onClose, onApply }: FilterSheetProps) {
-    const [sort, setSort] = useState<SortOption>("popular");
-    const [price, setPrice] = useState<PriceRange>("all");
+export function FilterSheet({ open, onClose, onApply, initialValues }: FilterSheetProps) {
+    const [sort, setSort] = useState<SortOption>(initialValues?.sort ?? "popular");
+    const [price, setPrice] = useState<PriceRange>(initialValues?.price ?? "all");
+
+    // Re-sync when the sheet opens so it reflects the latest applied filter.
+    useEffect(() => {
+        if (open) {
+            setSort(initialValues?.sort ?? "popular");
+            setPrice(initialValues?.price ?? "all");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open]);
 
     if (!open) return null;
 

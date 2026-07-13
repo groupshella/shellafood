@@ -17,12 +17,33 @@ interface StatCardProps {
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
 const AFACAD = { fontFamily: "'Afacad Flux', sans-serif" } as const;
 
-// Figma spec is 109x145 on mobile. Desktop scales everything by ~1.25x
-// so the design stays proportionally identical, just larger/easier to read.
 const CARD_CLASSES: Record<StatCardVariant, string> = {
     points: "bg-[#EFE6FF] dark:bg-[#2D1F47]",
     wallet: "bg-[#EBFEEB] dark:bg-[#1A3520]",
     qidha: "bg-[#D1FDD2] dark:bg-[#1A3B1A]",
+};
+
+const DECORATION: Record<
+    StatCardVariant,
+    { src: string; wrap: string; img: string; rotate?: string }
+> = {
+    points: {
+        src: "/profile/stat-credit-card.png",
+        wrap: "inset-x-0 bottom-0 h-[58%] sm:h-[60%]",
+        img: "object-contain object-bottom",
+    },
+    wallet: {
+        src: "/profile/stat-money.png",
+        wrap: "inset-x-[6%] bottom-[-2%] h-[52%] sm:h-[54%]",
+        img: "object-contain object-bottom",
+        rotate: "rotate-[4deg]",
+    },
+    qidha: {
+        src: "/profile/stat-coins.png",
+        wrap: "inset-x-[12%] bottom-[-4%] h-[52%] sm:h-[55%]",
+        img: "object-contain object-bottom",
+        rotate: "rotate-[18deg]",
+    },
 };
 
 function SarIcon() {
@@ -30,7 +51,7 @@ function SarIcon() {
         <svg
             viewBox="0 0 17 17"
             fill="none"
-            className="h-[14px] w-[13px] shrink-0 text-[#111B18] dark:text-gray-100 md:h-[17.5px] md:w-[16px]"
+            className="h-3 w-3 shrink-0 text-[#111B18] dark:text-gray-100 xs:h-3.5 xs:w-3.5 sm:h-4 sm:w-4"
             aria-hidden
         >
             <path
@@ -41,110 +62,61 @@ function SarIcon() {
     );
 }
 
-function PointsDecoration() {
-    return (
-        <div
-            className="pointer-events-none absolute bottom-0 left-1/2 h-[104.8px] w-[137px] -translate-x-1/2 md:h-[131px] md:w-[171px]"
-            aria-hidden
-        >
-            <Image
-                src="/profile/stat-credit-card.png"
-
-                alt=""
-                width={171}
-                height={131}
-                className="h-full w-full object-contain object-bottom"
-                sizes="(min-width: 768px) 171px, 137px"
-            />
-        </div>
-    );
-}
-
-function WalletDecoration() {
-    return (
-        <div
-            className="pointer-events-none absolute bottom-0 left-1/2 flex h-[84.88px] w-[129px] -translate-x-1/2 rotate-[3.98deg] flex-row items-center justify-end gap-[10px] md:h-[106px] md:w-[161px]"
-            aria-hidden
-        >
-            <Image
-                src="/profile/stat-money.png"
-                alt=""
-                width={104}
-                height={89}
-                className="h-[71.49px] w-[83.22px] -rotate-[102.86deg] object-contain md:h-[89px] md:w-[104px]"
-                sizes="(min-width: 768px) 104px, 83px"
-            />
-        </div>
-    );
-}
-
-function QidhaDecoration() {
-    return (
-        <div
-            className="pointer-events-none absolute bottom-1 left-1/2 flex h-[87px] w-[59px] -translate-x-1/2 flex-col items-start justify-center gap-[10px] md:bottom-1.5 md:h-[109px] md:w-[74px]"
-            aria-hidden
-        >
-            <Image
-                src="/profile/stat-coins.png"
-                alt=""
-                width={123}
-                height={86}
-                className="h-[69px] w-[98px] rotate-[29.81deg] object-contain md:h-[86px] md:w-[123px]"
-                sizes="(min-width: 768px) 123px, 98px"
-            />
-        </div>
-    );
-}
-
 function CardDecoration({ variant }: { variant: StatCardVariant }) {
-    if (variant === "points") return <PointsDecoration />;
-    if (variant === "wallet") return <WalletDecoration />;
-    return <QidhaDecoration />;
+    const config = DECORATION[variant];
+
+    return (
+        <div
+            className={`pointer-events-none absolute ${config.wrap}`}
+            aria-hidden
+        >
+            <div className={`relative h-full w-full ${config.rotate ?? ""}`}>
+                <Image
+                    src={config.src}
+                    alt=""
+                    fill
+                    priority
+                    sizes="(max-width: 640px) 28vw, (max-width: 768px) 120px, 140px"
+                    className={config.img}
+                />
+            </div>
+        </div>
+    );
 }
 
 function StatValue({ value, showCurrency }: { value: number; showCurrency: boolean }) {
-    const formatted = value.toFixed(2);
-
-    if (!showCurrency) {
-        return (
-            <div className="flex h-8 w-full max-w-20 items-center justify-center gap-[7px] md:h-10 md:max-w-[100px]">
-                <span
-                    className="flex items-center text-center text-[clamp(20px,6vw,24px)] font-bold leading-8 tabular-nums text-[#111B18] dark:text-gray-100 md:text-[30px] md:leading-10"
-                    style={AFACAD}
-                >
-                    {formatted}
-                </span>
-            </div>
-        );
-    }
+    const formatted = Number.isFinite(value) ? value.toFixed(2) : "0.00";
 
     return (
-        <div className="flex h-[31px] w-full max-w-[99px] items-center justify-center gap-0.5 rounded-lg md:h-[39px] md:max-w-[124px] md:gap-1">
-            <div className="flex h-[14px] w-[15px] items-center justify-center pb-0.5 md:h-[17.5px] md:w-[19px]">
-                <SarIcon />
-            </div>
-            <div className="flex h-8 min-w-0 flex-1 items-center justify-center gap-[7px] md:h-10">
-                <span
-                    className="flex items-center text-center text-[clamp(20px,6vw,24px)] font-bold leading-8 tabular-nums text-[#111B18] dark:text-gray-100 md:text-[30px] md:leading-10"
-                    style={AFACAD}
-                >
-                    {formatted}
-                </span>
-            </div>
+        <div className="flex min-h-7 w-full max-w-full items-center justify-center gap-0.5 sm:min-h-8 sm:gap-1">
+            {showCurrency && <SarIcon />}
+            <span
+                className="truncate text-center text-[clamp(15px,4.2vw,22px)] font-bold leading-none tabular-nums text-[#111B18] dark:text-gray-100 sm:text-[clamp(18px,2.4vw,26px)]"
+                style={AFACAD}
+            >
+                {formatted}
+            </span>
         </div>
     );
 }
 
-export function StatCard({ title, value, variant, href, showCurrency = false, onClick }: StatCardProps) {
+export function StatCard({
+    title,
+    value,
+    variant,
+    href,
+    showCurrency = false,
+    onClick,
+}: StatCardProps) {
     const isInteractive = Boolean(href || onClick);
 
     const className = [
-        "relative flex h-[145px] w-full min-w-0 max-w-[109px] shrink-0 flex-col items-center gap-0.5 overflow-visible rounded-[8px] px-2 py-4 text-center",
-        "md:h-[181px] md:max-w-[136px] md:gap-1 md:rounded-[10px] md:px-[18px] md:py-5",
-        "shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] transition-transform duration-150",
+        "relative flex aspect-[109/145] w-full min-w-0 flex-col items-center overflow-hidden",
+        "rounded-lg px-1.5 pb-[42%] pt-3 text-center sm:rounded-xl sm:px-2 sm:pb-[40%] sm:pt-3.5 md:rounded-[10px] md:px-3 md:pt-4",
+        "shadow-[0px_4px_8.9px_rgba(0,0,0,0.03)] transition-[transform,box-shadow] duration-150",
         "dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.25)]",
         isInteractive
-            ? "active:scale-[0.98] md:hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#111B18] dark:focus-visible:ring-gray-100"
+            ? "active:scale-[0.98] md:hover:-translate-y-0.5 md:hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111B18] focus-visible:ring-offset-2 dark:focus-visible:ring-gray-100 dark:focus-visible:ring-offset-gray-950"
             : "",
         CARD_CLASSES[variant],
     ].join(" ");
@@ -152,13 +124,13 @@ export function StatCard({ title, value, variant, href, showCurrency = false, on
     const content = (
         <>
             <span
-                className="relative z-10 flex h-[17px] items-center text-center text-[13px] font-bold leading-[17px] text-[#111B18] dark:text-gray-100 sm:text-[14px] md:h-[21px] md:text-[17.5px] md:leading-[21px]"
+                className="relative z-10 line-clamp-1 px-0.5 text-[11px] font-bold leading-tight text-[#111B18] dark:text-gray-100 xs:text-xs sm:text-[13px] md:text-sm"
                 style={TAJAWAL}
             >
                 {title}
             </span>
 
-            <div className="relative z-10">
+            <div className="relative z-10 mt-1 w-full px-0.5 sm:mt-1.5">
                 <StatValue value={value} showCurrency={showCurrency} />
             </div>
 
