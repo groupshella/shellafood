@@ -5,19 +5,15 @@ import { useMemo, useState } from "react";
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
 import {
     FREQUENCY_OPTIONS,
-    MOCK_MONTHLY_TRENDS,
-    MOCK_QIDHA_DATA,
-    MOCK_STATISTICS_CATEGORIES,
     TAJAWAL,
 } from "@/features/profile/constants/statistics.constants";
 import { useGeneralAnalytics } from "@/features/profile/hooks/useGeneralAnalytics";
+import { useRecordedAnalytics } from "@/features/profile/hooks/useRecordedAnalytics";
 import type {
     ChartPeriod,
     GeneralAnalyticsInitialData,
     ProductLayout,
-    QidhaStatisticsData,
-    StatisticsCategory,
-    StatisticsMonthTrend,
+    RecordedAnalyticsInitialData,
     StatisticsTab,
 } from "@/features/profile/types/statistics.types";
 import { GeneralTabContent } from "./GeneralTabContent";
@@ -25,17 +21,12 @@ import { RecordedTabContent } from "./RecordedTabContent";
 
 interface StatisticsClientProps {
     initialAnalytics?: GeneralAnalyticsInitialData | null;
-    /** قيدها tab — prop-driven until its own endpoint exists. */
-    categories?: StatisticsCategory[];
-    monthlyTrends?: StatisticsMonthTrend[];
-    qidha?: QidhaStatisticsData;
+    initialRecorded?: RecordedAnalyticsInitialData | null;
 }
 
 export function StatisticsClient({
     initialAnalytics = null,
-    categories = MOCK_STATISTICS_CATEGORIES,
-    monthlyTrends = MOCK_MONTHLY_TRENDS,
-    qidha = MOCK_QIDHA_DATA,
+    initialRecorded = null,
 }: StatisticsClientProps) {
     const [activeTab, setActiveTab] = useState<StatisticsTab>("general");
     const [chartPeriod, setChartPeriod] = useState<ChartPeriod>("week");
@@ -50,6 +41,11 @@ export function StatisticsClient({
     const analytics = useGeneralAnalytics({
         period: chartPeriod,
         initialData: initialAnalytics,
+        enabled: true,
+    });
+
+    const recorded = useRecordedAnalytics({
+        initialData: initialRecorded,
         enabled: true,
     });
 
@@ -84,13 +80,13 @@ export function StatisticsClient({
             title="إحصائيات"
             relaxedHeader
             showHeaderBorder={false}
-            mainClassName="bg-[#F6F5F8] dark:bg-gray-800 pb-[max(2rem,env(safe-area-inset-bottom))] pt-4"
+            mainClassName="bg-[#F6F5F8] pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-3 dark:bg-gray-950 sm:pt-4 lg:pb-12 lg:pt-5"
         >
-            <div className="mx-auto flex w-full max-w-[343px] flex-col gap-6 md:max-w-[720px]">
+            <div className="mx-auto flex w-full max-w-lg flex-col gap-5 sm:max-w-2xl sm:gap-6 md:gap-7 lg:max-w-4xl xl:max-w-5xl">
                 <div
                     role="tablist"
                     aria-label="إحصائيات"
-                    className="flex h-[44px] w-full items-center rounded-[12px] bg-white p-[2px] shadow-[0px_1px_8px_rgba(0,0,0,0.04)] dark:bg-gray-800 md:mx-auto md:max-w-[420px]"
+                    className="mx-auto flex h-11 w-full max-w-md items-center rounded-xl bg-white p-0.5 shadow-[0px_1px_8px_rgba(0,0,0,0.04)] dark:bg-gray-900 sm:h-12 md:max-w-sm"
                 >
                     <button
                         type="button"
@@ -98,7 +94,7 @@ export function StatisticsClient({
                         aria-selected={activeTab === "general"}
                         onClick={() => switchTab("general")}
                         className={[
-                            "flex h-[40px] flex-1 items-center justify-center rounded-[10px] text-[14px] font-bold transition-[background-color,color] duration-200 sm:text-[16px]",
+                            "flex h-full flex-1 items-center justify-center rounded-[10px] text-sm font-bold transition-[background-color,color] duration-200 sm:text-base",
                             activeTab === "general"
                                 ? "bg-[#30913F] text-white shadow-[0px_3px_8px_rgba(48,145,63,0.25)]"
                                 : "bg-transparent text-[#082E0A] dark:text-gray-300",
@@ -113,7 +109,7 @@ export function StatisticsClient({
                         aria-selected={activeTab === "recorded"}
                         onClick={() => switchTab("recorded")}
                         className={[
-                            "flex h-[40px] flex-1 items-center justify-center rounded-[10px] text-[14px] font-bold transition-[background-color,color] duration-200 sm:text-[16px]",
+                            "flex h-full flex-1 items-center justify-center rounded-[10px] text-sm font-bold transition-[background-color,color] duration-200 sm:text-base",
                             activeTab === "recorded"
                                 ? "bg-[#30913F] text-white shadow-[0px_3px_8px_rgba(48,145,63,0.25)]"
                                 : "bg-transparent text-[#082E0A] dark:text-gray-300",
@@ -158,11 +154,7 @@ export function StatisticsClient({
                             onToggleHeart={toggleHeart}
                         />
                     ) : (
-                        <RecordedTabContent
-                            qidha={qidha}
-                            categories={categories}
-                            monthlyTrends={monthlyTrends}
-                        />
+                        <RecordedTabContent recorded={recorded} />
                     )}
                 </div>
             </div>

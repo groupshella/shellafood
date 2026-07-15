@@ -14,7 +14,7 @@ export default async function CartPage() {
 
 
   return (
-    <CartShell title="السلة">
+    <CartShell title="سلة التسوق">
       <Suspense fallback={<CartListSkeleton />}>
         <CartList />
       </Suspense>

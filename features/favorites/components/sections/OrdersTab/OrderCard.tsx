@@ -38,7 +38,15 @@ export const OrderCard = memo(function OrderCard({ order }: { order: FavoriteOrd
         <Link
             href={`/my-orders/${order.id}`}
             aria-label={`طلب ${order.store_name} رقم ${order.id}`}
-            className="flex h-full min-w-0 items-stretch overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:bg-gray-800 dark:ring-white/[0.06] dark:focus-visible:ring-offset-gray-950"
+            className={[
+                "flex h-full min-w-0 items-stretch overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04]",
+                "transition-transform active:scale-[0.99]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
+                "dark:bg-gray-800 dark:ring-white/[0.06] dark:focus-visible:ring-offset-gray-950",
+                "motion-safe:duration-200 md:hover:-translate-y-px",
+                "md:hover:shadow-[0_2px_6px_rgba(0,0,0,0.05),0_8px_24px_rgba(0,0,0,0.08)]",
+                "md:dark:hover:shadow-[0_2px_6px_rgba(0,0,0,0.25),0_8px_24px_rgba(0,0,0,0.2)]",
+            ].join(" ")}
         >
             <div className="relative w-16 shrink-0 self-stretch bg-gray-100 dark:bg-gray-700 sm:w-[4.5rem] md:w-20">
                 {order.store_logo_url ? (

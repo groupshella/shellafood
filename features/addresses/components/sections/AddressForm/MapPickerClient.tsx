@@ -1,12 +1,8 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-	GoogleMap,
-	useJsApiLoader,
-	Marker,
-} from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import { MapPin, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { checkZone } from "@/features/addresses/actions/check-zone";
 import { OutOfServiceArea } from "@/features/addresses/components/shared/OutOfServiceArea";
@@ -22,18 +18,20 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = {
 	lng: Number(process.env.NEXT_PUBLIC_LONGITUDE) || 46.6753,
 };
 
-const MAP_OPTIONS = {
+/** Required for AdvancedMarkerElement. Use a Cloud Console Map ID in prod. */
+const MAP_ID =
+	process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID?.trim() || "DEMO_MAP_ID";
+
+const MAP_OPTIONS: google.maps.MapOptions = {
 	disableDefaultUI: true,
 	zoomControl: true,
 	clickableIcons: false,
 	gestureHandling: "greedy",
-	styles: [
-		{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
-		{ featureType: "transit", elementType: "labels", stylers: [{ visibility: "off" }] },
-	],
+	mapId: MAP_ID,
+	// Note: `styles` cannot be used together with `mapId`.
 };
 
-const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"];
+const GOOGLE_MAPS_LIBRARIES: ("places" | "marker")[] = ["places", "marker"];
 
 const GEOCODER_LANGUAGE = "ar";
 const GEOCODER_REGION = "SA";
@@ -44,7 +42,10 @@ function extractAddressParts(components: google.maps.GeocoderAddressComponent[])
 
 	return {
 		city: get("locality") || get("administrative_area_level_1"),
-		region: get("sublocality") || get("administrative_area_level_2") || get("neighborhood"),
+		region:
+			get("sublocality") ||
+			get("administrative_area_level_2") ||
+			get("neighborhood"),
 		street_name: get("route"),
 	};
 }
@@ -58,11 +59,16 @@ function reverseGeocode(lat: number, lng: number): Promise<GeocodedLocation> {
 
 	return new Promise((resolve, reject) => {
 		geocoder.geocode(
-			{ location: { lat, lng }, language: GEOCODER_LANGUAGE, region: GEOCODER_REGION },
+			{
+				location: { lat, lng },
+				language: GEOCODER_LANGUAGE,
+				region: GEOCODER_REGION,
+			},
 			(results, status) => {
 				if (status === "OK" && results?.[0]?.formatted_address) {
 					const { formatted_address, address_components } = results[0];
-					const { city, region, street_name } = extractAddressParts(address_components);
+					const { city, region, street_name } =
+						extractAddressParts(address_components);
 
 					resolve({
 						lat,
@@ -84,7 +90,75 @@ function reverseGeocode(lat: number, lng: number): Promise<GeocodedLocation> {
 function formatPickedAddress(location: GeocodedLocation): string {
 	if (location.formattedAddress.trim()) return location.formattedAddress.trim();
 
-	return [location.street_name, location.region, location.city].filter(Boolean).join("، ");
+	return [location.street_name, location.region, location.city]
+		.filter(Boolean)
+		.join("، ");
+}
+
+function createBrandPinElement(): HTMLElement {
+	const PinElement = google.maps.marker?.PinElement;
+	if (PinElement) {
+		const pin = new PinElement({
+			background: "#30913F",
+			borderColor: "#267332",
+			glyphColor: "#FFFFFF",
+			scale: 1.15,
+		});
+		return pin.element;
+	}
+
+	// Fallback pin if PinElement is unavailable
+	const el = document.createElement("div");
+	el.style.width = "28px";
+	el.style.height = "40px";
+	el.innerHTML = `
+		<svg viewBox="0 0 36 44" width="28" height="40" aria-hidden="true">
+			<path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26S36 31.5 36 18C36 8.06 27.94 0 18 0z" fill="#30913F"/>
+			<circle cx="18" cy="18" r="6" fill="#FFFFFF"/>
+		</svg>
+	`;
+	return el;
+}
+
+/** AdvancedMarkerElement wrapper — replaces deprecated google.maps.Marker. */
+function AdvancedMapMarker({
+	map,
+	position,
+}: {
+	map: google.maps.Map | null;
+	position: google.maps.LatLngLiteral;
+}) {
+	const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
+		null,
+	);
+
+	useEffect(() => {
+		if (!map || !google.maps.marker?.AdvancedMarkerElement) return;
+
+		const marker = new google.maps.marker.AdvancedMarkerElement({
+			map,
+			position,
+			content: createBrandPinElement(),
+			title: "الموقع المحدد",
+			gmpDraggable: false,
+		});
+		markerRef.current = marker;
+
+		return () => {
+			marker.map = null;
+			markerRef.current = null;
+		};
+		// Recreate when map instance changes; position updates separately.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [map]);
+
+	useEffect(() => {
+		if (markerRef.current) {
+			markerRef.current.position = position;
+		}
+	}, [position]);
+
+	return null;
 }
 
 type CheckState = "idle" | "checking" | "out-of-zone" | "confirmed";
@@ -92,7 +166,10 @@ type CheckState = "idle" | "checking" | "out-of-zone" | "confirmed";
 const confirmButtonClass =
 	"flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#30913F] to-[#267332] text-sm font-semibold text-white transition-all duration-200 hover:from-[#2a8036] hover:to-[#1f6628] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 dark:focus-visible:ring-offset-gray-900 sm:min-h-[56px]";
 
-export function MapPickerClient({ onConfirm, initialPosition }: MapPickerClientProps) {
+export function MapPickerClient({
+	onConfirm,
+	initialPosition,
+}: MapPickerClientProps) {
 	const router = useRouter();
 	const startPos = initialPosition ?? DEFAULT_CENTER;
 
@@ -107,58 +184,65 @@ export function MapPickerClient({ onConfirm, initialPosition }: MapPickerClientP
 		useState<google.maps.LatLngLiteral>(startPos);
 	const [checkState, setCheckState] = useState<CheckState>("idle");
 	const [formattedAddress, setFormattedAddress] = useState<string | null>(null);
-	const [geocodedLocation, setGeocodedLocation] = useState<GeocodedLocation | null>(null);
+	const [geocodedLocation, setGeocodedLocation] =
+		useState<GeocodedLocation | null>(null);
 	const [isResolvingAddress, setIsResolvingAddress] = useState(!!initialPosition);
-	const mapRef = useRef<google.maps.Map | null>(null);
+	const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 	const geocodeRequestRef = useRef(0);
 	const centerRef = useRef(startPos);
 
-	const resolveAddressAt = useCallback(async (
-		pos: google.maps.LatLngLiteral,
-		requestId: number,
-	) => {
-		try {
-			const location = await reverseGeocode(pos.lat, pos.lng);
-			if (requestId !== geocodeRequestRef.current) return;
-			setGeocodedLocation(location);
-			setFormattedAddress(location.formattedAddress);
-		} catch {
-			if (requestId !== geocodeRequestRef.current) return;
+	const resolveAddressAt = useCallback(
+		async (pos: google.maps.LatLngLiteral, requestId: number) => {
+			try {
+				const location = await reverseGeocode(pos.lat, pos.lng);
+				if (requestId !== geocodeRequestRef.current) return;
+				setGeocodedLocation(location);
+				setFormattedAddress(location.formattedAddress);
+			} catch {
+				if (requestId !== geocodeRequestRef.current) return;
+				setFormattedAddress(null);
+				setGeocodedLocation(null);
+			} finally {
+				if (requestId === geocodeRequestRef.current) {
+					setIsResolvingAddress(false);
+				}
+			}
+		},
+		[],
+	);
+
+	const onMapLoad = useCallback(
+		(map: google.maps.Map) => {
+			setMapInstance(map);
+
+			if (initialPosition) {
+				map.panTo(initialPosition);
+				map.setZoom(15);
+				const requestId = ++geocodeRequestRef.current;
+				setIsResolvingAddress(true);
+				void resolveAddressAt(initialPosition, requestId);
+			}
+		},
+		[initialPosition, resolveAddressAt],
+	);
+
+	const handleMapClick = useCallback(
+		async (e: google.maps.MapMouseEvent) => {
+			if (!e.latLng) return;
+
+			const nextPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+			const requestId = ++geocodeRequestRef.current;
+
+			setMarkerPos(nextPos);
+			setCheckState("idle");
 			setFormattedAddress(null);
 			setGeocodedLocation(null);
-		} finally {
-			if (requestId === geocodeRequestRef.current) {
-				setIsResolvingAddress(false);
-			}
-		}
-	}, []);
-
-	const onMapLoad = useCallback((map: google.maps.Map) => {
-		mapRef.current = map;
-
-		if (initialPosition) {
-			map.panTo(initialPosition);
-			map.setZoom(15);
-			const requestId = ++geocodeRequestRef.current;
 			setIsResolvingAddress(true);
-			void resolveAddressAt(initialPosition, requestId);
-		}
-	}, [initialPosition, resolveAddressAt]);
 
-	const handleMapClick = useCallback(async (e: google.maps.MapMouseEvent) => {
-		if (!e.latLng) return;
-
-		const nextPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-		const requestId = ++geocodeRequestRef.current;
-
-		setMarkerPos(nextPos);
-		setCheckState("idle");
-		setFormattedAddress(null);
-		setGeocodedLocation(null);
-		setIsResolvingAddress(true);
-
-		await resolveAddressAt(nextPos, requestId);
-	}, [resolveAddressAt]);
+			await resolveAddressAt(nextPos, requestId);
+		},
+		[resolveAddressAt],
+	);
 
 	const handleAutoRedirect = useCallback(async () => {
 		const nextPos = DEFAULT_CENTER;
@@ -166,15 +250,15 @@ export function MapPickerClient({ onConfirm, initialPosition }: MapPickerClientP
 
 		setCheckState("idle");
 		setMarkerPos(nextPos);
-		mapRef.current?.panTo(nextPos);
-		mapRef.current?.setZoom(15);
+		mapInstance?.panTo(nextPos);
+		mapInstance?.setZoom(15);
 
 		setFormattedAddress(null);
 		setGeocodedLocation(null);
 		setIsResolvingAddress(true);
 
 		await resolveAddressAt(nextPos, requestId);
-	}, [resolveAddressAt]);
+	}, [mapInstance, resolveAddressAt]);
 
 	const handleGoHome = useCallback(() => {
 		router.push("/home");
@@ -204,9 +288,14 @@ export function MapPickerClient({ onConfirm, initialPosition }: MapPickerClientP
 
 	if (loadError) {
 		return (
-			<div className="flex h-full min-h-[45dvh] flex-col items-center justify-center gap-3 bg-gray-50 p-4 text-center dark:bg-gray-900 sm:min-h-[50dvh] sm:p-6">
-				<AlertCircle className="h-8 w-8 text-red-400 dark:text-red-500" aria-hidden />
-				<p className="text-sm font-medium text-gray-700 dark:text-gray-200">تعذّر تحميل الخريطة</p>
+			<div className="flex h-full min-h-[50dvh] flex-col items-center justify-center gap-3 bg-gray-50 p-4 text-center dark:bg-gray-900 sm:min-h-[55dvh] md:min-h-[60dvh] sm:p-6">
+				<AlertCircle
+					className="h-8 w-8 text-red-400 dark:text-red-500"
+					aria-hidden
+				/>
+				<p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+					تعذّر تحميل الخريطة
+				</p>
 				<p className="text-xs text-gray-400 dark:text-gray-500">
 					تحقق من مفتاح API أو اتصالك بالإنترنت
 				</p>
@@ -216,9 +305,14 @@ export function MapPickerClient({ onConfirm, initialPosition }: MapPickerClientP
 
 	if (!isLoaded) {
 		return (
-			<div className="flex h-full min-h-[45dvh] flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-900 sm:min-h-[50dvh]">
-				<Loader2 className="h-7 w-7 animate-spin text-[#30913F] dark:text-[#3da84f]" aria-hidden />
-				<p className="text-xs font-medium text-gray-400 dark:text-gray-500">جاري تحميل الخريطة…</p>
+			<div className="flex h-full min-h-[50dvh] flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-900 sm:min-h-[55dvh] md:min-h-[60dvh]">
+				<Loader2
+					className="h-7 w-7 animate-spin text-[#30913F] dark:text-[#3da84f]"
+					aria-hidden
+				/>
+				<p className="text-xs font-medium text-gray-400 dark:text-gray-500">
+					جاري تحميل الخريطة…
+				</p>
 			</div>
 		);
 	}
@@ -228,32 +322,25 @@ export function MapPickerClient({ onConfirm, initialPosition }: MapPickerClientP
 
 	return (
 		<div className="flex min-h-0 flex-1 flex-col" dir="rtl">
-			<div className="relative min-h-[45dvh] flex-1 sm:min-h-[50dvh] md:min-h-[55dvh] lg:min-h-[60dvh]">
+			<div className="relative min-h-[50dvh] flex-1 sm:min-h-[55dvh] md:min-h-[min(70dvh,720px)] lg:min-h-[min(75dvh,780px)]">
 				<GoogleMap
-					mapContainerClassName="absolute inset-0"
+					mapContainerClassName="absolute inset-0 h-full w-full"
 					center={centerRef.current}
 					zoom={15}
 					onLoad={onMapLoad}
 					onClick={handleMapClick}
 					options={MAP_OPTIONS}
 				>
-					<Marker
-						position={markerPos}
-						icon={{
-							path: "M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26S36 31.5 36 18C36 8.06 27.94 0 18 0zM18 24a6 6 0 1 1 0-12 6 6 0 0 1 0 12z",
-							fillColor: "#30913F",
-							fillOpacity: 1,
-							strokeWeight: 0,
-							scale: 1.1,
-							anchor: new google.maps.Point(18, 44),
-						}}
-					/>
+					<AdvancedMapMarker map={mapInstance} position={markerPos} />
 				</GoogleMap>
 
 				{!isOutOfZone && (
-					<div className="pointer-events-none absolute inset-x-3 top-3 flex justify-center sm:inset-x-4 sm:top-4 md:inset-x-6">
+					<div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center px-3 pt-3 sm:px-4 sm:pt-4 md:px-6 md:pt-5">
 						<div className="flex w-full max-w-md items-center gap-2 rounded-2xl bg-white/95 px-3 py-2 shadow-md backdrop-blur-sm dark:bg-gray-800/95 dark:shadow-black/20 sm:gap-2.5 sm:px-4 sm:py-2.5 md:max-w-lg">
-							<MapPin className="h-4 w-4 shrink-0 text-[#30913F] dark:text-[#3da84f]" aria-hidden />
+							<MapPin
+								className="h-4 w-4 shrink-0 text-[#30913F] dark:text-[#3da84f]"
+								aria-hidden
+							/>
 							<span className="text-xs font-medium text-gray-700 dark:text-gray-200 sm:text-sm">
 								{initialPosition
 									? "يمكنك تعديل الموقع على الخريطة"
@@ -273,14 +360,19 @@ export function MapPickerClient({ onConfirm, initialPosition }: MapPickerClientP
 				)}
 
 				{!isOutOfZone && (
-					<div className="pointer-events-none absolute inset-x-3 bottom-3 z-10 flex flex-col gap-3 sm:inset-x-4 sm:bottom-4 md:inset-x-auto md:bottom-6 md:start-1/2 md:w-full md:max-w-lg md:-translate-x-1/2 lg:max-w-xl">
-						<div className="pointer-events-auto flex flex-col gap-3 rounded-2xl bg-white/95 px-3.5 py-3.5 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm dark:bg-gray-800/95 dark:shadow-[0_-4px_24px_rgba(0,0,0,0.3)] sm:gap-3 sm:px-4 sm:py-4 md:px-5">
+					<div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center px-3 pb-3 sm:px-4 sm:pb-4 md:px-6 md:pb-6">
+						<div className="pointer-events-auto flex w-full max-w-md flex-col gap-3 rounded-2xl bg-white/95 px-3.5 py-3.5 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm dark:bg-gray-800/95 dark:shadow-[0_-4px_24px_rgba(0,0,0,0.3)] sm:gap-3 sm:px-4 sm:py-4 md:max-w-lg md:px-5 lg:max-w-xl">
 							<div className="space-y-2 px-0.5">
-								<p className="text-xs font-semibold text-gray-500 dark:text-gray-400">الموقع المحدد</p>
+								<p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+									الموقع المحدد
+								</p>
 
 								{isResolvingAddress ? (
 									<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-										<Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+										<Loader2
+											className="h-4 w-4 shrink-0 animate-spin"
+											aria-hidden
+										/>
 										<span>جاري تحديد العنوان…</span>
 									</div>
 								) : formattedAddress ? (
@@ -288,19 +380,26 @@ export function MapPickerClient({ onConfirm, initialPosition }: MapPickerClientP
 										{formattedAddress}
 									</p>
 								) : (
-									<p className="text-sm text-gray-400 dark:text-gray-500">اضغط على الخريطة لتحديد موقعك</p>
+									<p className="text-sm text-gray-400 dark:text-gray-500">
+										اضغط على الخريطة لتحديد موقعك
+									</p>
 								)}
 
 								<div className="flex items-center justify-between gap-2 pt-1">
 									<span className="font-mono text-[11px] tabular-nums text-gray-400 dark:text-gray-500">
 										{markerPos.lat.toFixed(5)}, {markerPos.lng.toFixed(5)}
 									</span>
-									{checkState === "idle" && !isResolvingAddress && formattedAddress && (
-										<span className="text-[11px] text-gray-400 dark:text-gray-500">تحقق من دقة الموقع</span>
-									)}
+									{checkState === "idle" &&
+										!isResolvingAddress &&
+										formattedAddress && (
+											<span className="text-[11px] text-gray-400 dark:text-gray-500">
+												تحقق من دقة الموقع
+											</span>
+										)}
 									{checkState === "confirmed" && (
 										<span className="flex items-center gap-1 text-[11px] font-medium text-green-600 dark:text-green-400">
-											<CheckCircle2 className="h-3 w-3" aria-hidden /> تم التأكيد
+											<CheckCircle2 className="h-3 w-3" aria-hidden /> تم
+											التأكيد
 										</span>
 									)}
 								</div>
@@ -309,7 +408,12 @@ export function MapPickerClient({ onConfirm, initialPosition }: MapPickerClientP
 							<button
 								type="button"
 								onClick={handleConfirm}
-								disabled={isChecking || checkState === "confirmed" || isResolvingAddress || !formattedAddress}
+								disabled={
+									isChecking ||
+									checkState === "confirmed" ||
+									isResolvingAddress ||
+									!formattedAddress
+								}
 								className={confirmButtonClass}
 							>
 								{isChecking ? (

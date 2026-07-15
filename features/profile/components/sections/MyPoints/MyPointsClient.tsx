@@ -31,8 +31,8 @@ export function MyPointsClient({
             try {
                 const res = await fetch("/api/profile/points/convert", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ points: convertiblePoints }),
+                    headers: { "Content-Type": "application/json; charset=UTF-8" },
+                    body: JSON.stringify({ point: convertiblePoints }),
                 });
                 const json = await res.json();
                 if (!res.ok || !json.success) {

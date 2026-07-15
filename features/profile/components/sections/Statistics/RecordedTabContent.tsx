@@ -3,42 +3,81 @@
 import { ArrowUp, Calendar, Clock, TrendingUp } from "lucide-react";
 
 import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
-import type {
-    QidhaStatisticsData,
-    StatisticsCategory,
-    StatisticsMonthTrend,
-} from "@/features/profile/types/statistics.types";
+import type { useRecordedAnalytics } from "@/features/profile/hooks/useRecordedAnalytics";
 import { CategoryCard } from "./CategoryCard";
 import { BalanceStatCard } from "./qidha/BalanceStatCard";
 import { DuePaymentCard } from "./qidha/DuePaymentCard";
 import { MonthTrendCard } from "./qidha/MonthTrendCard";
 import { QidhaSpendingCard } from "./qidha/QidhaSpendingCard";
 import { EmptySectionCard } from "./shared/EmptySectionCard";
+import { ErrorSectionCard } from "./shared/ErrorSectionCard";
 import { SarIcon } from "./shared/SarIcon";
 import { SectionTitle } from "./shared/SectionTitle";
+import { SkeletonBlock } from "./shared/SkeletonBlock";
+
+function formatTransactionDate(iso: string): string {
+    if (!iso) return "—";
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return "—";
+    return date.toLocaleDateString("ar-SA", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+    });
+}
 
 export function RecordedTabContent({
-    qidha,
-    categories,
-    monthlyTrends,
+    recorded,
 }: {
-    qidha?: QidhaStatisticsData;
-    categories: StatisticsCategory[];
-    monthlyTrends: StatisticsMonthTrend[];
+    recorded: ReturnType<typeof useRecordedAnalytics>;
 }) {
-    const hasQidhaData = Boolean(qidha);
-    const hasCategories = categories.length > 0;
-    const hasTrends = monthlyTrends.length > 0;
-    const qidhaAmount = (value?: string) =>
-        hasQidhaData && value ? value : "00.00";
-    const qidhaCount = (value?: number) =>
-        hasQidhaData ? String(value ?? 0) : "0";
+    const {
+        qidha,
+        categories,
+        monthlyTrends,
+        salaryDay,
+        transactions,
+        status,
+        retry,
+    } = recorded;
+
+    const amount = (value?: string) => value || "00.00";
+    const count = (value?: number) => String(value ?? 0);
+
+    const isEmptyShell =
+        qidha.availableBalance === "00.00" &&
+        qidha.usedBalance === "00.00" &&
+        categories.length === 0 &&
+        monthlyTrends.length === 0;
+
+    if (status === "loading" && isEmptyShell) {
+        return (
+            <div className="flex flex-col gap-5 sm:gap-6 md:gap-7">
+                <SkeletonBlock className="h-40 w-full rounded-[20px] sm:h-44" />
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                    <SkeletonBlock className="h-24" />
+                    <SkeletonBlock className="h-24" />
+                    <SkeletonBlock className="h-24" />
+                </div>
+                <SkeletonBlock className="h-28" />
+            </div>
+        );
+    }
+
+    if (status === "error" && isEmptyShell) {
+        return (
+            <ErrorSectionCard
+                message="تعذّر تحميل إحصائيات قيدها"
+                onRetry={retry}
+            />
+        );
+    }
 
     return (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 sm:gap-6 md:gap-7 lg:gap-8">
             {/* Hero balance card */}
             <div
-                className="relative w-full overflow-hidden rounded-[20px] shadow-[0px_4px_16px_rgba(48,145,63,0.22)]"
+                className="relative w-full overflow-hidden rounded-2xl shadow-[0px_4px_16px_rgba(48,145,63,0.22)] sm:rounded-[1.25rem] lg:rounded-3xl"
                 style={{
                     background:
                         "linear-gradient(135deg, #1E7A2C 0%, #30913F 45%, #3EC856 100%)",
@@ -47,22 +86,21 @@ export function RecordedTabContent({
                 <div className="pointer-events-none absolute -start-8 -top-10 h-[140px] w-[140px] rounded-full bg-white/10" />
                 <div className="pointer-events-none absolute -end-6 bottom-[-40px] h-[160px] w-[160px] rounded-full bg-white/[0.06]" />
 
-                <div className="relative flex min-h-[168px] flex-col gap-4 px-5 py-5">
+                <div className="relative flex min-h-[160px] flex-col gap-4 px-4 py-5 sm:min-h-[168px] sm:px-5 sm:py-6 md:px-6 lg:min-h-[180px]">
                     <div className="flex items-start justify-between gap-3">
-                        {/* First in RTL = start/right: balance */}
                         <div className="flex min-w-0 flex-col items-start gap-1">
                             <span
-                                className="text-[13px] font-medium text-white/75"
+                                className="text-[13px] font-medium text-white/75 sm:text-sm"
                                 style={TAJAWAL}
                             >
                                 الرصيد المتاح
                             </span>
                             <div className="flex flex-wrap items-center gap-1.5 text-white">
                                 <span
-                                    className="text-[clamp(30px,8vw,38px)] font-extrabold leading-none tracking-[-0.5px]"
+                                    className="text-[clamp(28px,7vw,40px)] font-extrabold leading-none tracking-[-0.5px]"
                                     style={TAJAWAL}
                                 >
-                                    {qidhaAmount(qidha?.availableBalance)}
+                                    {amount(qidha.availableBalance)}
                                 </span>
                                 <SarIcon
                                     width={20}
@@ -72,81 +110,91 @@ export function RecordedTabContent({
                             </div>
                         </div>
 
-                        {/* Second in RTL = end/left: status badge */}
-                        <div className="flex h-8 shrink-0 items-center justify-center rounded-full border border-white/25 bg-white/20 px-3.5">
+                        <div className="flex h-8 shrink-0 items-center justify-center rounded-full border border-white/25 bg-white/20 px-3.5 sm:h-9 sm:px-4">
                             <span
-                                className="text-[12px] font-medium text-white"
+                                className="text-xs font-medium text-white sm:text-[13px]"
                                 style={TAJAWAL}
                             >
-                                نشط
+                                {qidha.statusLabel}
                             </span>
                         </div>
                     </div>
 
-                    <div className="mt-auto flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#A8F5B8]" />
-                        <span
-                            className="text-[11px] font-normal text-[#D1FDD2]"
-                            style={TAJAWAL}
-                        >
-                            آخر تحديث قبل دقيقة
-                        </span>
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#A8F5B8]" />
+                            <span
+                                className="text-[11px] font-normal text-[#D1FDD2] sm:text-xs"
+                                style={TAJAWAL}
+                            >
+                                مستخدم {qidha.usedPercentage.toFixed(1)}% من الحد
+                            </span>
+                        </div>
+                        {status === "error" && (
+                            <button
+                                type="button"
+                                onClick={retry}
+                                className="text-[11px] font-semibold text-white underline-offset-2 hover:underline sm:text-xs"
+                            >
+                                إعادة المحاولة
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
 
             {/* Secondary balance stats */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
                 <BalanceStatCard
                     label="إجمالي الرصيد"
-                    amount={qidhaAmount(qidha?.totalBalance)}
+                    amount={amount(qidha.totalBalance)}
                     sublabel="الرصيد الإجمالي"
                 />
                 <BalanceStatCard
                     label="الحد الائتماني"
-                    amount={qidhaAmount(qidha?.creditLimit)}
+                    amount={amount(qidha.creditLimit)}
                     sublabel="الحد الأقصى المسموح"
                 />
                 <BalanceStatCard
                     label="الرصيد المستخدم"
-                    amount={qidhaAmount(qidha?.usedBalance)}
+                    amount={amount(qidha.usedBalance)}
                     sublabel="المبلغ المنفق حتى الاَن"
                 />
             </div>
 
             {/* Spending analysis */}
-            <section className="flex flex-col gap-3">
+            <section className="flex flex-col gap-3 sm:gap-4">
                 <SectionTitle>تحليل الإنفاق</SectionTitle>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
                     <QidhaSpendingCard
                         label="إجمالي الإنفاق هذا الشهر"
-                        amount={qidhaAmount(qidha?.monthlyTotal)}
+                        amount={amount(qidha.monthlyTotal)}
                         iconBg="#EBFEEB"
                         icon={
                             <TrendingUp
-                                className="h-3.5 w-3.5 text-[#30913F]"
+                                className="h-3.5 w-3.5 text-[#30913F] sm:h-4 sm:w-4"
                                 strokeWidth={2.5}
                             />
                         }
                     />
                     <QidhaSpendingCard
                         label="متوسط الإنفاق اليومي"
-                        amount={qidhaAmount(qidha?.dailyAverage)}
+                        amount={amount(qidha.dailyAverage)}
                         iconBg="#EFE6FF"
                         icon={
                             <Calendar
-                                className="h-3.5 w-3.5 text-[#7861A6]"
+                                className="h-3.5 w-3.5 text-[#7861A6] sm:h-4 sm:w-4"
                                 strokeWidth={2}
                             />
                         }
                     />
                     <QidhaSpendingCard
                         label="أعلى عملية شراء"
-                        amount={qidhaAmount(qidha?.highestPurchase)}
+                        amount={amount(qidha.highestPurchase)}
                         iconBg="#EBFEEB"
                         icon={
                             <ArrowUp
-                                className="h-3.5 w-3.5 text-[#30913F]"
+                                className="h-3.5 w-3.5 text-[#30913F] sm:h-4 sm:w-4"
                                 strokeWidth={2.5}
                             />
                         }
@@ -155,31 +203,33 @@ export function RecordedTabContent({
             </section>
 
             {/* Categories */}
-            <section className="flex flex-col gap-3">
+            <section className="flex flex-col gap-3 sm:gap-4">
                 <SectionTitle>فئات الإنفاق</SectionTitle>
-                <div className="flex flex-col gap-2.5">
-                    {hasCategories ? (
+                <div className="flex flex-col gap-2.5 sm:gap-3 md:grid md:grid-cols-2 md:gap-4">
+                    {categories.length > 0 ? (
                         categories.map((category) => (
                             <CategoryCard key={category.id} category={category} />
                         ))
                     ) : (
-                        <EmptySectionCard>
-                            لا توجد فئات لعرضها حتى الأن
-                        </EmptySectionCard>
+                        <div className="md:col-span-2">
+                            <EmptySectionCard>
+                                لا توجد فئات لعرضها حتى الأن
+                            </EmptySectionCard>
+                        </div>
                     )}
                 </div>
             </section>
 
             {/* Monthly trends */}
-            <section className="flex flex-col gap-3">
+            <section className="flex flex-col gap-3 sm:gap-4">
                 <SectionTitle>الاتجاهات الشهرية</SectionTitle>
-                {hasTrends ? (
-                    <div className="-mx-1 flex gap-2.5 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {monthlyTrends.length > 0 ? (
+                    <div className="-mx-1 flex gap-2.5 overflow-x-auto px-1 pb-1 sm:gap-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         {monthlyTrends.map((trend) => (
                             <MonthTrendCard
                                 key={trend.month}
                                 trend={trend}
-                                isEmpty={!hasQidhaData}
+                                isEmpty={Number(trend.total) === 0}
                             />
                         ))}
                     </div>
@@ -191,115 +241,162 @@ export function RecordedTabContent({
             </section>
 
             {/* Salary day */}
-            <section className="flex flex-col gap-3">
+            <section className="flex flex-col gap-3 sm:gap-4">
                 <SectionTitle>يوم الراتب والمدفوعات الشهرية</SectionTitle>
-                <div className="flex w-full items-center gap-3 rounded-[14px] border border-[#F0EEF3] bg-white px-4 py-3.5 shadow-[0px_1px_8px_rgba(0,0,0,0.04)] dark:border-gray-700 dark:bg-gray-800">
-                    {/* First in RTL = right: calendar icon */}
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#EFE6FF]">
-                        <Calendar
-                            className="h-6 w-6 text-[#7861A6]"
-                            strokeWidth={1.75}
-                        />
-                    </div>
-                    <div className="flex min-w-0 flex-1 flex-col items-start gap-1.5">
-                        <span
-                            className="text-[11px] font-medium text-[#8A8F98] dark:text-gray-400"
-                            style={TAJAWAL}
-                        >
-                            يوم الراتب
-                        </span>
-                        <span
-                            className="text-[15px] font-bold text-[#1F2937] dark:text-gray-100"
-                            style={TAJAWAL}
-                        >
-                            1 من كل شهر
-                        </span>
-                        <div
-                            className="flex h-[26px] items-center gap-1 rounded-full px-2.5"
-                            style={{
-                                background:
-                                    "linear-gradient(99.16deg, #DFD3F5 -8.79%, #7861A6 90.77%)",
-                            }}
-                        >
-                            <Clock
-                                className="h-3.5 w-3.5 text-white"
+                {salaryDay ? (
+                    <div className="flex w-full items-center gap-3 rounded-2xl border border-[#F0EEF3] bg-white px-4 py-3.5 shadow-[0px_1px_8px_rgba(0,0,0,0.04)] dark:border-gray-700 dark:bg-gray-900 sm:gap-4 sm:px-5 sm:py-4 md:max-w-xl">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#EFE6FF] sm:h-12 sm:w-12 dark:bg-[#7861A6]/20">
+                            <Calendar
+                                className="h-6 w-6 text-[#7861A6]"
                                 strokeWidth={1.75}
                             />
+                        </div>
+                        <div className="flex min-w-0 flex-1 flex-col items-start gap-1.5">
                             <span
-                                className="text-[12px] font-bold text-white"
+                                className="text-[11px] font-medium text-[#8A8F98] dark:text-gray-400 sm:text-xs"
                                 style={TAJAWAL}
                             >
-                                بعد 0 يوم
+                                يوم الراتب
                             </span>
+                            <span
+                                className="text-[15px] font-bold text-[#1F2937] dark:text-gray-100 sm:text-base"
+                                style={TAJAWAL}
+                            >
+                                {salaryDay.salaryDay} من كل شهر
+                            </span>
+                            <div
+                                className="flex h-[26px] items-center gap-1 rounded-full px-2.5 sm:h-7 sm:px-3"
+                                style={{
+                                    background:
+                                        "linear-gradient(99.16deg, #DFD3F5 -8.79%, #7861A6 90.77%)",
+                                }}
+                            >
+                                <Clock
+                                    className="h-3.5 w-3.5 text-white"
+                                    strokeWidth={1.75}
+                                />
+                                <span
+                                    className="text-xs font-bold text-white"
+                                    style={TAJAWAL}
+                                >
+                                    بعد {salaryDay.daysUntilSalary} يوم
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                ) : (
+                    <EmptySectionCard>لا توجد بيانات ليوم الراتب</EmptySectionCard>
+                )}
             </section>
 
             {/* Due payments */}
-            <section className="flex flex-col gap-3">
+            <section className="flex flex-col gap-3 sm:gap-4">
                 <div className="flex items-center justify-between gap-3">
                     <SectionTitle>المدفوعات المستحقة</SectionTitle>
-                    <div className="flex shrink-0 items-center gap-1 rounded-[8px] bg-[#FFDCDC] px-2.5 py-1">
+                    <div className="flex shrink-0 items-center gap-1 rounded-lg bg-[#FFDCDC] px-2.5 py-1 dark:bg-red-950/40">
                         <SarIcon
                             width={12}
                             height={13.4}
                             className="text-[#CD1625]"
                         />
                         <span
-                            className="text-[15px] font-bold text-[#DB2626] sm:text-[16px]"
+                            className="text-[15px] font-bold text-[#DB2626] sm:text-base"
                             style={TAJAWAL}
                         >
-                            {qidhaAmount(qidha?.dueTotal)}
+                            {amount(qidha.dueTotal)}
                         </span>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:max-w-xl md:gap-4">
                     <DuePaymentCard
                         label="المعلقة"
-                        count={qidhaCount(qidha?.pendingCount)}
+                        count={count(qidha.pendingCount)}
                         bg="#FDF1DA"
                         textColor="#ED9206"
                         iconBg="#EFAD4F"
                     />
                     <DuePaymentCard
                         label="المتأخرة"
-                        count={qidhaCount(qidha?.overdueCount)}
+                        count={count(qidha.overdueCount)}
                         bg="#FFDCDC"
                         textColor="#DB2626"
                         iconBg="#DB2626"
                     />
                 </div>
 
-                <div className="flex min-h-[56px] w-full flex-wrap items-center justify-between gap-2 rounded-[12px] bg-[#F6F5F8] px-4 py-3 dark:bg-gray-800">
+                <div className="flex min-h-14 w-full flex-wrap items-center justify-between gap-2 rounded-xl bg-[#F6F5F8] px-4 py-3 dark:bg-gray-800 sm:min-h-16 sm:px-5 md:max-w-xl">
                     <span
-                        className="text-[12px] font-bold text-[#555555] dark:text-gray-400"
+                        className="text-xs font-bold text-[#555555] dark:text-gray-400 sm:text-[13px]"
                         style={TAJAWAL}
                     >
                         المبلغ المستحق
                     </span>
                     <div className="flex flex-wrap items-center gap-1 text-[#111B18] dark:text-gray-100">
                         <span
-                            className="text-[16px] font-bold tabular-nums sm:text-[17px]"
+                            className="text-base font-bold tabular-nums sm:text-[17px]"
                             style={TAJAWAL}
                         >
-                            {qidhaAmount(qidha?.dueTotal)}
+                            {amount(qidha.dueTotal)}
                         </span>
                         <span
-                            className="text-[13px] font-bold sm:text-[14px]"
+                            className="text-[13px] font-bold sm:text-sm"
                             style={TAJAWAL}
                         >
-                            من أصل
+                            / مدفوع
                         </span>
                         <span
-                            className="text-[16px] font-bold tabular-nums sm:text-[17px]"
+                            className="text-base font-bold tabular-nums sm:text-[17px]"
                             style={TAJAWAL}
                         >
-                            {qidhaAmount(qidha?.paidTotal)}
+                            {amount(qidha.paidTotal)}
                         </span>
                     </div>
                 </div>
+            </section>
+
+            {/* Recent transactions */}
+            <section className="flex flex-col gap-3 sm:gap-4">
+                <SectionTitle>آخر المعاملات</SectionTitle>
+                {transactions.length > 0 ? (
+                    <div className="flex flex-col gap-2.5 sm:gap-3 md:grid md:grid-cols-2 md:gap-4">
+                        {transactions.slice(0, 6).map((tx) => (
+                            <div
+                                key={tx.id}
+                                className="flex items-center justify-between gap-3 rounded-2xl border border-[#F0EEF3] bg-white px-3.5 py-3 shadow-[0px_1px_8px_rgba(0,0,0,0.04)] dark:border-gray-700 dark:bg-gray-900 sm:px-4 sm:py-3.5"
+                            >
+                                <div className="min-w-0 flex-1 text-start">
+                                    <p
+                                        className="truncate text-sm font-bold text-[#1F2937] dark:text-gray-100 sm:text-[15px]"
+                                        style={TAJAWAL}
+                                    >
+                                        {tx.storeName}
+                                    </p>
+                                    <p
+                                        className="mt-0.5 text-[11px] text-[#8A8F98] dark:text-gray-400 sm:text-xs"
+                                        style={TAJAWAL}
+                                    >
+                                        {formatTransactionDate(tx.createdAt)}
+                                    </p>
+                                </div>
+                                <span
+                                    className={[
+                                        "shrink-0 text-sm font-bold tabular-nums sm:text-base",
+                                        tx.type === "credit"
+                                            ? "text-[#30913F]"
+                                            : "text-[#DB2626]",
+                                    ].join(" ")}
+                                    style={TAJAWAL}
+                                >
+                                    {tx.type === "credit" ? "+" : "-"}
+                                    {tx.amount}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <EmptySectionCard>لا توجد معاملات حتى الأن</EmptySectionCard>
+                )}
             </section>
         </div>
     );

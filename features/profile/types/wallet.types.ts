@@ -1,10 +1,11 @@
+/** Backend `type` query values for wallet transactions. */
 export type WalletHistoryFilter =
     | "all"
     | "order"
-    | "loyalty"
-    | "payment"
-    | "referral"
-    | "cashback";
+    | "loyalty_point"
+    | "add_fund"
+    | "referrer"
+    | "CashBack";
 
 export type WalletTxnTone = "credit" | "debit";
 

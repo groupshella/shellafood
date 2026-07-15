@@ -1,8 +1,8 @@
 "use client";
 
 import { ChevronDown, ChevronUp, List } from "lucide-react";
-import Image from "next/image";
 
+import { EmptyCartIllustration } from "@/features/cart/components/sections/CartList/CartEmpty";
 import { TAJAWAL, CHART_PERIOD_OPTIONS, FREQUENCY_OPTIONS, MONTHS, WEEK_DAYS } from "@/features/profile/constants/statistics.constants";
 import type { useGeneralAnalytics } from "@/features/profile/hooks/useGeneralAnalytics";
 import type {
@@ -21,6 +21,35 @@ import { ErrorSectionCard } from "./shared/ErrorSectionCard";
 import { SarIcon } from "./shared/SarIcon";
 import { SectionTitle } from "./shared/SectionTitle";
 import { SkeletonBlock } from "./shared/SkeletonBlock";
+
+function ProductsEmptyInline() {
+    return (
+        <div
+            className="mx-auto flex w-full max-w-xs flex-col items-center gap-4 py-6 sm:max-w-sm sm:gap-5 sm:py-8 md:py-10"
+            dir="rtl"
+        >
+            <div
+                className="relative aspect-[13/14] w-full max-w-[9.5rem] shrink-0 sm:max-w-[11rem] md:max-w-[12rem]
+                    [--cart-bg:#EBFEEB] [--cart-bag:#9DFCA3] [--cart-line:#30913F] [--cart-wheel:#FFFFFF] [--cart-dot:#CFCFCF]
+                    dark:[--cart-bg:#123320] dark:[--cart-bag:#1F5C33] dark:[--cart-line:#4ADE80] dark:[--cart-wheel:#111827] dark:[--cart-dot:#4B5563]"
+            >
+                <EmptyCartIllustration className="h-full w-full object-contain" aria-hidden />
+            </div>
+            <p
+                className="text-center text-base font-bold leading-relaxed text-[#111B18] dark:text-gray-100 sm:text-lg"
+                style={TAJAWAL}
+            >
+                لا توجد منتجات للعرض
+            </p>
+            <p
+                className="max-w-[240px] text-center text-sm leading-relaxed text-gray-500 dark:text-gray-400 sm:max-w-xs sm:text-[15px]"
+                style={TAJAWAL}
+            >
+                ابدأ بالتسوق لتظهر هنا منتجاتك الأكثر شراءً
+            </p>
+        </div>
+    );
+}
 
 function LayoutToggleIcon({ mode }: { mode: ProductLayout }) {
     if (mode === "list") {
@@ -87,11 +116,11 @@ export function GeneralTabContent({
     const hasTrendData = chartValues.some((v) => v > 0);
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5 sm:gap-6 md:gap-7 lg:gap-8">
             {coreStatus === "loading" && !summary ? (
-                <div className="grid grid-cols-2 gap-2 md:gap-4">
-                    <SkeletonBlock className="h-[93px]" />
-                    <SkeletonBlock className="h-[93px]" />
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                    <SkeletonBlock className="h-[93px] sm:h-24 md:h-28" />
+                    <SkeletonBlock className="h-[93px] sm:h-24 md:h-28" />
                 </div>
             ) : coreStatus === "error" && !summary ? (
                 <ErrorSectionCard
@@ -99,7 +128,7 @@ export function GeneralTabContent({
                     onRetry={retryCore}
                 />
             ) : (
-                <div className="grid grid-cols-2 gap-2 md:gap-4">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
                     <StatSpendingCard
                         label="الإنفاق الأسبوعي"
                         amount={summary?.weeklyAmount ?? "00.00"}
@@ -115,14 +144,14 @@ export function GeneralTabContent({
                 </div>
             )}
 
-            <section className="flex flex-col gap-4">
-                <div className="flex min-h-[33px] items-center justify-between gap-3">
+            <section className="flex flex-col gap-3 sm:gap-4">
+                <div className="flex min-h-9 items-center justify-between gap-3 sm:min-h-11">
                     <SectionTitle>الرسوم البيانية</SectionTitle>
                     <div className="relative shrink-0">
                         <button
                             type="button"
                             onClick={onChartDropdownToggle}
-                            className="flex h-[33px] min-h-11 min-w-[86px] items-center justify-end gap-2 rounded-[4px] bg-[#F6F5F8] dark:bg-gray-800 px-2.5 py-2 sm:px-[10px]"
+                            className="flex h-9 min-h-11 min-w-[86px] items-center justify-end gap-2 rounded-md bg-[#F6F5F8] px-2.5 py-2 dark:bg-gray-800 sm:h-11 sm:px-3"
                         >
                             <ChevronDown
                                 className="h-4 w-4 shrink-0 text-[#111B18] dark:text-gray-100"
@@ -158,25 +187,25 @@ export function GeneralTabContent({
                         onRetry={retryTrend}
                     />
                 ) : (
-                    <div className="w-full rounded-[16px] border border-[#E8ECEF] dark:border-gray-700 bg-white dark:bg-gray-800 py-1.5 shadow-[0px_1.94334px_11.6601px_rgba(0,0,0,0.04)]">
-                        <div className="flex items-start justify-between gap-3 px-3 pb-2 pt-2 sm:px-4">
-                            <div className="min-w-0 flex flex-col items-start">
+                    <div className="w-full rounded-2xl border border-[#E8ECEF] bg-white py-1.5 shadow-[0px_1.94334px_11.6601px_rgba(0,0,0,0.04)] dark:border-gray-700 dark:bg-gray-900 sm:rounded-[1.25rem]">
+                        <div className="flex items-start justify-between gap-3 px-3 pb-2 pt-2 sm:px-4 md:px-5 md:pt-3">
+                            <div className="flex min-w-0 flex-col items-start">
                                 <p
-                                    className="text-[16px] font-bold text-[#1F2937] dark:text-gray-100"
+                                    className="text-base font-bold text-[#1F2937] dark:text-gray-100 sm:text-lg"
                                     style={TAJAWAL}
                                 >
                                     تحليل الإنفاق
                                 </p>
                                 <p
-                                    className="text-[12px] font-normal text-[#6B7280] dark:text-gray-400"
+                                    className="text-xs font-normal text-[#6B7280] dark:text-gray-400 sm:text-sm"
                                     style={TAJAWAL}
                                 >
                                     يونيو 2026
                                 </p>
                             </div>
-                            <div className="flex shrink-0 flex-col items-center rounded-[9.72px] bg-[#E8F5E9] dark:bg-[#30913F]/15 px-2 py-1 sm:px-[9.72px] sm:py-[4.86px]">
+                            <div className="flex shrink-0 flex-col items-center rounded-lg bg-[#E8F5E9] px-2 py-1 dark:bg-[#30913F]/15 sm:px-2.5 sm:py-1.5">
                                 <p
-                                    className="text-center text-[10px] font-medium text-[#30913F] sm:text-[10.69px]"
+                                    className="text-center text-[10px] font-medium text-[#30913F] sm:text-xs"
                                     style={TAJAWAL}
                                 >
                                     إجمالي الإنفاق
@@ -184,7 +213,7 @@ export function GeneralTabContent({
                                 <div className="flex items-center gap-0.5 text-[#30913F]">
                                     <SarIcon width={13.72} height={15.36} />
                                     <span
-                                        className="text-[14px] font-medium sm:text-[16px]"
+                                        className="text-sm font-medium sm:text-base"
                                         style={TAJAWAL}
                                     >
                                         {summary?.monthlyAmount ?? "00.00"}
@@ -214,12 +243,12 @@ export function GeneralTabContent({
                 )}
             </section>
 
-            <section className="flex flex-col gap-3">
+            <section className="flex flex-col gap-3 sm:gap-4">
                 <SectionTitle>فئات الإنفاق</SectionTitle>
                 {coreStatus === "loading" && !categories ? (
-                    <div className="flex flex-col gap-3">
-                        <SkeletonBlock className="h-[72px]" />
-                        <SkeletonBlock className="h-[72px]" />
+                    <div className="flex flex-col gap-3 sm:gap-3.5">
+                        <SkeletonBlock className="h-[72px] sm:h-20" />
+                        <SkeletonBlock className="h-[72px] sm:h-20" />
                     </div>
                 ) : coreStatus === "error" && !categories ? (
                     <ErrorSectionCard
@@ -227,7 +256,7 @@ export function GeneralTabContent({
                         onRetry={retryCore}
                     />
                 ) : categories && categories.length > 0 ? (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 sm:gap-3.5 md:grid md:grid-cols-2 md:gap-4">
                         {categories.map((category) => (
                             <CategoryCard key={category.id} category={category} />
                         ))}
@@ -237,15 +266,15 @@ export function GeneralTabContent({
                 )}
             </section>
 
-            <section className="flex flex-col gap-4">
-                <div className="flex min-h-[33px] items-center justify-between gap-3">
+            <section className="flex flex-col gap-3 sm:gap-4">
+                <div className="flex min-h-9 items-center justify-between gap-3 sm:min-h-11">
                     <SectionTitle>المنتجات الأكثر شراء</SectionTitle>
                     <div className="flex shrink-0 items-center gap-2">
                         <button
                             type="button"
                             aria-label="تبديل طريقة العرض"
                             onClick={onLayoutToggle}
-                            className="flex h-10 w-10 items-center justify-center rounded-[4px] bg-[#EBFEEB] dark:bg-[#30913F]/15 p-1 sm:h-11 sm:w-11"
+                            className="flex h-10 w-10 items-center justify-center rounded-md bg-[#EBFEEB] p-1 dark:bg-[#30913F]/15 sm:h-11 sm:w-11"
                         >
                             <LayoutToggleIcon mode={layoutMode} />
                         </button>
@@ -253,7 +282,7 @@ export function GeneralTabContent({
                             <button
                                 type="button"
                                 onClick={onFilterDropdownToggle}
-                                className="flex h-[33px] min-h-11 min-w-[86px] items-center justify-end gap-2 rounded-[4px] bg-[#F6F5F8] dark:bg-gray-800 px-2.5 py-2 sm:px-[10px]"
+                                className="flex h-9 min-h-11 min-w-[86px] items-center justify-end gap-2 rounded-md bg-[#F6F5F8] px-2.5 py-2 dark:bg-gray-800 sm:h-11 sm:px-3"
                             >
                                 {filterDropdownOpen ? (
                                     <ChevronUp
@@ -289,15 +318,15 @@ export function GeneralTabContent({
                     <div
                         className={
                             layoutMode === "grid"
-                                ? "grid grid-cols-2 gap-2.5 sm:gap-3"
-                                : "flex flex-col gap-3"
+                                ? "grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-4"
+                                : "flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4"
                         }
                     >
                         <SkeletonBlock
-                            className={layoutMode === "grid" ? "h-[220px]" : "h-[90px]"}
+                            className={layoutMode === "grid" ? "h-[220px] sm:h-60" : "h-[90px] sm:h-24"}
                         />
                         <SkeletonBlock
-                            className={layoutMode === "grid" ? "h-[220px]" : "h-[90px]"}
+                            className={layoutMode === "grid" ? "h-[220px] sm:h-60" : "h-[90px] sm:h-24"}
                         />
                     </div>
                 ) : coreStatus === "error" && !products ? (
@@ -307,7 +336,7 @@ export function GeneralTabContent({
                     />
                 ) : products && products.length > 0 ? (
                     layoutMode === "list" ? (
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
                             {products.map((product) => (
                                 <ListProductCard
                                     key={product.id}
@@ -319,7 +348,7 @@ export function GeneralTabContent({
                             ))}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3">
+                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-4">
                             {products.map((product) => (
                                 <GridProductCard
                                     key={product.id}
@@ -332,28 +361,11 @@ export function GeneralTabContent({
                         </div>
                     )
                 ) : (
-                    <div className="mx-auto flex w-full max-w-[247px] flex-col items-center gap-6 py-4 animate-in fade-in duration-300">
-                        <div className="relative aspect-[188/204] w-full max-w-[188px]">
-                            <Image
-                                src="/cart/emptyCart.png"
-                                alt=""
-                                fill
-                                className="object-contain"
-                                sizes="(max-width: 343px) 60vw, 188px"
-                                priority
-                            />
-                        </div>
-                        <p
-                            className="text-center text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[18px]"
-                            style={TAJAWAL}
-                        >
-                            لا توجد منتجات للعرض
-                        </p>
-                    </div>
+                    <ProductsEmptyInline />
                 )}
             </section>
 
-            <section className="flex flex-col gap-3">
+            <section className="flex flex-col gap-3 sm:gap-4">
                 <SectionTitle>ملاحظات تحليلية</SectionTitle>
                 {coreStatus === "loading" && !insights ? (
                     <SkeletonBlock className="h-[64px]" />

@@ -34,7 +34,7 @@ export function EmptyFavorites() {
             <p className="text-base font-bold text-gray-800 dark:text-gray-200 sm:text-lg">
                 لا توجد مفضلات حتى الآن
             </p>
-            <p className="mt-1.5 max-w-[220px] text-sm text-gray-500 dark:text-gray-400 sm:mt-2 sm:max-w-xs sm:text-[15px]">
+            <p className="mt-1.5 max-w-[220px] text-sm text-gray-500 dark:text-gray-400 sm:mt-2 sm:max-w-xs sm:text-[15px] md:max-w-sm">
                 ابدأ بإضافة المنتجات أو المتاجر التي تعجبك
             </p>
         </div>

@@ -7,6 +7,10 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 const MODULE_ID = process.env.MODULE_ID ?? "3";
 const ZONE_ID = process.env.ZONE_ID ?? "[2]";
 
+/** Backend treats `offset` as a row offset (0, 10, 20…), not a page number. */
+const DEFAULT_OFFSET = 0;
+const DEFAULT_LIMIT = 10;
+
 async function getToken(): Promise<string | null> {
     const store = await cookies();
     return store.get(COOKIE_KEYS.ACCESS_TOKEN)?.value ?? null;
@@ -14,8 +18,8 @@ async function getToken(): Promise<string | null> {
 
 function authHeaders(token: string): HeadersInit {
     return {
-        Accept: "application/json",
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json; charset=UTF-8",
         "X-localization": "ar",
         moduleId: MODULE_ID,
         zoneId: ZONE_ID,
@@ -59,6 +63,7 @@ function txnTitle(type: string | undefined, orderId?: number | null): string {
     if (type === "order") return orderId ? `طلب #${orderId}` : "طلب";
     if (type === "cashback") return "استرداد نقدي";
     if (type === "referral") return "مكافأة إحالة";
+    if (type === "point_to_wallet" || type === "converted") return "تحويل إلى المحفظة";
     return "معاملة نقاط";
 }
 
@@ -89,24 +94,51 @@ function groupByDate(raws: LoyaltyTxnRaw[]): PointsHistoryGroup[] {
     return Array.from(map.values());
 }
 
+function extractTxns(json: unknown): LoyaltyTxnRaw[] {
+    if (!json || typeof json !== "object") return [];
+    const root = json as Record<string, unknown>;
+    const data = root.data;
+
+    if (Array.isArray(data)) return data as LoyaltyTxnRaw[];
+    if (data && typeof data === "object") {
+        const nested = data as Record<string, unknown>;
+        if (Array.isArray(nested.data)) return nested.data as LoyaltyTxnRaw[];
+        if (Array.isArray(nested.transactions)) return nested.transactions as LoyaltyTxnRaw[];
+    }
+    if (Array.isArray(root.transactions)) return root.transactions as LoyaltyTxnRaw[];
+    return [];
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
-export async function getLoyaltyTransactions(): Promise<PointsHistoryGroup[]> {
+/**
+ * GET /api/v1/customer/loyalty-point/transactions
+ * `offset` is a row offset: 0, 10, 20… (not page 1, 2, 3).
+ */
+export async function getLoyaltyTransactions(
+    offset = DEFAULT_OFFSET,
+    limit = DEFAULT_LIMIT,
+): Promise<PointsHistoryGroup[]> {
     const token = await getToken();
-    if (!token) return [];
+    if (!token || !BACKEND_URL) return [];
+
+    const rowOffset = Math.max(0, offset);
+    const pageLimit = Math.max(1, limit);
 
     try {
+        const params = new URLSearchParams({
+            offset: String(rowOffset),
+            limit: String(pageLimit),
+        });
+
         const res = await fetch(
-            `${BACKEND_URL}/api/v1/customer/loyalty-point/transactions`,
+            `${BACKEND_URL}/api/v1/customer/loyalty-point/transactions?${params}`,
             { headers: authHeaders(token), cache: "no-store" },
         );
         if (!res.ok) return [];
 
-        const json = await res.json();
-        const raws: LoyaltyTxnRaw[] =
-            json?.data?.data ?? json?.data ?? json?.transactions ?? [];
-
-        return groupByDate(raws);
+        const json: unknown = await res.json();
+        return groupByDate(extractTxns(json));
     } catch {
         return [];
     }

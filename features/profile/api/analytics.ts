@@ -24,6 +24,8 @@ import type {
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 const MODULE_ID = process.env.MODULE_ID ?? "3";
 const ZONE_ID = process.env.ZONE_ID ?? "[2]";
+const LATITUDE = process.env.NEXT_PUBLIC_LATITUDE ?? "24.7136";
+const LONGITUDE = process.env.NEXT_PUBLIC_LONGITUDE ?? "46.6753";
 
 async function getAccessToken(): Promise<string | null> {
     const cookieStore = await cookies();
@@ -33,10 +35,13 @@ async function getAccessToken(): Promise<string | null> {
 function analyticsHeaders(token: string): HeadersInit {
     return {
         Accept: "application/json",
+        "Content-Type": "application/json; charset=UTF-8",
         Authorization: `Bearer ${token}`,
         "X-localization": "ar",
         moduleId: MODULE_ID,
         zoneId: ZONE_ID,
+        latitude: LATITUDE,
+        longitude: LONGITUDE,
     };
 }
 
@@ -108,7 +113,10 @@ export async function getCategoryBreakdown(): Promise<StatisticsCategory[]> {
     }
 }
 
-export async function getMostPurchasedProducts(): Promise<StatisticsProduct[]> {
+export async function getMostPurchasedProducts(
+    period: "week" | "month" | "all" = "month",
+    limit = 10,
+): Promise<StatisticsProduct[]> {
     const token = await getAccessToken();
     if (!token) return [];
 
@@ -116,6 +124,10 @@ export async function getMostPurchasedProducts(): Promise<StatisticsProduct[]> {
         const raw = await fetchAnalyticsRaw(
             ANALYTICS_ENDPOINTS.mostPurchasedProducts,
             token,
+            {
+                period,
+                limit: String(limit),
+            },
         );
         return adaptProducts(raw);
     } catch {

@@ -79,7 +79,7 @@ export function FilterSheet({ open, onClose, onApply, initialValues }: FilterShe
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+            className="fixed inset-0 z-[999] flex items-end justify-center bg-black/40 sm:items-center"
             onClick={onClose}
         >
             <div

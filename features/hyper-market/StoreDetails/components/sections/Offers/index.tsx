@@ -10,8 +10,10 @@ export const Offers = Object.assign(
 
         if (offers.length === 1) {
             return (
-                <section aria-label="العروض" className="w-full px-4 sm:px-5">
-
+                <section
+                    aria-label="العروض"
+                    className="w-full min-w-0 px-3 pb-2 sm:px-5 sm:pb-3 md:px-6 lg:px-6 lg:pb-4 xl:px-8 2xl:px-10"
+                >
                     <OfferSlide offer={offers[0]} priority />
                 </section>
             );

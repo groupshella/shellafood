@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, MapPin } from "lucide-react";
 import { AddressPickerSheet } from "@/features/addresses/components/shared/AddressPickerSheet";
@@ -38,31 +38,54 @@ function DeliveryOptionCard({ selected, onSelect, label, subLabel }: DeliveryOpt
             aria-pressed={selected}
         >
             <div className="flex min-w-0 flex-col items-start gap-0.5">
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-[15px]">{label}</p>
-                <p className={`text-xs sm:text-[13px] ${selected ? "text-[#30913F]" : "text-gray-500 dark:text-gray-400"}`}>
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-[15px]">
+                    {label}
+                </p>
+                <p
+                    className={`text-xs sm:text-[13px] ${selected ? "text-[#30913F]" : "text-gray-500 dark:text-gray-400"}`}
+                >
                     {subLabel}
                 </p>
             </div>
             <div
                 className={[
                     "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors sm:h-[22px] sm:w-[22px]",
-                    selected
-                        ? "border-[#30913F]"
-                        : "border-gray-300 dark:border-gray-600",
+                    selected ? "border-[#30913F]" : "border-gray-300 dark:border-gray-600",
                 ].join(" ")}
                 aria-hidden
             >
-                {selected && <div className="h-2.5 w-2.5 rounded-full bg-[#30913F] sm:h-3 sm:w-3" />}
+                {selected && (
+                    <div className="h-2.5 w-2.5 rounded-full bg-[#30913F] sm:h-3 sm:w-3" />
+                )}
             </div>
         </button>
     );
 }
 
 export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMethodClientProps) {
-    const [method, setMethod] = useState<DeliveryMethodType>("delivery");
     const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
-    const { updateDeliveryAddress } = useCheckout();
+    const {
+        deliveryMethod,
+        setDeliveryMethod,
+        updateDeliveryAddress,
+        invoice,
+        data,
+    } = useCheckout();
     const { selectedAddress, selectedId, setSelectedAddressId } = useSelectedAddress(addresses);
+    const store = data.storeSummary;
+
+    // Sync selected address (localStorage) into pricing + place-order payload on mount/change.
+    useEffect(() => {
+        if (selectedAddress) {
+            updateDeliveryAddress(selectedAddress);
+        }
+        // Only re-sync when the selected address id changes.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedAddress?.id]);
+
+    function handleSelectMethod(method: DeliveryMethodType) {
+        setDeliveryMethod(method);
+    }
 
     function handleSelectAddress(id: number) {
         setSelectedAddressId(id);
@@ -70,38 +93,50 @@ export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMet
         if (addr) updateDeliveryAddress(addr);
     }
 
+    const deliverySubLabel =
+        invoice.deliveryFee === "0 ﷼" || invoice.deliveryFee.startsWith("0 ")
+            ? "مجاني"
+            : `إضافي ${invoice.deliveryFee}`;
+
     return (
         <div dir="rtl">
             <h2 className={SECTION_HEADING}>طريقة الاستلام</h2>
 
             <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-3">
                 <DeliveryOptionCard
-                    selected={method === "delivery"}
-                    onSelect={() => setMethod("delivery")}
+                    selected={deliveryMethod === "delivery"}
+                    onSelect={() => handleSelectMethod("delivery")}
                     label="توصيل الطلبات للعنوان"
-                    subLabel="إضافي 31.95 ﷼"
+                    subLabel={
+                        deliveryMethod === "delivery" ? deliverySubLabel : "يُحسب حسب المسافة"
+                    }
                 />
                 <DeliveryOptionCard
-                    selected={method === "pickup"}
-                    onSelect={() => setMethod("pickup")}
+                    selected={deliveryMethod === "pickup"}
+                    onSelect={() => handleSelectMethod("pickup")}
                     label="استلام من المتجر"
                     subLabel="مجاني"
                 />
             </div>
 
-            {method === "delivery" && (
+            {deliveryMethod === "delivery" && (
                 <div className="mt-4 sm:mt-5">
                     {!isAuthenticated ? (
                         <Link
                             href="/auth"
                             className="inline-flex min-h-10 items-center gap-1.5 rounded-lg text-sm font-medium text-[#30913F] transition-colors active:text-[#267332] dark:text-[#4db860] sm:text-[15px]"
                         >
-                            <MapPin className="h-4 w-4 shrink-0 sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
+                            <MapPin
+                                className="h-4 w-4 shrink-0 sm:h-[18px] sm:w-[18px]"
+                                strokeWidth={2}
+                            />
                             <span>سجل الدخول لإضافة عنوان</span>
                         </Link>
                     ) : !selectedAddress ? (
                         <div className="space-y-1.5">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-[13px]">لا يوجد عنوان محفوظ بعد</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-[13px]">
+                                لا يوجد عنوان محفوظ بعد
+                            </p>
                             <Link
                                 href="/addresses/add"
                                 className="inline-flex min-h-10 items-center text-sm font-medium text-[#30913F] transition-colors active:text-[#267332] dark:text-[#4db860] sm:text-[15px]"
@@ -117,7 +152,10 @@ export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMet
                                 className="mb-2 flex min-h-10 items-center gap-1 text-sm font-medium text-[#30913F] transition-colors active:text-[#267332] dark:text-[#4db860] sm:text-[15px]"
                             >
                                 <span>سيصلك على {selectedAddress.address_label}</span>
-                                <ChevronDown className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2.5} />
+                                <ChevronDown
+                                    className="h-4 w-4 sm:h-[18px] sm:w-[18px]"
+                                    strokeWidth={2.5}
+                                />
                             </button>
                             <div className="flex items-start gap-2 sm:gap-2.5">
                                 <MapPin
@@ -133,14 +171,32 @@ export function DeliveryMethodClient({ isAuthenticated, addresses }: DeliveryMet
                 </div>
             )}
 
-            {method === "pickup" && (
+            {deliveryMethod === "pickup" && (
                 <div className="mt-4 sm:mt-5">
-                    <h3 className="mb-2 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">عنوان المتجر</h3>
+                    <h3 className="mb-2 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
+                        عنوان المتجر
+                    </h3>
                     <div className="flex items-start gap-2 sm:gap-2.5">
-                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#30913F] dark:text-[#4db860] sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
-                        <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-400 sm:text-[13px]">
-                            سيتم عرض عنوان المتجر عند تأكيد الطلب
-                        </p>
+                        <MapPin
+                            className="mt-0.5 h-4 w-4 shrink-0 text-[#30913F] dark:text-[#4db860] sm:h-[18px] sm:w-[18px]"
+                            strokeWidth={2}
+                        />
+                        <div className="min-w-0">
+                            {store ? (
+                                <>
+                                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                                        {store.name}
+                                    </p>
+                                    <p className="mt-0.5 text-xs leading-relaxed text-gray-600 dark:text-gray-400 sm:text-[13px]">
+                                        {store.address}
+                                    </p>
+                                </>
+                            ) : (
+                                <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-400 sm:text-[13px]">
+                                    تعذر جلب عنوان المتجر حالياً
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

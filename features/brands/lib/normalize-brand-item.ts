@@ -12,8 +12,8 @@ export function normalizeItem(item: ItemSearchRawItem): BrandItem {
         item.discount_type === "percent"
             ? item.discount
             : originalPrice > 0
-              ? ((originalPrice - salePrice) / originalPrice) * 100
-              : 0;
+                ? ((originalPrice - salePrice) / originalPrice) * 100
+                : 0;
 
     const description =
         item.description?.trim() || item.unit_type?.trim() || undefined;

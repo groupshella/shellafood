@@ -91,7 +91,7 @@ export const CartItemCard = memo(function CartItemCard({
           <button
             type="button"
             onClick={onRemove}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 active:text-red-500 dark:text-gray-500 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 dark:active:text-red-400 sm:h-10 sm:w-10"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 active:text-red-500 dark:text-gray-500 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 dark:active:text-red-400 sm:h-10 sm:w-10 md:hover:bg-gray-100 md:hover:text-red-500 dark:md:hover:bg-gray-800 dark:md:hover:text-red-400"
             aria-label={`حذف ${item.name}`}
           >
             <Trash2 className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={1.5} aria-hidden />

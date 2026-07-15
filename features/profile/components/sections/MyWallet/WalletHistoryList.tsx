@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { WALLET_STRINGS } from "@/features/profile/constants/wallet.strings";
 import type {
@@ -14,22 +14,45 @@ import { WalletHistoryItemCard } from "./WalletHistoryItemCard";
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
 
 export function WalletHistoryList({
-    groups,
+    groups: initialGroups,
 }: {
     groups: WalletHistoryGroup[];
 }) {
     const [filter, setFilter] = useState<WalletHistoryFilter>("all");
+    const [groups, setGroups] = useState(initialGroups);
+    const [isPending, startTransition] = useTransition();
 
-    const visibleGroups = useMemo(() => {
-        if (filter === "all") return groups;
-        return groups
-            .map((g) => ({
-                ...g,
-                items: g.items.filter((i) => i.transactionType === filter),
-            }))
-            .filter((g) => g.items.length > 0);
-    }, [groups, filter]);
-    const hasItems = visibleGroups.some((g) => g.items.length > 0);
+    useEffect(() => {
+        setGroups(initialGroups);
+    }, [initialGroups]);
+
+    function handleFilterChange(next: WalletHistoryFilter) {
+        setFilter(next);
+        startTransition(async () => {
+            try {
+                const params = new URLSearchParams({
+                    offset: "0",
+                    limit: "10",
+                    type: next,
+                });
+                const res = await fetch(
+                    `/api/profile/wallet/transactions?${params}`,
+                );
+                const json = await res.json();
+                if (!res.ok || !json.success) {
+                    setGroups([]);
+                    return;
+                }
+                setGroups(
+                    Array.isArray(json.data) ? json.data : [],
+                );
+            } catch {
+                setGroups([]);
+            }
+        });
+    }
+
+    const hasItems = groups.some((g) => g.items.length > 0);
 
     return (
         <section
@@ -44,14 +67,24 @@ export function WalletHistoryList({
                 >
                     {WALLET_STRINGS.historyTitle}
                 </h2>
-                <WalletFilterDropdown value={filter} onChange={setFilter} />
+                <WalletFilterDropdown
+                    value={filter}
+                    onChange={handleFilterChange}
+                />
             </div>
 
-            {!hasItems ? (
+            {isPending ? (
+                <div
+                    className="py-8 text-center text-[13px] text-[#707784] dark:text-gray-400"
+                    style={TAJAWAL}
+                >
+                    جاري التحميل...
+                </div>
+            ) : !hasItems ? (
                 <WalletHistoryEmpty />
             ) : (
                 <div className="flex flex-col gap-5">
-                    {visibleGroups.map((group) => (
+                    {groups.map((group) => (
                         <div key={group.id} className="flex flex-col gap-2.5">
                             <p
                                 className="text-start text-[13px] font-medium text-[#707784] dark:text-gray-400 sm:text-[14px]"

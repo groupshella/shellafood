@@ -68,7 +68,13 @@ export const ProductCard = memo(function ProductCard({
     return (
         <div
             dir="rtl"
-            className="flex h-full min-w-0 items-center gap-2.5 rounded-2xl bg-white px-3 py-2.5 shadow-sm ring-1 ring-black/[0.04] dark:bg-gray-800 dark:ring-white/[0.06] sm:gap-3 sm:px-4 sm:py-3"
+            className={[
+                "flex h-full min-w-0 items-center gap-2.5 rounded-2xl bg-white px-3 py-2.5 shadow-sm ring-1 ring-black/[0.04]",
+                "dark:bg-gray-800 dark:ring-white/[0.06] sm:gap-3 sm:px-4 sm:py-3",
+                "motion-safe:transition-[transform,box-shadow] motion-safe:duration-200",
+                "md:hover:-translate-y-px md:hover:shadow-[0_2px_6px_rgba(0,0,0,0.05),0_8px_24px_rgba(0,0,0,0.08)]",
+                "md:dark:hover:shadow-[0_2px_6px_rgba(0,0,0,0.25),0_8px_24px_rgba(0,0,0,0.2)]",
+            ].join(" ")}
         >
             <Link
                 href={`/items/${product.id}?module_id=${product.module_id}`}

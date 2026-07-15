@@ -36,6 +36,34 @@ export interface QidhaStatisticsData {
     paidTotal: string;
     overdueCount: number;
     pendingCount: number;
+    statusLabel: string;
+    usedPercentage: number;
+}
+
+export interface QidhaSalaryDayInfo {
+    salaryDay: number;
+    nextSalaryDate: string;
+    daysUntilSalary: number;
+    salaryAmount: string;
+    isPaymentDue: boolean;
+    dueRatio: number;
+}
+
+export interface QidhaTransactionItem {
+    id: number;
+    storeName: string;
+    amount: string;
+    type: "debit" | "credit" | string;
+    createdAt: string;
+    description: string;
+}
+
+export interface RecordedAnalyticsInitialData {
+    qidha: QidhaStatisticsData;
+    categories: StatisticsCategory[];
+    monthlyTrends: StatisticsMonthTrend[];
+    salaryDay: QidhaSalaryDayInfo | null;
+    transactions: QidhaTransactionItem[];
 }
 
 export interface SpendingSummary {

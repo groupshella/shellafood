@@ -1,14 +1,11 @@
+import type { CheckoutStoreSummary } from "@/features/checkout/types/store-summary.types";
+import type { FormattedCheckoutInvoice } from "@/features/checkout/lib/invoice";
+
 export type DeliveryMethodType = "delivery" | "pickup";
 
 export type PaymentMethodType = "my-wallet" | "qidha-wallet" | "electronic" | null;
 
 export type ElectronicPaymentType = "visa-master" | "mada" | "apple-pay" | "stc-pay" | null;
-
-export interface SavedAddress {
-    id: number;
-    label: string;
-    address: string;
-}
 
 export interface CartItem {
     id: number;
@@ -16,13 +13,8 @@ export interface CartItem {
     imageUrl?: string;
 }
 
-export interface CheckoutInvoice {
-    subtotal: string;
-    deliveryFee: string;
-    serviceFee: string;
-    discount: string;
-    total: string;
-}
+/** Display invoice — kept in sync by CheckoutContext when address/method changes. */
+export type CheckoutInvoice = FormattedCheckoutInvoice;
 
 export interface PlaceOrderCartItem {
     item_id: number;
@@ -64,7 +56,10 @@ export interface CheckoutData {
     deliveryAddressShort: string;
     walletBalance: string;
     myWalletBalance: string;
+    /** Numeric subtotal from cart — used to recalculate invoice on the client. */
+    subtotal: number;
     invoice: CheckoutInvoice;
+    storeSummary: CheckoutStoreSummary | null;
     /** Ready-to-send payload for the place-order API. Built server-side in checkout/page.tsx. */
     placeOrderPayload: PlaceOrderPayload;
 }

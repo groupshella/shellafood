@@ -14,7 +14,7 @@ interface AddressListClientProps {
 }
 
 const primaryButtonClass =
-	"mt-2 flex w-full min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-[#30913F] text-sm font-semibold text-white transition-colors hover:bg-[#2a8036] active:bg-[#267332] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-offset-gray-900 sm:min-h-[56px] lg:max-w-md lg:ms-auto lg:me-0";
+	"mt-2 flex w-full min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#30913F] to-[#267332] text-sm font-semibold text-white transition-all duration-200 hover:from-[#2a8036] hover:to-[#1f6628] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 dark:focus-visible:ring-offset-gray-900 sm:min-h-[56px] lg:max-w-md lg:ms-auto lg:me-0";
 
 export function AddressListClient({ addresses }: AddressListClientProps) {
 	const router = useRouter();

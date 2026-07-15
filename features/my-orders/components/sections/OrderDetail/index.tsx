@@ -7,6 +7,7 @@ export const OrderDetail = Object.assign(
     async function OrderDetail({ id }: { id: string }) {
         const data = await getOrderDetailData(id);
 
+
         if (!data) {
             return (
                 <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6" dir="rtl">

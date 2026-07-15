@@ -1,10 +1,16 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePlaceOrder } from "@/features/checkout/hooks/usePlaceOrder";
+import {
+    calculateInvoiceTotals,
+    formatCheckoutInvoice,
+} from "@/features/checkout/lib/invoice";
 import type {
     CheckoutData,
+    CheckoutInvoice,
+    DeliveryMethodType,
     ElectronicPaymentType,
     PaymentMethodType,
     PlaceOrderPayload,
@@ -32,13 +38,18 @@ async function qidhaDebit(amount: number, orderId: number): Promise<void> {
 interface CheckoutContextValue {
     data: CheckoutData;
     payload: PlaceOrderPayload;
+    invoice: CheckoutInvoice;
+    deliveryMethod: DeliveryMethodType;
     selected: PaymentMethodType;
     electronicMethod: ElectronicPaymentType;
     showPaymentWarning: boolean;
     isPlacingOrder: boolean;
     orderError: string | null;
+    /** False when cart subtotal is below store minimum_order. */
+    canPlaceOrder: boolean;
     setSelected: (id: PaymentMethodType) => void;
     setElectronicMethod: (id: ElectronicPaymentType) => void;
+    setDeliveryMethod: (method: DeliveryMethodType) => void;
     updateDeliveryAddress: (address: AddressListItem) => void;
     confirmPayment: () => void;
 }
@@ -59,7 +70,24 @@ export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
     const [electronicMethod, setElectronicMethodState] = useState<ElectronicPaymentType>(null);
     const [showPaymentWarning, setShowPaymentWarning] = useState(false);
     const [orderError, setOrderError] = useState<string | null>(null);
+    const [deliveryMethod, setDeliveryMethodState] = useState<DeliveryMethodType>(
+        data.deliveryMethod
+    );
     const [payload, setPayload] = useState<PlaceOrderPayload>(data.placeOrderPayload);
+    const [invoice, setInvoice] = useState<CheckoutInvoice>(data.invoice);
+
+    const priceFromCoords = useCallback(
+        (method: DeliveryMethodType, latitude: string, longitude: string) => {
+            return calculateInvoiceTotals({
+                subtotal: data.subtotal,
+                method,
+                store: data.storeSummary,
+                userLatitude: Number(latitude) || 0,
+                userLongitude: Number(longitude) || 0,
+            });
+        },
+        [data.storeSummary, data.subtotal]
+    );
 
     const setSelected = (id: PaymentMethodType) => {
         setSelectedState(id);
@@ -75,16 +103,51 @@ export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
         setShowPaymentWarning(false);
     };
 
-    const updateDeliveryAddress = useCallback((address: AddressListItem) => {
-        setPayload((prev) => ({
-            ...prev,
-            address: formatAddressLine(address),
-            latitude: String(address.latitude),
-            longitude: String(address.longitude),
-        }));
-    }, []);
+    const setDeliveryMethod = useCallback(
+        (method: DeliveryMethodType) => {
+            setDeliveryMethodState(method);
+            setPayload((prev) => {
+                const totals = priceFromCoords(method, prev.latitude, prev.longitude);
+                setInvoice(formatCheckoutInvoice(totals, method));
+                return {
+                    ...prev,
+                    order_type: method,
+                    distance: totals.distanceKm,
+                    order_amount: totals.total,
+                };
+            });
+        },
+        [priceFromCoords]
+    );
+
+    const updateDeliveryAddress = useCallback(
+        (address: AddressListItem) => {
+            const latitude = String(address.latitude);
+            const longitude = String(address.longitude);
+            const totals = priceFromCoords(deliveryMethod, latitude, longitude);
+
+            setInvoice(formatCheckoutInvoice(totals, deliveryMethod));
+            setPayload((prev) => ({
+                ...prev,
+                address: formatAddressLine(address),
+                latitude,
+                longitude,
+                order_type: deliveryMethod,
+                distance: totals.distanceKm,
+                order_amount: totals.total,
+            }));
+        },
+        [deliveryMethod, priceFromCoords]
+    );
+
+    const canPlaceOrder = !invoice.belowMinimumOrder;
 
     const confirmPayment = useCallback(async () => {
+        if (invoice.belowMinimumOrder) {
+            notifyError(`الحد الأدنى للطلب من هذا المتجر ${invoice.minimumOrder}`);
+            return;
+        }
+
         if (!selected) {
             setShowPaymentWarning(true);
             notifyError("بالرجاء تحديد طريقة الدفع");
@@ -93,21 +156,20 @@ export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
 
         setOrderError(null);
 
-        // ── My Wallet ──────────────────────────────────────────────────────────
         if (selected === "my-wallet") {
             try {
                 const { order_id } = await placeOrder({ ...payload, payment_method: "wallet" });
                 notifySuccess("تم تأكيد طلبك بنجاح 🎉");
                 router.push(`/my-orders/${order_id}`);
             } catch (err) {
-                const message = err instanceof Error ? err.message : "تعذر إتمام الطلب، يرجى المحاولة مرة أخرى";
+                const message =
+                    err instanceof Error ? err.message : "تعذر إتمام الطلب، يرجى المحاولة مرة أخرى";
                 setOrderError(message);
                 notifyError(message);
             }
             return;
         }
 
-        // ── Qidha Wallet ───────────────────────────────────────────────────────
         if (selected === "qidha-wallet") {
             try {
                 const { order_id } = await placeOrder({ ...payload, payment_method: "wallet" });
@@ -119,43 +181,67 @@ export function CheckoutProvider({ data, children }: CheckoutProviderProps) {
                 notifySuccess("تم تأكيد طلبك بنجاح 🎉");
                 router.push(`/my-orders/${order_id}`);
             } catch (err) {
-                const message = err instanceof Error ? err.message : "تعذر إتمام الطلب، يرجى المحاولة مرة أخرى";
+                const message =
+                    err instanceof Error ? err.message : "تعذر إتمام الطلب، يرجى المحاولة مرة أخرى";
                 setOrderError(message);
                 notifyError(message);
             }
             return;
         }
 
-        // ── Electronic / MyFatoorah ────────────────────────────────────────────
         try {
             const { order_id } = await placeOrder(payload);
 
             const params = new URLSearchParams({
                 orderId: String(order_id),
-                amount: String(parseInvoiceAmount(data.invoice.total)),
+                amount: String(parseInvoiceAmount(invoice.total)),
                 currency: "SAR",
             });
 
             router.push(`/checkout/payment?${params.toString()}`);
         } catch (err) {
-            const message = err instanceof Error ? err.message : "تعذر إتمام الطلب، يرجى المحاولة مرة أخرى";
+            const message =
+                err instanceof Error ? err.message : "تعذر إتمام الطلب، يرجى المحاولة مرة أخرى";
             setOrderError(message);
             notifyError(message);
         }
-    }, [data.invoice.total, notifyError, payload, placeOrder, router, selected]);
+    }, [
+        invoice.belowMinimumOrder,
+        invoice.minimumOrder,
+        invoice.total,
+        notifyError,
+        notifySuccess,
+        payload,
+        placeOrder,
+        router,
+        selected,
+    ]);
+
+    const contextData = useMemo(
+        () => ({
+            ...data,
+            deliveryMethod,
+            invoice,
+        }),
+        [data, deliveryMethod, invoice]
+    );
 
     return (
         <CheckoutContext.Provider
             value={{
-                data,
+                data: contextData,
                 payload,
+                invoice,
+                deliveryMethod,
                 selected,
                 electronicMethod,
                 showPaymentWarning,
                 isPlacingOrder,
                 orderError,
+                canPlaceOrder,
                 setSelected,
                 setElectronicMethod,
+                setDeliveryMethod,
                 updateDeliveryAddress,
                 confirmPayment,
             }}

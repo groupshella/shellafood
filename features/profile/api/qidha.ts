@@ -1,48 +1,99 @@
 import { cookies } from "next/headers";
 
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
-import { QIDHA_STRINGS } from "@/features/profile/constants/qidha.strings";
+import { QIDHA_ENDPOINTS } from "@/features/profile/constants/qidha.constants";
+import {
+    adaptMonthlyTrends,
+    adaptQidhaCard,
+    adaptQidhaStatisticsFromParts,
+    adaptSalaryDay,
+    adaptSpendingCategories,
+    adaptTransactions,
+    emptyQidhaStatistics,
+} from "@/features/profile/lib/qidha-adapters";
 import type { QidhaWalletApiData, QidhaWalletCard } from "@/features/profile/types/qidha.types";
+import type {
+    QidhaSalaryDayInfo,
+    QidhaStatisticsData,
+    QidhaTransactionItem,
+    RecordedAnalyticsInitialData,
+    StatisticsCategory,
+    StatisticsMonthTrend,
+} from "@/features/profile/types/statistics.types";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 const MODULE_ID = process.env.MODULE_ID ?? "3";
 const ZONE_ID = process.env.ZONE_ID ?? "[2]";
+const LATITUDE = process.env.NEXT_PUBLIC_LATITUDE ?? "24.7136";
+const LONGITUDE = process.env.NEXT_PUBLIC_LONGITUDE ?? "46.6753";
 
 async function getToken(): Promise<string | null> {
-    const store = await cookies();
-    return store.get(COOKIE_KEYS.ACCESS_TOKEN)?.value ?? null;
+    try {
+        const store = await cookies();
+        return store.get(COOKIE_KEYS.ACCESS_TOKEN)?.value ?? null;
+    } catch {
+        return null;
+    }
 }
 
-function authHeaders(token: string): HeadersInit {
+/** GET headers for Qidha APIs (Accept is used on Qidha, unlike most customer APIs). */
+function qidhaGetHeaders(token: string): HeadersInit {
     return {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
         "X-localization": "ar",
         moduleId: MODULE_ID,
+        "module-id": MODULE_ID,
         zoneId: ZONE_ID,
+        "zone-id": ZONE_ID,
+        latitude: LATITUDE,
+        longitude: LONGITUDE,
     };
 }
 
-function adaptQidhaCard(
-    data: QidhaWalletApiData,
-    userId?: number,
-): QidhaWalletCard {
-    const available = Number(data.available_balance ?? 0);
-    const creditLimit = Number(data.credit_limit ?? Math.max(available, 4500));
-    const usedBalance = Number(data.used_balance ?? Math.max(0, creditLimit - available));
+/**
+ * Safe Qidha GET — never throws.
+ * Returns unwrapped `data` on success, otherwise `null`.
+ */
+async function fetchQidhaData(path: string, token: string): Promise<unknown | null> {
+    if (!BACKEND_URL) return null;
 
-    const cardNumber =
-        data.card_number ??
-        `2026${String(userId ?? 0).padStart(8, "0")}`.slice(0, 12);
+    try {
+        const res = await fetch(`${BACKEND_URL}${path}`, {
+            method: "GET",
+            headers: qidhaGetHeaders(token),
+            cache: "no-store",
+        });
 
-    return {
-        availableBalance: available,
-        usedBalance,
-        creditLimit,
-        cardNumber,
-        expiryDate: data.expiry_date ?? "11-6-2026",
-        statusLabel: data.status === "active" ? QIDHA_STRINGS.available : (data.status ?? QIDHA_STRINGS.available),
-    };
+        const text = await res.text();
+        if (!text) return null;
+
+        let json: unknown;
+        try {
+            json = JSON.parse(text);
+        } catch {
+            return null;
+        }
+
+        if (!res.ok) return null;
+
+        if (
+            json &&
+            typeof json === "object" &&
+            "success" in json &&
+            (json as { success: unknown }).success === false
+        ) {
+            return null;
+        }
+
+        if (json && typeof json === "object" && "data" in json) {
+            return (json as { data: unknown }).data ?? null;
+        }
+
+        return json;
+    } catch {
+        return null;
+    }
 }
 
 export interface QidhaWalletResult {
@@ -55,23 +106,115 @@ export async function getQidhaWallet(userId?: number): Promise<QidhaWalletResult
     const token = await getToken();
     if (!token) return null;
 
+    const raw = await fetchQidhaData(QIDHA_ENDPOINTS.wallet, token);
+    if (!raw || typeof raw !== "object") return null;
+
+    const data = raw as QidhaWalletApiData;
+    if (data.has_wallet === false) return null;
+
+    const usedBalance = Number(data.used_balance ?? 0);
+    const minimumDue = Number(
+        data.minimum_due_limit ?? data.minimum_amount_due ?? usedBalance,
+    );
+    const fullDue = Number(data.full_amount_due ?? usedBalance);
+
+    return {
+        card: adaptQidhaCard(data, userId),
+        fullAmountDue: Number.isFinite(fullDue) ? fullDue : 0,
+        minimumAmountDue: Number.isFinite(minimumDue) ? minimumDue : 0,
+    };
+}
+
+function emptyRecorded(): RecordedAnalyticsInitialData {
+    return {
+        qidha: emptyQidhaStatistics(),
+        categories: [],
+        monthlyTrends: [],
+        salaryDay: null,
+        transactions: [],
+    };
+}
+
+function buildQidhaStats(
+    wallet: unknown,
+    analytics: unknown,
+    duePayments: unknown,
+    paymentHistory: unknown,
+): QidhaStatisticsData {
     try {
-        const res = await fetch(
-            `${BACKEND_URL}/api/qidha-wallet/get-wallet`,
-            { headers: authHeaders(token), cache: "no-store" },
-        );
-        if (!res.ok) return null;
+        return adaptQidhaStatisticsFromParts({
+            wallet,
+            analytics,
+            duePayments,
+            paymentHistory,
+        });
+    } catch {
+        return emptyQidhaStatistics();
+    }
+}
 
-        const json = await res.json();
-        const data: QidhaWalletApiData =
-            json?.data?.wallet ?? json?.data ?? json?.wallet ?? json;
+function buildCategories(raw: unknown): StatisticsCategory[] {
+    try {
+        return adaptSpendingCategories(raw ?? {});
+    } catch {
+        return [];
+    }
+}
 
-        return {
-            card: adaptQidhaCard(data, userId),
-            fullAmountDue: Number(data.full_amount_due ?? 0),
-            minimumAmountDue: Number(data.minimum_amount_due ?? 0),
-        };
+function buildTrends(raw: unknown): StatisticsMonthTrend[] {
+    try {
+        return adaptMonthlyTrends(raw ?? {});
+    } catch {
+        return [];
+    }
+}
+
+function buildSalaryDay(raw: unknown): QidhaSalaryDayInfo | null {
+    try {
+        return adaptSalaryDay(raw);
     } catch {
         return null;
     }
+}
+
+function buildTransactions(raw: unknown): QidhaTransactionItem[] {
+    try {
+        return adaptTransactions(raw ?? {});
+    } catch {
+        return [];
+    }
+}
+
+/** Parallel SSR/BFF loader for the Statistics "قيدها" tab. Always returns a valid shape. */
+export async function getRecordedAnalytics(): Promise<RecordedAnalyticsInitialData> {
+    const token = await getToken();
+    if (!token) return emptyRecorded();
+
+    const [
+        wallet,
+        analytics,
+        duePayments,
+        paymentHistory,
+        categories,
+        monthlyTrends,
+        salaryDay,
+        transactions,
+    ] = await Promise.all([
+        fetchQidhaData(QIDHA_ENDPOINTS.wallet, token),
+        fetchQidhaData(QIDHA_ENDPOINTS.analyticsSummary, token),
+        fetchQidhaData(QIDHA_ENDPOINTS.duePayments, token),
+        fetchQidhaData(QIDHA_ENDPOINTS.paymentHistory, token),
+        fetchQidhaData(QIDHA_ENDPOINTS.spendingCategories, token),
+        fetchQidhaData(QIDHA_ENDPOINTS.monthlyTrends, token),
+        fetchQidhaData(QIDHA_ENDPOINTS.salaryDay, token),
+        fetchQidhaData(QIDHA_ENDPOINTS.transactions, token),
+    ]);
+
+    return {
+        qidha: buildQidhaStats(wallet, analytics, duePayments, paymentHistory),
+        categories: buildCategories(categories),
+        monthlyTrends: buildTrends(monthlyTrends),
+        salaryDay: buildSalaryDay(salaryDay),
+        transactions: buildTransactions(transactions),
+    };
 }

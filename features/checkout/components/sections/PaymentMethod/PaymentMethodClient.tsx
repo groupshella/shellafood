@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle2, CreditCard, Wallet } from "lucide-react";
 import { CheckoutBottomSheet } from "@/features/checkout/components/shared/CheckoutBottomSheet";
 import { useBottomSheet } from "@/features/checkout/components/shared/useBottomSheet";
 import { useCheckout } from "@/features/checkout/context/CheckoutContext";
+import { isEmptyBalance } from "@/features/checkout/lib/balance";
 import type { ElectronicPaymentType, PaymentMethodType } from "@/features/checkout/types/checkout.types";
 
 interface PaymentTabProps {
@@ -40,14 +42,11 @@ function PaymentTab({ selected, onSelect, icon, label, subValue }: PaymentTabPro
                 {label}
             </span>
             {subValue !== undefined && (
-                <span className="text-[11px] text-gray-500 dark:text-gray-400 sm:text-xs">{subValue} </span>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400 sm:text-xs">{subValue}</span>
             )}
         </button>
     );
 }
-
-const isEmptyBalance = (val: string) =>
-    val === "0" || val === "00.0" || val === "0.0" || val === "0.00";
 
 function VisaMasterIcon() {
     return (
@@ -114,6 +113,34 @@ const PAYMENT_METHOD_LABELS: Record<Exclude<PaymentMethodType, null>, string> = 
     electronic: "دفع الكتروني",
 };
 
+type BalanceWalletKind = "my-wallet" | "qidha-wallet";
+
+const EMPTY_BALANCE_SHEETS: Record<
+    BalanceWalletKind,
+    {
+        ariaLabel: string;
+        title: string;
+        description: string;
+        actionLabel: string;
+        href: string;
+    }
+> = {
+    "my-wallet": {
+        ariaLabel: "المحفظة فارغة من الرصيد",
+        title: "المحفظة فارغة من الرصيد",
+        description: "يمكنك إضافة رصيد في المحفظة لتتمكن من إكمال مرحلة الدفع",
+        actionLabel: "إضافة رصيد",
+        href: "/profile/wallet/add",
+    },
+    "qidha-wallet": {
+        ariaLabel: "الاشتراك في قيدها المطلوب",
+        title: "الاشتراك في قيدها المطلوب",
+        description: "لاستخدام محفظة قيدها، يجب الاشتراك وتفعيل المحفظة أولاً",
+        actionLabel: "اشترك الآن",
+        href: "/profile/qidha",
+    },
+};
+
 function getSelectedPaymentLabel(
     selected: PaymentMethodType,
     electronicMethod: ElectronicPaymentType
@@ -121,19 +148,24 @@ function getSelectedPaymentLabel(
     if (!selected) return null;
     if (selected === "electronic") {
         const option = ELECTRONIC_OPTIONS.find((o) => o.id === electronicMethod);
-        return option ? `${PAYMENT_METHOD_LABELS.electronic} · ${option.label}` : PAYMENT_METHOD_LABELS.electronic;
+        return option
+            ? `${PAYMENT_METHOD_LABELS.electronic} · ${option.label}`
+            : PAYMENT_METHOD_LABELS.electronic;
     }
     return PAYMENT_METHOD_LABELS[selected];
 }
 
-interface WalletSheetContentProps {
+function WalletSheetContent({
+    title,
+    description,
+    actionLabel,
+    onAction,
+}: {
     title: string;
     description: string;
     actionLabel: string;
     onAction: () => void;
-}
-
-function WalletSheetContent({ title, description, actionLabel, onAction }: WalletSheetContentProps) {
+}) {
     return (
         <div className="px-1 pb-4 pt-2 text-center sm:px-2">
             <h3 className="mb-3 text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg">{title}</h3>
@@ -218,9 +250,17 @@ function ElectronicPaymentSheet({
     );
 }
 
+function getWalletBalance(
+    id: BalanceWalletKind,
+    balances: { myWalletBalance: string; walletBalance: string },
+): string {
+    return id === "my-wallet" ? balances.myWalletBalance : balances.walletBalance;
+}
+
 export function PaymentMethodClient() {
     const {
         data,
+        invoice,
         selected,
         electronicMethod,
         showPaymentWarning,
@@ -229,19 +269,17 @@ export function PaymentMethodClient() {
     } = useCheckout();
     const router = useRouter();
 
-    const emptyWalletSheet = useBottomSheet();
-    const qidhaSheet = useBottomSheet();
+    const emptyBalanceSheet = useBottomSheet();
     const electronicSheet = useBottomSheet();
+    const [emptySheetKind, setEmptySheetKind] = useState<BalanceWalletKind | null>(null);
 
     const handleSelectPayment = (id: PaymentMethodType) => {
-        if (id === "my-wallet" && isEmptyBalance(data.myWalletBalance)) {
-            emptyWalletSheet.open();
-            return;
-        }
-
-        if (id === "qidha-wallet" && isEmptyBalance(data.walletBalance)) {
-            qidhaSheet.open();
-            return;
+        if (id === "my-wallet" || id === "qidha-wallet") {
+            if (isEmptyBalance(getWalletBalance(id, data))) {
+                setEmptySheetKind(id);
+                emptyBalanceSheet.open();
+                return;
+            }
         }
 
         setSelected(id);
@@ -251,10 +289,7 @@ export function PaymentMethodClient() {
         }
     };
 
-    const handleConfirmElectronicMethod = () => {
-        electronicSheet.close();
-    };
-
+    const emptySheet = emptySheetKind ? EMPTY_BALANCE_SHEETS[emptySheetKind] : null;
     const selectedLabel = getSelectedPaymentLabel(selected, electronicMethod);
 
     return (
@@ -299,39 +334,30 @@ export function PaymentMethodClient() {
             )}
 
             <CheckoutBottomSheet
-                isOpen={emptyWalletSheet.isOpen}
-                isVisible={emptyWalletSheet.isVisible}
-                onClose={emptyWalletSheet.close}
-                ariaLabel="المحفظة فارغة من الرصيد"
+                isOpen={emptyBalanceSheet.isOpen}
+                isVisible={emptyBalanceSheet.isVisible}
+                onClose={emptyBalanceSheet.close}
+                ariaLabel={emptySheet?.ariaLabel ?? "رصيد غير كافٍ"}
             >
-                <WalletSheetContent
-                    title="المحفظة فارغة من الرصيد"
-                    description="يمكنك إضافة رصيد في المحفظة لتتمكن من إكمال مرحلة الدفع"
-                    actionLabel="إضافة رصيد"
-                    onAction={() => router.push("/profile?tab=wallet")}
-                />
-            </CheckoutBottomSheet>
-
-            <CheckoutBottomSheet
-                isOpen={qidhaSheet.isOpen}
-                isVisible={qidhaSheet.isVisible}
-                onClose={qidhaSheet.close}
-                ariaLabel="الاشتراك في قيدها المطلوب"
-            >
-                <WalletSheetContent
-                    title="الاشتراك في قيدها المطلوب"
-                    description="لاستخدام محفظة قيدها، يجب الاشتراك وتفعيل المحفظة أولاً"
-                    actionLabel="اشترك الآن"
-                    onAction={() => router.push("/profile?tab=qidha")}
-                />
+                {emptySheet && (
+                    <WalletSheetContent
+                        title={emptySheet.title}
+                        description={emptySheet.description}
+                        actionLabel={emptySheet.actionLabel}
+                        onAction={() => {
+                            emptyBalanceSheet.close();
+                            router.push(emptySheet.href);
+                        }}
+                    />
+                )}
             </CheckoutBottomSheet>
 
             <ElectronicPaymentSheet
                 isOpen={electronicSheet.isOpen}
                 isVisible={electronicSheet.isVisible}
                 onClose={electronicSheet.close}
-                onConfirm={handleConfirmElectronicMethod}
-                total={data.invoice.total}
+                onConfirm={electronicSheet.close}
+                total={invoice.total}
                 selected={electronicMethod}
                 onSelect={setElectronicMethod}
             />

@@ -1,4 +1,4 @@
-function EmptyCartIllustration(props: React.SVGProps<SVGSVGElement>) {
+export function EmptyCartIllustration(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       viewBox="0 0 254 278"
@@ -92,7 +92,7 @@ function EmptyCartIllustration(props: React.SVGProps<SVGSVGElement>) {
 export function CartEmpty() {
   return (
     <div
-      className="flex flex-1 flex-col items-center bg-white px-4 text-center dark:bg-gray-900 sm:px-6"
+      className="flex flex-1 flex-col items-center px-4 text-center sm:px-6"
       dir="rtl"
     >
       <div className="mx-auto mt-12 flex w-full max-w-xs flex-col items-center sm:mt-20 md:mt-24 lg:mt-28">

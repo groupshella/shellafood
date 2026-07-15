@@ -9,9 +9,8 @@ const ZONE_ID = process.env.ZONE_ID ?? "[2]";
 
 function authHeaders(token: string): HeadersInit {
     return {
-        Accept: "application/json",
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json; charset=UTF-8",
         "X-localization": "ar",
         moduleId: MODULE_ID,
         zoneId: ZONE_ID,
@@ -19,64 +18,46 @@ function authHeaders(token: string): HeadersInit {
 }
 
 /**
- * Two-step conversion: first requestExchangeWalletMoney, then ExchangeWalletMoney.
- * Both are POST to the backend.
- * The client sends { points } and this route handles both steps atomically.
+ * POST /api/v1/customer/loyalty-point/point-transfer
+ * Body: { point: number }
  */
 export async function POST(req: Request) {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
     if (!token) return apiError("Unauthorized", 401);
+    if (!BACKEND_URL) return apiError("API URL not configured", 500);
 
-    let body: { points?: number };
+    let body: { point?: number; points?: number };
     try {
         body = await req.json();
     } catch {
         return apiError("Invalid request body", 400);
     }
 
-    if (!body.points || body.points <= 0) {
+    const point = Number(body.point ?? body.points ?? 0);
+    if (!Number.isFinite(point) || point <= 0) {
         return apiError("يجب تحديد عدد النقاط المراد تحويلها", 400);
     }
 
     try {
-        // Step 1 — request exchange
-        const requestRes = await fetch(
-            `${BACKEND_URL}/api/v1/customer/requestExchangeWalletMoney`,
+        const res = await fetch(
+            `${BACKEND_URL}/api/v1/customer/loyalty-point/point-transfer`,
             {
                 method: "POST",
                 headers: authHeaders(token),
-                body: JSON.stringify({ points: body.points }),
+                body: JSON.stringify({ point }),
             },
         );
 
-        const requestJson = await requestRes.json();
-        if (!requestRes.ok) {
+        const json = await res.json();
+        if (!res.ok) {
             return apiError(
-                extractBackendError(requestJson, "فشل في طلب تحويل النقاط"),
-                requestRes.status,
+                extractBackendError(json, "فشل في تحويل النقاط"),
+                res.status,
             );
         }
 
-        // Step 2 — execute exchange
-        const executeRes = await fetch(
-            `${BACKEND_URL}/api/v1/customer/ExchangeWalletMoney`,
-            {
-                method: "POST",
-                headers: authHeaders(token),
-                body: JSON.stringify({ points: body.points }),
-            },
-        );
-
-        const executeJson = await executeRes.json();
-        if (!executeRes.ok) {
-            return apiError(
-                extractBackendError(executeJson, "فشل في تنفيذ تحويل النقاط"),
-                executeRes.status,
-            );
-        }
-
-        return apiSuccess(executeJson?.data ?? executeJson);
+        return apiSuccess(json?.data ?? json);
     } catch {
         return apiError("فشل في تحويل النقاط إلى المحفظة", 502);
     }

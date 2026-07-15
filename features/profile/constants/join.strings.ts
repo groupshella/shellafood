@@ -46,6 +46,7 @@ export const JOIN_STRINGS = {
     invalidPhone: "صيغة رقم الهاتف غير صالحة",
     invalidEmail: "صيغة البريد الإلكتروني غير صالحة",
     minPassword: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+    passwordLetters: "كلمة المرور يجب أن تحتوي على حرف واحد على الأقل",
     alreadyRegistered: "هذا الحساب مسجل مسبقاً",
     metaLoadError: "تعذر تحميل البيانات. اضغط لإعادة المحاولة",
     networkError: "تعذر الاتصال بالخادم، تحقق من اتصالك وحاول مرة أخرى",
@@ -67,6 +68,25 @@ export const JOIN_STRINGS = {
     fillRequiredFields: "يرجى تعبئة الحقول المطلوبة",
     scrollToFix: "يرجى تصحيح الحقول المشار إليها باللون الأحمر",
 } as const;
+
+/** Backend may return unresolved i18n keys; map them to clear Arabic copy. */
+const JOIN_API_ERROR_MESSAGES: Record<string, string> = {
+    "messages.validation.password.letters": JOIN_STRINGS.passwordLetters,
+};
+
+export function localizeJoinApiMessage(message: string): string {
+    return JOIN_API_ERROR_MESSAGES[message.trim()] ?? message;
+}
+
+export function localizeJoinFieldErrors(
+    fieldErrors: Partial<Record<string, string>>,
+): Partial<Record<string, string>> {
+    const localized: Record<string, string> = {};
+    for (const [field, message] of Object.entries(fieldErrors)) {
+        if (message) localized[field] = localizeJoinApiMessage(message);
+    }
+    return localized;
+}
 
 export const JOIN_STATUS_LABEL: Record<
     "none" | "pending" | "approved" | "active" | "rejected" | "registered",

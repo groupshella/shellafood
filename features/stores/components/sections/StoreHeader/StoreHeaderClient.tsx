@@ -109,16 +109,16 @@ export function StoreHeaderClient({
 
     return (
         <div className="bg-white dark:bg-gray-900">
-            {/* Hero banner */}
-            <div className="relative h-36 w-full overflow-hidden sm:h-40 md:h-48 lg:h-56 xl:h-60">
+            {/* Hero banner — full-bleed; height scales on desktop only */}
+            <div className="relative h-36 w-full overflow-hidden sm:h-40 md:h-52 lg:h-64 xl:h-72">
                 {heroImage ? (
                     <Image
                         src={heroImage}
                         alt={store.store_name}
                         fill
                         priority
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, (max-width: 1536px) 1152px, 1408px"
+                        className="object-cover md:object-center"
+                        sizes="100vw"
                     />
                 ) : (
                     <div
@@ -131,7 +131,7 @@ export function StoreHeaderClient({
                     >
                         <div
                             aria-hidden
-                            className="pointer-events-none absolute -start-4 -top-4 h-48 w-48 opacity-20"
+                            className="pointer-events-none absolute -start-4 -top-4 h-48 w-48 opacity-20 md:h-64 md:w-64"
                             style={{
                                 backgroundImage:
                                     "radial-gradient(circle at 30% 30%, #9DFCA3 0%, transparent 60%), radial-gradient(circle at 70% 70%, #3EC856 0%, transparent 55%)",
@@ -139,7 +139,7 @@ export function StoreHeaderClient({
                         />
                         <div
                             aria-hidden
-                            className="pointer-events-none absolute -end-6 -top-6 h-44 w-44 opacity-25"
+                            className="pointer-events-none absolute -end-6 -top-6 h-44 w-44 opacity-25 md:h-60 md:w-60"
                             style={{
                                 backgroundImage:
                                     "radial-gradient(circle at 60% 40%, #9DFCA3 0%, transparent 55%), radial-gradient(circle at 30% 70%, #3EC856 0%, transparent 50%)",
@@ -148,9 +148,12 @@ export function StoreHeaderClient({
                     </div>
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent" aria-hidden />
+                <div
+                    className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent md:from-black/35"
+                    aria-hidden
+                />
 
-                <div className="absolute inset-x-0 top-3 z-10 sm:top-4">
+                <div className="absolute inset-x-0 top-3 z-10 sm:top-4 md:top-5 lg:top-6">
                     <div className={`flex items-center justify-between ${contentContainer}`}>
                         <button type="button" onClick={handleBack} aria-label="رجوع" className={HERO_BTN}>
                             <ArrowRight className="h-5 w-5" strokeWidth={2} aria-hidden />
@@ -188,12 +191,12 @@ export function StoreHeaderClient({
                 </div>
             </div>
 
-            {/* Store info row */}
-            <div className={`relative z-10 -mt-7 pb-2 sm:-mt-8 ${contentContainer}`}>
-                <div className="flex items-start justify-between gap-2.5 sm:gap-3">
-                    <div className="flex min-w-0 items-end gap-2 sm:gap-2.5">
+            {/* Store info row — mobile layout preserved; desktop gets more breathing room */}
+            <div className={`relative z-10 -mt-7 pb-2 sm:-mt-8 md:-mt-10 md:pb-3 lg:-mt-12 ${contentContainer}`}>
+                <div className="flex items-start justify-between gap-2.5 sm:gap-3 md:gap-4 lg:gap-5">
+                    <div className="flex min-w-0 items-end gap-2 sm:gap-2.5 md:gap-3.5 lg:gap-4">
                         <div
-                            className="relative h-[72px] w-[64px] shrink-0 overflow-hidden rounded  sm:h-[80px] sm:w-[72px]  md:h-[88px] md:w-[80px]"
+                            className="relative h-[72px] w-[64px] shrink-0 overflow-hidden rounded sm:h-[80px] sm:w-[72px] md:h-[96px] md:w-[88px] md:rounded-md md:bg-white md:shadow-sm md:ring-1 md:ring-black/[0.06] lg:h-[104px] lg:w-[96px] dark:md:bg-gray-900 dark:md:ring-white/[0.08]"
                             style={{ transform: "rotate(-0.15deg)" }}
                         >
                             {store.store_logo_url ? (
@@ -201,64 +204,71 @@ export function StoreHeaderClient({
                                     src={store.store_logo_url}
                                     alt={store.store_name}
                                     fill
-                                    className="object-contain p-0.5"
-                                    sizes="(max-width: 640px) 64px, 80px"
+                                    className="object-contain p-0.5 md:p-1"
+                                    sizes="(max-width: 768px) 64px, (max-width: 1024px) 88px, 96px"
                                 />
                             ) : (
                                 <div className="flex h-full w-full items-center justify-center px-1">
-                                    <span className="text-[9px] font-bold leading-none text-white sm:text-[10px]">
+                                    <span className="text-[9px] font-bold leading-none text-white sm:text-[10px] md:text-xs">
                                         {store.store_name.slice(0, 6)}
                                     </span>
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex min-w-0 flex-col items-start gap-1 pb-0.5 sm:gap-1.5 sm:pb-1">
-                            <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-1.5">
+                        <div className="flex min-w-0 flex-col items-start gap-1 pb-0.5 sm:gap-1.5 sm:pb-1 md:max-w-xl md:gap-2 lg:max-w-2xl">
+                            <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-1.5 md:gap-2">
                                 {store.free_delivery && (
-                                    <span className="flex h-5 items-center gap-1 rounded-[4px] border border-gray-200 bg-white px-1.5 text-[10px] font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:h-[22px] sm:text-xs">
+                                    <span className="flex h-5 items-center gap-1 rounded-[4px] border border-gray-200 bg-white px-1.5 text-[10px] font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:h-[22px] sm:text-xs md:h-6 md:rounded-md md:px-2">
                                         توصيل مجاني
                                         <Truck className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-4" strokeWidth={1.2} aria-hidden />
                                     </span>
                                 )}
                                 {store.delivery_time && (
-                                    <span className="flex h-5 items-center gap-1 rounded-[4px] border border-gray-200 bg-white px-1.5 text-[10px] font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:h-[22px] sm:text-xs">
+                                    <span className="flex h-5 items-center gap-1 rounded-[4px] border border-gray-200 bg-white px-1.5 text-[10px] font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:h-[22px] sm:text-xs md:h-6 md:rounded-md md:px-2">
                                         {store.delivery_time}
                                         <Clock className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" strokeWidth={1.2} aria-hidden />
                                     </span>
                                 )}
                             </div>
 
-                            <h1 className="w-full text-start text-base font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-lg md:text-xl">
+                            <h1 className="w-full text-start text-base font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-lg md:text-2xl md:leading-tight lg:text-[1.75rem]">
                                 {store.store_name}
                             </h1>
 
                             {store.store_description && (
-                                <p className="line-clamp-2 w-full text-start text-xs leading-snug text-gray-500 dark:text-gray-400 sm:text-sm md:line-clamp-3">
+                                <p className="line-clamp-2 w-full text-start text-xs leading-snug text-gray-500 dark:text-gray-400 sm:text-sm md:line-clamp-3 md:max-w-prose md:leading-relaxed lg:text-[0.9375rem]">
                                     {store.store_description}
                                 </p>
                             )}
                         </div>
                     </div>
 
-                    <div className="shrink-0 pt-7 sm:pt-9">
-                        <span className="flex h-5 min-w-[44px] items-center justify-center gap-1 rounded-lg bg-[#9DFCA3] px-1.5 sm:h-[22px] sm:min-w-[48px] sm:px-2 dark:bg-[#1a4d20]">
-                            <span className="text-[10px] font-semibold leading-none text-gray-900 dark:text-[#9DFCA3] sm:text-xs">
+                    <div className="shrink-0 pt-7 sm:pt-9 md:pt-12 lg:pt-14">
+                        <span className="flex h-5 min-w-[44px] items-center justify-center gap-1 rounded-lg bg-[#9DFCA3] px-1.5 sm:h-[22px] sm:min-w-[48px] sm:px-2 md:h-7 md:min-w-[52px] md:rounded-xl md:px-2.5 dark:bg-[#1a4d20]">
+                            <span className="text-[10px] font-semibold leading-none text-gray-900 dark:text-[#9DFCA3] sm:text-xs md:text-sm">
                                 {store.rating > 0 ? store.rating.toFixed(1) : "5.0"}
                             </span>
-                            <Star className="h-2.5 w-2.5 fill-gray-900 text-gray-900 sm:h-3 sm:w-3 dark:fill-[#9DFCA3] dark:text-[#9DFCA3]" strokeWidth={0} aria-hidden />
+                            <Star className="h-2.5 w-2.5 fill-gray-900 text-gray-900 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5 dark:fill-[#9DFCA3] dark:text-[#9DFCA3]" strokeWidth={0} aria-hidden />
                         </span>
                     </div>
                 </div>
             </div>
 
-            {/* Category tabs */}
+            {/* Category tabs — sticky on desktop for easier browsing while scrolling products */}
             {categories.length > 0 && (
-                <div className={`pb-3 pt-3 sm:pt-4 ${contentContainer}`}>
+                <div
+                    className={[
+                        "pb-3 pt-3 sm:pt-4",
+                        "md:sticky md:top-0 md:z-30 md:border-b md:border-gray-100/90 md:bg-white/95 md:pb-3.5 md:pt-3.5 md:backdrop-blur-md",
+                        "dark:md:border-gray-800/90 dark:md:bg-gray-900/95",
+                        contentContainer,
+                    ].join(" ")}
+                >
                     <div
                         ref={categoryScrollRef}
                         dir="rtl"
-                        className="flex items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-smooth [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden"
+                        className="flex items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-smooth [scrollbar-width:none] sm:gap-2 md:gap-2.5 [&::-webkit-scrollbar]:hidden"
                         role="tablist"
                         aria-label="تصنيفات المتجر"
                     >
@@ -273,10 +283,10 @@ export function StoreHeaderClient({
                                     aria-selected={isActive}
                                     onClick={() => handleCategoryClick(cat.id)}
                                     className={[
-                                        "flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-2.5 text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 sm:h-9 sm:px-3 sm:text-sm dark:focus-visible:ring-offset-gray-900",
+                                        "flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-2.5 text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 sm:h-9 sm:px-3 sm:text-sm md:h-10 md:px-3.5 dark:focus-visible:ring-offset-gray-900",
                                         isActive
                                             ? "bg-[#EBFEEB] text-[#267332] dark:bg-[#0d2e12] dark:text-[#4db860]"
-                                            : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+                                            : "bg-gray-100 text-gray-700 md:hover:bg-gray-200/80 dark:bg-gray-800 dark:text-gray-300 dark:md:hover:bg-gray-700",
                                     ].join(" ")}
                                 >
                                     {cat.name}

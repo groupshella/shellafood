@@ -19,7 +19,7 @@ export async function getCart(): Promise<CartItem[]> {
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  console.log(guestId);
+
   const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/api/v2/cart`);
   if (!token && guestId) {
     url.searchParams.set("guest_id", guestId);

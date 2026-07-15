@@ -28,11 +28,18 @@ const CONFIRM_BUTTON_LABELS: Record<string, string> = {
 };
 
 function CheckoutShellInner({ children }: CheckoutShellInnerProps) {
-    const { confirmPayment, isPlacingOrder, orderError, selected } = useCheckout();
+    const { confirmPayment, isPlacingOrder, orderError, selected, canPlaceOrder, invoice } =
+        useCheckout();
+
+    const isDisabled = isPlacingOrder || !canPlaceOrder;
 
     const buttonLabel = isPlacingOrder
         ? "جاري تأكيد الطلب..."
-        : (selected ? (CONFIRM_BUTTON_LABELS[selected] ?? "تأكيد الدفع") : "تأكيد الدفع");
+        : !canPlaceOrder
+          ? `الحد الأدنى للطلب ${invoice.minimumOrder}`
+          : selected
+            ? (CONFIRM_BUTTON_LABELS[selected] ?? "تأكيد الدفع")
+            : "تأكيد الدفع";
 
     return (
         <div className={SHELL_LAYOUT} dir="rtl">
@@ -58,6 +65,11 @@ function CheckoutShellInner({ children }: CheckoutShellInnerProps) {
 
             <div className={`fixed inset-x-0 bottom-0 z-10 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:bg-gray-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.5)]`}>
                 <div className={`mx-auto w-full max-w-lg sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl ${FOOTER_PADDING}`}>
+                    {!canPlaceOrder && (
+                        <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 sm:text-sm">
+                            أضف منتجات بقيمة لا تقل عن {invoice.minimumOrder} لإتمام الطلب
+                        </p>
+                    )}
                     {orderError && (
                         <p className="mb-2 rounded-lg bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-600 dark:bg-red-950/50 dark:text-red-400 sm:text-sm">
                             {orderError}
@@ -66,7 +78,7 @@ function CheckoutShellInner({ children }: CheckoutShellInnerProps) {
                     <button
                         type="button"
                         onClick={confirmPayment}
-                        disabled={isPlacingOrder}
+                        disabled={isDisabled}
                         className="w-full rounded-2xl bg-[#30913F] py-3.5 text-sm font-semibold text-white shadow-sm transition-colors active:bg-[#267332] disabled:cursor-not-allowed disabled:opacity-60 sm:py-4 sm:text-[15px] lg:max-w-md lg:ms-auto lg:block"
                     >
                         {buttonLabel}

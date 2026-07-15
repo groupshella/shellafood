@@ -1,4 +1,4 @@
-/** Shared page canvas for markets & hyper-market surfaces. */
+/** Shared page canvas across module, favorites, and cart surfaces. */
 export const MODULE_PAGE_BG = "bg-white dark:bg-gray-900";
 
 export const MODULE_PAGE_FADE_START =

@@ -29,11 +29,12 @@ export const QidhaWallet = Object.assign(
         const user = await getProfileUser();
         if (!user) redirect("/auth");
 
-        if (!user.qidha_wallet_active) {
+        // Prefer GET /api/qidha-wallet/get-wallet; fall back to user flag.
+        const apiData = await getQidhaWallet(user.id);
+
+        if (!apiData && !user.qidha_wallet_active) {
             redirect("/profile/wallet-subscription");
         }
-
-        const apiData = await getQidhaWallet(user.id);
 
         return (
             <QidhaWalletClient

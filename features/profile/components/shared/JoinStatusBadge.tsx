@@ -60,7 +60,7 @@ export function JoinStatusBadge({ status, className = "" }: JoinStatusBadgeProps
     return (
         <span
             className={[
-                "inline-flex max-w-[9.5rem] items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold leading-none sm:text-[12px]",
+                "inline-flex max-w-[9.5rem] items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold leading-none sm:text-[12px]",
                 style.wrap,
                 style.text,
                 className,
@@ -68,7 +68,7 @@ export function JoinStatusBadge({ status, className = "" }: JoinStatusBadgeProps
             title={label}
         >
             <Icon className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" strokeWidth={2} aria-hidden />
-            <span className="truncate">{label}</span>
+            <span className="truncate py-0.5">{label}</span>
         </span>
     );
 }

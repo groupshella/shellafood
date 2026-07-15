@@ -379,32 +379,7 @@ export function OrderDetailClient({ order }: OrderDetailClientProps) {
 
                         <Divider />
 
-                        <div className="px-3 py-3 sm:px-4 md:px-5">
-                            <SectionTitle>تفاصيل الفاتورة</SectionTitle>
-                            <InvoiceRow
-                                label="إجمالي المنتجات"
-                                value={formatOrderMoney(fees.itemsSubtotal)}
-                            />
-                            <InvoiceRow
-                                label="مصاريف الشحن"
-                                value={formatOrderMoney(fees.deliveryCharge)}
-                            />
-                            <InvoiceRow
-                                label="رسوم الخدمة"
-                                value={formatOrderMoney(fees.serviceFee)}
-                            />
-                            <InvoiceRow
-                                label="كود خصم"
-                                value={`- ${formatOrderMoney(fees.couponDiscount)}`}
-                            />
-                            <div className="my-2 h-px bg-gray-200 dark:bg-gray-700" />
-                            <InvoiceRow
-                                label="إجمالي الطلب"
-                                value={formatOrderMoney(fees.total)}
-                                bold
-                                green
-                            />
-                        </div>
+
 
                         <Divider />
 

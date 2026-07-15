@@ -8,7 +8,12 @@ import {
     registerDriver,
 } from "@/features/profile/actions/join.actions";
 import { validateUploadFile } from "@/features/profile/lib/upload.lib";
-import { JOIN_STRINGS, MAX_UPLOAD_BYTES } from "@/features/profile/constants/join.strings";
+import {
+    JOIN_STRINGS,
+    MAX_UPLOAD_BYTES,
+    localizeJoinApiMessage,
+    localizeJoinFieldErrors,
+} from "@/features/profile/constants/join.strings";
 import { isValidEmail } from "@/features/profile/lib/profile.lib";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
@@ -244,6 +249,8 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
             errors.password = JOIN_STRINGS.requiredField;
         } else if (f.password.length < 6) {
             errors.password = JOIN_STRINGS.minPassword;
+        } else if (!/\p{L}/u.test(f.password)) {
+            errors.password = JOIN_STRINGS.passwordLetters;
         }
 
         if (!f.confirmPassword) {
@@ -310,18 +317,6 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
                 driverLicenseImages,
             } = form;
 
-            const alreadyResult = await checkDriverRegistration({
-                phone,
-                email,
-                identity_number: identityNumber,
-            });
-            if (alreadyResult.isRegistered) {
-                const msg = alreadyResult.message ?? JOIN_STRINGS.alreadyRegistered;
-                setRegistrationStatus(alreadyResult.status);
-                setFieldErrors({ general: msg });
-                return { success: false, message: msg };
-            }
-
             const result = await registerDriver({
                 f_name: firstName.trim(),
                 email: email.trim(),
@@ -338,9 +333,13 @@ export function useDriverRegistration(): UseDriverRegistrationReturn {
             });
 
             if (!result.success && result.fieldErrors) {
+                const localized = localizeJoinFieldErrors(result.fieldErrors);
                 setFieldErrors({
-                    ...result.fieldErrors,
-                    general: result.message || JOIN_STRINGS.scrollToFix,
+                    ...localized,
+                    general:
+                        localizeJoinApiMessage(result.message || "") ||
+                        localized.general ||
+                        JOIN_STRINGS.scrollToFix,
                 });
             }
 

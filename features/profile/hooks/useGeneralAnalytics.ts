@@ -72,7 +72,7 @@ export function useGeneralAnalytics(params: {
                 controller.signal,
             ),
             fetchBff<StatisticsProduct[]>(
-                ANALYTICS_BFF.mostPurchasedProducts,
+                `${ANALYTICS_BFF.mostPurchasedProducts}?period=month&limit=10`,
                 controller.signal,
             ),
             fetchBff<AnalyticsInsight[]>(ANALYTICS_BFF.insights, controller.signal),

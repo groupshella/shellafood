@@ -1,5 +1,6 @@
 const CONTENT_PADDING = "px-3 py-4 sm:px-4 sm:py-5 md:px-5 lg:px-6";
-const ITEMS_GRID = "grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:gap-5";
+const ITEMS_GRID =
+    "grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:gap-5 xl:grid-cols-3 xl:gap-5";
 
 export default function StoresTabSkeleton() {
     return (

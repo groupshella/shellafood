@@ -65,7 +65,7 @@ export const ANALYTICS_BFF = {
 export const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
 export const AFACAD = { fontFamily: "'Afacad Flux', sans-serif" } as const;
 
-/** Qidha tab — no backend yet; keep mock until endpoint exists. */
+/** @deprecated Prefer live data from getRecordedAnalytics(). Kept for fallbacks. */
 export const MOCK_STATISTICS_CATEGORIES: StatisticsCategory[] = [
     { id: 1, name: "برجر", purchaseCount: 4, amount: "142.50", percentage: "32.1%" },
     { id: 2, name: "الاستحمام والصابون", purchaseCount: 4, amount: "142.50", percentage: "32.1%" },
@@ -91,4 +91,6 @@ export const MOCK_QIDHA_DATA: QidhaStatisticsData = {
     paidTotal: "3000.00",
     overdueCount: 3,
     pendingCount: 1,
+    statusLabel: "نشط",
+    usedPercentage: 0,
 };

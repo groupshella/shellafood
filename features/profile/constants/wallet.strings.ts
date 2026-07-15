@@ -14,17 +14,20 @@ export const WALLET_STRINGS = {
     paymentMethods: "طرق الدفع",
 } as const;
 
+/** Filter ids match backend `type` query values exactly. */
 export const WALLET_FILTER_OPTIONS: {
     id: WalletHistoryFilter;
     label: string;
 }[] = [
     { id: "all", label: "كل الحركات المالية" },
     { id: "order", label: "معاملات الطلب" },
-    { id: "loyalty", label: "تم تحويل من نقطة الولاء" },
-    { id: "payment", label: "تمت الإضافة عبر طريقة الدفع" },
-    { id: "referral", label: "المكتسبة عن طريق الإحالة" },
-    { id: "cashback", label: "معاملات الاسترداد النقدي" },
+    { id: "loyalty_point", label: "تم تحويل من نقطة الولاء" },
+    { id: "add_fund", label: "تمت الإضافة عبر طريقة الدفع" },
+    { id: "referrer", label: "المكتسبة عن طريق الإحالة" },
+    { id: "CashBack", label: "معاملات الاسترداد النقدي" },
 ];
+
+export const WALLET_TRANSACTION_TYPES = WALLET_FILTER_OPTIONS.map((o) => o.id);
 
 export const WALLET_QUICK_AMOUNTS = [50, 150, 250] as const;
 
