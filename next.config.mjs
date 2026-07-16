@@ -36,6 +36,11 @@ const nextConfig = {
         pathname: '/**',
       },
       {
+        protocol: "http",
+        hostname: "148.230.126.198",
+        pathname: "/storage/**",
+      },
+      {
         protocol: 'https',
         hostname: 'hybrisproduction.blob.core.windows.net',
         pathname: '/**',
