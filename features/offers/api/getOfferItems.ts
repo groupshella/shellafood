@@ -10,20 +10,21 @@ export async function getOfferItems(
     offset = 1,
     limit = 50,
     moduleId = "3",
+    lang: "ar" | "en" = "ar",
     noStore = false
 ): Promise<OfferItemsResult> {
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/offers/${offerId}/newitems?offset=${offset}&limit=${limit}`,
         {
-            headers: offerFetchHeaders(moduleId),
+            headers: offerFetchHeaders(moduleId, lang),
             ...(noStore
                 ? { cache: "no-store" as const }
                 : {
-                      next: {
-                          revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
-                          tags: ["offers", `offer-${offerId}-items`],
-                      },
-                  }),
+                    next: {
+                        revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
+                        tags: ["offers", `offer-${offerId}-items`, `offer-${offerId}-items-${lang}`],
+                    },
+                }),
         }
     );
 

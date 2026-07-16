@@ -5,17 +5,19 @@ import { DeliveryMethodClient } from "./DeliveryMethodClient";
 import DeliveryMethodSkeleton from "./skeleton";
 
 export const DeliveryMethod = Object.assign(
-    async function DeliveryMethod() {
-        const cookieStore = await cookies();
-        const isAuthenticated = !!cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
-        const addresses = isAuthenticated ? await getAddresses() : [];
+	async function DeliveryMethod({ isArabic }: { isArabic: boolean }) {
+		const cookieStore = await cookies();
+		const isAuthenticated = !!cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
+		const lang = isArabic ? "ar" : "en";
+		const addresses = isAuthenticated ? await getAddresses(lang) : [];
 
-        return (
-            <DeliveryMethodClient
-                isAuthenticated={isAuthenticated}
-                addresses={addresses}
-            />
-        );
-    },
-    { skeleton: DeliveryMethodSkeleton }
+		return (
+			<DeliveryMethodClient
+				isAuthenticated={isAuthenticated}
+				addresses={addresses}
+				isArabic={isArabic}
+			/>
+		);
+	},
+	{ skeleton: DeliveryMethodSkeleton },
 );

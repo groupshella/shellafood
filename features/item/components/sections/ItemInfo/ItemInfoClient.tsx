@@ -11,9 +11,10 @@ import { useNotification } from "@/shared/components/NotificationToast";
 
 interface ItemInfoClientProps {
     item: ItemDetails;
+    isArabic: boolean;
 }
 
-export function ItemInfoClient({ item }: ItemInfoClientProps) {
+export function ItemInfoClient({ item, isArabic }: ItemInfoClientProps) {
     const { success, error: notifyError } = useNotification();
     const [imgError, setImgError] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
@@ -57,10 +58,14 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
     }
 
     return (
-        <div className="bg-white dark:bg-gray-900" dir="rtl">
+        <div
+            className="bg-background"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
+        >
             <div className="md:grid md:grid-cols-2 md:items-start md:gap-6 md:px-5 md:pt-5 lg:gap-10 lg:px-6">
                 {/* Product image */}
-                <div className="relative mx-3 mt-3 aspect-square overflow-hidden rounded-2xl  sm:mx-5 md:mx-0 md:mt-0">
+                <div className="relative mx-3 mt-3 aspect-square overflow-hidden rounded-2xl bg-card sm:mx-5 md:mx-0 md:mt-0">
                     {discounted && (
                         <span className="absolute start-3 top-3 z-10 rounded-lg bg-red-500 px-2 py-1 text-[11px] font-bold text-white sm:text-xs">
                             -{item.discount}%
@@ -78,7 +83,10 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                         />
                     ) : (
                         <div className="flex h-full items-center justify-center">
-                            <ShoppingBag className="h-14 w-14 text-gray-300 dark:text-gray-600 sm:h-16 sm:w-16" aria-hidden />
+                            <ShoppingBag
+                                className="h-14 w-14 text-muted sm:h-16 sm:w-16 md:h-20 md:w-20"
+                                aria-hidden
+                            />
                         </div>
                     )}
                 </div>
@@ -86,23 +94,31 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                 {/* Info block */}
                 <div className="px-3 pb-6 pt-4 sm:px-5 md:flex md:min-h-full md:flex-col md:px-0 md:pb-8 md:pt-1">
                     <div className="flex items-start justify-between gap-3">
-                        <h1 className="flex-1 text-start text-lg font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-xl lg:text-2xl">
+                        <h1 className="flex-1 text-start text-lg font-bold leading-snug text-foreground sm:text-xl lg:text-2xl">
                             {item.name}
                         </h1>
                         <button
                             type="button"
                             onClick={toggleWishlist}
                             disabled={wishlistPending}
-                            aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                            aria-label={
+                                wishlisted
+                                    ? isArabic
+                                        ? "إزالة من المفضلة"
+                                        : "Remove from favorites"
+                                    : isArabic
+                                      ? "إضافة إلى المفضلة"
+                                      : "Add to favorites"
+                            }
                             aria-pressed={wishlisted}
-                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 transition-colors active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-60 dark:bg-gray-800 dark:active:bg-gray-700 sm:h-11 sm:w-11"
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-card transition-colors active:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-60 sm:h-11 sm:w-11"
                         >
                             <Heart
                                 className={[
                                     "h-5 w-5 transition-colors",
                                     wishlisted
-                                        ? "fill-[#30913F] text-[#30913F] dark:fill-[#4db860] dark:text-[#4db860]"
-                                        : "fill-none text-gray-700 dark:text-gray-300",
+                                        ? "fill-brand text-brand"
+                                        : "fill-none text-foreground",
                                 ].join(" ")}
                                 strokeWidth={wishlisted ? 0 : 1.8}
                                 aria-hidden
@@ -111,7 +127,7 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                     </div>
 
                     {item.description?.trim() && (
-                        <p className="mt-2 text-start text-sm leading-relaxed text-gray-500 dark:text-gray-400 lg:text-base">
+                        <p className="mt-2 text-start text-sm leading-relaxed text-muted lg:text-base">
                             {item.description}
                         </p>
                     )}
@@ -122,12 +138,12 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                                 <PriceTag
                                     amount={item.price}
                                     size="sm"
-                                    className="text-xs text-gray-400 line-through dark:text-gray-500"
+                                    className="text-xs text-muted line-through"
                                 />
                             )}
                             <PriceTag
                                 amount={displayPrice}
-                                className="text-gray-900 dark:text-gray-50"
+                                className="text-foreground"
                             />
                         </div>
 
@@ -140,8 +156,8 @@ export function ItemInfoClient({ item }: ItemInfoClientProps) {
                     </div>
 
                     {!item.is_available && (
-                        <p className="mt-3 text-start text-xs font-semibold text-red-500 dark:text-red-400 sm:text-sm">
-                            غير متوفر حالياً
+                        <p className="mt-3 text-start text-xs font-semibold text-red-500 sm:text-sm">
+                            {isArabic ? "غير متوفر حالياً" : "Currently unavailable"}
                         </p>
                     )}
                 </div>

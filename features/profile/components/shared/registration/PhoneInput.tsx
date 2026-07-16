@@ -10,7 +10,7 @@ import { inputClassName, readOnlyInputClassName } from "./formTokens";
 function PhonePrefix() {
     return (
         <div className="flex shrink-0 items-center gap-2">
-            <span className="text-[14px] font-normal text-[#111B18] dark:text-gray-100">+966</span>
+            <span className="text-[14px] font-normal text-foreground">+966</span>
             <span className="text-lg leading-none" aria-hidden>
                 🇸🇦
             </span>
@@ -19,7 +19,7 @@ function PhonePrefix() {
 }
 
 function PhoneDivider() {
-    return <span className="mx-3 h-5 w-px shrink-0 bg-[#C6C8CE] dark:bg-gray-600" aria-hidden />;
+    return <span className="mx-3 h-5 w-px shrink-0 bg-border" aria-hidden />;
 }
 
 interface PhoneFieldProps {
@@ -57,7 +57,7 @@ export function PhoneField({
                 value={formatLocalPhone(value)}
                 onChange={(e) => onChange?.(normalizeLocalPhone(e.target.value))}
                 placeholder={placeholder}
-                className="min-w-0 flex-1 bg-transparent ps-3 text-start tabular-nums outline-none placeholder:text-[#707784] dark:placeholder:text-gray-500"
+                className="min-w-0 flex-1 bg-transparent ps-3 text-start tabular-nums outline-none placeholder:text-muted"
                 autoComplete="tel-national"
                 aria-required
             />

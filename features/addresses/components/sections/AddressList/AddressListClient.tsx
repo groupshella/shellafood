@@ -11,12 +11,13 @@ import { DeleteConfirmSheet } from "../../shared/DeleteConfirmSheet";
 
 interface AddressListClientProps {
 	addresses: AddressListItem[];
+	isArabic: boolean;
 }
 
 const primaryButtonClass =
-	"mt-2 flex w-full min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#30913F] to-[#267332] text-sm font-semibold text-white transition-all duration-200 hover:from-[#2a8036] hover:to-[#1f6628] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 dark:focus-visible:ring-offset-gray-900 sm:min-h-[56px] lg:max-w-md lg:ms-auto lg:me-0";
+	"mt-2 flex w-full min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-brand text-sm font-semibold text-brand-foreground transition-all duration-200 hover:brightness-95 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 sm:min-h-[56px] lg:ms-auto lg:me-0 lg:max-w-md";
 
-export function AddressListClient({ addresses }: AddressListClientProps) {
+export function AddressListClient({ addresses, isArabic }: AddressListClientProps) {
 	const router = useRouter();
 	const { success, error: notifyError } = useNotification();
 	const [isPending, startTransition] = useTransition();
@@ -53,30 +54,35 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 		startTransition(async () => {
 			const result = await deleteAddress(idToDelete);
 			if (result.success) {
-				success("تم حذف العنوان");
+				success(isArabic ? "تم حذف العنوان" : "Address deleted");
 				router.refresh();
 			} else {
-				notifyError("تعذّر حذف العنوان");
+				notifyError(isArabic ? "تعذّر حذف العنوان" : "Could not delete address");
 			}
 		});
-	}, [notifyError, pendingDeleteId, router, success]);
+	}, [isArabic, notifyError, pendingDeleteId, router, success]);
 
 	const handleAddAddress = useCallback(() => {
 		router.push("/addresses/add");
 	}, [router]);
 
 	return (
-		<div className="flex flex-col gap-3 px-3 pb-6 pt-4 sm:gap-4 sm:px-5 sm:pt-5 lg:px-6 lg:pb-8">
+		<div
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
+			className="mx-auto flex w-full max-w-lg flex-col gap-3 px-3 pb-6 pt-4 sm:max-w-xl sm:gap-4 sm:px-5 sm:pt-5 md:max-w-2xl lg:max-w-3xl lg:px-6 lg:pb-8 xl:max-w-4xl"
+		>
 			<ul
 				className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2 lg:gap-5"
 				role="list"
-				aria-label="قائمة العناوين"
+				aria-label={isArabic ? "قائمة العناوين" : "Address list"}
 			>
 				{addresses.map((address) => (
 					<li key={address.id}>
 						<AddressCard
 							address={address}
 							showDelete={showDelete}
+							isArabic={isArabic}
 							onClick={handleSelect}
 							onEdit={handleEdit}
 							onDelete={handleDeleteRequest}
@@ -92,7 +98,7 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 				className={primaryButtonClass}
 			>
 				<Plus className="h-4 w-4 shrink-0" aria-hidden />
-				<span>أضف عنوان آخر</span>
+				<span>{isArabic ? "أضف عنوان آخر" : "Add another address"}</span>
 			</button>
 
 			<DeleteConfirmSheet
@@ -100,6 +106,7 @@ export function AddressListClient({ addresses }: AddressListClientProps) {
 				onConfirm={handleConfirmDelete}
 				onCancel={handleCancelDelete}
 				isDeleting={isPending}
+				isArabic={isArabic}
 			/>
 		</div>
 	);

@@ -17,6 +17,7 @@ import {
 import { isAccountExistsError } from "@/features/auth/lib/auth.lib";
 
 interface CreateAccountScreenProps {
+	isArabic: boolean;
 	isLoading?: boolean;
 	error?: string | null;
 	onBack: () => void;
@@ -32,6 +33,7 @@ interface CreateAccountScreenProps {
 }
 
 const CreateAccountScreen = memo(function CreateAccountScreen({
+	isArabic,
 	isLoading = false,
 	error,
 	onBack,
@@ -88,54 +90,64 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 	}, []);
 
 	return (
-		<AuthShell>
-			<BackHeader onBack={onBack} disabled={isLoading} />
+		<AuthShell isArabic={isArabic}>
+			<BackHeader onBack={onBack} disabled={isLoading} isArabic={isArabic} />
 
-			<AuthTitle>إنشاء حساب</AuthTitle>
+			<AuthTitle>{isArabic ? "إنشاء حساب" : "Create account"}</AuthTitle>
 
 			<motion.div
 				initial={{ y: 12, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ delay: 0.1, duration: 0.4 }}
-				className="mt-6 flex flex-col gap-4"
+				className="mt-6 flex flex-col gap-4 md:mt-8"
 			>
 				<TextField
-					label="الاسم بالكامل"
+					label={isArabic ? "الاسم بالكامل" : "Full name"}
 					value={fullName}
 					onChange={(e) => setFullName(e.target.value)}
-					placeholder="ادخل اسمك بالكامل"
+					placeholder={isArabic ? "ادخل اسمك بالكامل" : "Enter your full name"}
 					disabled={isLoading}
 				/>
 
 				<TextField
 					label={
 						<>
-							البريد الالكتروني{" "}
-							<span className="font-normal text-[#555555] dark:text-gray-400">(اختياري)</span>
+							{isArabic ? "البريد الالكتروني" : "Email"}{" "}
+							<span className="font-normal text-muted">
+								{isArabic ? "(اختياري)" : "(optional)"}
+							</span>
 						</>
 					}
 					type="email"
 					inputMode="email"
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
-					placeholder="اكتب البريد الالكتروني"
+					placeholder={isArabic ? "اكتب البريد الالكتروني" : "Enter your email"}
 					disabled={isLoading}
 				/>
 
-				<PhoneField value={phone} onChange={setPhone} disabled={isLoading} />
+				<PhoneField
+					value={phone}
+					onChange={setPhone}
+					disabled={isLoading}
+					isArabic={isArabic}
+				/>
 
 				<PasswordField
-					label="كلمة المرور"
+					label={isArabic ? "كلمة المرور" : "Password"}
 					value={password}
 					onChange={setPassword}
 					show={showPassword}
 					onToggle={handleTogglePassword}
 					disabled={isLoading}
+					isArabic={isArabic}
 				/>
 
 				<div>
 					<PasswordField
-						label="ادخل كلمة المرور مرة اخرى"
+						label={
+							isArabic ? "ادخل كلمة المرور مرة اخرى" : "Re-enter your password"
+						}
 						value={confirmPassword}
 						onChange={setConfirmPassword}
 						onEnter={handleSubmit}
@@ -143,6 +155,7 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 						onToggle={handleToggleConfirm}
 						disabled={isLoading}
 						error={passwordsMismatch}
+						isArabic={isArabic}
 					/>
 					<AnimatePresence>
 						{passwordsMismatch && (
@@ -152,7 +165,9 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 								exit={{ opacity: 0, y: -4 }}
 								className="mt-1.5 text-start text-xs text-red-500 dark:text-red-400"
 							>
-								كلمتا المرور غير متطابقتين
+								{isArabic
+									? "كلمتا المرور غير متطابقتين"
+									: "Passwords do not match"}
 							</motion.p>
 						)}
 					</AnimatePresence>
@@ -162,7 +177,11 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 					checked={agreed}
 					onChange={setAgreed}
 					disabled={isLoading}
-					label="أوافق على الشروط وسياسة الخصوصية"
+					label={
+						isArabic
+							? "أوافق على الشروط وسياسة الخصوصية"
+							: "I agree to the terms and privacy policy"
+					}
 				/>
 
 				<AnimatePresence>
@@ -174,6 +193,7 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 						>
 							<AuthErrorMessage
 								error={error}
+								isArabic={isArabic}
 								onLogin={isAccountExistsError(error) ? handleGoToLogin : undefined}
 								onForgotPassword={
 									isAccountExistsError(error) ? handleForgotPassword : undefined
@@ -184,9 +204,15 @@ const CreateAccountScreen = memo(function CreateAccountScreen({
 				</AnimatePresence>
 			</motion.div>
 
-			<div className="mt-6 pt-2">
+			<div className="mt-6 pt-2 md:mt-8">
 				<PrimaryButton onClick={handleSubmit} disabled={!isValid || isLoading}>
-					{isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
+					{isLoading
+						? isArabic
+							? "جاري إنشاء الحساب..."
+							: "Creating account..."
+						: isArabic
+							? "إنشاء حساب"
+							: "Create account"}
 				</PrimaryButton>
 			</div>
 		</AuthShell>

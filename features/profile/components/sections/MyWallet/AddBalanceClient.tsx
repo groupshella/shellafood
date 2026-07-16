@@ -59,7 +59,7 @@ function PaymentLogo({ id }: { id: WalletPaymentMethodId }) {
     );
 }
 
-export function AddBalanceClient() {
+export function AddBalanceClient({ isArabic = true }: { isArabic?: boolean }) {
     const [amount, setAmount] = useState(0);
     const [method, setMethod] = useState<WalletPaymentMethodId>("visa_master");
     const [isPending, startTransition] = useTransition();
@@ -96,7 +96,11 @@ export function AddBalanceClient() {
 
     return (
         <ProfileSubpageShell
-            title={WALLET_STRINGS.addBalanceTitle}
+            title={
+                isArabic
+                    ? WALLET_STRINGS.addBalanceTitle.ar
+                    : WALLET_STRINGS.addBalanceTitle.en
+            }
             relaxedHeader
             showHeaderBorder={false}
             showFooterBorder={false}
@@ -110,7 +114,13 @@ export function AddBalanceClient() {
                         className="flex h-12 w-full items-center justify-center rounded-[12px] bg-[#30913F] text-[15px] font-bold text-white transition-opacity enabled:active:opacity-90 disabled:opacity-50 sm:h-[52px] sm:text-[16px]"
                         style={TAJAWAL}
                     >
-                        {isPending ? "جاري الإضافة..." : WALLET_STRINGS.addBalance}
+                        {isPending
+                            ? isArabic
+                                ? "جاري الإضافة..."
+                                : "Adding..."
+                            : isArabic
+                              ? WALLET_STRINGS.addBalance.ar
+                              : WALLET_STRINGS.addBalance.en}
                     </button>
                 </div>
             }
@@ -121,7 +131,9 @@ export function AddBalanceClient() {
                         className="text-start text-[14px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[15px]"
                         style={TAJAWAL}
                     >
-                        {WALLET_STRINGS.amountQuestion}
+                        {isArabic
+                            ? WALLET_STRINGS.amountQuestion.ar
+                            : WALLET_STRINGS.amountQuestion.en}
                     </p>
 
                     <div className="flex h-[72px] items-center justify-center gap-2 rounded-[12px] bg-[#F6F5F8] dark:bg-gray-800">
@@ -175,7 +187,9 @@ export function AddBalanceClient() {
                         className="text-start text-[16px] font-bold text-[#111B18] dark:text-gray-100"
                         style={TAJAWAL}
                     >
-                        {WALLET_STRINGS.paymentMethods}
+                        {isArabic
+                            ? WALLET_STRINGS.paymentMethods.ar
+                            : WALLET_STRINGS.paymentMethods.en}
                     </h2>
 
                     <div className="flex flex-col gap-2.5">

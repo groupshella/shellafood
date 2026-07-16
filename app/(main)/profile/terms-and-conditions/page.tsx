@@ -1,17 +1,25 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 
 import { TermsAndConditions } from "@/features/profile/components/sections/StaticContent";
-import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
+import { isArabicLocale } from "@/shared/lib/locale";
 
-export const metadata = {
-    title: `${PROFILE_STRINGS.terms} | شيلة فود`,
-    description: "الشروط والأحكام لاستخدام منصة شيلة فود",
-};
+export async function generateMetadata(): Promise<Metadata> {
+	const isArabic = await isArabicLocale();
+	return {
+		title: isArabic ? "الشروط والأحكام | شيلة فود" : "Terms and conditions | Shella Food",
+		description: isArabic
+			? "الشروط والأحكام لاستخدام منصة شيلة فود"
+			: "Terms and conditions for using the Shella Food platform",
+	};
+}
 
-export default function TermsAndConditionsPage() {
-    return (
-        <Suspense fallback={<TermsAndConditions.skeleton />}>
-            <TermsAndConditions />
-        </Suspense>
-    );
+export default async function TermsAndConditionsPage() {
+	const isArabic = await isArabicLocale();
+
+	return (
+		<Suspense fallback={<TermsAndConditions.skeleton />}>
+			<TermsAndConditions isArabic={isArabic} />
+		</Suspense>
+	);
 }

@@ -6,30 +6,29 @@ import type {
     OrderTrack,
 } from "@/features/my-orders/types/orders.types";
 
-const CURRENCY_SUFFIX = " ج.م";
-
-export function formatOrderMoney(amount: number): string {
-    return `${amount.toFixed(2)}${CURRENCY_SUFFIX}`;
+export function formatOrderMoney(amount: number, isArabic: boolean): string {
+    const suffix = isArabic ? " ج.م" : " EGP";
+    return `${amount.toFixed(2)}${suffix}`;
 }
 
-export function formatPaymentMethod(method: string): string {
+export function formatPaymentMethod(method: string, isArabic: boolean): string {
     switch (method) {
         case "digital_payment":
-            return "Credit Card";
+            return isArabic ? "بطاقة ائتمان" : "Credit Card";
         case "cash_on_delivery":
-            return "الدفع عند الاستلام";
+            return isArabic ? "الدفع عند الاستلام" : "Cash on delivery";
         case "wallet":
-            return "المحفظة";
+            return isArabic ? "المحفظة" : "Wallet";
         case "offline_payment":
-            return "دفع خارجي";
+            return isArabic ? "دفع خارجي" : "Offline payment";
         default:
             return method;
     }
 }
 
-export function formatOrderDate(createdAt: string): string {
+export function formatOrderDate(createdAt: string, isArabic: boolean): string {
     try {
-        return new Date(createdAt).toLocaleString("ar-SA", {
+        return new Date(createdAt).toLocaleString(isArabic ? "ar-SA" : "en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -50,7 +49,7 @@ function resolveDeliveryAddress(
     return deliveryAddress.address ?? "—";
 }
 
-function mapOrderItems(details: ApiOrderDetailItem[]): OrderItem[] {
+function mapOrderItems(details: ApiOrderDetailItem[], isArabic: boolean): OrderItem[] {
     return details.map((item) => {
         const discount = item.discount_on_item ?? 0;
         const unitPrice = item.price - discount;
@@ -59,9 +58,9 @@ function mapOrderItems(details: ApiOrderDetailItem[]): OrderItem[] {
             id: item.id,
             name: item.item_details?.name ?? "—",
             description: item.item_details?.description ?? "",
-            price: formatOrderMoney(unitPrice),
+            price: formatOrderMoney(unitPrice, isArabic),
             originalPrice:
-                discount > 0 ? formatOrderMoney(item.price) : undefined,
+                discount > 0 ? formatOrderMoney(item.price, isArabic) : undefined,
             quantity: item.quantity,
             imageUrl: item.image_full_url,
         };
@@ -70,7 +69,8 @@ function mapOrderItems(details: ApiOrderDetailItem[]): OrderItem[] {
 
 export function mapOrderDetailView(
     track: OrderTrack,
-    details: ApiOrderDetailItem[]
+    details: ApiOrderDetailItem[],
+    isArabic: boolean
 ): OrderDetailView {
     const fees = computeOrderFees(track, details);
 
@@ -80,11 +80,11 @@ export function mapOrderDetailView(
         storeName: track.store.name ?? "—",
         storeDescription: track.store.address ?? "",
         storeLogoUrl: track.store.logo_full_url,
-        items: mapOrderItems(details),
+        items: mapOrderItems(details, isArabic),
         fees,
-        paymentMethod: formatPaymentMethod(track.payment_method),
+        paymentMethod: formatPaymentMethod(track.payment_method, isArabic),
         deliveryAddress: resolveDeliveryAddress(track.delivery_address),
-        orderDate: formatOrderDate(track.created_at),
+        orderDate: formatOrderDate(track.created_at, isArabic),
         orderStatus: track.order_status,
         cancellationReason: track.cancellation_reason,
     };

@@ -9,9 +9,10 @@ import { CartItemCard } from "./CartItemCard";
 
 interface CartItemRowProps {
   item: CartItem;
+  isArabic: boolean;
 }
 
-export const CartItemRow = memo(function CartItemRow({ item }: CartItemRowProps) {
+export const CartItemRow = memo(function CartItemRow({ item, isArabic }: CartItemRowProps) {
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const { error: notifyError } = useNotification();
   const lastNotifiedError = useRef<string | null>(null);
@@ -47,6 +48,7 @@ export const CartItemRow = memo(function CartItemRow({ item }: CartItemRowProps)
         onIncrease={handleIncrease}
         onDecrease={handleDecrease}
         onRemove={handleOpenRemove}
+        isArabic={isArabic}
       />
 
       <RemoveProductConfirmSheet
@@ -54,6 +56,7 @@ export const CartItemRow = memo(function CartItemRow({ item }: CartItemRowProps)
         onConfirm={confirmRemove}
         onCancel={handleCancelRemove}
         isRemoving={isPending}
+        isArabic={isArabic}
       />
     </>
   );

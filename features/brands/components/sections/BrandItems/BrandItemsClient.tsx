@@ -16,9 +16,9 @@ import { BrandItemsListLoading } from "./skeleton";
 
 const TOOLBAR_ICON_BTN = [
     "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]",
-    "bg-[#EBFEEB] text-[#30913F] dark:bg-[#30913F]/15 dark:text-[#4db860]",
-    "transition-colors active:bg-[#DCF5DC] dark:active:bg-[#30913F]/25",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
+    "bg-brand/10 text-brand",
+    "transition-colors active:bg-brand/20",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
 ].join(" ");
 
 interface ToolbarProps {
@@ -26,6 +26,7 @@ interface ToolbarProps {
     hasActiveFilter: boolean;
     onFilterClick: () => void;
     onSearchOpen: () => void;
+    isArabic: boolean;
 }
 
 function ProductsToolbar({
@@ -33,11 +34,12 @@ function ProductsToolbar({
     hasActiveFilter,
     onFilterClick,
     onSearchOpen,
+    isArabic,
 }: ToolbarProps) {
     return (
         <div
             dir="ltr"
-            className="flex items-center justify-between gap-3 bg-white px-3 py-2.5 dark:bg-gray-900 sm:px-5 lg:px-6"
+            className="flex items-center justify-between gap-3 bg-background px-3 py-2.5 sm:px-5 lg:px-6"
         >
             <div className="flex items-center gap-2">
                 <div className="relative">
@@ -45,14 +47,14 @@ function ProductsToolbar({
                         type="button"
                         onClick={onFilterClick}
                         className={TOOLBAR_ICON_BTN}
-                        aria-label="تصفية المنتجات"
+                        aria-label={isArabic ? "تصفية المنتجات" : "Filter products"}
                     >
                         <SlidersHorizontal className="h-[18px] w-[18px]" strokeWidth={2.25} />
                     </button>
                     {hasActiveFilter && (
                         <span
                             aria-hidden
-                            className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#30913F] ring-2 ring-white dark:ring-gray-900"
+                            className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand ring-2 ring-background"
                         />
                     )}
                 </div>
@@ -61,14 +63,18 @@ function ProductsToolbar({
                     type="button"
                     onClick={onSearchOpen}
                     className={TOOLBAR_ICON_BTN}
-                    aria-label="البحث في المنتجات"
+                    aria-label={isArabic ? "البحث في المنتجات" : "Search products"}
                 >
                     <Search className="h-[18px] w-[18px]" strokeWidth={2.25} />
                 </button>
             </div>
 
-            <p dir="rtl" className="text-sm font-medium text-[#707784] dark:text-gray-400">
-                <span className="tabular-nums">{items.length.toLocaleString("en-US")}</span> منتج
+            <p
+                dir={isArabic ? "rtl" : "ltr"}
+                className="text-sm font-medium text-muted"
+            >
+                <span className="tabular-nums">{items.length.toLocaleString("en-US")}</span>
+                {isArabic ? " منتج" : " products"}
             </p>
         </div>
     );
@@ -79,9 +85,10 @@ interface SearchBarProps {
     onChange: (v: string) => void;
     onSubmit: () => void;
     onClose: () => void;
+    isArabic: boolean;
 }
 
-function SearchBar({ value, onChange, onSubmit, onClose }: SearchBarProps) {
+function SearchBar({ value, onChange, onSubmit, onClose, isArabic }: SearchBarProps) {
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -90,24 +97,24 @@ function SearchBar({ value, onChange, onSubmit, onClose }: SearchBarProps) {
 
     return (
         <form
-            dir="rtl"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
             role="search"
             onSubmit={(e) => { e.preventDefault(); onSubmit(); }}
-            className="flex animate-[slideDown_200ms_ease-out] items-center gap-2 bg-white px-3 py-2.5 dark:bg-gray-900 sm:px-5 lg:px-6"
+            className="flex animate-[slideDown_200ms_ease-out] items-center gap-2 bg-background px-3 py-2.5 sm:px-5 lg:px-6"
         >
             <div className="relative flex-1">
                 <input
                     ref={inputRef}
                     type="search"
-                    dir="rtl"
+                    dir={isArabic ? "rtl" : "ltr"}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    placeholder="ابحث في المنتجات..."
+                    placeholder={isArabic ? "ابحث في المنتجات..." : "Search products..."}
                     enterKeyHint="search"
                     className={[
-                        "w-full rounded-xl bg-[#F6F5F8] py-2.5 pe-4 ps-4 text-[13px] text-gray-700 placeholder:text-gray-400",
-                        "dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500",
-                        "focus:outline-none focus:ring-2 focus:ring-[#30913F]",
+                        "w-full rounded-xl bg-card py-2.5 pe-4 ps-4 text-[13px] text-foreground placeholder:text-muted",
+                        "focus:outline-none focus:ring-2 focus:ring-brand",
                         "[&::-webkit-search-cancel-button]:appearance-none",
                         "[&::-webkit-search-decoration]:appearance-none",
                     ].join(" ")}
@@ -116,9 +123,9 @@ function SearchBar({ value, onChange, onSubmit, onClose }: SearchBarProps) {
 
             <button
                 type="submit"
-                aria-label="بحث"
+                aria-label={isArabic ? "بحث" : "Search"}
                 disabled={!value.trim()}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#30913F] text-white transition-colors active:bg-[#267332] disabled:opacity-40 dark:active:bg-[#1f6b2a]"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-brand text-brand-foreground transition-colors hover:brightness-95 active:brightness-90 disabled:opacity-40"
             >
                 <Search className="h-4 w-4" strokeWidth={2} aria-hidden />
             </button>
@@ -126,8 +133,8 @@ function SearchBar({ value, onChange, onSubmit, onClose }: SearchBarProps) {
             <button
                 type="button"
                 onClick={onClose}
-                aria-label="إغلاق البحث"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#F6F5F8] text-gray-600 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700"
+                aria-label={isArabic ? "إغلاق البحث" : "Close search"}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-card text-foreground transition-colors active:brightness-95"
             >
                 <X className="h-[18px] w-[18px]" strokeWidth={2.25} />
             </button>
@@ -141,41 +148,59 @@ function EmptyState({
     mode,
     onClearSearch,
     onClearFilters,
+    isArabic,
 }: {
     mode: EmptyMode;
     onClearSearch: () => void;
     onClearFilters: () => void;
+    isArabic: boolean;
 }) {
     const title =
         mode === "search"
-            ? "لا توجد نتائج"
+            ? isArabic
+                ? "لا توجد نتائج"
+                : "No results"
             : mode === "filter"
-                ? "لا توجد منتجات بهذا الفلتر"
-                : "لا توجد منتجات حالياً";
+                ? isArabic
+                    ? "لا توجد منتجات بهذا الفلتر"
+                    : "No products match this filter"
+                : isArabic
+                    ? "لا توجد منتجات حالياً"
+                    : "No products right now";
 
     const description =
         mode === "search"
-            ? "جرّب كلمة بحث مختلفة"
+            ? isArabic
+                ? "جرّب كلمة بحث مختلفة"
+                : "Try a different search term"
             : mode === "filter"
-                ? "جرّب تعديل الفلاتر أو إزالتها"
-                : "جرّب لاحقاً أو غيّر الفلاتر إن كانت مطبّقة";
+                ? isArabic
+                    ? "جرّب تعديل الفلاتر أو إزالتها"
+                    : "Try adjusting or clearing filters"
+                : isArabic
+                    ? "جرّب لاحقاً أو غيّر الفلاتر إن كانت مطبّقة"
+                    : "Try again later or change applied filters";
 
     return (
-        <div className="flex flex-col items-center justify-center px-4 py-20 text-center" dir="rtl">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                <ShoppingBag className="h-8 w-8 text-gray-300 dark:text-gray-600" strokeWidth={1.4} />
+        <div
+            className="flex flex-col items-center justify-center px-4 py-20 text-center"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
+        >
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-card">
+                <ShoppingBag className="h-8 w-8 text-muted" strokeWidth={1.4} />
             </div>
 
-            <p className="text-[15px] font-semibold text-gray-700 dark:text-gray-200">{title}</p>
-            <p className="mt-1 text-[13px] text-gray-400 dark:text-gray-500">{description}</p>
+            <p className="text-[15px] font-semibold text-foreground">{title}</p>
+            <p className="mt-1 text-[13px] text-muted">{description}</p>
 
             {mode === "search" && (
                 <button
                     type="button"
                     onClick={onClearSearch}
-                    className="mt-4 rounded-xl border border-[#30913F]/30 bg-white px-4 py-2 text-[13px] font-semibold text-[#30913F] transition-colors active:bg-[#EBFEEB] dark:border-[#30913F]/40 dark:bg-gray-800 dark:text-[#4db860] dark:active:bg-[#30913F]/15"
+                    className="mt-4 rounded-xl border border-brand/30 bg-background px-4 py-2 text-[13px] font-semibold text-brand transition-colors active:bg-brand/10"
                 >
-                    مسح البحث
+                    {isArabic ? "مسح البحث" : "Clear search"}
                 </button>
             )}
 
@@ -183,9 +208,9 @@ function EmptyState({
                 <button
                     type="button"
                     onClick={onClearFilters}
-                    className="mt-4 rounded-xl border border-[#30913F]/30 bg-white px-4 py-2 text-[13px] font-semibold text-[#30913F] transition-colors active:bg-[#EBFEEB] dark:border-[#30913F]/40 dark:bg-gray-800 dark:text-[#4db860] dark:active:bg-[#30913F]/15"
+                    className="mt-4 rounded-xl border border-brand/30 bg-background px-4 py-2 text-[13px] font-semibold text-brand transition-colors active:bg-brand/10"
                 >
-                    إزالة الفلاتر
+                    {isArabic ? "إزالة الفلاتر" : "Clear filters"}
                 </button>
             )}
         </div>
@@ -196,15 +221,21 @@ interface BrandItemsClientProps {
     items: BrandItem[];
     total: number;
     brandId: string;
+    isArabic: boolean;
 }
 
-export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProps) {
+export function BrandItemsClient({
+    items,
+    brandId,
+    isArabic,
+}: BrandItemsClientProps) {
     const [searchOpen, setSearchOpen] = useState(false);
     const [filterSheetOpen, setFilterSheetOpen] = useState(false);
     const [filterSheetVisible, setFilterSheetVisible] = useState(false);
 
-    const search = useBrandSearch(brandId);
-    const filter = useBrandFilter(brandId);
+    const lang = isArabic ? "ar" : "en";
+    const search = useBrandSearch(brandId, lang, isArabic);
+    const filter = useBrandFilter(brandId, lang, isArabic);
 
     const displayItems: BrandItem[] = search.results ?? filter.results ?? items;
 
@@ -229,7 +260,12 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
     }, [search]);
 
     return (
-        <section aria-label="منتجات البراند" className="bg-[#F6F5F8] dark:bg-gray-950 pb-[calc(7rem+env(safe-area-inset-bottom))]">
+        <section
+            aria-label={isArabic ? "منتجات البراند" : "Brand products"}
+            className="bg-background pb-[calc(7rem+env(safe-area-inset-bottom))]"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
+        >
 
             {searchOpen ? (
                 <SearchBar
@@ -237,6 +273,7 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
                     onChange={search.setQuery}
                     onSubmit={search.submitSearch}
                     onClose={closeSearch}
+                    isArabic={isArabic}
                 />
             ) : (
                 <ProductsToolbar
@@ -244,47 +281,51 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
                     hasActiveFilter={isFilterActive}
                     onFilterClick={openFilterSheet}
                     onSearchOpen={() => setSearchOpen(true)}
+                    isArabic={isArabic}
                 />
             )}
 
             {(search.error ?? filter.error) && (
-                <p className="px-4 py-2 text-center text-[13px] text-red-500 dark:text-red-400" role="alert">
+                <p className="px-4 py-2 text-center text-[13px] text-red-500" role="alert">
                     {search.error ?? filter.error}
                 </p>
             )}
 
             {isFilterActive && filter.applied?.priceRange && (
                 <div
-                    dir="rtl"
-                    className="flex items-center gap-2 bg-white px-4 py-2 dark:bg-gray-900 sm:px-5"
+                    dir={isArabic ? "rtl" : "ltr"}
+                    className="flex items-center gap-2 bg-background px-4 py-2 sm:px-5"
                 >
-                    <span className="text-[12px] text-gray-500 dark:text-gray-400">فلتر السعر:</span>
-                    <span className="rounded-full bg-[#EBFEEB] px-3 py-0.5 text-[12px] font-medium text-[#30913F] dark:bg-[#30913F]/15 dark:text-[#4db860]">
+                    <span className="text-[12px] text-muted">
+                        {isArabic ? "فلتر السعر:" : "Price filter:"}
+                    </span>
+                    <span className="rounded-full bg-brand/10 px-3 py-0.5 text-[12px] font-medium text-brand">
                         {filter.applied.priceRange.label}
                     </span>
                     <button
                         type="button"
                         onClick={filter.clearFilters}
-                        aria-label="إزالة الفلتر"
-                        className="ms-auto text-[12px] text-gray-400 underline-offset-2 hover:underline dark:text-gray-500"
+                        aria-label={isArabic ? "إزالة الفلتر" : "Remove filter"}
+                        className="ms-auto text-[12px] text-muted underline-offset-2 hover:underline"
                     >
-                        إزالة
+                        {isArabic ? "إزالة" : "Remove"}
                     </button>
                 </div>
             )}
 
             {search.loading || filter.loading ? (
-                <BrandItemsListLoading />
+                <BrandItemsListLoading isArabic={isArabic} />
             ) : displayItems.length === 0 ? (
                 <EmptyState
                     mode={isSearchActive ? "search" : isFilterActive ? "filter" : "none"}
                     onClearSearch={closeSearch}
                     onClearFilters={filter.clearFilters}
+                    isArabic={isArabic}
                 />
             ) : (
-                <div className="flex flex-col divide-y divide-gray-100 bg-white dark:divide-gray-800 dark:bg-gray-900 md:grid md:grid-cols-2 md:gap-2.5 md:divide-y-0 md:bg-transparent md:px-5 md:pt-2.5 md:dark:bg-transparent lg:gap-3 lg:px-6">
+                <div className="flex flex-col divide-y divide-border bg-background md:grid md:grid-cols-2 md:gap-2.5 md:divide-y-0 md:bg-transparent md:px-5 md:pt-2.5 lg:grid-cols-3 lg:gap-3 lg:px-6">
                     {displayItems.map((item) => (
-                        <BrandItemCard key={item.id} item={item} />
+                        <BrandItemCard key={item.id} item={item} isArabic={isArabic} />
                     ))}
                 </div>
             )}
@@ -302,6 +343,7 @@ export function BrandItemsClient({ items, total, brandId }: BrandItemsClientProp
                     filter.clearFilters();
                     closeFilterSheet();
                 }}
+                isArabic={isArabic}
             />
         </section>
     );

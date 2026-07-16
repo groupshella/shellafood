@@ -20,9 +20,10 @@ export const CategoryGridCard = memo(function CategoryGridCard({ category }: Cat
         <Link
             href={`/hyper-market/categories?categoryId=${category.id}`}
             className={[
+                // Soft green card surface — decorative illustration accent
                 "relative flex aspect-[4/5] w-full flex-col overflow-hidden rounded-2xl bg-[#E8F9EE] dark:bg-[#0d2e12]/50",
                 "outline-none transition-transform duration-150 active:scale-[0.97]",
-                "focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
+                "focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             ].join(" ")}
             aria-label={category.name}
         >

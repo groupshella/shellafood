@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { PrimaryButton } from "@/features/auth/components/shared/AuthPrimitives";
 
 interface SuccessScreenProps {
+	isArabic: boolean;
 	title: string;
 	subtitle: string;
 	buttonLabel: string;
@@ -17,7 +18,7 @@ const SuccessIllustration = memo(function SuccessIllustration() {
 		<motion.svg
 			viewBox="0 0 176 176"
 			fill="none"
-			className="h-auto w-full max-w-[160px] sm:max-w-[176px]"
+			className="h-auto w-full max-w-[160px] sm:max-w-[176px] md:max-w-[200px] lg:max-w-[220px]"
 			initial={{ scale: 0.6, opacity: 0 }}
 			animate={{ scale: 1, opacity: 1 }}
 			transition={{ type: "spring", stiffness: 200, damping: 14 }}
@@ -44,7 +45,7 @@ const SuccessIllustration = memo(function SuccessIllustration() {
 
 			<motion.path
 				d="M66 89 82 105 112 73"
-				stroke="#fff"
+				stroke="var(--brand-foreground)"
 				strokeWidth="8"
 				strokeLinecap="round"
 				strokeLinejoin="round"
@@ -58,6 +59,7 @@ const SuccessIllustration = memo(function SuccessIllustration() {
 });
 
 const SuccessScreen = memo(function SuccessScreen({
+	isArabic,
 	title,
 	subtitle,
 	buttonLabel,
@@ -65,11 +67,11 @@ const SuccessScreen = memo(function SuccessScreen({
 }: SuccessScreenProps) {
 	return (
 		<div
-			dir="rtl"
-			lang="ar"
-			className="relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100"
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
+			className="relative flex min-h-dvh w-full flex-col bg-background text-foreground"
 		>
-			<div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center px-4 pb-8 pt-14 sm:pt-16">
+			<div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center px-4 pb-8 pt-14 sm:pt-16 md:max-w-lg md:px-6 md:pt-20 lg:max-w-xl lg:px-8">
 				<div
 					className="flex flex-1 flex-col items-center justify-center"
 					role="status"
@@ -81,7 +83,7 @@ const SuccessScreen = memo(function SuccessScreen({
 						initial={{ y: 12, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ delay: 0.2, duration: 0.4 }}
-						className="mt-8 text-center text-2xl font-bold leading-tight text-[#111B18] dark:text-gray-100 sm:text-[24px]"
+						className="mt-8 text-center text-2xl font-bold leading-tight text-foreground sm:text-[24px] md:text-[26px]"
 					>
 						{title}
 					</motion.h1>
@@ -90,13 +92,13 @@ const SuccessScreen = memo(function SuccessScreen({
 						initial={{ y: 8, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ delay: 0.25, duration: 0.4 }}
-						className="mt-2 max-w-xs text-center text-[15px] font-normal leading-relaxed text-[#555555] dark:text-gray-400 sm:max-w-sm sm:text-[16px]"
+						className="mt-2 max-w-xs text-center text-[15px] font-normal leading-relaxed text-muted sm:max-w-sm sm:text-[16px] md:max-w-md md:text-[17px]"
 					>
 						{subtitle}
 					</motion.p>
 				</div>
 
-				<div className="w-full pt-4">
+				<div className="w-full max-w-md pt-4 md:max-w-lg lg:max-w-xl">
 					<PrimaryButton onClick={onAction}>{buttonLabel}</PrimaryButton>
 				</div>
 			</div>

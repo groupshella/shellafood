@@ -1,7 +1,28 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@config "../tailwind.config.ts";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+	--background: #FFFFFF;
+	--foreground: #111B18;
+	--muted: #6B7280;
+	--border: #F6F5F8;
+	--brand: #30913F;
+	--brand-foreground: #FEFEFE;
+	--card: #F8F8F8;
+}
+
+.dark {
+	--background: #111827; /* gray-900 */
+	--foreground: #F9FAFB;
+	--muted: #9CA3AF;
+	--border: #374151;
+	--brand: #30913F;
+	--brand-foreground: #FEFEFE;
+	--card: #1F2937;
+}
 
 @layer base {
 	html {
@@ -27,14 +48,14 @@
 	width: 8px !important;
 	height: 8px !important;
 	opacity: 1 !important;
-	background: #F6F5F8 !important;
+	background: var(--border) !important;
 	transition: width 0.3s ease;
 }
 
 .banner-swiper .swiper-pagination-bullet-active {
 	width: 30px !important;
 	border-radius: 4px !important;
-	background: #F6F5F8 !important;
+	background: var(--border) !important;
 }
 
 /* Module offers carousel — 373×125 design */
@@ -57,5 +78,5 @@
 .offers-swiper .swiper-pagination-bullet-active {
 	width: 20px !important;
 	border-radius: 9999px !important;
-	background: #30913f !important;
+	background: var(--brand) !important;
 }

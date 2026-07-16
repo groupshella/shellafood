@@ -6,31 +6,40 @@ import { StoreShell } from "@/features/stores/components/StoreShell";
 import { StoreHeader } from "@/features/stores/components/sections/StoreHeader";
 import { StoreCategoryProducts } from "@/features/stores/components/sections/StoreCategoryProducts";
 import { AddToCart } from "@/features/cart/components/shared/AddToCart";
+import { isArabicLocale } from "@/shared/lib/locale";
 
 interface StorePageProps {
     params: Promise<{ id: string }>;
     searchParams: Promise<{ module_id?: string; categoryId?: string }>;
 }
 
-export const metadata: Metadata = {
-    title: "تفاصيل المتجر | شلة فود",
-    description: "تصفح منتجات المتجر واطلب الآن.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const isArabic = await isArabicLocale();
+    return {
+        title: isArabic ? "تفاصيل المتجر | شلة فود" : "Store details | Shella Food",
+        description: isArabic
+            ? "تصفح منتجات المتجر واطلب الآن."
+            : "Browse store products and order now.",
+    };
+}
 
 export default async function StorePage({ params, searchParams }: StorePageProps) {
+    const isArabic = await isArabicLocale();
+    const lang = isArabic ? "ar" : "en";
     const { id: storeId } = await params;
     const { module_id: moduleId = "3", categoryId } = await searchParams;
 
-    const store = await getStoreDetails(storeId);
+    const store = await getStoreDetails(storeId, lang);
     const resolvedCategoryId = resolveStoreCategoryId(store, categoryId);
 
     return (
-        <StoreShell>
+        <StoreShell isArabic={isArabic}>
             <StoreHeader
                 store={store}
                 storeId={storeId}
                 moduleId={moduleId}
                 activeCategoryId={resolvedCategoryId}
+                isArabic={isArabic}
             />
 
             <Suspense key={resolvedCategoryId || "default"} fallback={<StoreCategoryProducts.skeleton />}>
@@ -40,6 +49,7 @@ export default async function StorePage({ params, searchParams }: StorePageProps
                     categoryId={resolvedCategoryId}
                     categoryProducts={store.category_products}
                     scrollIntoView={Boolean(categoryId)}
+                    isArabic={isArabic}
                 />
             </Suspense>
 

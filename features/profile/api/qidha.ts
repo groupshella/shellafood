@@ -37,11 +37,13 @@ async function getToken(): Promise<string | null> {
 }
 
 /** GET headers for Qidha APIs (Accept is used on Qidha, unlike most customer APIs). */
-function qidhaGetHeaders(token: string): HeadersInit {
+function qidhaGetHeaders(token: string, lang: "ar" | "en" = "ar"): HeadersInit {
     return {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
-        "X-localization": "ar",
+        "Accept-Language": lang,
+        "X-localization": lang,
+        lang,
         moduleId: MODULE_ID,
         "module-id": MODULE_ID,
         zoneId: ZONE_ID,
@@ -55,13 +57,17 @@ function qidhaGetHeaders(token: string): HeadersInit {
  * Safe Qidha GET — never throws.
  * Returns unwrapped `data` on success, otherwise `null`.
  */
-async function fetchQidhaData(path: string, token: string): Promise<unknown | null> {
+async function fetchQidhaData(
+    path: string,
+    token: string,
+    lang: "ar" | "en" = "ar",
+): Promise<unknown | null> {
     if (!BACKEND_URL) return null;
 
     try {
         const res = await fetch(`${BACKEND_URL}${path}`, {
             method: "GET",
-            headers: qidhaGetHeaders(token),
+            headers: qidhaGetHeaders(token, lang),
             cache: "no-store",
         });
 
@@ -102,11 +108,14 @@ export interface QidhaWalletResult {
     minimumAmountDue: number;
 }
 
-export async function getQidhaWallet(userId?: number): Promise<QidhaWalletResult | null> {
+export async function getQidhaWallet(
+    userId?: number,
+    lang: "ar" | "en" = "ar",
+): Promise<QidhaWalletResult | null> {
     const token = await getToken();
     if (!token) return null;
 
-    const raw = await fetchQidhaData(QIDHA_ENDPOINTS.wallet, token);
+    const raw = await fetchQidhaData(QIDHA_ENDPOINTS.wallet, token, lang);
     if (!raw || typeof raw !== "object") return null;
 
     const data = raw as QidhaWalletApiData;
@@ -119,15 +128,15 @@ export async function getQidhaWallet(userId?: number): Promise<QidhaWalletResult
     const fullDue = Number(data.full_amount_due ?? usedBalance);
 
     return {
-        card: adaptQidhaCard(data, userId),
+        card: adaptQidhaCard(data, userId, lang),
         fullAmountDue: Number.isFinite(fullDue) ? fullDue : 0,
         minimumAmountDue: Number.isFinite(minimumDue) ? minimumDue : 0,
     };
 }
 
-function emptyRecorded(): RecordedAnalyticsInitialData {
+function emptyRecorded(lang: "ar" | "en" = "ar"): RecordedAnalyticsInitialData {
     return {
-        qidha: emptyQidhaStatistics(),
+        qidha: emptyQidhaStatistics(lang),
         categories: [],
         monthlyTrends: [],
         salaryDay: null,
@@ -140,16 +149,20 @@ function buildQidhaStats(
     analytics: unknown,
     duePayments: unknown,
     paymentHistory: unknown,
+    lang: "ar" | "en" = "ar",
 ): QidhaStatisticsData {
     try {
-        return adaptQidhaStatisticsFromParts({
-            wallet,
-            analytics,
-            duePayments,
-            paymentHistory,
-        });
+        return adaptQidhaStatisticsFromParts(
+            {
+                wallet,
+                analytics,
+                duePayments,
+                paymentHistory,
+            },
+            lang,
+        );
     } catch {
-        return emptyQidhaStatistics();
+        return emptyQidhaStatistics(lang);
     }
 }
 
@@ -186,9 +199,11 @@ function buildTransactions(raw: unknown): QidhaTransactionItem[] {
 }
 
 /** Parallel SSR/BFF loader for the Statistics "قيدها" tab. Always returns a valid shape. */
-export async function getRecordedAnalytics(): Promise<RecordedAnalyticsInitialData> {
+export async function getRecordedAnalytics(
+    lang: "ar" | "en" = "ar",
+): Promise<RecordedAnalyticsInitialData> {
     const token = await getToken();
-    if (!token) return emptyRecorded();
+    if (!token) return emptyRecorded(lang);
 
     const [
         wallet,
@@ -200,18 +215,18 @@ export async function getRecordedAnalytics(): Promise<RecordedAnalyticsInitialDa
         salaryDay,
         transactions,
     ] = await Promise.all([
-        fetchQidhaData(QIDHA_ENDPOINTS.wallet, token),
-        fetchQidhaData(QIDHA_ENDPOINTS.analyticsSummary, token),
-        fetchQidhaData(QIDHA_ENDPOINTS.duePayments, token),
-        fetchQidhaData(QIDHA_ENDPOINTS.paymentHistory, token),
-        fetchQidhaData(QIDHA_ENDPOINTS.spendingCategories, token),
-        fetchQidhaData(QIDHA_ENDPOINTS.monthlyTrends, token),
-        fetchQidhaData(QIDHA_ENDPOINTS.salaryDay, token),
-        fetchQidhaData(QIDHA_ENDPOINTS.transactions, token),
+        fetchQidhaData(QIDHA_ENDPOINTS.wallet, token, lang),
+        fetchQidhaData(QIDHA_ENDPOINTS.analyticsSummary, token, lang),
+        fetchQidhaData(QIDHA_ENDPOINTS.duePayments, token, lang),
+        fetchQidhaData(QIDHA_ENDPOINTS.paymentHistory, token, lang),
+        fetchQidhaData(QIDHA_ENDPOINTS.spendingCategories, token, lang),
+        fetchQidhaData(QIDHA_ENDPOINTS.monthlyTrends, token, lang),
+        fetchQidhaData(QIDHA_ENDPOINTS.salaryDay, token, lang),
+        fetchQidhaData(QIDHA_ENDPOINTS.transactions, token, lang),
     ]);
 
     return {
-        qidha: buildQidhaStats(wallet, analytics, duePayments, paymentHistory),
+        qidha: buildQidhaStats(wallet, analytics, duePayments, paymentHistory, lang),
         categories: buildCategories(categories),
         monthlyTrends: buildTrends(monthlyTrends),
         salaryDay: buildSalaryDay(salaryDay),

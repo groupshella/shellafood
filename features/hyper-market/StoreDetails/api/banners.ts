@@ -4,7 +4,7 @@ import {
     HyperMarketCampaign,
 } from "@/features/hyper-market/StoreDetails/types/banners.types";
 
-export async function getHyperMarketBanners(): Promise<{
+export async function getHyperMarketBanners(lang: "ar" | "en"): Promise<{
     banners: HyperMarketBanner[];
     campaigns: HyperMarketCampaign[];
 }> {
@@ -13,11 +13,14 @@ export async function getHyperMarketBanners(): Promise<{
         {
             headers: {
                 Accept: "application/json",
+                "Accept-Language": lang,
+                "X-Localization": lang,
+                lang,
                 zoneId: process.env.ZONE_ID!,
             },
             next: {
                 revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
-                tags: ["banners", "hyper-market-data"],
+                tags: ["banners", "hyper-market-data", `hyper-market-data-${lang}`],
             },
         }
     );

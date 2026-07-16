@@ -2,13 +2,15 @@ import { cookies } from "next/headers";
 import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import type { ApiOrderDetailItem, OrderTrack } from "@/features/my-orders/types/orders.types";
 
-async function buildHeaders(): Promise<Record<string, string>> {
+async function buildHeaders(lang: "ar" | "en"): Promise<Record<string, string>> {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
 
     const headers: Record<string, string> = {
         "Content-Type": "application/json; charset=UTF-8",
-        "X-localization": "ar",
+        "Accept-Language": lang,
+        "X-localization": lang,
+        lang,
         zoneId: process.env.ZONE_ID!,
         moduleId: process.env.MODULE_ID ?? "3",
     };
@@ -25,8 +27,11 @@ async function buildHeaders(): Promise<Record<string, string>> {
     return headers;
 }
 
-export async function getOrderTrack(orderId: string): Promise<OrderTrack | null> {
-    const headers = await buildHeaders();
+export async function getOrderTrack(
+    orderId: string,
+    lang: "ar" | "en"
+): Promise<OrderTrack | null> {
+    const headers = await buildHeaders(lang);
 
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/customer/order/track?order_id=${orderId}`,
@@ -39,8 +44,11 @@ export async function getOrderTrack(orderId: string): Promise<OrderTrack | null>
     return (json?.order ?? json) as OrderTrack;
 }
 
-export async function getOrderDetails(orderId: string): Promise<ApiOrderDetailItem[]> {
-    const headers = await buildHeaders();
+export async function getOrderDetails(
+    orderId: string,
+    lang: "ar" | "en"
+): Promise<ApiOrderDetailItem[]> {
+    const headers = await buildHeaders(lang);
 
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/customer/order/details?order_id=${orderId}`,
@@ -54,10 +62,10 @@ export async function getOrderDetails(orderId: string): Promise<ApiOrderDetailIt
     return json?.details ?? json?.order_details ?? [];
 }
 
-export async function getOrderDetailData(orderId: string) {
+export async function getOrderDetailData(orderId: string, lang: "ar" | "en") {
     const [track, details] = await Promise.all([
-        getOrderTrack(orderId),
-        getOrderDetails(orderId),
+        getOrderTrack(orderId, lang),
+        getOrderDetails(orderId, lang),
     ]);
 
     if (!track) return null;

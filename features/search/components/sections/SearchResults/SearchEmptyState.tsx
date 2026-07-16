@@ -38,34 +38,44 @@ export function SearchEmptyIllustration(props: React.SVGProps<SVGSVGElement>) {
 }
 interface SearchEmptyStateProps {
     query?: string;
+    isArabic: boolean;
 }
 
-export function SearchEmptyState({ query: _query }: SearchEmptyStateProps = {}) {
+export function SearchEmptyState({
+    query: _query,
+    isArabic,
+}: SearchEmptyStateProps) {
     return (
         <div
             className="flex w-full flex-col items-center justify-center px-4 py-12 sm:px-6 sm:py-16 md:py-20 lg:py-24"
             role="status"
             aria-live="polite"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
         >
-            <div className="flex w-full max-w-xs flex-col items-center sm:max-w-sm" dir="rtl">
+            <div className="flex w-full max-w-xs flex-col items-center sm:max-w-sm md:max-w-md">
                 <div
-                    className="relative aspect-square w-full max-w-[180px] sm:max-w-[200px] md:max-w-[260px]
+                    className="relative aspect-square w-full max-w-[180px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[280px]
                         [--search-badge:#D1FDD2] [--search-bg:#E0FAE4] [--search-bag:#9DFCA3] [--search-line:#49B95E] [--search-line-alt:#48BB5C]
                         dark:[--search-badge:#1F4A2A] dark:[--search-bg:#14261A] dark:[--search-bag:#245C34] dark:[--search-line:#5FD97A] dark:[--search-line-alt:#4ECB6B]"
                 >
                     <SearchEmptyIllustration
                         className="h-full w-full object-contain"
                         role="img"
-                        aria-label="لا توجد نتائج مطابقة"
+                        aria-label={
+                            isArabic ? "لا توجد نتائج مطابقة" : "No matching results"
+                        }
                     />
                 </div>
 
-                <h2 className="mt-5 text-center text-base font-bold text-gray-900 dark:text-gray-50 sm:mt-6 sm:text-lg md:text-xl">
-                    لا توجد نتائج مطابقة
+                <h2 className="mt-5 text-center text-base font-bold text-foreground sm:mt-6 sm:text-lg md:text-xl">
+                    {isArabic ? "لا توجد نتائج مطابقة" : "No matching results"}
                 </h2>
 
-                <p className="mt-2 max-w-[280px] text-center text-sm leading-relaxed text-gray-500 dark:text-gray-400 sm:mt-2.5 sm:max-w-sm sm:text-[15px]">
-                    جرّب البحث بكلمات أخرى أو استكشف الفئات المتاحة.
+                <p className="mt-2 max-w-[280px] text-center text-sm leading-relaxed text-muted sm:mt-2.5 sm:max-w-sm sm:text-[15px] md:max-w-md">
+                    {isArabic
+                        ? "جرّب البحث بكلمات أخرى أو استكشف الفئات المتاحة."
+                        : "Try different keywords or explore available categories."}
                 </p>
             </div>
         </div>

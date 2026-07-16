@@ -4,20 +4,32 @@ import { OrderDetailClient } from "./OrderDetailClient";
 import OrderDetailSkeleton from "./skeleton";
 
 export const OrderDetail = Object.assign(
-    async function OrderDetail({ id }: { id: string }) {
-        const data = await getOrderDetailData(id);
-
+    async function OrderDetail({
+        id,
+        isArabic,
+    }: {
+        id: string;
+        isArabic: boolean;
+    }) {
+        const lang = isArabic ? "ar" : "en";
+        const data = await getOrderDetailData(id, lang);
 
         if (!data) {
             return (
-                <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6" dir="rtl">
-                    <p className="text-[15px] font-semibold text-gray-700">لم يتم العثور على الطلب</p>
+                <div
+                    className="flex min-h-screen flex-col items-center justify-center bg-background px-6"
+                    dir={isArabic ? "rtl" : "ltr"}
+                    lang={isArabic ? "ar" : "en"}
+                >
+                    <p className="text-[15px] font-semibold text-foreground">
+                        {isArabic ? "لم يتم العثور على الطلب" : "Order not found"}
+                    </p>
                 </div>
             );
         }
 
-        const order = mapOrderDetailView(data.track, data.details);
-        return <OrderDetailClient order={order} />;
+        const order = mapOrderDetailView(data.track, data.details, isArabic);
+        return <OrderDetailClient order={order} isArabic={isArabic} />;
     },
     { skeleton: OrderDetailSkeleton }
 );

@@ -6,19 +6,21 @@ import { MyPointsClient } from "./MyPointsClient";
 import MyPointsSkeleton from "./skeleton";
 
 export const MyPoints = Object.assign(
-    async function MyPoints() {
-        const [user, history] = await Promise.all([
-            getProfileUser(),
-            getLoyaltyTransactions(),
-        ]);
-        if (!user) redirect("/auth");
+	async function MyPoints({ isArabic }: { isArabic: boolean }) {
+		const lang = isArabic ? "ar" : "en";
+		const [user, history] = await Promise.all([
+			getProfileUser(),
+			getLoyaltyTransactions(0, 10, lang),
+		]);
+		if (!user) redirect("/auth");
 
-        return (
-            <MyPointsClient
-                convertiblePoints={user.loyalty_point ?? 0}
-                history={history}
-            />
-        );
-    },
-    { skeleton: MyPointsSkeleton },
+		return (
+			<MyPointsClient
+				convertiblePoints={user.loyalty_point ?? 0}
+				history={history}
+				isArabic={isArabic}
+			/>
+		);
+	},
+	{ skeleton: MyPointsSkeleton },
 );

@@ -40,8 +40,8 @@ function getYesterdayKey(): string {
     return toLocalDateKey(date);
 }
 
-function formatArabicDate(date: Date): string {
-    return date.toLocaleDateString("ar-SA", {
+function formatLocaleDate(date: Date, isArabic: boolean): string {
+    return date.toLocaleDateString(isArabic ? "ar-SA" : "en-US", {
         weekday: "long",
         day: "numeric",
         month: "long",
@@ -59,7 +59,8 @@ function sortNewestFirst<T extends { wishlisted_at?: string | null }>(items: T[]
 }
 
 export function groupByDate<T extends { wishlisted_at?: string | null }>(
-    items: T[]
+    items: T[],
+    isArabic: boolean
 ): DateGroup<T>[] {
     const todayKey = getTodayKey();
     const yesterdayKey = getYesterdayKey();
@@ -83,13 +84,13 @@ export function groupByDate<T extends { wishlisted_at?: string | null }>(
         let label: string;
 
         if (key === "unknown") {
-            label = "بدون تاريخ";
+            label = isArabic ? "بدون تاريخ" : "No date";
         } else if (key === todayKey) {
-            label = "اليوم";
+            label = isArabic ? "اليوم" : "Today";
         } else if (key === yesterdayKey) {
-            label = "أمس";
+            label = isArabic ? "أمس" : "Yesterday";
         } else {
-            label = formatArabicDate(dateFromKey(key));
+            label = formatLocaleDate(dateFromKey(key), isArabic);
         }
 
         return { key, label, items: sortNewestFirst(groupItems) };

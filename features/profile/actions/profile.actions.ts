@@ -40,12 +40,18 @@ async function persistUser(user: AuthUser) {
     cookieStore.set(COOKIE_KEYS.USER, JSON.stringify(user), COOKIE_OPTS);
 }
 
-async function fetchCustomerInfo(token: string, current: AuthUser | null): Promise<AuthUser | null> {
+async function fetchCustomerInfo(
+    token: string,
+    current: AuthUser | null,
+    lang: "ar" | "en" = "ar",
+): Promise<AuthUser | null> {
     const res = await fetch(`${BACKEND_URL}/api/v1/customer/info`, {
         headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
-            "X-localization": "ar",
+            "Accept-Language": lang,
+            "X-localization": lang,
+            lang,
         },
         cache: "no-store",
     });
@@ -66,20 +72,24 @@ export async function updateProfile(
         phone: string;
     },
     imageFile?: File | null,
+    lang: "ar" | "en" = "ar",
 ): Promise<UpdateProfileResult> {
+    const isArabic = lang === "ar";
     const token = await getToken();
     if (!token) {
-        return { success: false, message: "غير مصرح", fieldErrors: { general: "غير مصرح" } };
+        const msg = isArabic ? "غير مصرح" : "Unauthorized";
+        return { success: false, message: msg, fieldErrors: { general: msg } };
     }
 
     const currentUser = await getCurrentUser();
     const phone = payload.phone.trim();
 
     if (!phone) {
+        const msg = isArabic ? "رقم الهاتف مطلوب" : "Phone number is required";
         return {
             success: false,
-            message: "رقم الهاتف مطلوب",
-            fieldErrors: { phone: "رقم الهاتف مطلوب" },
+            message: msg,
+            fieldErrors: { phone: msg },
         };
     }
 
@@ -98,7 +108,9 @@ export async function updateProfile(
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: "application/json",
-                "X-localization": "ar",
+                "Accept-Language": lang,
+                "X-localization": lang,
+                lang,
             },
             body: formData,
         });
@@ -106,12 +118,16 @@ export async function updateProfile(
         const json = await res.json();
 
         if (!res.ok) {
-            const fieldErrors = parseProfileFieldErrors(json);
-            const message = fieldErrors.general ?? Object.values(fieldErrors)[0] ?? "تعذر حفظ التغييرات";
+            const fieldErrors = parseProfileFieldErrors(json, lang);
+            const message =
+                fieldErrors.general ??
+                Object.values(fieldErrors)[0] ??
+                (isArabic ? "تعذر حفظ التغييرات" : "Could not save changes");
             return { success: false, message, fieldErrors };
         }
 
-        const refreshedUser = (await fetchCustomerInfo(token, currentUser)) ?? currentUser;
+        const refreshedUser =
+            (await fetchCustomerInfo(token, currentUser, lang)) ?? currentUser;
 
         const updatedUser: AuthUser = refreshedUser ?? {
             ...(currentUser ?? ({} as AuthUser)),
@@ -126,21 +142,34 @@ export async function updateProfile(
 
         return {
             success: true,
-            message: typeof json?.message === "string" ? json.message : "تم حفظ التغييرات بنجاح",
+            message:
+                typeof json?.message === "string"
+                    ? json.message
+                    : isArabic
+                        ? "تم حفظ التغييرات بنجاح"
+                        : "Changes saved successfully",
             user: updatedUser,
         };
     } catch {
+        const msg = isArabic
+            ? "تعذر حفظ التغييرات، حاول مرة أخرى"
+            : "Could not save changes. Please try again";
         return {
             success: false,
-            message: "تعذر حفظ التغييرات، حاول مرة أخرى",
-            fieldErrors: { general: "تعذر حفظ التغييرات، حاول مرة أخرى" },
+            message: msg,
+            fieldErrors: { general: msg },
         };
     }
 }
 
-export async function deleteAccount(): Promise<{ success: boolean; message: string }> {
+export async function deleteAccount(
+    lang: "ar" | "en" = "ar",
+): Promise<{ success: boolean; message: string }> {
+    const isArabic = lang === "ar";
     const token = await getToken();
-    if (!token) return { success: false, message: "غير مصرح" };
+    if (!token) {
+        return { success: false, message: isArabic ? "غير مصرح" : "Unauthorized" };
+    }
 
     try {
         const res = await fetch(`${BACKEND_URL}/api/v1/customer/remove-account`, {
@@ -149,7 +178,9 @@ export async function deleteAccount(): Promise<{ success: boolean; message: stri
                 Authorization: `Bearer ${token}`,
                 Accept: "application/json",
                 "Content-Type": "application/json",
-                "X-localization": "ar",
+                "Accept-Language": lang,
+                "X-localization": lang,
+                lang,
             },
             body: JSON.stringify({ _method: "delete" }),
         });
@@ -157,12 +188,25 @@ export async function deleteAccount(): Promise<{ success: boolean; message: stri
         const json = await res.json();
 
         if (!res.ok) {
-            const message = json?.errors?.[0]?.message ?? json?.message ?? "تعذر حذف الحساب";
+            const message =
+                json?.errors?.[0]?.message ??
+                json?.message ??
+                (isArabic ? "تعذر حذف الحساب" : "Could not delete account");
             return { success: false, message };
         }
 
-        return { success: true, message: json?.message ?? "تم حذف الحساب" };
+        return {
+            success: true,
+            message:
+                json?.message ??
+                (isArabic ? "تم حذف الحساب" : "Account deleted"),
+        };
     } catch {
-        return { success: false, message: "تعذر حذف الحساب، حاول مرة أخرى" };
+        return {
+            success: false,
+            message: isArabic
+                ? "تعذر حذف الحساب، حاول مرة أخرى"
+                : "Could not delete account. Please try again",
+        };
     }
 }

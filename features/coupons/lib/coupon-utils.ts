@@ -40,16 +40,18 @@ export function sortCouponsForFirstTab(coupons: Coupon[], now: Date = new Date()
 	return [...annotated].sort((a, b) => Number(b.isUsable) - Number(a.isUsable));
 }
 
-/** "صالح حتى 25,يونيو,2026" — يعيد null إذا لا يوجد تاريخ انتهاء */
-export function formatExpireDate(coupon: Coupon): string | null {
+/** "صالح حتى …" / "Valid until …" — returns null if no expiry */
+export function formatExpireDate(coupon: Coupon, isArabic: boolean): string | null {
 	const expireDate = parseExpireDate(coupon);
 	if (!expireDate) return null;
 
 	const day = expireDate.getDate();
-	const month = expireDate.toLocaleDateString("ar", { month: "long" });
+	const month = expireDate.toLocaleDateString(isArabic ? "ar" : "en", { month: "long" });
 	const year = expireDate.getFullYear();
 
-	return `صالح حتى ${day},${month},${year}`;
+	return isArabic
+		? `صالح حتى ${day},${month},${year}`
+		: `Valid until ${day}, ${month}, ${year}`;
 }
 
 /** كوبون على وشك الانتهاء خلال `thresholdDays` أيام — يُبرز بلون تحذيري في القائمة */

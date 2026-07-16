@@ -16,11 +16,13 @@ async function getToken(): Promise<string | null> {
     return store.get(COOKIE_KEYS.ACCESS_TOKEN)?.value ?? null;
 }
 
-function authHeaders(token: string): HeadersInit {
+function authHeaders(token: string, lang: "ar" | "en" = "ar"): HeadersInit {
     return {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json; charset=UTF-8",
-        "X-localization": "ar",
+        "Accept-Language": lang,
+        "X-localization": lang,
+        lang,
         moduleId: MODULE_ID,
         zoneId: ZONE_ID,
     };
@@ -37,10 +39,10 @@ interface LoyaltyTxnRaw {
 }
 
 // ── Adapters ──────────────────────────────────────────────────────────────────
-function parseDateLabel(dateStr: string): string {
+function parseDateLabel(dateStr: string, lang: "ar" | "en"): string {
     try {
         const d = new Date(dateStr.replace(" ", "T"));
-        return d.toLocaleDateString("ar-SA", {
+        return d.toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -50,45 +52,58 @@ function parseDateLabel(dateStr: string): string {
     }
 }
 
-function parseTimeLabel(dateStr: string): string {
+function parseTimeLabel(dateStr: string, lang: "ar" | "en"): string {
     try {
         const d = new Date(dateStr.replace(" ", "T"));
-        return d.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+        return d.toLocaleTimeString(lang === "ar" ? "ar-SA" : "en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
     } catch {
         return "";
     }
 }
 
-function txnTitle(type: string | undefined, orderId?: number | null): string {
-    if (type === "order") return orderId ? `طلب #${orderId}` : "طلب";
-    if (type === "cashback") return "استرداد نقدي";
-    if (type === "referral") return "مكافأة إحالة";
-    if (type === "point_to_wallet" || type === "converted") return "تحويل إلى المحفظة";
-    return "معاملة نقاط";
+function txnTitle(
+    type: string | undefined,
+    orderId: number | null | undefined,
+    lang: "ar" | "en",
+): string {
+    const isArabic = lang === "ar";
+    if (type === "order") {
+        if (orderId) return isArabic ? `طلب #${orderId}` : `Order #${orderId}`;
+        return isArabic ? "طلب" : "Order";
+    }
+    if (type === "cashback") return isArabic ? "استرداد نقدي" : "Cashback";
+    if (type === "referral") return isArabic ? "مكافأة إحالة" : "Referral reward";
+    if (type === "point_to_wallet" || type === "converted") {
+        return isArabic ? "تحويل إلى المحفظة" : "Converted to wallet";
+    }
+    return isArabic ? "معاملة نقاط" : "Points transaction";
 }
 
-function adaptRawToItem(raw: LoyaltyTxnRaw): PointsHistoryItem {
+function adaptRawToItem(raw: LoyaltyTxnRaw, lang: "ar" | "en"): PointsHistoryItem {
     return {
         id: String(raw.id),
         points: raw.point,
-        timeLabel: parseTimeLabel(raw.created_at),
-        title: txnTitle(raw.transaction_type, raw.order_id),
+        timeLabel: parseTimeLabel(raw.created_at, lang),
+        title: txnTitle(raw.transaction_type, raw.order_id, lang),
         subtitle: raw.note ?? "",
         href: raw.order_id ? `/my-orders/${raw.order_id}` : undefined,
     };
 }
 
-function groupByDate(raws: LoyaltyTxnRaw[]): PointsHistoryGroup[] {
+function groupByDate(raws: LoyaltyTxnRaw[], lang: "ar" | "en"): PointsHistoryGroup[] {
     const map = new Map<string, PointsHistoryGroup>();
 
     for (const raw of raws) {
-        const dateLabel = parseDateLabel(raw.created_at);
+        const dateLabel = parseDateLabel(raw.created_at, lang);
         const dateKey = raw.created_at.slice(0, 10);
 
         if (!map.has(dateKey)) {
             map.set(dateKey, { id: dateKey, dateLabel, items: [] });
         }
-        map.get(dateKey)!.items.push(adaptRawToItem(raw));
+        map.get(dateKey)!.items.push(adaptRawToItem(raw, lang));
     }
 
     return Array.from(map.values());
@@ -118,6 +133,7 @@ function extractTxns(json: unknown): LoyaltyTxnRaw[] {
 export async function getLoyaltyTransactions(
     offset = DEFAULT_OFFSET,
     limit = DEFAULT_LIMIT,
+    lang: "ar" | "en" = "ar",
 ): Promise<PointsHistoryGroup[]> {
     const token = await getToken();
     if (!token || !BACKEND_URL) return [];
@@ -133,12 +149,12 @@ export async function getLoyaltyTransactions(
 
         const res = await fetch(
             `${BACKEND_URL}/api/v1/customer/loyalty-point/transactions?${params}`,
-            { headers: authHeaders(token), cache: "no-store" },
+            { headers: authHeaders(token, lang), cache: "no-store" },
         );
         if (!res.ok) return [];
 
         const json: unknown = await res.json();
-        return groupByDate(extractTxns(json));
+        return groupByDate(extractTxns(json), lang);
     } catch {
         return [];
     }

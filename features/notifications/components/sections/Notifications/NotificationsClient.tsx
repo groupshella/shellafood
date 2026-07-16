@@ -4,18 +4,28 @@ import { Notification } from "@/features/notifications/types/notifications.types
 import { NotificationCard } from "./NotificationCard";
 
 const NOTIFICATIONS_GRID =
-    "grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-3 lg:gap-4";
+	"grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-3 lg:gap-4";
 
-interface NotificationsClientProps {
-    notifications: Notification[];
-}
+type NotificationsClientProps = {
+	notifications: Notification[];
+	isArabic: boolean;
+};
 
-export function NotificationsClient({ notifications }: NotificationsClientProps) {
-    return (
-        <section aria-label="قائمة الإشعارات" className={NOTIFICATIONS_GRID}>
-            {notifications.map((notification) => (
-                <NotificationCard key={notification.id} notification={notification} />
-            ))}
-        </section>
-    );
+export function NotificationsClient({ notifications, isArabic }: NotificationsClientProps) {
+	return (
+		<section
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
+			aria-label={isArabic ? "قائمة الإشعارات" : "Notifications list"}
+			className={NOTIFICATIONS_GRID}
+		>
+			{notifications.map((notification) => (
+				<NotificationCard
+					key={notification.id}
+					notification={notification}
+					isArabic={isArabic}
+				/>
+			))}
+		</section>
+	);
 }

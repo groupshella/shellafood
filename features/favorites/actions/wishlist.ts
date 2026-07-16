@@ -5,6 +5,7 @@ import {
     buildWishlistHeaders,
     getFavoritesApiUrl,
 } from "@/features/favorites/lib/wishlist-request";
+import { getLocale } from "@/shared/lib/locale";
 
 function invalidateWishlistCache() {
     updateTag("wishlist");
@@ -19,13 +20,27 @@ export async function addToWishlist({
     itemId?: number;
     storeId?: number;
 }): Promise<{ success: boolean; message: string }> {
+    const lang = await getLocale();
+    const isArabic = lang === "ar";
+
     if (itemId == null && storeId == null) {
-        return { success: false, message: "معرّف العنصر غير صالح" };
+        return {
+            success: false,
+            message: isArabic ? "معرّف العنصر غير صالح" : "Invalid item id",
+        };
     }
 
-    const { headers, token } = await buildWishlistHeaders({ withModuleId: true });
+    const { headers, token } = await buildWishlistHeaders({
+        withModuleId: true,
+        lang,
+    });
     if (!token) {
-        return { success: false, message: "يجب تسجيل الدخول لإضافة المفضلة" };
+        return {
+            success: false,
+            message: isArabic
+                ? "يجب تسجيل الدخول لإضافة المفضلة"
+                : "Sign in to add favorites",
+        };
     }
 
     const params = itemId != null ? `item_id=${itemId}` : `store_id=${storeId}`;
@@ -40,13 +55,23 @@ export async function addToWishlist({
     );
 
     if (!res.ok) {
-        return { success: false, message: "فشل في الإضافة إلى المفضلة" };
+        return {
+            success: false,
+            message: isArabic
+                ? "فشل في الإضافة إلى المفضلة"
+                : "Failed to add to favorites",
+        };
     }
 
     invalidateWishlistCache();
 
     const json = await res.json();
-    return { success: true, message: json.message ?? "تمت الإضافة إلى المفضلة" };
+    return {
+        success: true,
+        message:
+            json.message ??
+            (isArabic ? "تمت الإضافة إلى المفضلة" : "Added to favorites"),
+    };
 }
 
 export async function removeFromWishlist({
@@ -56,13 +81,27 @@ export async function removeFromWishlist({
     itemId?: number;
     storeId?: number;
 }): Promise<{ success: boolean; message: string }> {
+    const lang = await getLocale();
+    const isArabic = lang === "ar";
+
     if (itemId == null && storeId == null) {
-        return { success: false, message: "معرّف العنصر غير صالح" };
+        return {
+            success: false,
+            message: isArabic ? "معرّف العنصر غير صالح" : "Invalid item id",
+        };
     }
 
-    const { headers, token } = await buildWishlistHeaders({ withModuleId: true });
+    const { headers, token } = await buildWishlistHeaders({
+        withModuleId: true,
+        lang,
+    });
     if (!token) {
-        return { success: false, message: "يجب تسجيل الدخول لإدارة المفضلة" };
+        return {
+            success: false,
+            message: isArabic
+                ? "يجب تسجيل الدخول لإدارة المفضلة"
+                : "Sign in to manage favorites",
+        };
     }
 
     const params = itemId != null ? `item_id=${itemId}` : `store_id=${storeId}`;
@@ -76,11 +115,21 @@ export async function removeFromWishlist({
     );
 
     if (!res.ok) {
-        return { success: false, message: "فشل في إزالة المفضلة" };
+        return {
+            success: false,
+            message: isArabic
+                ? "فشل في إزالة المفضلة"
+                : "Failed to remove from favorites",
+        };
     }
 
     invalidateWishlistCache();
 
     const json = await res.json();
-    return { success: true, message: json.message ?? "تمت الإزالة من المفضلة" };
+    return {
+        success: true,
+        message:
+            json.message ??
+            (isArabic ? "تمت الإزالة من المفضلة" : "Removed from favorites"),
+    };
 }

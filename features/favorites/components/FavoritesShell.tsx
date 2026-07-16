@@ -2,29 +2,29 @@
 
 import { useState } from "react";
 import type { FavoritesTab } from "@/features/favorites/types/favorites.types";
-import { MODULE_PAGE_BG } from "@/shared/lib/page-surface";
 
-const TABS: { id: FavoritesTab; label: string }[] = [
-    { id: "orders", label: "الطلبات" },
-    { id: "stores", label: "المتاجر" },
-    { id: "products", label: "المنتجات" },
+const TABS: { id: FavoritesTab; label: { ar: string; en: string } }[] = [
+    { id: "orders", label: { ar: "الطلبات", en: "Orders" } },
+    { id: "stores", label: { ar: "المتاجر", en: "Stores" } },
+    { id: "products", label: { ar: "المنتجات", en: "Products" } },
 ];
 
 const SHELL_LAYOUT = [
-    "mx-auto min-h-dvh w-full max-w-lg overflow-x-hidden",
-    "sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl",
-    MODULE_PAGE_BG,
+    "mx-auto min-h-dvh w-full max-w-lg overflow-x-hidden bg-background",
+    "sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl",
 ].join(" ");
 
 const HEADER_PADDING = "px-3 sm:px-4 md:px-5 lg:px-6";
 
 interface FavoritesShellProps {
+    isArabic: boolean;
     productsContent: React.ReactNode;
     storesContent: React.ReactNode;
     ordersContent: React.ReactNode;
 }
 
 export function FavoritesShell({
+    isArabic,
     productsContent,
     storesContent,
     ordersContent,
@@ -32,19 +32,23 @@ export function FavoritesShell({
     const [activeTab, setActiveTab] = useState<FavoritesTab>("products");
 
     return (
-        <div dir="rtl" className={SHELL_LAYOUT}>
-            <header className="sticky top-0 z-20 bg-white/95 shadow-[0_1px_0_0_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-gray-900/95 dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]">
+        <div
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
+            className={SHELL_LAYOUT}
+        >
+            <header className="sticky top-0 z-20 border-b border-border bg-background/95 shadow-[0_1px_0_0_rgba(0,0,0,0.06)] backdrop-blur-md">
                 <div className={`flex items-center justify-center py-3.5 sm:py-4 ${HEADER_PADDING}`}>
-                    <h1 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg lg:text-xl">
-                        مفضلاتي
+                    <h1 className="text-base font-bold text-foreground sm:text-lg lg:text-xl">
+                        {isArabic ? "مفضلاتي" : "My favorites"}
                     </h1>
                 </div>
 
                 <div className={`pb-3 sm:pb-3.5 ${HEADER_PADDING}`}>
                     <div
                         role="tablist"
-                        aria-label="تصفية المفضلة"
-                        className="mx-auto flex items-center rounded-2xl bg-gray-100 p-1 dark:bg-gray-800 sm:p-1.5 md:max-w-xl lg:max-w-2xl"
+                        aria-label={isArabic ? "تصفية المفضلة" : "Filter favorites"}
+                        className="mx-auto flex w-full items-center rounded-2xl bg-card p-1 sm:p-1.5 md:max-w-xl lg:max-w-2xl"
                     >
                         {TABS.map((tab) => {
                             const isActive = activeTab === tab.id;
@@ -56,13 +60,13 @@ export function FavoritesShell({
                                     onClick={() => setActiveTab(tab.id)}
                                     aria-selected={isActive}
                                     className={[
-                                        "min-h-10 flex-1 rounded-xl py-2 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 sm:min-h-11 sm:text-[15px]",
+                                        "min-h-10 flex-1 rounded-xl py-2 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:min-h-11 sm:text-[15px]",
                                         isActive
-                                            ? "bg-[#30913F] text-white shadow-sm"
-                                            : "text-gray-500 md:hover:bg-white/70 md:hover:text-gray-700 dark:text-gray-400 dark:md:hover:bg-gray-700/60 dark:md:hover:text-gray-200",
+                                            ? "bg-brand text-brand-foreground shadow-sm"
+                                            : "text-muted md:hover:bg-background md:hover:text-foreground",
                                     ].join(" ")}
                                 >
-                                    {tab.label}
+                                    {isArabic ? tab.label.ar : tab.label.en}
                                 </button>
                             );
                         })}

@@ -15,13 +15,25 @@ interface UseOfferSearchReturn {
     clearSearch: () => void;
 }
 
-export function useOfferSearch(offerId: string, moduleId = "3"): UseOfferSearchReturn {
+export function useOfferSearch(
+    offerId: string,
+    moduleId = "3",
+    lang: "ar" | "en" = "ar",
+    isArabic = true
+): UseOfferSearchReturn {
     const [query, setQueryRaw] = useState("");
     const [results, setResults] = useState<OfferItem[] | null>(null);
     const [total, setTotal] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const abortRef = useRef<AbortController | null>(null);
+    const langRef = useRef(lang);
+    const isArabicRef = useRef(isArabic);
+
+    useEffect(() => {
+        langRef.current = lang;
+        isArabicRef.current = isArabic;
+    }, [lang, isArabic]);
 
     const runSearch = useDebouncedCallback(async (q: string) => {
         abortRef.current?.abort();
@@ -30,7 +42,7 @@ export function useOfferSearch(offerId: string, moduleId = "3"): UseOfferSearchR
 
         try {
             const res = await fetch(
-                `/api/offers/${offerId}/search?query=${encodeURIComponent(q)}&offset=1&limit=50&module_id=${moduleId}`,
+                `/api/offers/${offerId}/search?query=${encodeURIComponent(q)}&offset=1&limit=50&module_id=${moduleId}&lang=${langRef.current}`,
                 { signal: controller.signal },
             );
             const json = (await res.json()) as ApiResponse<OfferItemsResult>;
@@ -39,7 +51,11 @@ export function useOfferSearch(offerId: string, moduleId = "3"): UseOfferSearchR
             setTotal(data.total);
         } catch (err) {
             if ((err as Error).name === "AbortError") return;
-            setError("حدث خطأ أثناء البحث");
+            setError(
+                isArabicRef.current
+                    ? "حدث خطأ أثناء البحث"
+                    : "Something went wrong while searching"
+            );
             setResults([]);
             setTotal(0);
         } finally {

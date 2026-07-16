@@ -13,6 +13,8 @@ export async function GET(request: Request) {
     const module_id = searchParams.get("module_id") ?? DEFAULT_MODULE_ID;
     const latitude = searchParams.get("latitude") ?? LATITUDE ?? "24.7136";
     const longitude = searchParams.get("longitude") ?? LONGITUDE ?? "46.6753";
+    const langParam = searchParams.get("lang");
+    const lang = langParam === "en" || langParam === "ar" ? langParam : "ar";
 
     if (!name) {
         return apiError("Search query is required", 400);
@@ -30,7 +32,9 @@ export async function GET(request: Request) {
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json; charset=UTF-8",
-                    "X-localization": "ar",
+                    "X-localization": lang,
+                    "Accept-Language": lang,
+                    lang,
                     moduleId: module_id,
                     zoneId: ZONE_ID!,
                     latitude,

@@ -4,6 +4,7 @@ import { ItemShell } from "@/features/item/components/ItemShell";
 import { AddToCart } from "@/features/cart/components/shared/AddToCart";
 import { ItemInfo } from "@/features/item/components/sections/ItemInfo";
 import { RelatedItems } from "@/features/item/components/sections/RelatedItems";
+import { isArabicLocale } from "@/shared/lib/locale";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -12,11 +13,13 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { id } = await params;
+    const isArabic = await isArabicLocale();
 
     return {
-        title: "تفاصيل المنتج | شلة فود",
-        description:
-            "تعرّف على تفاصيل المنتج، الأسعار، العروض، والمزيد من المنتجات المشابهة عبر شلة فود.",
+        title: isArabic ? "تفاصيل المنتج | شلة فود" : "Product details | Shella Food",
+        description: isArabic
+            ? "تعرّف على تفاصيل المنتج، الأسعار، العروض، والمزيد من المنتجات المشابهة عبر شلة فود."
+            : "View product details, prices, offers, and similar items on Shella Food.",
         keywords: [
             "شلة فود",
             "Shella Food",
@@ -27,32 +30,41 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             "عروض",
             "خصومات",
             "تفاصيل المنتج",
+            "products",
+            "online shopping",
+            "delivery",
         ],
         alternates: {
             canonical: `/items/${id}`,
         },
         openGraph: {
             type: "website",
-            locale: "ar_SA",
-            title: "تفاصيل المنتج | شلة فود",
-            description:
-                "استعرض تفاصيل المنتج، الأسعار، والعروض والمنتجات المشابهة عبر شلة فود.",
+            locale: isArabic ? "ar_SA" : "en_US",
+            title: isArabic
+                ? "تفاصيل المنتج | شلة فود"
+                : "Product details | Shella Food",
+            description: isArabic
+                ? "استعرض تفاصيل المنتج، الأسعار، والعروض والمنتجات المشابهة عبر شلة فود."
+                : "Browse product details, prices, offers, and related items on Shella Food.",
             url: `https://shellafood.com/items/${id}`,
-            siteName: "شلة فود",
+            siteName: isArabic ? "شلة فود" : "Shella Food",
             images: [
                 {
                     url: "/images/og-image.png",
                     width: 1200,
                     height: 630,
-                    alt: "Shella Food Product",
+                    alt: isArabic ? "شلة فود — منتج" : "Shella Food Product",
                 },
             ],
         },
         twitter: {
             card: "summary_large_image",
-            title: "تفاصيل المنتج | شلة فود",
-            description:
-                "استعرض تفاصيل المنتج والأسعار والعروض والمنتجات المشابهة عبر شلة فود.",
+            title: isArabic
+                ? "تفاصيل المنتج | شلة فود"
+                : "Product details | Shella Food",
+            description: isArabic
+                ? "استعرض تفاصيل المنتج والأسعار والعروض والمنتجات المشابهة عبر شلة فود."
+                : "Browse product details, prices, offers, and related items on Shella Food.",
             images: ["/images/og-image.png"],
         },
         robots: {
@@ -71,14 +83,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
     const { id } = await params;
+    const isArabic = await isArabicLocale();
 
     return (
-        <ItemShell>
+        <ItemShell isArabic={isArabic}>
             <Suspense fallback={<ItemInfo.skeleton />}>
-                <ItemInfo itemId={id} />
+                <ItemInfo itemId={id} isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<RelatedItems.skeleton />}>
-                <RelatedItems itemId={id} />
+                <RelatedItems itemId={id} isArabic={isArabic} />
             </Suspense>
             <Suspense fallback={<AddToCart.skeleton />}>
                 <AddToCart moduleId="3" />

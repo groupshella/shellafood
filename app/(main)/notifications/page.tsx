@@ -4,23 +4,30 @@ import { NotificationsShell } from "@/features/notifications/components/Notifica
 import { Notifications } from "@/features/notifications/components/sections/Notifications";
 import { AuthRequiredScreen } from "@/features/layout/components/AuthRequiredScreen";
 import { isAuthenticated } from "@/features/layout/lib/is-authenticated";
+import { isArabicLocale } from "@/shared/lib/locale";
 
-export const metadata: Metadata = {
-	title: "الإشعارات | شلة فود",
-	description: "اطلع على آخر الإشعارات والتحديثات في شلة فود.",
-	alternates: {
-		canonical: "/notifications",
-	},
-};
+export async function generateMetadata(): Promise<Metadata> {
+	const isArabic = await isArabicLocale();
+	return {
+		title: isArabic ? "الإشعارات | شلة فود" : "Notifications | Shella Food",
+		description: isArabic
+			? "اطلع على آخر الإشعارات والتحديثات في شلة فود."
+			: "See the latest notifications and updates in Shella Food.",
+		alternates: {
+			canonical: "/notifications",
+		},
+	};
+}
 
 export default async function NotificationsPage() {
+	const isArabic = await isArabicLocale();
 	if (!(await isAuthenticated())) {
-		return <AuthRequiredScreen page="notifications" />;
+		return <AuthRequiredScreen page="notifications" isArabic={isArabic} />;
 	}
 	return (
-		<NotificationsShell>
+		<NotificationsShell isArabic={isArabic}>
 			<Suspense fallback={<Notifications.skeleton />}>
-				<Notifications />
+				<Notifications isArabic={isArabic} />
 			</Suspense>
 		</NotificationsShell>
 	);

@@ -3,6 +3,7 @@ import { CategoryDetail } from "@/features/stores/types/store.types";
 export async function getCategoryDetail(
     storeId: string,
     categoryId: string,
+    lang: "ar" | "en",
     limit = 20
 ): Promise<CategoryDetail> {
     const res = await fetch(
@@ -10,13 +11,14 @@ export async function getCategoryDetail(
         {
             headers: {
                 Accept: "application/json",
-                "Accept-Language": "ar",
-                "X-Localization": "ar",
+                "Accept-Language": lang,
+                "X-Localization": lang,
+                lang,
                 zoneId: process.env.ZONE_ID!,
             },
             next: {
                 revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
-                tags: ["stores", `store-${storeId}-category-${categoryId}`],
+                tags: ["stores", `store-${storeId}-category-${categoryId}`, `store-${storeId}-category-${categoryId}-${lang}`],
             },
         }
     );

@@ -10,10 +10,17 @@ interface StoreHeaderProps {
     storeId: string;
     moduleId: string;
     activeCategoryId?: string;
+    isArabic: boolean;
 }
 
 export const StoreHeader = Object.assign(
-    function StoreHeader({ store, storeId, moduleId, activeCategoryId }: StoreHeaderProps) {
+    function StoreHeader({
+        store,
+        storeId,
+        moduleId,
+        activeCategoryId,
+        isArabic,
+    }: StoreHeaderProps) {
         const resolvedCategoryId = resolveStoreCategoryId(store, activeCategoryId);
 
         return (
@@ -23,6 +30,7 @@ export const StoreHeader = Object.assign(
                 activeCategoryId={resolvedCategoryId}
                 storeId={storeId}
                 moduleId={moduleId}
+                isArabic={isArabic}
             />
         );
     },

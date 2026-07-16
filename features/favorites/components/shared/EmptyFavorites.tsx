@@ -1,7 +1,16 @@
-export function EmptyFavorites() {
+interface EmptyFavoritesProps {
+    isArabic: boolean;
+}
+
+export function EmptyFavorites({ isArabic }: EmptyFavoritesProps) {
     return (
-        <div className="flex flex-col items-center justify-center px-4 py-12 text-center sm:px-6 sm:py-16 lg:py-24">
-            <div className="relative mb-5 flex h-32 w-32 items-center justify-center sm:mb-6 sm:h-36 sm:w-36 md:h-40 md:w-40">
+        <div
+            className="flex flex-col items-center justify-center px-4 py-12 text-center sm:px-6 sm:py-16 md:px-8 lg:py-24"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
+        >
+            <div className="relative mb-5 flex h-32 w-32 items-center justify-center sm:mb-6 sm:h-36 sm:w-36 md:h-40 md:w-40 lg:h-44 lg:w-44">
+                {/* Illustration accents — decorative, not UI chrome tokens */}
                 <div className="absolute inset-0 rounded-[40%_60%_55%_45%/45%_55%_60%_40%] bg-[#E5FCE7] opacity-80 dark:bg-[#0d2e12] dark:opacity-70" />
                 <div className="absolute inset-4 rounded-[55%_45%_40%_60%/60%_40%_45%_55%] bg-[#DCFEDC] opacity-90 dark:bg-[#163d1c]" />
 
@@ -9,7 +18,7 @@ export function EmptyFavorites() {
                     viewBox="0 0 96 96"
                     fill="none"
                     aria-hidden="true"
-                    className="relative z-10 h-20 w-20 sm:h-24 sm:w-24"
+                    className="relative z-10 h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28"
                 >
                     <rect x="18" y="46" width="60" height="36" rx="8" fill="#A0E9AC" opacity="0.6" />
                     <path d="M30 46 Q24 30 36 24" stroke="#6AC47A" strokeWidth="3.5" strokeLinecap="round" fill="none" />
@@ -31,11 +40,13 @@ export function EmptyFavorites() {
                 </svg>
             </div>
 
-            <p className="text-base font-bold text-gray-800 dark:text-gray-200 sm:text-lg">
-                لا توجد مفضلات حتى الآن
+            <p className="text-base font-bold text-foreground sm:text-lg">
+                {isArabic ? "لا توجد مفضلات حتى الآن" : "No favorites yet"}
             </p>
-            <p className="mt-1.5 max-w-[220px] text-sm text-gray-500 dark:text-gray-400 sm:mt-2 sm:max-w-xs sm:text-[15px] md:max-w-sm">
-                ابدأ بإضافة المنتجات أو المتاجر التي تعجبك
+            <p className="mt-1.5 max-w-[220px] text-sm text-muted sm:mt-2 sm:max-w-xs sm:text-[15px] md:max-w-sm">
+                {isArabic
+                    ? "ابدأ بإضافة المنتجات أو المتاجر التي تعجبك"
+                    : "Start by adding products or stores you like"}
             </p>
         </div>
     );

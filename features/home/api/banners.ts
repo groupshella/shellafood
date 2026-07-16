@@ -1,26 +1,30 @@
 import { Banner, Campaign, GetBannersResponse } from "@/features/home/types/banners.types";
 
-export async function getBanners(): Promise<{ banners: Banner[]; campaigns: Campaign[] }> {
-    const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/banners?featured=1`,
-        {
-            headers: {
-                Accept: "application/json",
-                zoneId: process.env.ZONE_ID!,
-            },
-            next: {
-                revalidate: 3600,
-                tags: ["banners", "home-data"],
-            },
-        }
-    );
+export async function getBanners(
+	lang: "ar" | "en"
+): Promise<{ banners: Banner[]; campaigns: Campaign[] }> {
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_API_URL}/api/v1/banners?featured=1`,
+		{
+			headers: {
+				Accept: "application/json",
+				zoneId: process.env.ZONE_ID!,
+				lang,
+				"X-localization": lang,
+			},
+			next: {
+				revalidate: 3600,
+				tags: ["banners", "home-data", `home-data-${lang}`],
+			},
+		}
+	);
 
-    if (!res.ok) throw new Error(`Failed to fetch banners: ${res.status}`);
+	if (!res.ok) throw new Error(`Failed to fetch banners: ${res.status}`);
 
-    const data: GetBannersResponse = await res.json();
+	const data: GetBannersResponse = await res.json();
 
-    return {
-        banners: data.banners ?? [],
-        campaigns: data.campaigns ?? [],
-    };
+	return {
+		banners: data.banners ?? [],
+		campaigns: data.campaigns ?? [],
+	};
 }

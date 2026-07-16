@@ -7,6 +7,7 @@ interface RemoveProductConfirmSheetProps {
   onConfirm: () => void;
   onCancel: () => void;
   isRemoving?: boolean;
+  isArabic: boolean;
 }
 
 export function RemoveProductConfirmSheet({
@@ -14,6 +15,7 @@ export function RemoveProductConfirmSheet({
   onConfirm,
   onCancel,
   isRemoving = false,
+  isArabic,
 }: RemoveProductConfirmSheetProps) {
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -46,9 +48,9 @@ export function RemoveProductConfirmSheet({
     <div className="fixed inset-0 z-50" role="presentation">
       <button
         type="button"
-        className="absolute inset-0 cursor-default bg-black/50 backdrop-blur-[2px] transition-opacity dark:bg-black/70"
+        className="absolute inset-0 cursor-default bg-black/50 backdrop-blur-[2px] transition-opacity"
         onClick={isRemoving ? undefined : onCancel}
-        aria-label="إغلاق"
+        aria-label={isArabic ? "إغلاق" : "Close"}
         disabled={isRemoving}
       />
 
@@ -58,32 +60,39 @@ export function RemoveProductConfirmSheet({
           role="alertdialog"
           aria-modal="true"
           aria-labelledby="remove-product-title"
+          dir={isArabic ? "rtl" : "ltr"}
+          lang={isArabic ? "ar" : "en"}
           className={[
-            "pointer-events-auto w-full max-w-lg rounded-t-3xl bg-white px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-4 shadow-2xl",
-            "dark:bg-gray-900 sm:px-5",
+            "pointer-events-auto w-full max-w-lg rounded-t-3xl bg-background px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-4 shadow-2xl",
+            "sm:px-5",
             "md:max-w-md md:rounded-2xl md:pb-6 md:pt-5 md:shadow-xl",
           ].join(" ")}
-          dir="rtl"
         >
           <div
-            className="mx-auto mb-5 h-1 w-10 rounded-full bg-gray-200 dark:bg-gray-700 md:hidden"
+            className="mx-auto mb-5 h-1 w-10 rounded-full bg-border md:hidden"
             aria-hidden
           />
 
           <p
             id="remove-product-title"
-            className="mb-6 text-center text-base font-bold text-red-500 dark:text-red-400 sm:text-lg"
+            className="mb-6 text-center text-base font-bold text-red-500 sm:text-lg"
           >
-            هل متأكد من حذف المنتج؟
+            {isArabic ? "هل متأكد من حذف المنتج؟" : "Are you sure you want to remove this product?"}
           </p>
 
           <button
             type="button"
             onClick={onConfirm}
             disabled={isRemoving}
-            className="mb-3 w-full rounded-2xl bg-[#30913F] py-3.5 text-sm font-semibold text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 active:bg-[#267332] disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-offset-gray-900 sm:py-4 sm:text-[15px] md:hover:bg-[#267332]"
+            className="mb-3 w-full rounded-2xl bg-brand py-3.5 text-sm font-semibold text-brand-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background active:brightness-90 disabled:cursor-not-allowed disabled:opacity-60 sm:py-4 sm:text-[15px] md:hover:brightness-95"
           >
-            {isRemoving ? "جاري الحذف..." : "حذف"}
+            {isRemoving
+              ? isArabic
+                ? "جاري الحذف..."
+                : "Removing..."
+              : isArabic
+                ? "حذف"
+                : "Remove"}
           </button>
 
           <button
@@ -91,9 +100,9 @@ export function RemoveProductConfirmSheet({
             type="button"
             onClick={onCancel}
             disabled={isRemoving}
-            className="w-full rounded-2xl bg-gray-100 py-3.5 text-sm font-medium text-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 active:bg-gray-200 disabled:opacity-60 dark:bg-gray-800 dark:text-gray-300 dark:focus-visible:ring-gray-500 dark:active:bg-gray-700 sm:py-4 sm:text-[15px] md:hover:bg-gray-200 dark:md:hover:bg-gray-700"
+            className="w-full rounded-2xl bg-card py-3.5 text-sm font-medium text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-border active:brightness-90 disabled:opacity-60 sm:py-4 sm:text-[15px] md:hover:brightness-95"
           >
-            إلغاء
+            {isArabic ? "إلغاء" : "Cancel"}
           </button>
         </div>
       </div>

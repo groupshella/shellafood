@@ -8,6 +8,8 @@ const DEFAULT_MODULE_ID = process.env.MODULE_ID ?? "3";
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const module_id = searchParams.get("module_id") ?? DEFAULT_MODULE_ID;
+    const langParam = searchParams.get("lang");
+    const lang = langParam === "en" || langParam === "ar" ? langParam : "ar";
 
     if (Number.isNaN(Number(module_id))) {
         return apiError("Module ID is required", 400);
@@ -18,7 +20,9 @@ export async function GET(request: Request) {
             method: "GET",
             headers: {
                 Accept: "application/json",
-                "X-Localization": "ar",
+                "X-Localization": lang,
+                "Accept-Language": lang,
+                lang,
                 moduleId: module_id,
             },
             next: { revalidate: Number(REVALIDATE_TIME) },

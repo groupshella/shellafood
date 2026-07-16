@@ -23,12 +23,22 @@ export async function POST(req: Request) {
         return apiError("Invalid form data", 400);
     }
 
+    const langHeader =
+        req.headers.get("lang") ??
+        req.headers.get("Accept-Language") ??
+        "ar";
+    const lang = langHeader.toLowerCase().startsWith("en") ? "en" : "ar";
+    const isArabic = lang === "ar";
+
     try {
         const res = await fetch(`${BACKEND_URL}${QIDHA_ENDPOINTS.store}`, {
             method: "POST",
             headers: {
                 Accept: "application/json",
                 Authorization: `Bearer ${token}`,
+                "Accept-Language": lang,
+                "X-localization": lang,
+                lang,
                 // Do not set Content-Type — fetch sets multipart boundary automatically.
             },
             body: formData,
@@ -44,11 +54,12 @@ export async function POST(req: Request) {
             }
         }
 
+        const fallback = isArabic
+            ? "فشل في إنشاء محفظة قيدها"
+            : "Failed to create Qidha wallet";
+
         if (!res.ok) {
-            return apiError(
-                extractBackendError(json, "فشل في إنشاء محفظة قيدها"),
-                res.status,
-            );
+            return apiError(extractBackendError(json, fallback), res.status);
         }
 
         if (
@@ -57,10 +68,7 @@ export async function POST(req: Request) {
             "success" in json &&
             (json as { success: unknown }).success === false
         ) {
-            return apiError(
-                extractBackendError(json, "فشل في إنشاء محفظة قيدها"),
-                400,
-            );
+            return apiError(extractBackendError(json, fallback), 400);
         }
 
         const data =
@@ -70,6 +78,11 @@ export async function POST(req: Request) {
 
         return apiSuccess(data ?? { ok: true });
     } catch {
-        return apiError("فشل في إنشاء محفظة قيدها", 502);
+        return apiError(
+            isArabic
+                ? "فشل في إنشاء محفظة قيدها"
+                : "Failed to create Qidha wallet",
+            502,
+        );
     }
 }

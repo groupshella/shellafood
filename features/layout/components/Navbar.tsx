@@ -85,8 +85,8 @@ export function IconBag({ active, className }: SvgProps) {
 				d="M9.00007 22H15.0001C19.0201 22 19.7401 20.39 19.9501 18.43L20.7001 12.43C20.9701 9.99 20.2701 8 16.0001 8H8.00007C3.73007 8 3.03007 9.99 3.30007 12.43L4.05007 18.43C4.26007 20.39 4.98007 22 9.00007 22Z"
 				fill={active ? "currentColor" : "none"}
 			/>
-			<path d="M15.4955 12H15.5045" stroke={active ? "#fff" : "currentColor"} />
-			<path d="M8.49451 12H8.50349" stroke={active ? "#fff" : "currentColor"} />
+			<path d="M15.4955 12H15.5045" stroke={active ? "var(--brand-foreground)" : "currentColor"} />
+			<path d="M8.49451 12H8.50349" stroke={active ? "var(--brand-foreground)" : "currentColor"} />
 		</svg>
 	);
 }
@@ -115,8 +115,8 @@ export function IconReceipt({ active, className }: SvgProps) {
 				d="M2 7V21C2 21.83 2.93998 22.3 3.59998 21.8L5.31 20.52C5.71 20.22 6.27 20.26 6.63 20.62L8.28998 22.29C8.67998 22.68 9.32002 22.68 9.71002 22.29L11.39 20.61C11.74 20.26 12.3 20.22 12.69 20.52L14.4 21.8C15.06 22.29 16 21.82 16 21V4C16 2.9 16.9 2 18 2H7H6C3 2 2 3.79 2 6V7Z"
 				fill={active ? "currentColor" : "none"}
 			/>
-			<path d="M6 9H12" stroke={active ? "#fff" : "currentColor"} />
-			<path d="M6.75 13H11.25" stroke={active ? "#fff" : "currentColor"} />
+			<path d="M6 9H12" stroke={active ? "var(--brand-foreground)" : "currentColor"} />
+			<path d="M6.75 13H11.25" stroke={active ? "var(--brand-foreground)" : "currentColor"} />
 		</svg>
 	);
 }
@@ -150,11 +150,11 @@ export function IconUser({ active, className }: SvgProps) {
 
 // ─── Nav config ───────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-	{ id: "home", label: "الرئيسية", Icon: IconHome, path: "/home" },
-	{ id: "favorites", label: "المفضلة", Icon: IconHeart, path: "/favorites" },
-	{ id: "cart", label: "السلة", Icon: IconBag, path: "/cart" },
-	{ id: "my-orders", label: "طلباتي", Icon: IconReceipt, path: "/my-orders" },
-	{ id: "profile", label: "حسابي", Icon: IconUser, path: "/profile" },
+	{ id: "home", label: { ar: "الرئيسية", en: "Home" }, Icon: IconHome, path: "/home" },
+	{ id: "favorites", label: { ar: "المفضلة", en: "Favorites" }, Icon: IconHeart, path: "/favorites" },
+	{ id: "cart", label: { ar: "السلة", en: "Cart" }, Icon: IconBag, path: "/cart" },
+	{ id: "my-orders", label: { ar: "طلباتي", en: "Orders" }, Icon: IconReceipt, path: "/my-orders" },
+	{ id: "profile", label: { ar: "حسابي", en: "Profile" }, Icon: IconUser, path: "/profile" },
 ] as const;
 
 function isActive(pathname: string, path: string) {
@@ -163,39 +163,38 @@ function isActive(pathname: string, path: string) {
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function Navbar() {
+export default function Navbar({ isArabic }: { isArabic: boolean }) {
 	const pathname = usePathname();
 
 	return (
 		<nav
-			dir="rtl"
-			className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white/90 pb-safe backdrop-blur-lg dark:border-gray-700/80 dark:bg-gray-900/95"
-			aria-label="التنقل الرئيسي"
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
+			className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/90 pb-safe backdrop-blur-lg"
+			aria-label={isArabic ? "التنقل الرئيسي" : "Main navigation"}
 		>
-			<div className="mx-auto flex h-[64px] w-full max-w-lg items-end justify-around px-1 pb-2 sm:h-[68px] sm:max-w-xl sm:px-2 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
+			<div className="mx-auto flex h-[64px] w-full max-w-lg items-end justify-around px-1 pb-2 sm:h-[68px] sm:max-w-xl sm:px-2 md:h-[72px] md:max-w-2xl md:px-3 lg:max-w-3xl xl:max-w-4xl">
 				{NAV_ITEMS.map((item) => {
 					const active = isActive(pathname, item.path);
 					const { Icon } = item;
+					const label = isArabic ? item.label.ar : item.label.en;
 
 					return (
 						<Link
 							key={item.id}
 							href={item.path}
-							aria-label={item.label}
+							aria-label={label}
 							aria-current={active ? "page" : undefined}
 							className={[
-								"flex min-h-11 min-w-[44px] flex-1 flex-col items-center justify-end gap-1 rounded-lg pb-1 sm:min-w-[52px]",
-								"transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
-								"dark:focus-visible:ring-offset-gray-900",
-								active
-									? "text-[#30913F]"
-									: "text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-300",
+								"flex min-h-11 min-w-[44px] flex-1 flex-col items-center justify-end gap-1 rounded-lg pb-1 sm:min-w-[52px] md:min-w-[56px]",
+								"transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+								active ? "text-brand" : "text-muted hover:text-foreground",
 							].join(" ")}
 						>
-							<Icon active={active} className="h-[22px] w-[22px] sm:h-6 sm:w-6" />
+							<Icon active={active} className="h-[22px] w-[22px] sm:h-6 sm:w-6 md:h-7 md:w-7" />
 							{active && (
-								<span className="text-[9px] font-bold leading-none tracking-wide sm:text-[10px]">
-									{item.label}
+								<span className="text-[9px] font-bold leading-none tracking-wide sm:text-[10px] md:text-[11px]">
+									{label}
 								</span>
 							)}
 						</Link>

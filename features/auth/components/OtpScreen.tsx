@@ -13,6 +13,7 @@ import {
 import type { OtpFlow } from "@/features/auth/types/auth.types";
 
 interface OtpScreenProps {
+	isArabic: boolean;
 	phone: string;
 	otpFlow: OtpFlow;
 	cooldownSeconds: number;
@@ -46,6 +47,7 @@ const ClockIcon = memo(function ClockIcon() {
 });
 
 const OtpScreen = memo(function OtpScreen({
+	isArabic,
 	phone,
 	otpFlow,
 	cooldownSeconds,
@@ -112,11 +114,17 @@ const OtpScreen = memo(function OtpScreen({
 
 	const formattedPhone = formatPhone(phone);
 	const title =
-		otpFlow === "forgot_password" ? "التحقق من رقم هاتفك الخاص" : "ادخل رمز التفعيل";
+		otpFlow === "forgot_password"
+			? isArabic
+				? "التحقق من رقم هاتفك الخاص"
+				: "Verify your phone number"
+			: isArabic
+				? "ادخل رمز التفعيل"
+				: "Enter the activation code";
 
 	return (
-		<AuthShell>
-			<BackHeader onBack={onBack} disabled={isLoading} />
+		<AuthShell isArabic={isArabic}>
+			<BackHeader onBack={onBack} disabled={isLoading} isArabic={isArabic} />
 
 			<AuthTitle>{title}</AuthTitle>
 
@@ -124,10 +132,12 @@ const OtpScreen = memo(function OtpScreen({
 				initial={{ y: 8, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ delay: 0.1, duration: 0.4 }}
-				className="mt-2 text-start text-[16px] font-normal leading-relaxed text-[#555555] dark:text-gray-400"
+				className="mt-2 text-start text-[16px] font-normal leading-relaxed text-muted md:text-[17px]"
 			>
-				تم ارسال رمز التحقق الى الرقم الخاص بك{" "}
-				<span dir="ltr" className="inline-block font-semibold text-[#111B18] dark:text-gray-100">
+				{isArabic
+					? "تم ارسال رمز التحقق الى الرقم الخاص بك"
+					: "A verification code was sent to"}{" "}
+				<span dir="ltr" className="inline-block font-semibold text-foreground">
 					{formattedPhone}
 				</span>
 			</motion.p>
@@ -136,12 +146,16 @@ const OtpScreen = memo(function OtpScreen({
 				initial={{ y: 8, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ delay: 0.2 }}
-				className="mt-8"
+				className="mt-8 md:mt-10"
 				dir="ltr"
 				role="group"
-				aria-label="رمز التحقق المكون من 6 أرقام"
+				aria-label={
+					isArabic
+						? "رمز التحقق المكون من 6 أرقام"
+						: "6-digit verification code"
+				}
 			>
-				<div className="flex justify-center gap-2 sm:gap-3">
+				<div className="mx-auto flex w-full max-w-sm justify-center gap-2 sm:gap-3 md:max-w-md md:gap-4 lg:max-w-lg">
 					{[0, 1, 2, 3, 4, 5].map((i) => {
 						const isActive = i === code.length && !error;
 						const isFilled = i < code.length;
@@ -153,20 +167,24 @@ const OtpScreen = memo(function OtpScreen({
 								disabled={!error}
 								aria-label={
 									error
-										? "مسح رمز التحقق وإعادة الإدخال"
-										: `خانة ${i + 1}${isFilled ? `: ${code[i]}` : ""}`
+										? isArabic
+											? "مسح رمز التحقق وإعادة الإدخال"
+											: "Clear code and re-enter"
+										: isArabic
+											? `خانة ${i + 1}${isFilled ? `: ${code[i]}` : ""}`
+											: `Digit ${i + 1}${isFilled ? `: ${code[i]}` : ""}`
 								}
 								className={[
-									"flex h-14 min-w-0 flex-1 items-center justify-center rounded-xl border-2 text-xl font-bold transition-all duration-200",
-									"focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900",
+									"flex h-14 min-w-0 flex-1 items-center justify-center rounded-xl border-2 text-xl font-bold transition-all duration-200 md:h-16 md:text-2xl",
+									"focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-background",
 									error ? "cursor-pointer" : "cursor-default disabled:opacity-100",
 									isActive
-										? "border-[#30913F] bg-green-50/60 text-[#111B18] dark:bg-green-900/20 dark:text-gray-100"
+										? "border-brand bg-green-50/60 text-foreground dark:bg-green-900/20"
 										: error
 											? "border-red-400 bg-red-50 text-red-500 dark:border-red-500 dark:bg-red-900/20 dark:text-red-400"
 											: isFilled
-												? "border-[#30913F] bg-green-50/30 text-[#111B18] dark:bg-green-900/10 dark:text-gray-100"
-												: "border-[#C6C8CE] bg-white text-[#111B18] dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100",
+												? "border-brand bg-green-50/30 text-foreground dark:bg-green-900/10"
+												: "border-[#C6C8CE] bg-background text-foreground",
 								]
 									.filter(Boolean)
 									.join(" ")}
@@ -193,14 +211,16 @@ const OtpScreen = memo(function OtpScreen({
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
 				transition={{ delay: 0.4 }}
-				className="mt-6 flex flex-col items-center gap-1.5 text-center"
+				className="mt-6 flex flex-col items-center gap-1.5 text-center md:mt-8"
 			>
 				{timer > 0 ? (
 					<>
-						<p className="text-[15px] font-medium text-[#555555] dark:text-gray-400">
-							في حال عدم وصول الرمز؟ إعادة الإرسال
+						<p className="text-[15px] font-medium text-muted md:text-[16px]">
+							{isArabic
+								? "في حال عدم وصول الرمز؟ إعادة الإرسال"
+								: "Didn't get the code? Resend"}
 						</p>
-						<span className="inline-flex items-center gap-1.5 text-[15px] font-normal tabular-nums text-[#555555] dark:text-gray-400">
+						<span className="inline-flex items-center gap-1.5 text-[15px] font-normal tabular-nums text-muted md:text-[16px]">
 							<ClockIcon />
 							{formatTime(timer)}
 						</span>
@@ -210,24 +230,40 @@ const OtpScreen = memo(function OtpScreen({
 						type="button"
 						onClick={handleResend}
 						disabled={isResending}
-						className="rounded-lg px-2 py-1 text-[15px] font-medium text-[#555555] transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:opacity-50 dark:text-gray-400 dark:focus-visible:ring-offset-gray-900"
+						className="rounded-lg px-2 py-1 text-[15px] font-medium text-muted transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 md:text-[16px]"
 					>
-						في حال عدم وصول الرمز؟{" "}
-						<span className="font-bold text-[#30913F]">
-							{isResending ? "جاري الإرسال..." : "إعادة الإرسال"}
+						{isArabic ? "في حال عدم وصول الرمز؟" : "Didn't get the code?"}{" "}
+						<span className="font-bold text-brand">
+							{isResending
+								? isArabic
+									? "جاري الإرسال..."
+									: "Sending..."
+								: isArabic
+									? "إعادة الإرسال"
+									: "Resend"}
 						</span>
 					</button>
 				)}
 			</motion.div>
 
-			<div className="mt-8">
+			<div className="mt-8 md:mt-10">
 				<PrimaryButton onClick={handleVerify} disabled={code.length !== 6 || isLoading}>
-					{isLoading ? "جاري التحقق..." : "إرسال"}
+					{isLoading
+						? isArabic
+							? "جاري التحقق..."
+							: "Verifying..."
+						: isArabic
+							? "إرسال"
+							: "Submit"}
 				</PrimaryButton>
 			</div>
 
-			<div className="-mx-4 mt-auto">
-				<NumericKeypad onPress={handleKeyPress} onBackspace={handleBackspace} />
+			<div className="-mx-4 mt-auto md:-mx-6 lg:-mx-8">
+				<NumericKeypad
+					isArabic={isArabic}
+					onPress={handleKeyPress}
+					onBackspace={handleBackspace}
+				/>
 			</div>
 		</AuthShell>
 	);

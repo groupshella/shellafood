@@ -16,13 +16,24 @@ interface UseBrandSearchReturn {
     clearSearch: () => void;
 }
 
-export function useBrandSearch(brandId: string): UseBrandSearchReturn {
+export function useBrandSearch(
+    brandId: string,
+    lang: "ar" | "en",
+    isArabic: boolean
+): UseBrandSearchReturn {
     const [query, setQueryRaw] = useState("");
     const [results, setResults] = useState<BrandItem[] | null>(null);
     const [total, setTotal] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const abortRef = useRef<AbortController | null>(null);
+    const langRef = useRef(lang);
+    const isArabicRef = useRef(isArabic);
+
+    useEffect(() => {
+        langRef.current = lang;
+        isArabicRef.current = isArabic;
+    }, [lang, isArabic]);
 
     const runSearch = useCallback(async (q: string) => {
         const trimmed = q.trim();
@@ -37,7 +48,7 @@ export function useBrandSearch(brandId: string): UseBrandSearchReturn {
 
         try {
             const res = await fetch(
-                `/api/brands/${brandId}/search?query=${encodeURIComponent(trimmed)}&offset=0&limit=50`,
+                `/api/brands/${brandId}/search?query=${encodeURIComponent(trimmed)}&offset=0&limit=50&lang=${langRef.current}`,
                 { signal: controller.signal },
             );
             const json = (await res.json()) as ApiResponse<GetBrandItemsApiResponse>;
@@ -46,7 +57,11 @@ export function useBrandSearch(brandId: string): UseBrandSearchReturn {
             setTotal(count);
         } catch (err) {
             if ((err as Error).name === "AbortError") return;
-            setError("حدث خطأ أثناء البحث");
+            setError(
+                isArabicRef.current
+                    ? "حدث خطأ أثناء البحث"
+                    : "Something went wrong while searching"
+            );
             setResults([]);
             setTotal(0);
         } finally {

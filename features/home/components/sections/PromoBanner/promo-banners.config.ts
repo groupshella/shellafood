@@ -4,7 +4,7 @@ export interface PromoBannerItem {
 	id: string;
 	src: string;
 	href: string;
-	alt: string;
+	alt: { ar: string; en: string };
 	external?: boolean;
 	aspectClass: string;
 }
@@ -25,7 +25,10 @@ export const WEBSITE_BANNER: PromoBannerItem = {
 	id: "shellah-services",
 	src: "/home/banner.png",
 	href: "https://www.shellaksa.com/",
-	alt: "اكتشف خدمات أكثر عبر موقع شلّة — التوصيل، الجمال، التعليم، القانون، الصيانة",
+	alt: {
+		ar: "اكتشف خدمات أكثر عبر موقع شلّة — التوصيل، الجمال، التعليم، القانون، الصيانة",
+		en: "Discover more services on the Shella website — delivery, beauty, education, legal, maintenance",
+	},
 	external: true,
 	aspectClass: "aspect-[343/96]",
 };

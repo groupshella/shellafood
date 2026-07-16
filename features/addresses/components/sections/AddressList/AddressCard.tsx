@@ -5,6 +5,7 @@ import { AddressListItem } from "@/features/addresses/types/address.types";
 interface AddressCardProps {
 	address: AddressListItem;
 	showDelete: boolean;
+	isArabic: boolean;
 	onClick: (id: number) => void;
 	onDelete: (id: number) => void;
 	onEdit: (id: number) => void;
@@ -12,11 +13,12 @@ interface AddressCardProps {
 }
 
 const actionButtonClass =
-	"flex h-10 w-10 items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-gray-800 sm:h-11 sm:w-11";
+	"flex h-10 w-10 items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 sm:h-11 sm:w-11";
 
 export const AddressCard = memo(function AddressCard({
 	address,
 	showDelete,
+	isArabic,
 	onClick,
 	onDelete,
 	onEdit,
@@ -24,30 +26,36 @@ export const AddressCard = memo(function AddressCard({
 }: AddressCardProps) {
 	const addressLine = [address.city, address.region, address.street_name]
 		.filter(Boolean)
-		.join(" ، ");
+		.join(isArabic ? " ، " : ", ");
 
 	return (
 		<article
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
 			className={[
-				"flex h-full min-w-0 items-start justify-between gap-2.5 rounded-2xl border border-gray-100 bg-white px-3 py-3.5 shadow-sm transition-opacity dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0px_4px_8.9px_rgba(0,0,0,0.2)] sm:gap-3 sm:px-4 sm:py-4 md:px-5",
+				"flex h-full min-w-0 items-start justify-between gap-2.5 rounded-2xl border border-border bg-background px-3 py-3.5 shadow-sm transition-opacity sm:gap-3 sm:px-4 sm:py-4 md:px-5",
 				isDeleting ? "pointer-events-none opacity-50" : "",
 			].join(" ")}
 		>
 			<button
 				type="button"
 				onClick={() => onClick(address.id)}
-				className="flex min-w-0 flex-1 items-start gap-2.5 text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 rounded-xl dark:focus-visible:ring-offset-gray-800 sm:gap-3"
-				aria-label={`عرض تفاصيل عنوان ${address.address_label}`}
+				className="flex min-w-0 flex-1 items-start gap-2.5 rounded-xl text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:gap-3"
+				aria-label={
+					isArabic
+						? `عرض تفاصيل عنوان ${address.address_label}`
+						: `View details for ${address.address_label}`
+				}
 			>
-				<div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#30913F]/10 dark:bg-[#30913F]/20 sm:h-11 sm:w-11">
-					<MapPin className="h-4 w-4 text-[#30913F] dark:text-[#3da84f]" aria-hidden />
+				<div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand/10 sm:h-11 sm:w-11 md:h-12 md:w-12">
+					<MapPin className="h-4 w-4 text-brand" aria-hidden />
 				</div>
 
 				<div className="flex min-w-0 flex-1 flex-col gap-0.5">
-					<span className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100 sm:text-base">
+					<span className="truncate text-sm font-semibold text-foreground sm:text-base">
 						{address.address_label}
 					</span>
-					<span className="line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400 sm:text-[13px]">
+					<span className="line-clamp-2 text-xs leading-relaxed text-muted sm:text-[13px]">
 						{addressLine}
 					</span>
 				</div>
@@ -60,8 +68,12 @@ export const AddressCard = memo(function AddressCard({
 						e.stopPropagation();
 						onEdit(address.id);
 					}}
-					className={`${actionButtonClass} text-[#30913F] hover:bg-[#30913F]/10 active:bg-[#30913F]/20 dark:text-[#3da84f] dark:hover:bg-[#30913F]/20`}
-					aria-label={`تعديل عنوان ${address.address_label}`}
+					className={`${actionButtonClass} text-brand hover:bg-brand/10 active:bg-brand/20`}
+					aria-label={
+						isArabic
+							? `تعديل عنوان ${address.address_label}`
+							: `Edit ${address.address_label}`
+					}
 					disabled={isDeleting}
 				>
 					<Pencil className="h-4 w-4" aria-hidden />
@@ -74,8 +86,12 @@ export const AddressCard = memo(function AddressCard({
 							e.stopPropagation();
 							onDelete(address.id);
 						}}
-						className={`${actionButtonClass} text-red-400 hover:bg-red-50 active:bg-red-100 dark:text-red-400 dark:hover:bg-red-950/40 dark:active:bg-red-950/60`}
-						aria-label={`حذف عنوان ${address.address_label}`}
+						className={`${actionButtonClass} text-red-400 hover:bg-red-50 active:bg-red-100 dark:hover:bg-red-950/40 dark:active:bg-red-950/60`}
+						aria-label={
+							isArabic
+								? `حذف عنوان ${address.address_label}`
+								: `Delete ${address.address_label}`
+						}
 						disabled={isDeleting}
 					>
 						<Trash2 className="h-4 w-4" aria-hidden />

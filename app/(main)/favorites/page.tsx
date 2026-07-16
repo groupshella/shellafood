@@ -6,19 +6,28 @@ import { StoresTab } from "@/features/favorites/components/sections/StoresTab";
 import { OrdersTab } from "@/features/favorites/components/sections/OrdersTab";
 import { AuthRequiredScreen } from "@/features/layout/components/AuthRequiredScreen";
 import { isAuthenticated } from "@/features/layout/lib/is-authenticated";
+import { isArabicLocale } from "@/shared/lib/locale";
 
-export const metadata: Metadata = {
-    title: "مفضلاتي | شيلة فود",
-    description: "المنتجات والمتاجر والطلبات المحفوظة في مفضلتك",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const isArabic = await isArabicLocale();
+    return {
+        title: isArabic ? "مفضلاتي | شيلة فود" : "My favorites | Shella Food",
+        description: isArabic
+            ? "المنتجات والمتاجر والطلبات المحفوظة في مفضلتك"
+            : "Saved products, stores, and orders in your favorites",
+    };
+}
 
 export default async function FavoritesPage() {
+    const isArabic = await isArabicLocale();
+
     if (!(await isAuthenticated())) {
-        return <AuthRequiredScreen page="favorites" />;
+        return <AuthRequiredScreen page="favorites" isArabic={isArabic} />;
     }
 
     return (
         <FavoritesShell
+            isArabic={isArabic}
             productsContent={
                 <Suspense fallback={<ProductsTab.skeleton />}>
                     <ProductsTab />

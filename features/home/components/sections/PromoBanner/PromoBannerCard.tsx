@@ -5,20 +5,23 @@ import { PromoBannerItem } from "./promo-banners.config";
 
 interface PromoBannerCardProps {
 	banner: PromoBannerItem;
+	isArabic: boolean;
 	priority?: boolean;
 }
 
 export const PromoBannerCard = memo(function PromoBannerCard({
 	banner,
+	isArabic,
 	priority = false,
 }: PromoBannerCardProps) {
+	const alt = isArabic ? banner.alt.ar : banner.alt.en;
+
 	const card = (
 		<div
 			className={[
-				"relative w-full overflow-hidden rounded-xl bg-gradient-to-br from-[#F7F9F7] to-[#EEF2EE]",
-				"shadow-sm ring-1 ring-black/[0.04]",
+				"relative w-full overflow-hidden rounded-xl bg-gradient-to-br from-card to-border",
+				"shadow-sm ring-1 ring-foreground/[0.04]",
 				"transition-transform duration-200 active:scale-[0.98]",
-				"dark:from-gray-800 dark:to-gray-700 dark:ring-white/[0.06]",
 				"sm:rounded-2xl",
 				banner.aspectClass,
 				"sm:aspect-[343/90] md:aspect-[343/84] lg:aspect-[343/80] xl:aspect-[343/76]",
@@ -26,7 +29,7 @@ export const PromoBannerCard = memo(function PromoBannerCard({
 		>
 			<Image
 				src={banner.src}
-				alt={banner.alt}
+				alt={alt}
 				fill
 				priority={priority}
 				quality={90}
@@ -38,7 +41,7 @@ export const PromoBannerCard = memo(function PromoBannerCard({
 	);
 
 	const linkClassName =
-		"block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 sm:rounded-2xl dark:focus-visible:ring-offset-gray-900";
+		"block w-full max-w-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:rounded-2xl";
 
 	if (banner.external) {
 		return (
@@ -47,7 +50,7 @@ export const PromoBannerCard = memo(function PromoBannerCard({
 				target="_blank"
 				rel="noopener noreferrer"
 				className={linkClassName}
-				aria-label={banner.alt}
+				aria-label={alt}
 			>
 				{card}
 			</Link>
@@ -55,7 +58,7 @@ export const PromoBannerCard = memo(function PromoBannerCard({
 	}
 
 	return (
-		<Link href={banner.href} className={linkClassName} aria-label={banner.alt}>
+		<Link href={banner.href} className={linkClassName} aria-label={alt}>
 			{card}
 		</Link>
 	);

@@ -4,11 +4,13 @@ import type {
     ItemsSearchApiResponse,
 } from "@/features/brands/types/brands.types";
 
-function itemsSearchHeaders(): HeadersInit {
+function itemsSearchHeaders(lang: "ar" | "en"): HeadersInit {
     return {
         Accept: "application/json",
         "Content-Type": "application/json; charset=UTF-8",
-        "X-localization": "ar",
+        "Accept-Language": lang,
+        "X-localization": lang,
+        lang,
         zoneId: process.env.ZONE_ID!,
         "zone-id": process.env.ZONE_ID!,
         moduleId: process.env.MODULE_ID ?? "3",
@@ -20,6 +22,7 @@ function itemsSearchHeaders(): HeadersInit {
 
 export async function getBrandItems(
     brandId: string,
+    lang: "ar" | "en",
     page = 1,
     limit = 200
 ): Promise<{ items: BrandItem[]; total: number }> {
@@ -32,10 +35,10 @@ export async function getBrandItems(
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/items/search?${params}`,
         {
-            headers: itemsSearchHeaders(),
+            headers: itemsSearchHeaders(lang),
             next: {
                 revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
-                tags: ["brands", `brand-${brandId}-items`],
+                tags: ["brands", `brand-${brandId}-items`, `brand-${brandId}-items-${lang}`],
             },
         }
     );

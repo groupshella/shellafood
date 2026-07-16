@@ -34,8 +34,8 @@ export function PriceTag({ amount, size = "lg", className }: PriceTagProps) {
 		<span
 			className={[
 				isLarge
-					? "text-lg font-bold leading-none tracking-tight text-gray-900 dark:text-gray-100 sm:text-xl md:text-[22px]"
-					: "text-xs text-gray-400 dark:text-gray-500 sm:text-[13px]",
+					? "text-lg font-bold leading-none tracking-tight text-foreground sm:text-xl md:text-[22px] lg:text-2xl"
+					: "text-xs text-muted sm:text-[13px] md:text-sm",
 				className,
 			]
 				.filter(Boolean)

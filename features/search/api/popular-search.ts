@@ -1,15 +1,20 @@
 import { GetPopularSearchResponse, PopularSearchItem } from "@/features/search/types/popular-search.types";
 
-export async function getPopularSearch(moduleId: string): Promise<PopularSearchItem[]> {
+export async function getPopularSearch(
+    moduleId: string,
+    lang: "ar" | "en"
+): Promise<PopularSearchItem[]> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v2/search/popular?limit=10`, {
         headers: {
             Accept: "application/json",
-            "X-Localization": "ar",
+            "X-Localization": lang,
+            "Accept-Language": lang,
+            lang,
             moduleId,
         },
         next: {
             revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
-            tags: ["popular-search", "search-data", `popular-search-${moduleId}`],
+            tags: ["popular-search", "search-data", `popular-search-${moduleId}`, `popular-search-${moduleId}-${lang}`],
         },
     });
 

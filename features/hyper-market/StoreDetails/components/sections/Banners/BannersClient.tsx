@@ -7,9 +7,20 @@ import "swiper/css/pagination";
 import { HyperMarketBanner } from "@/features/hyper-market/StoreDetails/types/banners.types";
 import { BannerSlide } from "./BannerSlide";
 
-export function BannersClient({ banners }: { banners: HyperMarketBanner[] }) {
+export function BannersClient({
+    banners,
+    isArabic,
+}: {
+    banners: HyperMarketBanner[];
+    isArabic: boolean;
+}) {
     return (
-        <section aria-label="العروض المميزة" className="w-full min-w-0 px-3 sm:px-5 lg:px-6">
+        <section
+            aria-label={isArabic ? "العروض المميزة" : "Featured offers"}
+            className="w-full min-w-0 px-3 sm:px-5 lg:px-6"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
+        >
             <Swiper
                 className="banner-swiper"
                 modules={[Autoplay, Pagination]}
@@ -19,7 +30,11 @@ export function BannersClient({ banners }: { banners: HyperMarketBanner[] }) {
             >
                 {banners.map((banner, i) => (
                     <SwiperSlide key={banner.id}>
-                        <BannerSlide banner={banner} priority={i === 0} />
+                        <BannerSlide
+                            banner={banner}
+                            priority={i === 0}
+                            isArabic={isArabic}
+                        />
                     </SwiperSlide>
                 ))}
             </Swiper>

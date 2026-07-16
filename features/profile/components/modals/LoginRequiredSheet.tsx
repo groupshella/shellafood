@@ -11,6 +11,7 @@ interface LoginRequiredSheetProps {
     onClose: () => void;
     loginHref?: string;
     onLogin?: () => void;
+    isArabic?: boolean;
 }
 
 export function LoginRequiredSheet({
@@ -19,13 +20,18 @@ export function LoginRequiredSheet({
     onClose,
     loginHref = "/auth",
     onLogin,
+    isArabic = true,
 }: LoginRequiredSheetProps) {
     return (
         <CheckoutBottomSheet
             isOpen={isOpen}
             isVisible={isVisible}
             onClose={onClose}
-            ariaLabel={PROFILE_STRINGS.loginRequiredTitle}
+            ariaLabel={
+                isArabic
+                    ? PROFILE_STRINGS.loginRequiredTitle.ar
+                    : PROFILE_STRINGS.loginRequiredTitle.en
+            }
             showCloseButton
         >
             <div className="mx-auto flex w-full max-w-md flex-col items-center px-2 pb-8 pt-4 text-center sm:px-4">
@@ -36,13 +42,17 @@ export function LoginRequiredSheet({
                     </div>
                 </div>
                 <h2 className="mb-2 text-[17px] font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
-                    {PROFILE_STRINGS.loginRequiredTitle}
+                    {isArabic
+                        ? PROFILE_STRINGS.loginRequiredTitle.ar
+                        : PROFILE_STRINGS.loginRequiredTitle.en}
                 </h2>
                 <p className="mb-6 text-[14px] leading-relaxed text-gray-500 dark:text-gray-400 sm:text-[15px]">
-                    {PROFILE_STRINGS.loginRequiredSubtitle}
+                    {isArabic
+                        ? PROFILE_STRINGS.loginRequiredSubtitle.ar
+                        : PROFILE_STRINGS.loginRequiredSubtitle.en}
                 </p>
                 <PrimaryButton href={onLogin ? undefined : loginHref} onClick={onLogin}>
-                    {PROFILE_STRINGS.login}
+                    {isArabic ? PROFILE_STRINGS.login.ar : PROFILE_STRINGS.login.en}
                 </PrimaryButton>
             </div>
         </CheckoutBottomSheet>

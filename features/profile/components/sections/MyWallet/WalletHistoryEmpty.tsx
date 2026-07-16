@@ -4,7 +4,7 @@ import { WALLET_STRINGS } from "@/features/profile/constants/wallet.strings";
 
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
 
-export function WalletHistoryEmpty() {
+export function WalletHistoryEmpty({ isArabic = true }: { isArabic?: boolean }) {
     return (
         <div className="flex w-full flex-1 flex-col items-center justify-center gap-5 py-10 sm:py-14">
             <div
@@ -24,7 +24,7 @@ export function WalletHistoryEmpty() {
                 className="max-w-[280px] text-center text-[16px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-[17px]"
                 style={TAJAWAL}
             >
-                {WALLET_STRINGS.emptyMessage}
+                {isArabic ? WALLET_STRINGS.emptyMessage.ar : WALLET_STRINGS.emptyMessage.en}
             </p>
         </div>
     );

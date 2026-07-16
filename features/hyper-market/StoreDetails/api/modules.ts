@@ -1,16 +1,18 @@
 import { GetStoreModulesResponse, StoreModule } from "@/features/hyper-market/StoreDetails/types/modules.types";
 
-export async function getStoreModules(): Promise<StoreModule[]> {
+export async function getStoreModules(lang: "ar" | "en"): Promise<StoreModule[]> {
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v2/modules?zone_id=${process.env.ZONE_ID}`,
         {
             headers: {
                 Accept: "application/json",
-                "X-Localization": "ar",
+                "X-Localization": lang,
+                "Accept-Language": lang,
+                lang,
             },
             next: {
                 revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
-                tags: ["modules", "hyper-market-data"],
+                tags: ["modules", "hyper-market-data", `hyper-market-data-${lang}`],
             },
         }
     );

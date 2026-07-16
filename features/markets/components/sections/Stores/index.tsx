@@ -7,18 +7,26 @@ import StoresSkeleton from "./skeleton";
 const PAGE_SIZE = 30;
 
 export const Stores = Object.assign(
-    async function Stores({ moduleId }: { moduleId: string }) {
-        const [categories, initialStores] = await Promise.all([
-            getCategories(moduleId),
-            getStores(moduleId, DEFAULT_FILTERS, PAGE_SIZE, 1),
-        ]);
+	async function Stores({
+		moduleId,
+		isArabic,
+	}: {
+		moduleId: string;
+		isArabic: boolean;
+	}) {
+		const lang = isArabic ? "ar" : "en";
+		const [categories, initialStores] = await Promise.all([
+			getCategories(moduleId, lang),
+			getStores(moduleId, DEFAULT_FILTERS, lang, PAGE_SIZE, 1),
+		]);
 
-        return (
-            <StoresClient
-                categories={categories}
-                initialStores={initialStores}
-            />
-        );
-    },
-    { skeleton: StoresSkeleton },
+		return (
+			<StoresClient
+				categories={categories}
+				initialStores={initialStores}
+				isArabic={isArabic}
+			/>
+		);
+	},
+	{ skeleton: StoresSkeleton },
 );

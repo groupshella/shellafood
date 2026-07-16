@@ -5,18 +5,20 @@ import { StatisticsClient } from "./StatisticsClient";
 import StatisticsSkeleton from "./skeleton";
 
 export const Statistics = Object.assign(
-    async function Statistics() {
-        const [initialAnalytics, initialRecorded] = await Promise.all([
-            getGeneralAnalytics("week"),
-            getRecordedAnalytics(),
-        ]);
+	async function Statistics({ isArabic }: { isArabic: boolean }) {
+		const lang = isArabic ? "ar" : "en";
+		const [initialAnalytics, initialRecorded] = await Promise.all([
+			getGeneralAnalytics("week", lang),
+			getRecordedAnalytics(lang),
+		]);
 
-        return (
-            <StatisticsClient
-                initialAnalytics={initialAnalytics}
-                initialRecorded={initialRecorded}
-            />
-        );
-    },
-    { skeleton: StatisticsSkeleton },
+		return (
+			<StatisticsClient
+				initialAnalytics={initialAnalytics}
+				initialRecorded={initialRecorded}
+				isArabic={isArabic}
+			/>
+		);
+	},
+	{ skeleton: StatisticsSkeleton },
 );

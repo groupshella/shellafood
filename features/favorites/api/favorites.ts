@@ -14,17 +14,17 @@ import {
     getFavoritesApiUrl,
 } from "@/features/favorites/lib/wishlist-request";
 
-const fetchWishlistJson = cache(async (): Promise<unknown> => {
+const fetchWishlistJson = cache(async (lang: "ar" | "en"): Promise<unknown> => {
     // No moduleId — wishlist spans all modules; scoping to MODULE_ID returns
     // other-module stores as `{ store: null, unavailable: true }`.
-    const { headers, token } = await buildWishlistHeaders();
+    const { headers, token } = await buildWishlistHeaders({ lang });
 
     if (!token) return { item: [], store: [] };
 
     const res = await fetch(getFavoritesApiUrl("/api/v1/customer/wish-list"), {
         headers,
         cache: "no-store",
-        next: { tags: ["wishlist"] },
+        next: { tags: ["wishlist", `wishlist-${lang}`] },
     });
 
     if (!res.ok) throw new Error(`Failed to fetch wishlist: ${res.status}`);
@@ -32,10 +32,11 @@ const fetchWishlistJson = cache(async (): Promise<unknown> => {
 });
 
 async function fetchOrderListJson(
+    lang: "ar" | "en",
     offset: number,
     limit: number
 ): Promise<OrderListApiResponse> {
-    const { headers, token } = await buildWishlistHeaders();
+    const { headers, token } = await buildWishlistHeaders({ lang });
 
     if (!token) {
         return { total_size: 0, limit: String(limit), offset, orders: [] };
@@ -48,7 +49,7 @@ async function fetchOrderListJson(
         {
             headers,
             cache: "no-store",
-            next: { tags: ["favorite-orders"] },
+            next: { tags: ["favorite-orders", `favorite-orders-${lang}`] },
         }
     );
 
@@ -56,20 +57,25 @@ async function fetchOrderListJson(
     return res.json();
 }
 
-export async function getFavoriteProducts(): Promise<FavoriteProduct[]> {
-    const json = await fetchWishlistJson();
+export async function getFavoriteProducts(
+    lang: "ar" | "en"
+): Promise<FavoriteProduct[]> {
+    const json = await fetchWishlistJson(lang);
     return mapWishlistResponse(json).products;
 }
 
-export async function getFavoriteStores(): Promise<FavoriteStore[]> {
-    const json = await fetchWishlistJson();
+export async function getFavoriteStores(
+    lang: "ar" | "en"
+): Promise<FavoriteStore[]> {
+    const json = await fetchWishlistJson(lang);
     return mapWishlistResponse(json).stores;
 }
 
 export async function getFavoriteOrders(
+    lang: "ar" | "en",
     offset = 1,
     limit = 20
 ): Promise<FavoriteOrder[]> {
-    const json = await fetchOrderListJson(offset, limit);
+    const json = await fetchOrderListJson(lang, offset, limit);
     return mapFavoriteOrdersResponse(json);
 }

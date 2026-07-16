@@ -5,8 +5,9 @@ function normalizeDate(value: string): string {
 }
 
 function mapInstallments(value: string): string {
-    if (value === "نعم") return "1";
-    if (value === "لا") return "0";
+    const normalized = value.trim().toLowerCase();
+    if (value === "نعم" || normalized === "yes" || normalized === "1") return "1";
+    if (value === "لا" || normalized === "no" || normalized === "0") return "0";
     return value.trim();
 }
 

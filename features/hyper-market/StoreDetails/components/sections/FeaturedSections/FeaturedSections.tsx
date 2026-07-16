@@ -13,13 +13,13 @@ const H_SCROLL =
 const PRODUCT_ITEM =
     "flex w-[calc((100%-1rem)/2.4)] min-w-[6rem] max-w-[7rem] shrink-0 snap-start self-stretch sm:w-[calc((100%-1.5rem)/3.2)] sm:max-w-[8.5rem] md:max-w-[10rem] lg:w-[calc((100%-2.5rem)/5.2)] lg:max-w-[11rem]";
 
-function StoreLogo({ logoUrl }: { logoUrl: string }) {
+function StoreLogo({ logoUrl, isArabic }: { logoUrl: string; isArabic: boolean }) {
     if (!logoUrl) return null;
     return (
-        <div className="absolute -top-5 start-4 z-10 h-12 w-12 overflow-hidden rounded-xl border-2 border-white bg-white shadow-md dark:border-gray-700 dark:bg-gray-800 sm:-top-6 sm:h-14 sm:w-14">
+        <div className="absolute -top-5 start-4 z-10 h-12 w-12 overflow-hidden rounded-xl border-2 border-background bg-card shadow-md sm:-top-6 sm:h-14 sm:w-14">
             <Image
                 src={logoUrl}
-                alt="شعار المتجر"
+                alt={isArabic ? "شعار المتجر" : "Store logo"}
                 fill
                 className="object-contain p-1"
                 sizes="56px"
@@ -62,20 +62,22 @@ function FeaturedShell({
     logoUrl,
     bgColor,
     accentColor,
+    isArabic,
     children,
 }: {
     slogan: string;
     logoUrl: string;
     bgColor: string;
     accentColor: string;
+    isArabic: boolean;
     children: React.ReactNode;
 }) {
     return (
         <div className="relative mx-3 mb-6 pt-5 sm:mx-4 sm:mb-7 sm:pt-6 lg:mx-6">
-            <StoreLogo logoUrl={logoUrl} />
+            <StoreLogo logoUrl={logoUrl} isArabic={isArabic} />
 
             <section
-                className="overflow-hidden rounded-2xl border border-black/[0.06] shadow-sm dark:border-white/[0.08]"
+                className="overflow-hidden rounded-2xl border border-border shadow-sm"
                 style={{ backgroundColor: bgColor }}
             >
                 <CardHeader slogan={slogan} accentColor={accentColor} />
@@ -90,13 +92,20 @@ function FeaturedShell({
     );
 }
 
-export function FeaturedDiscounted({ data }: { data: FeaturedStoreDiscounted }) {
+export function FeaturedDiscounted({
+    data,
+    isArabic = true,
+}: {
+    data: FeaturedStoreDiscounted;
+    isArabic?: boolean;
+}) {
     return (
         <FeaturedShell
             slogan={data.slogan}
             logoUrl={data.logo_url}
             bgColor="#1A4731"
             accentColor="#15803D"
+            isArabic={isArabic}
         >
             {data.products.map((product: DiscountedProduct) => (
                 <div key={product.id} className={PRODUCT_ITEM}>
@@ -106,6 +115,7 @@ export function FeaturedDiscounted({ data }: { data: FeaturedStoreDiscounted }) 
                         imageUrl={product.full_image_url}
                         price={product.discounted_price}
                         originalPrice={product.original_price}
+                        isArabic={isArabic}
                     />
                 </div>
             ))}
@@ -113,13 +123,20 @@ export function FeaturedDiscounted({ data }: { data: FeaturedStoreDiscounted }) 
     );
 }
 
-export function FeaturedProducts({ data }: { data: FeaturedStoreProducts }) {
+export function FeaturedProducts({
+    data,
+    isArabic = true,
+}: {
+    data: FeaturedStoreProducts;
+    isArabic?: boolean;
+}) {
     return (
         <FeaturedShell
             slogan={data.slogan}
             logoUrl={data.logo_url}
             bgColor="#7F1D1D"
             accentColor="#B91C1C"
+            isArabic={isArabic}
         >
             {data.products.map((product: Product) => (
                 <div key={product.id} className={PRODUCT_ITEM}>
@@ -128,6 +145,7 @@ export function FeaturedProducts({ data }: { data: FeaturedStoreProducts }) {
                         name={product.name}
                         imageUrl={product.full_image_url}
                         price={product.price}
+                        isArabic={isArabic}
                     />
                 </div>
             ))}
@@ -135,7 +153,15 @@ export function FeaturedProducts({ data }: { data: FeaturedStoreProducts }) {
     );
 }
 
-export function CategoryProductsRow({ products, title }: { products: Product[]; title: string }) {
+export function CategoryProductsRow({
+    products,
+    title,
+    isArabic = true,
+}: {
+    products: Product[];
+    title: string;
+    isArabic?: boolean;
+}) {
     if (!products.length) return null;
 
     return (
@@ -144,7 +170,9 @@ export function CategoryProductsRow({ products, title }: { products: Product[]; 
             style={{ background: "linear-gradient(to top, #EBFEEB, #30913F)" }}
         >
             <div className="flex items-center justify-between px-4 pb-3 sm:px-6">
-                <h2 className="text-sm font-bold text-white drop-shadow-sm sm:text-base">{title}</h2>
+                <h2 className="text-sm font-bold text-white drop-shadow-sm sm:text-base">
+                    {title}
+                </h2>
             </div>
             <div className={`${H_SCROLL} px-4 sm:px-6`} dir="ltr">
                 {products.map((product) => (
@@ -154,6 +182,7 @@ export function CategoryProductsRow({ products, title }: { products: Product[]; 
                             name={product.name}
                             imageUrl={product.full_image_url}
                             price={product.price}
+                            isArabic={isArabic}
                         />
                     </div>
                 ))}

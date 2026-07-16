@@ -3,23 +3,27 @@ import { CategoriesClient } from "./CategoriesClient";
 import CategoriesSkeleton from "./skeleton";
 
 export const Categories = Object.assign(
-    async function Categories({
-        moduleId,
-        moduleName,
-    }: {
-        moduleId: string;
-        moduleName?: string;
-    }) {
-        const categories = await getCategories(moduleId);
-        if (categories.length === 0) return null;
+	async function Categories({
+		moduleId,
+		moduleName,
+		isArabic,
+	}: {
+		moduleId: string;
+		moduleName?: string;
+		isArabic: boolean;
+	}) {
+		const lang = isArabic ? "ar" : "en";
+		const categories = await getCategories(moduleId, lang);
+		if (categories.length === 0) return null;
 
-        return (
-            <CategoriesClient
-                categories={categories}
-                moduleId={moduleId}
-                moduleName={moduleName}
-            />
-        );
-    },
-    { skeleton: CategoriesSkeleton },
+		return (
+			<CategoriesClient
+				categories={categories}
+				moduleId={moduleId}
+				moduleName={moduleName}
+				isArabic={isArabic}
+			/>
+		);
+	},
+	{ skeleton: CategoriesSkeleton },
 );

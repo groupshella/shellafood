@@ -3,6 +3,7 @@ import { getCart } from "@/features/cart/api/cart";
 import { CartProvider } from "@/features/cart/context/CartContext";
 import { MainNavbar } from "@/features/layout/components/MainNavbar";
 import { NotificationProvider } from "@/shared/components/NotificationToast";
+import { isArabicLocale } from "@/shared/lib/locale";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -19,13 +20,15 @@ export default async function MainLayout({
 		redirect("/auth");
 	}
 
-	const cartItems = await getCart();
+	const isArabic = await isArabicLocale();
+	const cartItems = await getCart(isArabic ? "ar" : "en");
+
 
 	return (
 		<NotificationProvider>
 			<CartProvider initialItems={cartItems}>
 				<main className="min-h-screen">{children}</main>
-				<MainNavbar />
+				<MainNavbar isArabic={isArabic} />
 			</CartProvider>
 		</NotificationProvider>
 	);

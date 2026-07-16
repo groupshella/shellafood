@@ -1,16 +1,18 @@
-import { ScrollContainer } from "@/features/home/components/shared/ScrollContainer";
-import { OfferDiscountCard } from "./OfferDiscountCard";
+import { isArabicLocale } from "@/shared/lib/locale";
 import { PromoBannerCard } from "./PromoBannerCard";
-import { OFFER_DISCOUNTS, WEBSITE_BANNER } from "./promo-banners.config";
+import { WEBSITE_BANNER } from "./promo-banners.config";
 
-export function PromoBanners() {
+export async function PromoBanners() {
+	const isArabic = await isArabicLocale();
+
 	return (
-		<>
-
-
-			<section aria-label="موقع شلة" className="min-w-0 pt-2 sm:pt-3 lg:pt-4">
-				<PromoBannerCard banner={WEBSITE_BANNER} priority />
-			</section>
-		</>
+		<section
+			aria-label={isArabic ? "موقع شلة" : "Shella website"}
+			className="min-w-0 pt-2 sm:pt-3 lg:pt-4"
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
+		>
+			<PromoBannerCard banner={WEBSITE_BANNER} priority isArabic={isArabic} />
+		</section>
 	);
 }

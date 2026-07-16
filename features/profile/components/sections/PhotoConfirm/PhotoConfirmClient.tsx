@@ -16,7 +16,7 @@ async function dataUrlToFile(dataUrl: string, filename: string): Promise<File> {
     return new File([blob], filename, { type: blob.type || "image/jpeg" });
 }
 
-export function PhotoConfirmClient() {
+export function PhotoConfirmClient({ isArabic = true }: { isArabic?: boolean }) {
     const router = useRouter();
     const { draft, consumePendingPhoto, setImagePreview, setPendingPhotoFile } =
         useProfileEdit();
@@ -74,7 +74,11 @@ export function PhotoConfirmClient() {
             } catch {
                 /* ignore */
             }
-            setError(PROFILE_STRINGS.updateError);
+            setError(
+                isArabic
+                    ? PROFILE_STRINGS.updateError.ar
+                    : PROFILE_STRINGS.updateError.en,
+            );
         } finally {
             setIsSaving(false);
         }
@@ -82,10 +86,16 @@ export function PhotoConfirmClient() {
 
     if (!ready || !photoSrc) {
         return (
-            <ProfileSubpageShell title={PROFILE_STRINGS.photoTitle}>
+            <ProfileSubpageShell
+                title={
+                    isArabic
+                        ? PROFILE_STRINGS.photoTitle.ar
+                        : PROFILE_STRINGS.photoTitle.en
+                }
+            >
                 <div className="flex min-h-[40vh] items-center justify-center">
                     <p className="text-sm text-[#707784] dark:text-gray-400">
-                        جاري تحميل الصورة...
+                        {isArabic ? "جاري تحميل الصورة..." : "Loading photo..."}
                     </p>
                 </div>
             </ProfileSubpageShell>
@@ -94,10 +104,20 @@ export function PhotoConfirmClient() {
 
     return (
         <ProfileSubpageShell
-            title={PROFILE_STRINGS.photoTitle}
+            title={
+                isArabic
+                    ? PROFILE_STRINGS.photoTitle.ar
+                    : PROFILE_STRINGS.photoTitle.en
+            }
             footer={
                 <PrimaryButton onClick={handleSave} disabled={isSaving}>
-                    {isSaving ? "جاري الحفظ..." : PROFILE_STRINGS.save}
+                    {isSaving
+                        ? isArabic
+                            ? "جاري الحفظ..."
+                            : "Saving..."
+                        : isArabic
+                          ? PROFILE_STRINGS.save.ar
+                          : PROFILE_STRINGS.save.en}
                 </PrimaryButton>
             }
         >

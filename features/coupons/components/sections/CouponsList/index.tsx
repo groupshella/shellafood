@@ -9,24 +9,40 @@ import {
 } from "@/features/coupons/lib/coupon-utils";
 
 export const CouponsList = Object.assign(
-	async function CouponsList() {
+	async function CouponsList({ isArabic }: { isArabic: boolean }) {
+		const lang = isArabic ? "ar" : "en";
 		try {
-			const coupons = await getCoupons();
+			const coupons = await getCoupons(lang);
 
 			if (coupons.length === 0) {
-				return <CouponsEmpty />;
+				return <CouponsEmpty isArabic={isArabic} />;
 			}
 
 			const available = sortCouponsForFirstTab(couponsNotExpiredByDate(coupons));
 			const expired = couponsExpiredByDate(coupons);
 
 			if (available.length === 0 && expired.length === 0) {
-				return <CouponsEmpty />;
+				return <CouponsEmpty isArabic={isArabic} />;
 			}
 
-			return <CouponsListClient available={available} expired={expired} />;
+			return (
+				<CouponsListClient
+					available={available}
+					expired={expired}
+					isArabic={isArabic}
+				/>
+			);
 		} catch {
-			return <CouponsEmpty message="لا يوجد كوبونات في الوقت الحالي" />;
+			return (
+				<CouponsEmpty
+					isArabic={isArabic}
+					message={
+						isArabic
+							? "لا يوجد كوبونات في الوقت الحالي"
+							: "No coupons available right now"
+					}
+				/>
+			);
 		}
 	},
 	{ skeleton: CouponsListSkeleton }

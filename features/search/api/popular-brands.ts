@@ -1,15 +1,20 @@
 import { GetPopularBrandsResponse, PopularBrand } from "@/features/search/types/popular-brands.types";
 
-export async function getPopularBrands(moduleId: string): Promise<PopularBrand[]> {
+export async function getPopularBrands(
+    moduleId: string,
+    lang: "ar" | "en"
+): Promise<PopularBrand[]> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v2/brands`, {
         headers: {
             Accept: "application/json",
-            "X-Localization": "ar",
+            "X-Localization": lang,
+            "Accept-Language": lang,
+            lang,
             moduleId,
         },
         next: {
             revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
-            tags: ["popular-brands", "search-data"],
+            tags: ["popular-brands", "search-data", `search-data-${lang}`],
         },
     });
 

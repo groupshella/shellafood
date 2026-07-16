@@ -21,7 +21,7 @@ async function fetchSearchEndpoint<T>(
     return unwrap(json);
 }
 
-export function useSearch(moduleId: string) {
+export function useSearch(moduleId: string, lang: "ar" | "en") {
     const [results, setResults] = useState<SearchResults | null>(null);
     const [isSearching, setIsSearching] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -33,11 +33,16 @@ export function useSearch(moduleId: string) {
     const accumulatedProducts = useRef<SearchProduct[]>([]);
     const currentQuery = useRef<string>("");
     const moduleIdRef = useRef(moduleId);
+    const langRef = useRef(lang);
     const abortRef = useRef<AbortController | null>(null);
 
     useEffect(() => {
         moduleIdRef.current = moduleId;
     }, [moduleId]);
+
+    useEffect(() => {
+        langRef.current = lang;
+    }, [lang]);
 
     const search = useCallback(async (query: string, nextModuleId?: string) => {
         const trimmed = query.trim();
@@ -65,6 +70,7 @@ export function useSearch(moduleId: string) {
                 module_id: activeModuleId,
                 offset: "1",
                 limit: String(ITEMS_PER_PAGE),
+                lang: langRef.current,
             });
 
             const [itemsData, storesData] = await Promise.all([
@@ -75,7 +81,11 @@ export function useSearch(moduleId: string) {
                 ),
                 fetchSearchEndpoint<SearchStoresResponse>(
                     "/api/search/stores",
-                    new URLSearchParams({ name: trimmed, module_id: activeModuleId }),
+                    new URLSearchParams({
+                        name: trimmed,
+                        module_id: activeModuleId,
+                        lang: langRef.current,
+                    }),
                     controller.signal,
                 ),
             ]);
@@ -116,6 +126,7 @@ export function useSearch(moduleId: string) {
                 module_id: moduleIdRef.current,
                 offset: String(nextPage),
                 limit: String(ITEMS_PER_PAGE),
+                lang: langRef.current,
             });
 
             const itemsData = await fetchSearchEndpoint<SearchItemsResponse>(

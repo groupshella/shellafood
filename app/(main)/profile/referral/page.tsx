@@ -1,17 +1,27 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 
 import { InviteFriends } from "@/features/profile/components/sections/InviteFriends";
-import { REFERRAL_STRINGS } from "@/features/profile/constants/referral.strings";
+import { isArabicLocale } from "@/shared/lib/locale";
 
-export const metadata = {
-    title: `${REFERRAL_STRINGS.pageTitle} | شيلة فود`,
-    description: "ادعُ أصدقاءك واكسب نقاط ومكافآت مع شيلة فود",
-};
+export async function generateMetadata(): Promise<Metadata> {
+	const isArabic = await isArabicLocale();
+	return {
+		title: isArabic
+			? "دعوة الأصدقاء | شيلة فود"
+			: "Invite friends | Shella Food",
+		description: isArabic
+			? "ادعُ أصدقاءك واكسب نقاط ومكافآت مع شيلة فود"
+			: "Invite friends and earn points and rewards with Shella Food",
+	};
+}
 
-export default function ReferralPage() {
-    return (
-        <Suspense fallback={<InviteFriends.skeleton />}>
-            <InviteFriends />
-        </Suspense>
-    );
+export default async function ReferralPage() {
+	const isArabic = await isArabicLocale();
+
+	return (
+		<Suspense fallback={<InviteFriends.skeleton isArabic={isArabic} />}>
+			<InviteFriends isArabic={isArabic} />
+		</Suspense>
+	);
 }

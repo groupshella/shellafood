@@ -9,17 +9,22 @@ import type { AvailableCoupon, Coupon, CouponTab } from "@/features/coupons/type
 type CouponsListClientProps = {
 	available: AvailableCoupon[];
 	expired: Coupon[];
+	isArabic: boolean;
 };
 
-const TABS: { id: CouponTab; label: string }[] = [
-	{ id: "available", label: "المتاحة" },
-	{ id: "expired", label: "منتهية الصلاحية" },
+const TABS: { id: CouponTab; label: { ar: string; en: string } }[] = [
+	{ id: "available", label: { ar: "المتاحة", en: "Available" } },
+	{ id: "expired", label: { ar: "منتهية الصلاحية", en: "Expired" } },
 ];
 
 const CONTENT_PADDING = "px-3 pb-8 pt-4 sm:px-4 sm:pb-10 sm:pt-5 md:px-5 lg:px-6";
 const COUPONS_GRID = "grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:gap-5";
 
-export function CouponsListClient({ available, expired }: CouponsListClientProps) {
+export function CouponsListClient({
+	available,
+	expired,
+	isArabic,
+}: CouponsListClientProps) {
 	const [activeTab, setActiveTab] = useState<CouponTab>("available");
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
@@ -36,11 +41,15 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 	const activeList = activeTab === "available" ? available : expired;
 
 	return (
-		<div dir="rtl" className={`flex flex-col gap-4 sm:gap-5 ${CONTENT_PADDING}`}>
+		<div
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
+			className={`flex flex-col gap-4 sm:gap-5 ${CONTENT_PADDING}`}
+		>
 			<div
 				role="tablist"
-				aria-label="تصفية الكوبونات"
-				className="flex gap-1.5 rounded-2xl bg-gray-100 p-1 dark:bg-gray-800 sm:gap-2 sm:p-1.5 lg:max-w-xl"
+				aria-label={isArabic ? "تصفية الكوبونات" : "Filter coupons"}
+				className="flex gap-1.5 rounded-2xl bg-card p-1 sm:gap-2 sm:p-1.5 lg:max-w-xl"
 			>
 				{TABS.map((tab) => {
 					const isActive = tab.id === activeTab;
@@ -52,13 +61,13 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 							onClick={() => setActiveTab(tab.id)}
 							aria-selected={isActive}
 							className={[
-								"min-h-10 flex-1 rounded-xl py-2.5 text-sm font-bold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 sm:min-h-11 sm:text-[15px]",
+								"min-h-10 flex-1 rounded-xl py-2.5 text-sm font-bold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:min-h-11 sm:text-[15px]",
 								isActive
-									? "bg-[#30913F] text-white shadow-sm"
-									: "text-gray-500 dark:text-gray-400",
+									? "bg-brand text-brand-foreground shadow-sm"
+									: "text-muted",
 							].join(" ")}
 						>
-							{tab.label}
+							{isArabic ? tab.label.ar : tab.label.en}
 						</button>
 					);
 				})}
@@ -67,10 +76,15 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 			{activeList.length === 0 ? (
 				<CouponsEmpty
 					fullPage={false}
+					isArabic={isArabic}
 					message={
 						activeTab === "available"
-							? "لا يوجد كوبونات في الوقت الحالي"
-							: "لا يوجد كوبونات منتهية الصلاحية"
+							? isArabic
+								? "لا يوجد كوبونات في الوقت الحالي"
+								: "No coupons available right now"
+							: isArabic
+								? "لا يوجد كوبونات منتهية الصلاحية"
+								: "No expired coupons"
 					}
 				/>
 			) : (
@@ -83,6 +97,7 @@ export function CouponsListClient({ available, expired }: CouponsListClientProps
 							variant={activeTab}
 							isCopied={copiedCode === coupon.code}
 							onCopyCode={handleCopyCode}
+							isArabic={isArabic}
 						/>
 					))}
 				</div>

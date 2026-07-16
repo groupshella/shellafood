@@ -14,6 +14,7 @@ import {
 } from "@/features/auth/components/shared/AuthPrimitives";
 
 interface ForgotPasswordScreenProps {
+	isArabic: boolean;
 	isLoading?: boolean;
 	error?: string | null;
 	prefillPhone?: string;
@@ -22,6 +23,7 @@ interface ForgotPasswordScreenProps {
 }
 
 const ForgotPasswordScreen = memo(function ForgotPasswordScreen({
+	isArabic,
 	isLoading = false,
 	error,
 	prefillPhone = "",
@@ -42,25 +44,32 @@ const ForgotPasswordScreen = memo(function ForgotPasswordScreen({
 	}, [phone, isValid, onSubmit]);
 
 	return (
-		<AuthShell>
-			<BackHeader onBack={onBack} disabled={isLoading} />
+		<AuthShell isArabic={isArabic}>
+			<BackHeader onBack={onBack} disabled={isLoading} isArabic={isArabic} />
 
-			<AuthTitle>الاستعادة عن طريق</AuthTitle>
+			<AuthTitle>
+				{isArabic ? "الاستعادة عن طريق" : "Recover via"}
+			</AuthTitle>
 
 			<motion.div
 				initial={{ y: 12, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ delay: 0.1, duration: 0.4 }}
-				className="mt-8 flex flex-col gap-4"
+				className="mt-8 flex flex-col gap-4 md:mt-10"
 			>
 				<PhoneField
 					value={phone}
 					onChange={setPhone}
 					onEnter={handleSubmit}
 					disabled={isLoading}
+					isArabic={isArabic}
 				/>
 
-				<HelperRow>سيتم ارسال رمز التحقق الى هاتفك</HelperRow>
+				<HelperRow>
+					{isArabic
+						? "سيتم ارسال رمز التحقق الى هاتفك"
+						: "A verification code will be sent to your phone"}
+				</HelperRow>
 
 				<AnimatePresence>
 					{error && (
@@ -75,9 +84,15 @@ const ForgotPasswordScreen = memo(function ForgotPasswordScreen({
 				</AnimatePresence>
 			</motion.div>
 
-			<div className="mt-auto pt-8">
+			<div className="mt-auto pt-8 md:pt-10">
 				<PrimaryButton onClick={handleSubmit} disabled={!isValid || isLoading}>
-					{isLoading ? "جاري الإرسال..." : "المتابعة"}
+					{isLoading
+						? isArabic
+							? "جاري الإرسال..."
+							: "Sending..."
+						: isArabic
+							? "المتابعة"
+							: "Continue"}
 				</PrimaryButton>
 			</div>
 		</AuthShell>

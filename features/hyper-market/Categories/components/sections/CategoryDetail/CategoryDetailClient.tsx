@@ -125,15 +125,15 @@ function ToolbarBtn({
             className={[
                 "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]",
                 "transition-colors active:scale-95",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 active
-                    ? "bg-[#30913F] text-white"
-                    : "bg-[#EBFEEB] text-[#30913F] dark:bg-[#30913F]/15 dark:text-[#4db860]",
+                    ? "bg-brand text-brand-foreground"
+                    : "bg-brand/10 text-brand",
             ].join(" ")}
         >
             {children}
             {indicator && (
-                <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#30913F] ring-2 ring-white dark:ring-gray-950" />
+                <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand ring-2 ring-background" />
             )}
         </button>
     );
@@ -144,6 +144,7 @@ function ProductsToolbar({
     viewMode,
     hasActiveFilter,
     stickyTop,
+    isArabic,
     onToggleView,
     onOpenFilter,
 }: {
@@ -151,18 +152,26 @@ function ProductsToolbar({
     viewMode: ViewMode;
     hasActiveFilter: boolean;
     stickyTop: number;
+    isArabic: boolean;
     onToggleView: () => void;
     onOpenFilter: () => void;
 }) {
     return (
         <div
-            dir="ltr"
-            className="sticky z-20 flex items-center justify-between gap-3 border-b border-gray-100 bg-white px-3 py-2.5 dark:border-gray-800 dark:bg-gray-900 sm:px-5 lg:px-6"
+            className="sticky z-20 flex items-center justify-between gap-3 border-b border-border bg-background px-3 py-2.5 sm:px-5 lg:px-6"
             style={{ top: stickyTop }}
         >
             <div className="flex items-center gap-2">
                 <ToolbarBtn
-                    label={viewMode === "grid" ? "عرض القائمة" : "عرض الشبكة"}
+                    label={
+                        viewMode === "grid"
+                            ? isArabic
+                                ? "عرض القائمة"
+                                : "List view"
+                            : isArabic
+                              ? "عرض الشبكة"
+                              : "Grid view"
+                    }
                     onClick={onToggleView}
                     active={viewMode === "list"}
                 >
@@ -174,7 +183,7 @@ function ProductsToolbar({
                 </ToolbarBtn>
 
                 <ToolbarBtn
-                    label="تصفية المنتجات"
+                    label={isArabic ? "تصفية المنتجات" : "Filter products"}
                     onClick={onOpenFilter}
                     indicator={hasActiveFilter}
                 >
@@ -182,11 +191,11 @@ function ProductsToolbar({
                 </ToolbarBtn>
             </div>
 
-            <p dir="rtl" className="text-sm font-medium text-[#707784] dark:text-gray-400">
+            <p className="text-sm font-medium text-muted">
                 <span className="tabular-nums">
                     {totalProducts.toLocaleString("en-US")}
                 </span>{" "}
-                منتج
+                {isArabic ? "منتج" : "products"}
             </p>
         </div>
     );
@@ -195,10 +204,12 @@ function ProductsToolbar({
 function SubCategoryTabs({
     subCategories,
     activeId,
+    isArabic,
     onSelect,
 }: {
     subCategories: SubCategory[];
     activeId: number | null;
+    isArabic: boolean;
     onSelect: (id: number) => void;
 }) {
     const barRef = useRef<HTMLDivElement>(null);
@@ -221,10 +232,10 @@ function SubCategoryTabs({
     return (
         <div
             ref={barRef}
-            dir="rtl"
+            dir={isArabic ? "rtl" : "ltr"}
             role="tablist"
-            aria-label="أقسام فرعية"
-            className="sticky z-30 flex h-12 gap-2 overflow-x-auto overscroll-x-contain border-b border-gray-100 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-900 sm:px-5 lg:px-6 scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            aria-label={isArabic ? "أقسام فرعية" : "Subcategories"}
+            className="sticky z-30 flex h-12 gap-2 overflow-x-auto overscroll-x-contain border-b border-border bg-background px-3 py-2 sm:px-5 lg:px-6 scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             style={{ top: CATEGORY_NAV_H }}
         >
             {subCategories.map((sc) => {
@@ -240,8 +251,8 @@ function SubCategoryTabs({
                         className={[
                             "shrink-0 whitespace-nowrap rounded-[13.5px] px-4 py-2 text-xs font-semibold transition-colors sm:text-[13px]",
                             active
-                                ? "bg-[#EBFEEB] text-[#30913F] dark:bg-[#30913F]/15 dark:text-[#4db860]"
-                                : "bg-[#F6F5F8] text-[#707784] dark:bg-gray-800 dark:text-gray-400",
+                                ? "bg-brand/10 text-brand"
+                                : "bg-card text-muted",
                         ].join(" ")}
                     >
                         {sc.name}
@@ -256,10 +267,8 @@ function SubCategorySection({
     subCategory,
     displayProducts,
     sectionRef,
-    onLoadMore,
-    canLoadMore,
-    isLoadingMore,
     viewMode,
+    isArabic,
 }: {
     subCategory: SubCategory;
     displayProducts: CategoryProduct[];
@@ -268,6 +277,7 @@ function SubCategorySection({
     canLoadMore: boolean;
     isLoadingMore: boolean;
     viewMode: ViewMode;
+    isArabic: boolean;
 }) {
     return (
         <section
@@ -276,18 +286,17 @@ function SubCategorySection({
             aria-label={subCategory.name}
             className="pb-3"
         >
-            <div className="bg-white px-3 pt-3 dark:bg-gray-900 sm:px-5 lg:px-6">
-                <h2 className="text-start text-base font-bold text-[#111B18] dark:text-gray-50 sm:text-lg">
+            <div className="bg-background px-3 pt-3 sm:px-5 lg:px-6">
+                <h2 className="text-start text-base font-bold text-foreground sm:text-lg">
                     {subCategory.name}
                 </h2>
             </div>
 
             {displayProducts.length === 0 ? (
-                <p
-                    dir="rtl"
-                    className="px-3 py-8 text-center text-sm text-[#707784] dark:text-gray-500"
-                >
-                    لا توجد منتجات تطابق الفلتر الحالي
+                <p className="px-3 py-8 text-center text-sm text-muted">
+                    {isArabic
+                        ? "لا توجد منتجات تطابق الفلتر الحالي"
+                        : "No products match the current filter"}
                 </p>
             ) : viewMode === "grid" ? (
                 <div className="grid grid-cols-2 gap-2 px-3 pt-2 sm:grid-cols-3 sm:gap-2.5 sm:px-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-3 lg:px-6 xl:grid-cols-5">
@@ -296,6 +305,7 @@ function SubCategorySection({
                             key={product.id}
                             product={product}
                             layout="grid"
+                            isArabic={isArabic}
                         />
                     ))}
                 </div>
@@ -306,11 +316,11 @@ function SubCategorySection({
                             key={product.id}
                             product={product}
                             layout="list"
+                            isArabic={isArabic}
                         />
                     ))}
                 </div>
             )}
-
         </section>
     );
 }
@@ -318,9 +328,10 @@ function SubCategorySection({
 interface Props {
     detail: CategoryDetails;
     storeId: string;
+    isArabic: boolean;
 }
 
-export function CategoryDetailClient({ detail, storeId }: Props) {
+export function CategoryDetailClient({ detail, storeId, isArabic }: Props) {
     const { error: notifyError } = useNotification();
     const hasSubTabs = detail.sub_categories.length > 1;
     const scrollOffset =
@@ -528,11 +539,12 @@ export function CategoryDetailClient({ detail, storeId }: Props) {
     );
 
     return (
-        <div>
+        <div dir={isArabic ? "rtl" : "ltr"} lang={isArabic ? "ar" : "en"}>
             {hasSubTabs && (
                 <SubCategoryTabs
                     subCategories={detail.sub_categories}
                     activeId={activeSubId}
+                    isArabic={isArabic}
                     onSelect={scrollToSection}
                 />
             )}
@@ -542,6 +554,7 @@ export function CategoryDetailClient({ detail, storeId }: Props) {
                 viewMode={viewMode}
                 hasActiveFilter={hasActiveFilter}
                 stickyTop={toolbarStickyTop}
+                isArabic={isArabic}
                 onToggleView={toggleView}
                 onOpenFilter={() => setFilterOpen(true)}
             />
@@ -557,6 +570,7 @@ export function CategoryDetailClient({ detail, storeId }: Props) {
                         canLoadMore={Boolean(state?.hasMore) && !hasActiveFilter}
                         isLoadingMore={Boolean(state?.isLoadingMore)}
                         viewMode={viewMode}
+                        isArabic={isArabic}
                     />
                 ))}
             </div>
@@ -565,6 +579,7 @@ export function CategoryDetailClient({ detail, storeId }: Props) {
                 open={filterOpen}
                 onClose={() => setFilterOpen(false)}
                 initialValues={filter}
+                isArabic={isArabic}
                 onApply={(next) => {
                     setFilter(next);
                     setFilterOpen(false);

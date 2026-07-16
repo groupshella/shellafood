@@ -17,6 +17,7 @@ import { getGuestId } from "@/features/auth/lib/auth.lib";
 import { useRouter } from "next/navigation";
 
 interface LoginScreenProps {
+	isArabic: boolean;
 	isLoading?: boolean;
 	error?: string | null;
 	infoMessage?: string | null;
@@ -104,6 +105,7 @@ const GuestActiveIcon = memo(function GuestActiveIcon() {
 });
 
 const LoginScreen = memo(function LoginScreen({
+	isArabic,
 	isLoading = false,
 	error,
 	infoMessage,
@@ -142,7 +144,7 @@ const LoginScreen = memo(function LoginScreen({
 	}, []);
 
 	return (
-		<AuthShell>
+		<AuthShell isArabic={isArabic}>
 			{onLanguageToggle && (
 				<motion.button
 					type="button"
@@ -150,28 +152,28 @@ const LoginScreen = memo(function LoginScreen({
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.1 }}
 					onClick={onLanguageToggle}
-					className="absolute top-14 end-4 z-10 inline-flex min-h-9 items-center gap-1 rounded-2xl border border-[#C6C8CE] bg-white px-2.5 py-1.5 text-[14px] font-normal text-[#111B18] transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus-visible:ring-offset-gray-900 sm:top-16"
-					aria-label="تغيير اللغة"
+					className="absolute top-14 end-4 z-10 inline-flex min-h-9 items-center gap-1 rounded-2xl border border-[#C6C8CE] bg-background px-2.5 py-1.5 text-[14px] font-normal text-foreground transition-colors hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:top-16 md:top-20 md:end-6 lg:end-8"
+					aria-label={isArabic ? "تغيير اللغة" : "Change language"}
 				>
 					<GlobeIcon />
-					English
+					{isArabic ? "English" : "العربية"}
 				</motion.button>
 			)}
 
-			<div className="mt-8 flex flex-col items-center gap-6 sm:mt-10">
+			<div className="mt-8 flex flex-col items-center gap-6 sm:mt-10 md:mt-12 md:gap-8">
 				<motion.div
 					initial={{ scale: 0.8, opacity: 0 }}
 					animate={{ scale: 1, opacity: 1 }}
 					transition={{ type: "spring", stiffness: 200, damping: 15 }}
-					className="flex h-20 w-20 items-center justify-center rounded-full bg-[#ebebeb]/60 dark:bg-gray-800/80 sm:h-24 sm:w-24"
+					className="flex h-20 w-20 items-center justify-center rounded-full bg-card/60 sm:h-24 sm:w-24 md:h-28 md:w-28"
 				>
 					<Image
 						src="/favicon.ico"
-						alt="شلة"
+						alt={isArabic ? "شلة" : "Shella"}
 						width={64}
 						height={46}
 						sizes="64px"
-						className="h-auto w-14 object-contain sm:w-16"
+						className="h-auto w-14 object-contain sm:w-16 md:w-[72px]"
 						priority
 					/>
 				</motion.div>
@@ -180,13 +182,15 @@ const LoginScreen = memo(function LoginScreen({
 					initial={{ y: 12, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
 					transition={{ delay: 0.15, duration: 0.4 }}
-					className="flex flex-col items-center gap-2"
+					className="flex max-w-xs flex-col items-center gap-2 md:max-w-sm lg:max-w-md"
 				>
-					<h1 className="text-center text-2xl font-bold leading-tight text-[#111B18] dark:text-gray-100 sm:text-[25px]">
-						مرحباً بك
+					<h1 className="text-center text-2xl font-bold leading-tight text-foreground sm:text-[25px] md:text-[28px]">
+						{isArabic ? "مرحباً بك" : "Welcome"}
 					</h1>
-					<p className="max-w-xs text-center text-[15px] font-normal leading-relaxed text-[#555555] dark:text-gray-400 sm:text-[16px]">
-						سجل دخول أو أنشئ حساب جديد للمتابعة
+					<p className="text-center text-[15px] font-normal leading-relaxed text-muted sm:text-[16px] md:text-[17px]">
+						{isArabic
+							? "سجل دخول أو أنشئ حساب جديد للمتابعة"
+							: "Sign in or create a new account to continue"}
 					</p>
 				</motion.div>
 			</div>
@@ -195,19 +199,26 @@ const LoginScreen = memo(function LoginScreen({
 				initial={{ y: 12, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ delay: 0.2, duration: 0.4 }}
-				className="mt-8 flex flex-col gap-4"
+				className="mt-8 flex flex-col gap-4 md:mt-10"
 			>
-				<PhoneField value={phone} onChange={setPhone} onEnter={handleSubmit} disabled={isLoading} />
+				<PhoneField
+					value={phone}
+					onChange={setPhone}
+					onEnter={handleSubmit}
+					disabled={isLoading}
+					isArabic={isArabic}
+				/>
 
 				<div className="flex flex-col gap-2">
 					<PasswordField
-						label="كلمة المرور"
+						label={isArabic ? "كلمة المرور" : "Password"}
 						value={password}
 						onChange={setPassword}
 						onEnter={handleSubmit}
 						show={showPassword}
 						onToggle={handleTogglePassword}
 						disabled={isLoading}
+						isArabic={isArabic}
 					/>
 
 					<div className="flex flex-row-reverse items-center justify-between gap-3">
@@ -215,28 +226,28 @@ const LoginScreen = memo(function LoginScreen({
 							type="button"
 							onClick={onForgotPassword}
 							disabled={isLoading}
-							className="rounded px-1 py-0.5 text-[14px] font-medium text-[#555555] underline transition-colors hover:text-[#30913F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 disabled:opacity-50 dark:text-gray-400 dark:hover:text-[#4aba5a]"
+							className="rounded px-1 py-0.5 text-[14px] font-medium text-muted underline transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 disabled:opacity-50"
 						>
-							نسيت كلمة المرور ؟
+							{isArabic ? "نسيت كلمة المرور ؟" : "Forgot password?"}
 						</button>
 						<label className="flex cursor-pointer select-none items-center gap-2 opacity-80">
 							<button
 								type="button"
 								role="checkbox"
 								aria-checked={remember}
-								aria-label="تذكرني"
+								aria-label={isArabic ? "تذكرني" : "Remember me"}
 								disabled={isLoading}
 								onClick={() => setRemember((r) => !r)}
-								className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] disabled:opacity-50 ${remember
-									? "border-[#30913F] bg-[#30913F]"
-									: "border-[#555555] bg-white dark:border-gray-500 dark:bg-gray-700"
+								className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50 ${remember
+									? "border-brand bg-brand"
+									: "border-muted bg-background"
 									}`}
 							>
 								{remember && (
 									<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
 										<path
 											d="M2.5 7.5 5.5 10.5 11.5 3.5"
-											stroke="#fff"
+											stroke="var(--brand-foreground)"
 											strokeWidth="2"
 											strokeLinecap="round"
 											strokeLinejoin="round"
@@ -244,7 +255,9 @@ const LoginScreen = memo(function LoginScreen({
 									</svg>
 								)}
 							</button>
-							<span className="text-[14px] font-medium text-[#111B18] dark:text-gray-200">تذكرني</span>
+							<span className="text-[14px] font-medium text-foreground">
+								{isArabic ? "تذكرني" : "Remember me"}
+							</span>
 						</label>
 					</div>
 				</div>
@@ -267,76 +280,94 @@ const LoginScreen = memo(function LoginScreen({
 							animate={{ opacity: 1, y: 0 }}
 							exit={{ opacity: 0, y: -4 }}
 						>
-							<AuthErrorMessage error={error} />
+							<AuthErrorMessage error={error} isArabic={isArabic} />
 						</motion.div>
 					)}
 				</AnimatePresence>
 			</motion.div>
 
-			<div className="mt-8 flex w-full flex-col gap-3">
+			<div className="mt-8 flex w-full flex-col gap-3 md:mt-10 md:gap-4">
 				<PrimaryButton onClick={handleSubmit} disabled={!isValid || isLoading}>
-					{isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+					{isLoading
+						? isArabic
+							? "جاري تسجيل الدخول..."
+							: "Signing in..."
+						: isArabic
+							? "تسجيل الدخول"
+							: "Sign in"}
 				</PrimaryButton>
 
 				<SecondaryButton
 					onClick={hasGuestId ? () => router.push("/home") : onGuest}
 					disabled={isLoading}
-					aria-label={hasGuestId ? "أنت تتصفح بالفعل كزائر" : "المتابعة كزائر"}
+					aria-label={
+						hasGuestId
+							? isArabic
+								? "أنت تتصفح بالفعل كزائر"
+								: "You are already browsing as a guest"
+							: isArabic
+								? "المتابعة كزائر"
+								: "Continue as guest"
+					}
 				>
 					<span className="inline-flex items-center justify-center gap-2">
-						<span
-							className={
-								hasGuestId
-									? "text-[#30913F] dark:text-[#4aba5a]"
-									: "text-[#43474F] dark:text-gray-200"
-							}
-						>
+						<span className={hasGuestId ? "text-brand" : "text-muted"}>
 							{hasGuestId ? <GuestActiveIcon /> : <GuestIcon />}
 						</span>
-						{hasGuestId ? "أنت تتصفح كزائر" : "المتابعة كزائر"}
+						{hasGuestId
+							? isArabic
+								? "أنت تتصفح كزائر"
+								: "Browsing as guest"
+							: isArabic
+								? "المتابعة كزائر"
+								: "Continue as guest"}
 					</span>
 				</SecondaryButton>
 
 				<div className="flex items-center gap-3 py-1">
-					<div className="h-px flex-1 bg-[#C6C8CE] dark:bg-gray-600" />
-					<span className="shrink-0 text-[15px] font-normal text-[#555555] dark:text-gray-400 sm:text-[16px]">
-						أو المتابعة بحساب
+					<div className="h-px flex-1 bg-[#C6C8CE]" />
+					<span className="shrink-0 text-[15px] font-normal text-muted sm:text-[16px]">
+						{isArabic ? "أو المتابعة بحساب" : "Or continue with"}
 					</span>
-					<div className="h-px flex-1 bg-[#C6C8CE] dark:bg-gray-600" />
+					<div className="h-px flex-1 bg-[#C6C8CE]" />
 				</div>
 
-				<div className="flex gap-2">
+				<div className="flex gap-2 md:gap-3">
 					<button
 						type="button"
 						onClick={onApple}
 						disabled={isLoading}
-						aria-label="تسجيل الدخول بحساب Apple"
-						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-white text-[#111B18] transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus-visible:ring-gray-500"
+						aria-label={
+							isArabic ? "تسجيل الدخول بحساب Apple" : "Sign in with Apple"
+						}
+						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-background text-foreground transition-colors hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						<AppleIcon />
-						<span className="text-[14px] font-medium text-[#555555] dark:text-gray-300">Apple</span>
+						<span className="text-[14px] font-medium text-muted">Apple</span>
 					</button>
 					<button
 						type="button"
 						onClick={onGoogle}
 						disabled={isLoading}
-						aria-label="تسجيل الدخول بحساب Google"
-						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-white transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus-visible:ring-gray-500"
+						aria-label={
+							isArabic ? "تسجيل الدخول بحساب Google" : "Sign in with Google"
+						}
+						className="flex h-12 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#C6C8CE] bg-background transition-colors hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						<GoogleIcon />
-						<span className="text-[14px] font-medium text-[#555555] dark:text-gray-300">Google</span>
+						<span className="text-[14px] font-medium text-muted">Google</span>
 					</button>
 				</div>
 
-				<p className="pt-2 text-center text-[14px] font-medium text-[#111B18] dark:text-gray-300">
-					ليس لديك حساب؟{" "}
+				<p className="pt-2 text-center text-[14px] font-medium text-foreground">
+					{isArabic ? "ليس لديك حساب؟" : "Don't have an account?"}{" "}
 					<button
 						type="button"
 						onClick={onRegister}
 						disabled={isLoading}
-						className="rounded font-bold text-[#30913F] transition-colors hover:text-[#2a8036] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 disabled:opacity-50 dark:hover:text-[#4aba5a]"
+						className="rounded font-bold text-brand transition-colors hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 disabled:opacity-50"
 					>
-						إنشاء حساب
+						{isArabic ? "إنشاء حساب" : "Create account"}
 					</button>
 				</p>
 			</div>

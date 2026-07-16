@@ -12,11 +12,12 @@ import { AddressListItem } from "../../../types/address.types";
 interface AddressTopbarBannerClientProps {
 	isAuthenticated: boolean;
 	addresses: AddressListItem[];
+	isArabic: boolean;
 	className?: string;
 }
 
 const pillClass =
-	"inline-flex max-w-full min-h-[36px] items-center gap-1.5 rounded-lg bg-[#EBFEEB] px-2.5 py-1.5 text-start transition-colors hover:bg-[#dff8df] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 active:scale-[0.98] dark:bg-[#1a3d24] dark:hover:bg-[#224d2e] dark:focus-visible:ring-offset-gray-900 sm:min-h-[40px] sm:gap-2 sm:px-3 md:max-w-md lg:max-w-lg";
+	"inline-flex max-w-full min-h-[36px] items-center gap-1.5 rounded-lg bg-brand/10 px-2.5 py-1.5 text-start transition-colors hover:bg-brand/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] sm:min-h-[40px] sm:gap-2 sm:px-3 md:max-w-md lg:max-w-lg";
 
 function LocationPill({
 	children,
@@ -32,11 +33,11 @@ function LocationPill({
 	const content = (
 		<>
 			<MapPin
-				className="h-4 w-4 shrink-0 text-[#292D32] dark:text-[#6fcf87] sm:h-[18px] sm:w-[18px]"
+				className="h-4 w-4 shrink-0 text-foreground sm:h-[18px] sm:w-[18px]"
 				strokeWidth={2}
 				aria-hidden
 			/>
-			<span className="min-w-0 truncate text-xs font-bold leading-snug text-[#111B18] dark:text-gray-100 sm:text-[12px] md:text-sm">
+			<span className="min-w-0 truncate text-xs font-bold leading-snug text-foreground sm:text-[12px] md:text-sm">
 				{children}
 			</span>
 		</>
@@ -66,12 +67,16 @@ function LocationPill({
 export function AddressTopbarBannerClient({
 	isAuthenticated,
 	addresses,
+	isArabic,
 	className = "",
 }: AddressTopbarBannerClientProps) {
 	const [isOpen, setIsOpen] = useState(false);
-	const { selectedAddress, selectedId, setSelectedAddressId } = useSelectedAddress(addresses);
+	const { selectedAddress, selectedId, setSelectedAddressId } =
+		useSelectedAddress(addresses);
 
-	const placeholder = "انضم إلينا ، واستمتع بخدمات شلة";
+	const placeholder = isArabic
+		? "انضم إلينا ، واستمتع بخدمات شلة"
+		: "Join us and enjoy Shella services";
 
 	const handleOpen = useCallback(() => {
 		setIsOpen(true);
@@ -83,7 +88,11 @@ export function AddressTopbarBannerClient({
 
 	if (!isAuthenticated) {
 		return (
-			<div className={`flex min-w-0 justify-start ${className}`}>
+			<div
+				dir={isArabic ? "rtl" : "ltr"}
+				lang={isArabic ? "ar" : "en"}
+				className={`flex min-w-0 justify-start ${className}`}
+			>
 				<LocationPill href="/auth" ariaLabel={placeholder}>
 					{placeholder}
 				</LocationPill>
@@ -92,15 +101,27 @@ export function AddressTopbarBannerClient({
 	}
 
 	const selectedLine = selectedAddress
-		? formatAddressLine(selectedAddress)
+		? formatAddressLine(selectedAddress, isArabic)
 		: placeholder;
 
 	return (
 		<>
-			<div className={`flex min-w-0 justify-start ${className}`}>
+			<div
+				dir={isArabic ? "rtl" : "ltr"}
+				lang={isArabic ? "ar" : "en"}
+				className={`flex min-w-0 justify-start ${className}`}
+			>
 				<LocationPill
 					onClick={handleOpen}
-					ariaLabel={selectedAddress ? `العنوان المحدد: ${selectedLine}` : "اختر عنوان التوصيل"}
+					ariaLabel={
+						selectedAddress
+							? isArabic
+								? `العنوان المحدد: ${selectedLine}`
+								: `Selected address: ${selectedLine}`
+							: isArabic
+								? "اختر عنوان التوصيل"
+								: "Choose delivery address"
+					}
 				>
 					{selectedLine}
 				</LocationPill>
@@ -112,6 +133,7 @@ export function AddressTopbarBannerClient({
 				addresses={addresses}
 				selectedId={selectedId}
 				onSelect={setSelectedAddressId}
+				isArabic={isArabic}
 			/>
 		</>
 	);

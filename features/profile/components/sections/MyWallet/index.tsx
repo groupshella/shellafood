@@ -6,19 +6,21 @@ import { MyWalletClient } from "./MyWalletClient";
 import MyWalletSkeleton from "./skeleton";
 
 export const MyWallet = Object.assign(
-    async function MyWallet() {
-        const [user, history] = await Promise.all([
-            getProfileUser(),
-            getWalletTransactions(),
-        ]);
-        if (!user) redirect("/auth");
+	async function MyWallet({ isArabic }: { isArabic: boolean }) {
+		const lang = isArabic ? "ar" : "en";
+		const [user, history] = await Promise.all([
+			getProfileUser(),
+			getWalletTransactions(0, 10, "all", lang),
+		]);
+		if (!user) redirect("/auth");
 
-        return (
-            <MyWalletClient
-                balance={user.wallet_balance ?? 0}
-                history={history}
-            />
-        );
-    },
-    { skeleton: MyWalletSkeleton },
+		return (
+			<MyWalletClient
+				balance={user.wallet_balance ?? 0}
+				history={history}
+				isArabic={isArabic}
+			/>
+		);
+	},
+	{ skeleton: MyWalletSkeleton },
 );

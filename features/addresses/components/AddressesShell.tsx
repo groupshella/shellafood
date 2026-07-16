@@ -5,34 +5,43 @@ import { ChevronRight, Plus } from "lucide-react";
 
 interface AddressesShellProps {
 	title: string;
+	isArabic: boolean;
 	showAddButton?: boolean;
 	children: React.ReactNode;
 }
 
 const iconButtonClass =
-	"flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 sm:h-11 sm:w-11";
+	"flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:h-11 sm:w-11 md:h-12 md:w-12";
 
 export function AddressesShell({
 	title,
+	isArabic,
 	showAddButton = false,
 	children,
 }: AddressesShellProps) {
 	const router = useRouter();
 
 	return (
-		<div className="flex min-h-dvh min-w-0 flex-col overflow-x-hidden bg-gray-50 dark:bg-gray-900">
-			<header className="sticky top-0 z-10 border-b border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900">
+		<div
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
+			className="flex min-h-dvh min-w-0 flex-col overflow-x-hidden bg-card"
+		>
+			<header className="sticky top-0 z-10 border-b border-border bg-background">
 				<div className="mx-auto flex w-full max-w-lg min-w-0 items-center justify-between gap-2 px-3 py-2.5 sm:max-w-xl sm:gap-3 sm:px-5 sm:py-4 md:max-w-2xl lg:max-w-3xl lg:px-6 xl:max-w-4xl">
 					<button
 						type="button"
 						onClick={() => router.push("/home")}
-						className={`${iconButtonClass} active:bg-gray-100 dark:active:bg-gray-800`}
-						aria-label="رجوع"
+						className={`${iconButtonClass} active:bg-card`}
+						aria-label={isArabic ? "رجوع" : "Back"}
 					>
-						<ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300 sm:h-6 sm:w-6" aria-hidden />
+						<ChevronRight
+							className={`h-5 w-5 text-foreground sm:h-6 sm:w-6 ${isArabic ? "" : "-scale-x-100"}`}
+							aria-hidden
+						/>
 					</button>
 
-					<h1 className="min-w-0 truncate text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg md:text-xl">
+					<h1 className="min-w-0 truncate text-base font-semibold text-foreground sm:text-lg md:text-xl lg:text-2xl">
 						{title}
 					</h1>
 
@@ -40,13 +49,13 @@ export function AddressesShell({
 						<button
 							type="button"
 							onClick={() => router.push("/addresses/add")}
-							className={`${iconButtonClass} bg-[#30913F]/10 active:bg-[#30913F]/20 dark:bg-[#30913F]/20 dark:active:bg-[#30913F]/30`}
-							aria-label="إضافة عنوان"
+							className={`${iconButtonClass} bg-brand/10 active:bg-brand/20`}
+							aria-label={isArabic ? "إضافة عنوان" : "Add address"}
 						>
-							<Plus className="h-5 w-5 text-[#30913F] dark:text-[#3da84f]" aria-hidden />
+							<Plus className="h-5 w-5 text-brand" aria-hidden />
 						</button>
 					) : (
-						<div className="h-10 w-10 shrink-0 sm:h-11 sm:w-11" aria-hidden />
+						<div className="h-10 w-10 shrink-0 sm:h-11 sm:w-11 md:h-12 md:w-12" aria-hidden />
 					)}
 				</div>
 			</header>

@@ -10,88 +10,118 @@ import { ReferralInvitedList } from "@/features/profile/components/shared/referr
 import { ReferralLinkBox } from "@/features/profile/components/shared/referral/ReferralLinkBox";
 import { ReferralSegmentedControl } from "@/features/profile/components/shared/referral/ReferralSegmentedControl";
 import { ReferralStatsCard } from "@/features/profile/components/shared/referral/ReferralStatsCard";
-import { REFERRAL_STRINGS } from "@/features/profile/constants/referral.strings";
 import type { InvitedFriendsData, ReferralTab } from "@/features/profile/types/referral.types";
 
 interface InviteFriendsClientProps {
-    referralLink: string;
-    invitedFriends: InvitedFriendsData;
+	referralLink: string;
+	invitedFriends: InvitedFriendsData;
+	isArabic: boolean;
 }
 
-export function InviteFriendsClient({ referralLink, invitedFriends }: InviteFriendsClientProps) {
-    const [activeTab, setActiveTab] = useState<ReferralTab>("link");
-    const hasInvitedFriends = invitedFriends.groups.length > 0;
+export function InviteFriendsClient({
+	referralLink,
+	invitedFriends,
+	isArabic,
+}: InviteFriendsClientProps) {
+	const [activeTab, setActiveTab] = useState<ReferralTab>("link");
+	const hasInvitedFriends = invitedFriends.groups.length > 0;
 
-    return (
-        <ProfileSubpageShell
-            title={REFERRAL_STRINGS.pageTitle}
-            showHeaderBorder={false}
-            relaxedHeader
-        >
-            <div className="mx-auto flex w-full max-w-lg flex-col gap-6 pt-4 sm:max-w-2xl sm:gap-7 sm:pt-6 lg:max-w-3xl">
-                <ReferralSegmentedControl active={activeTab} onChange={setActiveTab} />
+	return (
+		<ProfileSubpageShell
+			title={isArabic ? "دعوة الأصدقاء" : "Invite friends"}
+			isArabic={isArabic}
+			showHeaderBorder={false}
+			relaxedHeader
+		>
+			<div className="mx-auto flex w-full max-w-lg flex-col gap-6 pt-4 sm:max-w-2xl sm:gap-7 sm:pt-6 md:max-w-3xl lg:max-w-4xl xl:max-w-5xl">
+				<ReferralSegmentedControl
+					active={activeTab}
+					onChange={setActiveTab}
+					isArabic={isArabic}
+				/>
 
-                {activeTab === "link" ? (
-                    <InviteLinkTab referralLink={referralLink} />
-                ) : (
-                    <InvitedFriendsTab invitedFriends={invitedFriends} hasInvitedFriends={hasInvitedFriends} />
-                )}
-            </div>
-        </ProfileSubpageShell>
-    );
+				{activeTab === "link" ? (
+					<InviteLinkTab referralLink={referralLink} isArabic={isArabic} />
+				) : (
+					<InvitedFriendsTab
+						invitedFriends={invitedFriends}
+						hasInvitedFriends={hasInvitedFriends}
+						isArabic={isArabic}
+					/>
+				)}
+			</div>
+		</ProfileSubpageShell>
+	);
 }
 
-function InviteLinkTab({ referralLink }: { referralLink: string }) {
-    return (
-        <div className="flex w-full flex-col gap-6 md:grid md:grid-cols-[minmax(220px,0.85fr)_minmax(0,1fr)] md:items-center md:gap-8">
-            <ReferralIllustration />
+function InviteLinkTab({
+	referralLink,
+	isArabic,
+}: {
+	referralLink: string;
+	isArabic: boolean;
+}) {
+	return (
+		<div className="flex w-full flex-col gap-6 md:grid md:grid-cols-[minmax(220px,0.85fr)_minmax(0,1fr)] md:items-center md:gap-8">
+			<ReferralIllustration />
 
-            <div className="flex flex-col gap-5 md:gap-6">
-                <h2 className="text-center text-[18px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100 sm:text-xl md:text-start">
-                    {REFERRAL_STRINGS.inviteTitle}
-                </h2>
+			<div className="flex flex-col gap-5 md:gap-6">
+				<h2 className="text-center text-[18px] font-bold leading-[160%] text-foreground sm:text-xl md:text-start">
+					{isArabic
+						? "ادعُ أصدقاءك والشركات"
+						: "Invite your friends and businesses"}
+				</h2>
 
-                <div className="flex items-start justify-start gap-2">
-                    <Star className="mt-0.5 h-5 w-5 shrink-0 text-[#111B18] dark:text-gray-200 sm:h-6 sm:w-6" strokeWidth={1.5} />
+				<div className="flex items-start justify-start gap-2">
+					<Star
+						className="mt-0.5 h-5 w-5 shrink-0 text-foreground sm:h-6 sm:w-6"
+						strokeWidth={1.5}
+					/>
+					<p className="text-start text-[15px] font-medium leading-[160%] text-foreground sm:text-[16px]">
+						{isArabic
+							? "انسخ الرمز الخاص بك وشاركه مع أصدقائك والشركات"
+							: "Copy your code and share it with friends and businesses"}
+					</p>
+				</div>
 
-                    <p className="text-start text-[15px] font-medium leading-[160%] text-[#111B18] dark:text-gray-200 sm:text-[16px]">
-                        {REFERRAL_STRINGS.inviteDesc}
-                    </p>
-                </div>
+				<div className="flex items-center justify-start gap-2">
+					<CircleDollarSign
+						className="h-5 w-5 shrink-0 text-foreground sm:h-6 sm:w-6"
+						strokeWidth={1.5}
+					/>
+					<p className="text-[17px] font-medium leading-[160%] text-foreground sm:text-[18px]">
+						{isArabic ? "1 الإحالة = 10.00" : "1 referral = 10.00"}{" "}
+						<span className="text-[15px] sm:text-[16px]">﷼</span>
+					</p>
+				</div>
 
-                <div className="flex items-center justify-start gap-2">
-                    <CircleDollarSign className="h-5 w-5 shrink-0 text-[#111B18] dark:text-gray-200 sm:h-6 sm:w-6" strokeWidth={1.5} />
-                    <p className="text-[17px] font-medium leading-[160%] text-[#111B18] dark:text-gray-200 sm:text-[18px]">
-                        {REFERRAL_STRINGS.rewardRate}{" "}
-                        <span className="text-[15px] sm:text-[16px]">{REFERRAL_STRINGS.currencySymbol}</span>
-                    </p>
-                </div>
+				<ReferralLinkBox link={referralLink} isArabic={isArabic} />
+			</div>
 
-                <ReferralLinkBox link={referralLink} />
-            </div>
-
-            <div className="md:col-span-2">
-                <ReferralHowItWorksCard />
-            </div>
-        </div>
-    );
+			<div className="md:col-span-2">
+				<ReferralHowItWorksCard isArabic={isArabic} />
+			</div>
+		</div>
+	);
 }
 
 function InvitedFriendsTab({
-    invitedFriends,
-    hasInvitedFriends,
+	invitedFriends,
+	hasInvitedFriends,
+	isArabic,
 }: {
-    invitedFriends: InvitedFriendsData;
-    hasInvitedFriends: boolean;
+	invitedFriends: InvitedFriendsData;
+	hasInvitedFriends: boolean;
+	isArabic: boolean;
 }) {
-    if (!hasInvitedFriends) {
-        return <ReferralInvitedEmpty />;
-    }
+	if (!hasInvitedFriends) {
+		return <ReferralInvitedEmpty isArabic={isArabic} />;
+	}
 
-    return (
-        <div className="flex w-full flex-col gap-4 sm:gap-5">
-            <ReferralStatsCard stats={invitedFriends.summary} />
-            <ReferralInvitedList groups={invitedFriends.groups} />
-        </div>
-    );
+	return (
+		<div className="flex w-full flex-col gap-4 sm:gap-5">
+			<ReferralStatsCard stats={invitedFriends.summary} isArabic={isArabic} />
+			<ReferralInvitedList groups={invitedFriends.groups} isArabic={isArabic} />
+		</div>
+	);
 }

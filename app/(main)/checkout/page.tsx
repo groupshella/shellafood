@@ -6,8 +6,8 @@ import { getAddresses } from "@/features/addresses/api/addresses";
 import { formatAddressLine } from "@/features/addresses/lib/format-address-line";
 import { getCheckoutStoreSummary } from "@/features/checkout/api/store-summary";
 import {
-    calculateInvoiceTotals,
-    formatCheckoutInvoice,
+	calculateInvoiceTotals,
+	formatCheckoutInvoice,
 } from "@/features/checkout/lib/invoice";
 import { CheckoutShell } from "@/features/checkout/components/CheckoutShell";
 import { CartSummary } from "@/features/checkout/components/sections/CartSummary";
@@ -21,122 +21,132 @@ import { formatSar } from "@/features/checkout/lib/balance";
 import type { CheckoutData } from "@/features/checkout/types/checkout.types";
 import { AuthRequiredScreen } from "@/features/layout/components/AuthRequiredScreen";
 import { isAuthenticated } from "@/features/layout/lib/is-authenticated";
+import { isArabicLocale } from "@/shared/lib/locale";
 
-export const metadata: Metadata = {
-    title: "الدفع | شيلة فود",
-    description: "راجع تفاصيل طلبك واختر طريقة التوصيل والدفع",
-};
+export async function generateMetadata(): Promise<Metadata> {
+	const isArabic = await isArabicLocale();
+	return {
+		title: isArabic ? "الدفع | شيلة فود" : "Checkout | Shella Food",
+		description: isArabic
+			? "راجع تفاصيل طلبك واختر طريقة التوصيل والدفع"
+			: "Review your order details and choose delivery and payment methods",
+	};
+}
 
-async function buildCheckoutData(): Promise<CheckoutData> {
-    const [items, addresses, cookieStore] = await Promise.all([
-        getCart(),
-        getAddresses(),
-        cookies(),
-    ]);
+async function buildCheckoutData(isArabic: boolean): Promise<CheckoutData> {
+	const lang = isArabic ? "ar" : "en";
+	const [items, addresses, cookieStore] = await Promise.all([
+		getCart(lang),
+		getAddresses(lang),
+		cookies(),
+	]);
 
-    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const storeId = items.find((i) => i.store_id)?.store_id ?? 0;
-    const storeSummary = await getCheckoutStoreSummary(storeId);
+	const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+	const storeId = items.find((i) => i.store_id)?.store_id ?? 0;
+	const storeSummary = await getCheckoutStoreSummary(storeId, lang);
 
-    let contactName = "Shella User";
-    let contactPhone = "";
-    let myWalletAmount = 0;
-    let qidhaWalletAmount = 0;
-    try {
-        const raw = cookieStore.get(COOKIE_KEYS.USER)?.value;
-        if (raw) {
-            const user: AuthUser = JSON.parse(raw);
-            contactName = `${user.f_name} ${user.l_name}`.trim() || contactName;
-            contactPhone = user.phone || contactPhone;
-            myWalletAmount = Number(user.wallet_balance ?? 0) || 0;
-            qidhaWalletAmount = Number(user.qidha_wallet_balance ?? 0) || 0;
-        }
-    } catch {
-        // cookie parse failure — defaults are fine
-    }
+	let contactName = "Shella User";
+	let contactPhone = "";
+	let myWalletAmount = 0;
+	let qidhaWalletAmount = 0;
+	try {
+		const raw = cookieStore.get(COOKIE_KEYS.USER)?.value;
+		if (raw) {
+			const user: AuthUser = JSON.parse(raw);
+			contactName = `${user.f_name} ${user.l_name}`.trim() || contactName;
+			contactPhone = user.phone || contactPhone;
+			myWalletAmount = Number(user.wallet_balance ?? 0) || 0;
+			qidhaWalletAmount = Number(user.qidha_wallet_balance ?? 0) || 0;
+		}
+	} catch {
+		// cookie parse failure — defaults are fine
+	}
 
-    const defaultAddress = addresses[0] ?? null;
-    const deliveryAddress = defaultAddress ? formatAddressLine(defaultAddress) : "";
-    const deliveryAddressShort = defaultAddress?.address_label ?? "";
-    const latitude = defaultAddress
-        ? String(defaultAddress.latitude)
-        : (process.env.NEXT_PUBLIC_LATITUDE ?? "24.7136");
-    const longitude = defaultAddress
-        ? String(defaultAddress.longitude)
-        : (process.env.NEXT_PUBLIC_LONGITUDE ?? "46.6753");
+	const defaultAddress = addresses[0] ?? null;
+	const deliveryAddress = defaultAddress
+		? formatAddressLine(defaultAddress, isArabic)
+		: "";
+	const deliveryAddressShort = defaultAddress?.address_label ?? "";
+	const latitude = defaultAddress
+		? String(defaultAddress.latitude)
+		: (process.env.NEXT_PUBLIC_LATITUDE ?? "24.7136");
+	const longitude = defaultAddress
+		? String(defaultAddress.longitude)
+		: (process.env.NEXT_PUBLIC_LONGITUDE ?? "46.6753");
 
-    const deliveryMethod = "delivery" as const;
-    const totals = calculateInvoiceTotals({
-        subtotal,
-        method: deliveryMethod,
-        store: storeSummary,
-        userLatitude: Number(latitude) || 0,
-        userLongitude: Number(longitude) || 0,
-    });
-    const invoice = formatCheckoutInvoice(totals, deliveryMethod);
+	const deliveryMethod = "delivery" as const;
+	const totals = calculateInvoiceTotals({
+		subtotal,
+		method: deliveryMethod,
+		store: storeSummary,
+		userLatitude: Number(latitude) || 0,
+		userLongitude: Number(longitude) || 0,
+	});
+	const invoice = formatCheckoutInvoice(totals, deliveryMethod);
 
-    return {
-        cartCount: items.length,
-        cartItems: items.map((item) => ({
-            id: item.id,
-            name: item.name,
-            imageUrl: item.image_full_url,
-        })),
-        deliveryMethod,
-        deliveryAddress,
-        deliveryAddressShort,
-        walletBalance: formatSar(qidhaWalletAmount),
-        myWalletBalance: formatSar(myWalletAmount),
-        subtotal,
-        invoice,
-        storeSummary,
-        placeOrderPayload: {
-            cart: items.map((item) => ({
-                item_id: item.item_id,
-                quantity: item.quantity,
-                price: item.price,
-            })),
-            order_amount: totals.total,
-            payment_method: "digital_payment",
-            order_type: deliveryMethod,
-            store_id: storeId,
-            distance: totals.distanceKm,
-            address: deliveryAddress,
-            longitude,
-            latitude,
-            contact_person_name: contactName,
-            contact_person_number: contactPhone,
-        },
-    };
+	return {
+		cartCount: items.length,
+		cartItems: items.map((item) => ({
+			id: item.id,
+			name: item.name,
+			imageUrl: item.image_full_url,
+		})),
+		deliveryMethod,
+		deliveryAddress,
+		deliveryAddressShort,
+		walletBalance: formatSar(qidhaWalletAmount),
+		myWalletBalance: formatSar(myWalletAmount),
+		subtotal,
+		invoice,
+		storeSummary,
+		placeOrderPayload: {
+			cart: items.map((item) => ({
+				item_id: item.item_id,
+				quantity: item.quantity,
+				price: item.price,
+			})),
+			order_amount: totals.total,
+			payment_method: "digital_payment",
+			order_type: deliveryMethod,
+			store_id: storeId,
+			distance: totals.distanceKm,
+			address: deliveryAddress,
+			longitude,
+			latitude,
+			contact_person_name: contactName,
+			contact_person_number: contactPhone,
+		},
+	};
 }
 
 export default async function CheckoutPage() {
-    if (!(await isAuthenticated())) {
-        return <AuthRequiredScreen page="checkout" />;
-    }
+	const isArabic = await isArabicLocale();
+	if (!(await isAuthenticated())) {
+		return <AuthRequiredScreen page="checkout" isArabic={isArabic} />;
+	}
 
-    const checkoutData = await buildCheckoutData();
+	const checkoutData = await buildCheckoutData(isArabic);
 
-    return (
-        <CheckoutShell checkoutData={checkoutData}>
-            <Suspense fallback={<CartSummary.skeleton />}>
-                <CartSummary />
-            </Suspense>
-            <Suspense fallback={<DeliveryMethod.skeleton />}>
-                <DeliveryMethod />
-            </Suspense>
-            <Suspense fallback={<PaymentMethod.skeleton />}>
-                <PaymentMethod />
-            </Suspense>
-            <Suspense fallback={<DiscountCode.skeleton />}>
-                <DiscountCode />
-            </Suspense>
-            <Suspense fallback={<AdditionalNote.skeleton />}>
-                <AdditionalNote />
-            </Suspense>
-            <Suspense fallback={<InvoiceDetails.skeleton />}>
-                <InvoiceDetails />
-            </Suspense>
-        </CheckoutShell>
-    );
+	return (
+		<CheckoutShell checkoutData={checkoutData} isArabic={isArabic}>
+			<Suspense fallback={<CartSummary.skeleton />}>
+				<CartSummary isArabic={isArabic} />
+			</Suspense>
+			<Suspense fallback={<DeliveryMethod.skeleton />}>
+				<DeliveryMethod isArabic={isArabic} />
+			</Suspense>
+			<Suspense fallback={<PaymentMethod.skeleton />}>
+				<PaymentMethod isArabic={isArabic} />
+			</Suspense>
+			<Suspense fallback={<DiscountCode.skeleton />}>
+				<DiscountCode isArabic={isArabic} />
+			</Suspense>
+			<Suspense fallback={<AdditionalNote.skeleton />}>
+				<AdditionalNote isArabic={isArabic} />
+			</Suspense>
+			<Suspense fallback={<InvoiceDetails.skeleton />}>
+				<InvoiceDetails isArabic={isArabic} />
+			</Suspense>
+		</CheckoutShell>
+	);
 }

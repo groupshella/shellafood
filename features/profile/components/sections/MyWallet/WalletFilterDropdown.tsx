@@ -11,15 +11,18 @@ const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
 export function WalletFilterDropdown({
     value,
     onChange,
+    isArabic = true,
 }: {
     value: WalletHistoryFilter;
     onChange: (next: WalletHistoryFilter) => void;
+    isArabic?: boolean;
 }) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const selected =
         WALLET_FILTER_OPTIONS.find((o) => o.id === value) ??
         WALLET_FILTER_OPTIONS[0];
+    const selectedLabel = isArabic ? selected.label.ar : selected.label.en;
 
     useEffect(() => {
         if (!open) return;
@@ -50,7 +53,7 @@ export function WalletFilterDropdown({
                     className="truncate text-[12px] font-medium text-[#111B18] dark:text-gray-100 sm:text-[13px]"
                     style={TAJAWAL}
                 >
-                    {selected.label}
+                    {selectedLabel}
                 </span>
             </button>
 
@@ -61,6 +64,7 @@ export function WalletFilterDropdown({
                 >
                     {WALLET_FILTER_OPTIONS.map((option, index) => {
                         const isSelected = option.id === value;
+                        const label = isArabic ? option.label.ar : option.label.en;
                         return (
                             <div key={option.id}>
                                 <button
@@ -79,7 +83,7 @@ export function WalletFilterDropdown({
                                     ].join(" ")}
                                     style={TAJAWAL}
                                 >
-                                    {option.label}
+                                    {label}
                                 </button>
                                 {index < WALLET_FILTER_OPTIONS.length - 1 && (
                                     <div className="mx-3 border-t border-[#F0EFF3] dark:border-gray-700" />

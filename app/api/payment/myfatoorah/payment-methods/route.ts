@@ -10,51 +10,58 @@ import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
  * Query params forwarded:
  *   amount   (required) — order total, used by backend to compute per-method fees
  *   currency (optional, defaults to SAR)
+ *   lang     (optional, defaults to ar)
  */
 export async function GET(request: NextRequest) {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
+	const cookieStore = await cookies();
+	const accessToken = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
 
-    if (!accessToken) {
-        return apiError("Unauthorized", 401);
-    }
+	if (!accessToken) {
+		return apiError("Unauthorized", 401);
+	}
 
-    const { searchParams } = request.nextUrl;
-    const amount = searchParams.get("amount");
-    const currency = searchParams.get("currency") ?? "SAR";
+	const { searchParams } = request.nextUrl;
+	const amount = searchParams.get("amount");
+	const currency = searchParams.get("currency") ?? "SAR";
+	const lang = searchParams.get("lang") === "en" ? "en" : "ar";
 
-    if (!amount) {
-        return apiError("Missing required parameter: amount", 400);
-    }
+	if (!amount) {
+		return apiError("Missing required parameter: amount", 400);
+	}
 
-    const backendUrl = new URL(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/payment/myfatoorah/payment-methods-with-ids`
-    );
-    backendUrl.searchParams.set("amount", amount);
-    backendUrl.searchParams.set("currency", currency);
+	const backendUrl = new URL(
+		`${process.env.NEXT_PUBLIC_API_URL}/api/v1/payment/myfatoorah/payment-methods-with-ids`,
+	);
+	backendUrl.searchParams.set("amount", amount);
+	backendUrl.searchParams.set("currency", currency);
 
-    try {
-        const backendRes = await fetch(backendUrl.toString(), {
-            method: "GET",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-                "X-localization": "ar",
-                zoneId: process.env.ZONE_ID ?? "[2]",
-                moduleId: process.env.MODULE_ID ?? "3",
-            },
-            cache: "no-store",
-        });
+	try {
+		const backendRes = await fetch(backendUrl.toString(), {
+			method: "GET",
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+				"Accept-Language": lang,
+				"X-localization": lang,
+				lang,
+				zoneId: process.env.ZONE_ID ?? "[2]",
+				moduleId: process.env.MODULE_ID ?? "3",
+			},
+			cache: "no-store",
+		});
 
-        const data = await backendRes.json();
+		const data = await backendRes.json();
 
-        if (!backendRes.ok || !data?.success) {
-            return apiError(extractBackendError(data, "Failed to fetch payment methods"), backendRes.status);
-        }
+		if (!backendRes.ok || !data?.success) {
+			return apiError(
+				extractBackendError(data, "Failed to fetch payment methods"),
+				backendRes.status,
+			);
+		}
 
-        return apiSuccess(data.data);
-    } catch {
-        return apiError("Payment methods request failed", 502);
-    }
+		return apiSuccess(data.data);
+	} catch {
+		return apiError("Payment methods request failed", 502);
+	}
 }

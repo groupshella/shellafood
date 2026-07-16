@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { unwrap, type ApiResponse } from "@/shared/lib/api-response";
 import { mapBrandItemsResponse } from "../lib/normalize-brand-item";
 import type {
@@ -8,7 +8,6 @@ import type {
     FilterState,
     GetBrandItemsApiResponse,
 } from "../types/brands.types";
-import { EMPTY_FILTER } from "../types/brands.types";
 
 interface UseBrandFilterReturn {
     applied: FilterState | null;
@@ -20,8 +19,12 @@ interface UseBrandFilterReturn {
     clearFilters: () => void;
 }
 
-function buildFilterUrl(brandId: string, filters: FilterState): string {
-    const params = new URLSearchParams({ page: "1", limit: "50" });
+function buildFilterUrl(
+    brandId: string,
+    filters: FilterState,
+    lang: "ar" | "en"
+): string {
+    const params = new URLSearchParams({ page: "1", limit: "50", lang });
     if (filters.priceRange?.min !== undefined) {
         params.set("min_price", String(filters.priceRange.min));
     }
@@ -31,7 +34,11 @@ function buildFilterUrl(brandId: string, filters: FilterState): string {
     return `/api/brands/${brandId}/filter?${params.toString()}`;
 }
 
-export function useBrandFilter(brandId: string): UseBrandFilterReturn {
+export function useBrandFilter(
+    brandId: string,
+    lang: "ar" | "en",
+    isArabic: boolean
+): UseBrandFilterReturn {
     const [applied, setApplied] = useState<FilterState | null>(null);
     const [results, setResults] = useState<BrandItem[] | null>(null);
     const [total, setTotal] = useState<number | null>(null);
@@ -39,6 +46,13 @@ export function useBrandFilter(brandId: string): UseBrandFilterReturn {
     const [error, setError] = useState<string | null>(null);
 
     const abortRef = useRef<AbortController | null>(null);
+    const langRef = useRef(lang);
+    const isArabicRef = useRef(isArabic);
+
+    useEffect(() => {
+        langRef.current = lang;
+        isArabicRef.current = isArabic;
+    }, [lang, isArabic]);
 
     const applyFilters = useCallback(
         async (f: FilterState) => {
@@ -58,7 +72,7 @@ export function useBrandFilter(brandId: string): UseBrandFilterReturn {
             setError(null);
 
             try {
-                const res = await fetch(buildFilterUrl(brandId, f), {
+                const res = await fetch(buildFilterUrl(brandId, f, langRef.current), {
                     signal: controller.signal,
                 });
                 const json = (await res.json()) as ApiResponse<GetBrandItemsApiResponse>;
@@ -68,7 +82,11 @@ export function useBrandFilter(brandId: string): UseBrandFilterReturn {
                 setApplied(f);
             } catch (err) {
                 if ((err as Error).name === "AbortError") return;
-                setError("حدث خطأ أثناء تطبيق الفلتر");
+                setError(
+                    isArabicRef.current
+                        ? "حدث خطأ أثناء تطبيق الفلتر"
+                        : "Something went wrong while applying filters"
+                );
             } finally {
                 if (!controller.signal.aborted) setLoading(false);
             }

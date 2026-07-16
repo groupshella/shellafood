@@ -1,17 +1,25 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 
 import { RefundPolicy } from "@/features/profile/components/sections/StaticContent";
-import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
+import { isArabicLocale } from "@/shared/lib/locale";
 
-export const metadata = {
-    title: `${PROFILE_STRINGS.refundPolicy} | شيلة فود`,
-    description: "سياسة استرداد الأموال في شيلة فود",
-};
+export async function generateMetadata(): Promise<Metadata> {
+	const isArabic = await isArabicLocale();
+	return {
+		title: isArabic ? "سياسة استرداد الأموال | شيلة فود" : "Refund policy | Shella Food",
+		description: isArabic
+			? "سياسة استرداد الأموال في شيلة فود"
+			: "Refund policy at Shella Food",
+	};
+}
 
-export default function RefundPolicyPage() {
-    return (
-        <Suspense fallback={<RefundPolicy.skeleton />}>
-            <RefundPolicy />
-        </Suspense>
-    );
+export default async function RefundPolicyPage() {
+	const isArabic = await isArabicLocale();
+
+	return (
+		<Suspense fallback={<RefundPolicy.skeleton />}>
+			<RefundPolicy isArabic={isArabic} />
+		</Suspense>
+	);
 }

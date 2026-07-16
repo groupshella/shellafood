@@ -1,5 +1,3 @@
-import { QIDHA_STATUS_LABELS } from "@/features/profile/constants/qidha.constants";
-import { QIDHA_STRINGS } from "@/features/profile/constants/qidha.strings";
 import type { QidhaWalletApiData, QidhaWalletCard } from "@/features/profile/types/qidha.types";
 import type {
     QidhaSalaryDayInfo,
@@ -29,9 +27,16 @@ function formatAmount(value: unknown): string {
     return toNumber(value).toFixed(2);
 }
 
-function statusLabel(status: unknown): string {
+function statusLabel(status: unknown, lang: "ar" | "en" = "ar"): string {
     const key = String(status ?? "active").toLowerCase();
-    return QIDHA_STATUS_LABELS[key] ?? QIDHA_STRINGS.available;
+    const bilingual: Record<string, { ar: string; en: string }> = {
+        active: { ar: "نشط", en: "Active" },
+        inactive: { ar: "غير نشط", en: "Inactive" },
+        locked: { ar: "مقفلة", en: "Locked" },
+        suspended: { ar: "معلّقة", en: "Suspended" },
+    };
+    if (bilingual[key]) return lang === "ar" ? bilingual[key].ar : bilingual[key].en;
+    return lang === "ar" ? "متاح" : "Available";
 }
 
 /** Normalize payload that may already be unwrapped (`data`) or still enveloped. */
@@ -45,7 +50,7 @@ function asPayload(raw: unknown): Record<string, unknown> {
     return root;
 }
 
-export function emptyQidhaStatistics(): QidhaStatisticsData {
+export function emptyQidhaStatistics(lang: "ar" | "en" = "ar"): QidhaStatisticsData {
     return {
         availableBalance: "00.00",
         totalBalance: "00.00",
@@ -58,7 +63,7 @@ export function emptyQidhaStatistics(): QidhaStatisticsData {
         paidTotal: "00.00",
         overdueCount: 0,
         pendingCount: 0,
-        statusLabel: QIDHA_STRINGS.available,
+        statusLabel: lang === "ar" ? "متاح" : "Available",
         usedPercentage: 0,
     };
 }
@@ -66,6 +71,7 @@ export function emptyQidhaStatistics(): QidhaStatisticsData {
 export function adaptQidhaCard(
     data: QidhaWalletApiData,
     userId?: number,
+    lang: "ar" | "en" = "ar",
 ): QidhaWalletCard {
     const available = toNumber(data.available_balance);
     const creditLimit = toNumber(data.credit_limit, Math.max(available, 0));
@@ -85,16 +91,19 @@ export function adaptQidhaCard(
         creditLimit,
         cardNumber,
         expiryDate: data.lock_day ?? data.expiry_date ?? "—",
-        statusLabel: statusLabel(data.status),
+        statusLabel: statusLabel(data.status, lang),
     };
 }
 
-export function adaptQidhaStatisticsFromParts(parts: {
-    wallet?: unknown;
-    analytics?: unknown;
-    duePayments?: unknown;
-    paymentHistory?: unknown;
-}): QidhaStatisticsData {
+export function adaptQidhaStatisticsFromParts(
+    parts: {
+        wallet?: unknown;
+        analytics?: unknown;
+        duePayments?: unknown;
+        paymentHistory?: unknown;
+    },
+    lang: "ar" | "en" = "ar",
+): QidhaStatisticsData {
     const wallet = asPayload(parts.wallet);
     const analytics = asPayload(parts.analytics);
     const dueRoot = asPayload(parts.duePayments);
@@ -128,7 +137,7 @@ export function adaptQidhaStatisticsFromParts(parts: {
             dueSummary.overdue_count ?? analyticsDue.overdue_payments,
         ),
         pendingCount: toNumber(dueSummary.pending_count),
-        statusLabel: statusLabel(walletInfo.status ?? wallet.status),
+        statusLabel: statusLabel(walletInfo.status ?? wallet.status, lang),
         usedPercentage: toNumber(
             wallet.used_percentage ?? walletInfo.used_percentage,
         ),

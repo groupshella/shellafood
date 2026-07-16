@@ -89,25 +89,35 @@ export function EmptyCartIllustration(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
-export function CartEmpty() {
+
+interface CartEmptyProps {
+  isArabic: boolean;
+}
+
+export function CartEmpty({ isArabic }: CartEmptyProps) {
   return (
     <div
-      className="flex flex-1 flex-col items-center px-4 text-center sm:px-6"
-      dir="rtl"
+      className="flex flex-1 flex-col items-center px-4 text-center sm:px-6 md:px-8"
+      dir={isArabic ? "rtl" : "ltr"}
+      lang={isArabic ? "ar" : "en"}
     >
-      <div className="mx-auto mt-12 flex w-full max-w-xs flex-col items-center sm:mt-20 md:mt-24 lg:mt-28">
+      <div className="mx-auto mt-12 flex w-full max-w-xs flex-col items-center sm:mt-20 sm:max-w-sm md:mt-24 md:max-w-md lg:mt-28">
         <div
-          className="relative aspect-[13/14] w-full max-w-[13rem] shrink-0 sm:max-w-[15rem] md:max-w-[16rem]
+          className="relative aspect-[13/14] w-full max-w-[13rem] shrink-0 sm:max-w-[15rem] md:max-w-[16rem] lg:max-w-[18rem]
             [--cart-bg:#EBFEEB] [--cart-bag:#9DFCA3] [--cart-line:#30913F] [--cart-wheel:#FFFFFF] [--cart-dot:#CFCFCF]
             dark:[--cart-bg:#123320] dark:[--cart-bag:#1F5C33] dark:[--cart-line:#4ADE80] dark:[--cart-wheel:#111827] dark:[--cart-dot:#4B5563]"
         >
           <EmptyCartIllustration className="h-full w-full object-contain" aria-hidden="true" />
         </div>
 
-        <h2 className="mt-5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-6 sm:text-xl">سلتك فارغة</h2>
+        <h2 className="mt-5 text-lg font-bold text-foreground sm:mt-6 sm:text-xl">
+          {isArabic ? "سلتك فارغة" : "Your cart is empty"}
+        </h2>
 
-        <p className="mt-2 max-w-[260px] text-sm leading-relaxed text-gray-500 dark:text-gray-400 sm:max-w-sm sm:text-[15px]">
-          ابدأ بإضافة المنتجات أو الخدمات التي تحتاجها.
+        <p className="mt-2 max-w-[260px] text-sm leading-relaxed text-muted sm:max-w-sm sm:text-[15px] md:max-w-md">
+          {isArabic
+            ? "ابدأ بإضافة المنتجات أو الخدمات التي تحتاجها."
+            : "Start by adding the products or services you need."}
         </p>
       </div>
     </div>

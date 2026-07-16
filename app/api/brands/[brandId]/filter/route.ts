@@ -1,11 +1,13 @@
 import { type NextRequest } from "next/server";
 import { apiSuccess, apiError } from "@/shared/lib/api-response";
 
-function backendHeaders(): HeadersInit {
+function backendHeaders(lang: "ar" | "en"): HeadersInit {
     return {
         Accept: "application/json",
         "Content-Type": "application/json; charset=UTF-8",
-        "X-localization": "ar",
+        "Accept-Language": lang,
+        "X-localization": lang,
+        lang,
         zoneId: process.env.ZONE_ID!,
         "zone-id": process.env.ZONE_ID!,
         moduleId: process.env.MODULE_ID ?? "3",
@@ -21,6 +23,9 @@ export async function GET(
 ) {
     const { brandId } = await params;
     const { searchParams } = req.nextUrl;
+
+    const langParam = searchParams.get("lang");
+    const lang = langParam === "en" || langParam === "ar" ? langParam : "ar";
 
     const backendParams = new URLSearchParams({ brand_id: brandId });
 
@@ -42,7 +47,7 @@ export async function GET(
     try {
         const res = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/api/v1/items/search?${backendParams}`,
-            { headers: backendHeaders(), cache: "no-store" }
+            { headers: backendHeaders(lang), cache: "no-store" }
         );
 
         if (!res.ok) return apiError("Filter failed", res.status);

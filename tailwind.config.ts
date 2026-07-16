@@ -10,6 +10,15 @@ module.exports = {
 	],
 	theme: {
 		extend: {
+			colors: {
+				background: "var(--background)",
+				foreground: "var(--foreground)",
+				muted: "var(--muted)",
+				border: "var(--border)",
+				brand: "var(--brand)",
+				"brand-foreground": "var(--brand-foreground)",
+				card: "var(--card)",
+			},
 			keyframes: {
 				'marquee-ltr': {
 					'0%': { transform: 'translateX(0)' },

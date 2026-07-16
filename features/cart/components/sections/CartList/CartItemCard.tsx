@@ -10,10 +10,13 @@ interface CartItemCardProps {
   onDecrease: () => void;
   onRemove: () => void;
   isUpdating?: boolean;
+  isArabic: boolean;
 }
 
 function extractWeight(text: string): string | null {
-  const match = text.match(/\d+(?:[.,]\d+)?\s*(?:كجم|كغ|كيلو|جرام|غ|مل|لتر)/);
+  const match = text.match(
+    /\d+(?:[.,]\d+)?\s*(?:كجم|كغ|كيلو|جرام|غ|مل|لتر|kg|g|ml|l|oz|lb)/i,
+  );
   return match?.[0] ?? null;
 }
 
@@ -48,13 +51,14 @@ export const CartItemCard = memo(function CartItemCard({
   onDecrease,
   onRemove,
   isUpdating = false,
+  isArabic,
 }: CartItemCardProps) {
   const originalPrice = getOriginalPrice(item.price, item.discount);
   const weight = item.description?.trim() ? extractWeight(item.description) : null;
 
   return (
     <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
-      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-800 sm:h-[88px] sm:w-[88px] md:h-24 md:w-24">
+      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-card sm:h-[88px] sm:w-[88px] md:h-24 md:w-24">
         {item.image_full_url ? (
           <Image
             src={item.image_full_url}
@@ -65,7 +69,7 @@ export const CartItemCard = memo(function CartItemCard({
           />
         ) : (
           <div className="flex h-full items-center justify-center opacity-30">
-            <ShoppingBag className="h-7 w-7 text-gray-400 dark:text-gray-500 sm:h-8 sm:w-8" aria-hidden />
+            <ShoppingBag className="h-7 w-7 text-muted sm:h-8 sm:w-8" aria-hidden />
           </div>
         )}
       </div>
@@ -73,16 +77,16 @@ export const CartItemCard = memo(function CartItemCard({
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 sm:gap-2.5">
         <div className="flex w-full items-start justify-between gap-2 sm:gap-3">
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <h3 className="line-clamp-2 w-full text-start text-sm font-bold leading-snug text-gray-900 dark:text-gray-50 sm:text-[15px]">
+            <h3 className="line-clamp-2 w-full text-start text-sm font-bold leading-snug text-foreground sm:text-[15px]">
               {item.name}
             </h3>
             {item.description?.trim() && !weight && (
-              <p className="line-clamp-1 w-full text-start text-xs font-medium leading-snug text-gray-500 dark:text-gray-400 sm:text-[13px]">
+              <p className="line-clamp-1 w-full text-start text-xs font-medium leading-snug text-muted sm:text-[13px]">
                 {item.description}
               </p>
             )}
             {weight && (
-              <p className="text-start text-xs font-medium text-gray-500 dark:text-gray-400 sm:text-[13px]">
+              <p className="text-start text-xs font-medium text-muted sm:text-[13px]">
                 {weight}
               </p>
             )}
@@ -91,8 +95,10 @@ export const CartItemCard = memo(function CartItemCard({
           <button
             type="button"
             onClick={onRemove}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 active:text-red-500 dark:text-gray-500 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 dark:active:text-red-400 sm:h-10 sm:w-10 md:hover:bg-gray-100 md:hover:text-red-500 dark:md:hover:bg-gray-800 dark:md:hover:text-red-400"
-            aria-label={`حذف ${item.name}`}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-background active:bg-card active:text-red-500 sm:h-10 sm:w-10 md:hover:bg-card md:hover:text-red-500"
+            aria-label={
+              isArabic ? `حذف ${item.name}` : `Remove ${item.name}`
+            }
           >
             <Trash2 className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={1.5} aria-hidden />
           </button>
@@ -101,12 +107,12 @@ export const CartItemCard = memo(function CartItemCard({
         <div className="flex w-full flex-wrap items-center justify-between gap-2 sm:gap-3">
           <div className="flex flex-col items-start gap-0.5">
             {originalPrice != null && (
-              <span className="flex items-center gap-[2px] text-[10px] font-medium text-gray-400 line-through dark:text-gray-500 sm:text-[11px]">
+              <span className="flex items-center gap-[2px] text-[10px] font-medium text-muted line-through sm:text-[11px]">
                 <CurrencyIcon size="sm" />
                 {formatPrice(originalPrice)}
               </span>
             )}
-            <span className="flex items-center gap-1 text-sm font-bold text-gray-900 dark:text-gray-50 sm:text-[15px]">
+            <span className="flex items-center gap-1 text-sm font-bold text-foreground sm:text-[15px]">
               <CurrencyIcon size="md" />
               {formatPrice(item.price)}
             </span>
@@ -114,27 +120,26 @@ export const CartItemCard = memo(function CartItemCard({
 
           <div
             className={[
-              "flex items-center gap-1 rounded-full border px-1.5 py-1 transition-opacity duration-200 sm:gap-1.5 sm:px-2",
-              "border-gray-200 dark:border-gray-700",
+              "flex items-center gap-1 rounded-full border border-border px-1.5 py-1 transition-opacity duration-200 sm:gap-1.5 sm:px-2",
               isUpdating ? "opacity-60" : "opacity-100",
             ].join(" ")}
           >
             <button
               type="button"
               onClick={onDecrease}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 dark:text-gray-400 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 sm:h-9 sm:w-9"
-              aria-label="تقليل الكمية"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-background active:bg-card sm:h-9 sm:w-9"
+              aria-label={isArabic ? "تقليل الكمية" : "Decrease quantity"}
             >
               <Minus className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
             </button>
-            <span className="min-w-[1.75rem] text-center text-sm font-bold text-gray-900 dark:text-gray-50 sm:min-w-8 sm:text-[15px]">
+            <span className="min-w-[1.75rem] text-center text-sm font-bold text-foreground sm:min-w-8 sm:text-[15px]">
               {item.quantity}
             </span>
             <button
               type="button"
               onClick={onIncrease}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1 active:bg-gray-100 dark:text-gray-400 dark:focus-visible:ring-offset-gray-900 dark:active:bg-gray-800 sm:h-9 sm:w-9"
-              aria-label="زيادة الكمية"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-background active:bg-card sm:h-9 sm:w-9"
+              aria-label={isArabic ? "زيادة الكمية" : "Increase quantity"}
             >
               <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
             </button>

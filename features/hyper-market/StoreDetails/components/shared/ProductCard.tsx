@@ -11,6 +11,7 @@ interface ProductCardProps {
     imageUrl: string;
     price: number;
     originalPrice?: number | null;
+    isArabic?: boolean;
 }
 
 export const ProductCard = memo(function ProductCard({
@@ -19,6 +20,7 @@ export const ProductCard = memo(function ProductCard({
     imageUrl,
     price,
     originalPrice,
+    isArabic = true,
 }: ProductCardProps) {
     const hasDiscount = originalPrice != null && originalPrice > price;
     const discount = useMemo(() => {
@@ -38,13 +40,14 @@ export const ProductCard = memo(function ProductCard({
 
     return (
         <div
-            dir="rtl"
-            className="relative flex h-full w-full flex-col overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_12px_rgba(0,0,0,0.25)]"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
+            className="relative flex h-full w-full flex-col overflow-hidden rounded-xl bg-card shadow-[0_2px_12px_rgba(0,0,0,0.08)]"
         >
-            <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-xl bg-[#F7F9F7] dark:bg-gray-700">
+            <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-xl bg-background">
                 <Link
                     href={`/items/${productId}`}
-                    className="absolute inset-0 outline-none transition-transform duration-150 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                    className="absolute inset-0 outline-none transition-transform duration-150 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     aria-label={name}
                 >
                     {imageUrl ? (
@@ -53,7 +56,7 @@ export const ProductCard = memo(function ProductCard({
                             alt={name}
                             fill
                             className="object-cover"
-                            sizes="120px"
+                            sizes="(max-width: 640px) 120px, (max-width: 1024px) 140px, 160px"
                             loading="lazy"
                         />
                     ) : null}
@@ -75,15 +78,15 @@ export const ProductCard = memo(function ProductCard({
                 aria-hidden
                 className="flex flex-1 flex-col gap-0.5 p-2 outline-none sm:p-2.5"
             >
-                <p className="line-clamp-2 text-start text-[11px] font-semibold leading-tight text-[#111B18] dark:text-gray-50 sm:text-xs">
+                <p className="line-clamp-2 text-start text-[11px] font-semibold leading-tight text-foreground sm:text-xs">
                     {name}
                 </p>
                 <div className="mt-auto flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-[#111B18] dark:text-gray-50">
+                    <span className="text-xs font-bold text-foreground">
                         {price.toFixed(2)}
                     </span>
                     {hasDiscount && (
-                        <span className="text-[10px] text-gray-400 line-through dark:text-gray-500">
+                        <span className="text-[10px] text-muted line-through">
                             {originalPrice!.toFixed(2)}
                         </span>
                     )}

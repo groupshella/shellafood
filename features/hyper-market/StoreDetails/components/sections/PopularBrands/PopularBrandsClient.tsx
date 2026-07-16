@@ -2,12 +2,11 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { HyperMarketPopularBrand } from "@/features/hyper-market/StoreDetails/types/popular-brands.types";
 import { BrandCard } from "./BrandCard";
 
 const COLUMN_CLASS =
-    "flex w-[43vw] min-w-[8.5rem] max-w-[13rem] shrink-0 snap-start flex-col gap-2 sm:w-[30vw] sm:min-w-[10rem] sm:max-w-[14rem] sm:gap-2.5 lg:w-[22vw] lg:max-w-[15rem] xl:w-[18vw]";
+    "flex w-[43vw] min-w-[8.5rem] max-w-[13rem] shrink-0 snap-start flex-col gap-2 sm:w-[30vw] sm:min-w-[10rem] sm:max-w-[14rem] sm:gap-2.5 md:w-[24vw] md:max-w-[15rem] lg:w-[22vw] lg:max-w-[15rem] xl:w-[18vw]";
 
 const H_SCROLL = [
     "flex gap-2.5 overflow-x-auto pb-1 sm:gap-3",
@@ -16,17 +15,12 @@ const H_SCROLL = [
     "-mx-0.5 px-0.5",
 ].join(" ");
 
-function buildAllBrandsHref() {
-    return "/brands";
-}
-
 const VIEW_MORE_BTN = [
     "inline-flex min-h-[36px] shrink-0 items-center rounded-lg px-3 py-1.5",
-    "bg-[#F0F0F0] text-xs font-medium text-gray-800",
-    "dark:bg-gray-800 dark:text-gray-200",
-    "transition-colors active:bg-[#E4E4E4] dark:active:bg-gray-700",
+    "bg-card text-xs font-medium text-foreground",
+    "transition-colors hover:brightness-95 active:brightness-90",
     "sm:px-3.5 sm:py-2 sm:text-sm",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
 ].join(" ");
 
 function chunkByTwo(items: HyperMarketPopularBrand[]): HyperMarketPopularBrand[][] {
@@ -37,31 +31,35 @@ function chunkByTwo(items: HyperMarketPopularBrand[]): HyperMarketPopularBrand[]
     return columns;
 }
 
-export function PopularBrandsClient({ brands }: { brands: HyperMarketPopularBrand[] }) {
+export function PopularBrandsClient({
+    brands,
+    isArabic,
+}: {
+    brands: HyperMarketPopularBrand[];
+    isArabic: boolean;
+}) {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const columns = chunkByTwo(brands);
-    const hasMultipleColumns = columns.length > 3;
 
     return (
         <section
-            aria-label="أشهر العلامات التجارية"
+            aria-label={isArabic ? "أشهر العلامات التجارية" : "Popular brands"}
             className="w-full bg-transparent px-3 pb-5 pt-3 sm:px-5 lg:px-6"
-            dir="rtl"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
         >
             <div className="mb-3 flex items-center justify-between gap-3">
-                <h2 className="text-base font-bold text-[#111B18] dark:text-gray-50 sm:text-lg">
-                    أشهر العلامات التجارية
+                <h2 className="text-base font-bold text-foreground sm:text-lg md:text-xl">
+                    {isArabic ? "أشهر العلامات التجارية" : "Popular brands"}
                 </h2>
 
-                <Link href={'/brands'} className={VIEW_MORE_BTN}>
-                    تطلع على المزيد
+                <Link href={"/brands"} className={VIEW_MORE_BTN}>
+                    {isArabic ? "تطلع على المزيد" : "See more"}
                 </Link>
             </div>
 
             <div className="relative">
-
-
                 <div ref={scrollRef} className={H_SCROLL}>
                     {columns.map((column) => (
                         <div

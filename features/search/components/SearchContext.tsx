@@ -23,6 +23,7 @@ interface SearchContextValue {
     hasSearched: boolean;
     moduleId: string;
     setModuleId: (moduleId: string) => void;
+    isArabic: boolean;
 }
 
 const SearchContext = createContext<SearchContextValue | null>(null);
@@ -36,17 +37,20 @@ export function useSearchContext() {
 export function SearchProvider({
     children,
     moduleId: initialModuleId,
+    isArabic,
 }: {
     children: React.ReactNode;
     moduleId: string;
+    isArabic: boolean;
 }) {
     const router = useRouter();
     const pathname = usePathname();
     const [query, setQuery] = useState("");
     const [moduleId, setModuleIdState] = useState(initialModuleId);
     const { recentSearches, addSearch, clearRecent, isHydrated } = useRecentSearches();
+    const lang = isArabic ? "ar" : "en";
     const { results, isSearching, isLoadingMore, hasMore, error, hasSearched, search, loadMore, resetSearch } =
-        useSearch(moduleId);
+        useSearch(moduleId, lang);
 
     const queryRef = useRef(query);
     const hasSearchedRef = useRef(hasSearched);
@@ -125,6 +129,7 @@ export function SearchProvider({
                 hasSearched,
                 moduleId,
                 setModuleId,
+                isArabic,
             }}
         >
             {children}

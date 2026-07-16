@@ -9,14 +9,17 @@ export default function OrdersTabSkeleton() {
                 {Array.from({ length: 4 }).map((_, i) => (
                     <div
                         key={i}
-                        className="flex min-w-0 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/[0.04] dark:bg-gray-800 dark:ring-white/[0.06]"
+                        className="flex min-w-0 overflow-hidden rounded-2xl bg-background shadow-sm ring-1 ring-border"
                     >
-                        <div className="w-16 shrink-0 animate-pulse rounded-l-2xl bg-gray-100 dark:bg-gray-700 sm:w-[4.5rem]" style={{ minHeight: "110px" }} />
+                        <div
+                            className="w-16 shrink-0 animate-pulse rounded-s-2xl bg-card sm:w-[4.5rem]"
+                            style={{ minHeight: "110px" }}
+                        />
                         <div className="flex min-w-0 flex-1 flex-col gap-2 px-3 py-3 sm:px-4 sm:py-3.5">
-                            <div className="h-4 w-2/5 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-                            <div className="h-3 w-3/5 animate-pulse rounded bg-gray-100 dark:bg-gray-600" />
-                            <div className="h-5 w-16 animate-pulse rounded-full bg-gray-100 dark:bg-gray-600" />
-                            <div className="h-3 w-4/5 animate-pulse rounded bg-gray-100 dark:bg-gray-600" />
+                            <div className="h-4 w-2/5 animate-pulse rounded bg-card" />
+                            <div className="h-3 w-3/5 animate-pulse rounded bg-border" />
+                            <div className="h-5 w-16 animate-pulse rounded-full bg-border" />
+                            <div className="h-3 w-4/5 animate-pulse rounded bg-border" />
                         </div>
                     </div>
                 ))}

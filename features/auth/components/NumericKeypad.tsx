@@ -4,6 +4,7 @@ import { memo } from "react";
 import { motion } from "framer-motion";
 
 interface NumericKeypadProps {
+	isArabic: boolean;
 	onPress: (key: string) => void;
 	onBackspace: () => void;
 }
@@ -35,13 +36,17 @@ const BackspaceIcon = memo(function BackspaceIcon() {
 	);
 });
 
-const NumericKeypad = memo(function NumericKeypad({ onPress, onBackspace }: NumericKeypadProps) {
+const NumericKeypad = memo(function NumericKeypad({
+	isArabic,
+	onPress,
+	onBackspace,
+}: NumericKeypadProps) {
 	return (
 		<div
 			dir="ltr"
-			className="rounded-t-3xl border-t border-gray-200/60 bg-gray-100/90 p-4 pb-8 backdrop-blur-sm dark:border-gray-700/60 dark:bg-gray-800/95"
+			className="rounded-t-3xl border-t border-border bg-card/90 p-4 pb-8 backdrop-blur-sm md:p-5 md:pb-10"
 		>
-			<div className="mx-auto grid max-w-sm grid-cols-3 gap-3">
+			<div className="mx-auto grid w-full max-w-sm grid-cols-3 gap-3 md:max-w-md md:gap-4 lg:max-w-lg">
 				{keys.flat().map((key, idx) => (
 					<motion.button
 						key={idx}
@@ -49,30 +54,33 @@ const NumericKeypad = memo(function NumericKeypad({ onPress, onBackspace }: Nume
 						whileTap={{ scale: 0.92 }}
 						onClick={() => (key.isBackspace ? onBackspace() : onPress(key.main))}
 						className={[
-							"flex h-14 flex-col items-center justify-center rounded-xl border",
-							"bg-white text-gray-900 shadow-sm",
-							"border-gray-200/80 transition-colors",
-							"active:bg-gray-100",
-							"focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-1",
-							"dark:border-gray-600/60 dark:bg-gray-700 dark:text-gray-100 dark:active:bg-gray-600",
-							"dark:focus-visible:ring-offset-gray-800",
-							key.isBackspace ? "text-gray-500 dark:text-gray-400" : "",
+							"flex h-14 flex-col items-center justify-center rounded-xl border md:h-16",
+							"border-[#C6C8CE] bg-background text-foreground shadow-sm",
+							"transition-colors active:bg-card",
+							"focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-background",
+							key.isBackspace ? "text-muted" : "",
 						]
 							.filter(Boolean)
 							.join(" ")}
-						aria-label={key.isBackspace ? "مسح" : key.main}
+						aria-label={
+							key.isBackspace
+								? isArabic
+									? "مسح"
+									: "Backspace"
+								: key.main
+						}
 					>
 						{key.isBackspace ? (
 							<BackspaceIcon />
 						) : (
 							<>
 								<span
-									className={`font-semibold leading-tight ${key.main === "0" ? "text-xl" : "text-lg"}`}
+									className={`font-semibold leading-tight ${key.main === "0" ? "text-xl md:text-2xl" : "text-lg md:text-xl"}`}
 								>
 									{key.main}
 								</span>
 								{key.sub && (
-									<span className="mt-0.5 text-[9px] font-bold tracking-wider text-gray-400 uppercase dark:text-gray-500">
+									<span className="mt-0.5 text-[9px] font-bold tracking-wider text-muted uppercase md:text-[10px]">
 										{key.sub}
 									</span>
 								)}

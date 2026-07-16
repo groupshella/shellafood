@@ -9,17 +9,17 @@ export default function ProductsTabSkeleton() {
                 {Array.from({ length: 5 }).map((_, i) => (
                     <div
                         key={i}
-                        className="flex h-full min-w-0 items-center gap-2.5 rounded-2xl bg-white px-3 py-2.5 shadow-sm ring-1 ring-black/[0.04] dark:bg-gray-800 dark:ring-white/[0.06] sm:gap-3 sm:px-4 sm:py-3"
+                        className="flex h-full min-w-0 items-center gap-2.5 rounded-2xl bg-background px-3 py-2.5 shadow-sm ring-1 ring-border sm:gap-3 sm:px-4 sm:py-3"
                     >
-                        <div className="h-16 w-16 shrink-0 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700 sm:h-[72px] sm:w-[72px]" />
+                        <div className="h-16 w-16 shrink-0 animate-pulse rounded-xl bg-card sm:h-[72px] sm:w-[72px]" />
                         <div className="min-w-0 flex-1 space-y-2">
-                            <div className="h-4 w-4/5 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-                            <div className="h-3 w-2/5 animate-pulse rounded bg-gray-100 dark:bg-gray-600" />
-                            <div className="h-4 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                            <div className="h-4 w-4/5 animate-pulse rounded bg-card" />
+                            <div className="h-3 w-2/5 animate-pulse rounded bg-border" />
+                            <div className="h-4 w-1/3 animate-pulse rounded bg-card" />
                         </div>
                         <div className="flex shrink-0 flex-col gap-2 sm:gap-2.5">
-                            <div className="h-9 w-9 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700 sm:h-10 sm:w-10" />
-                            <div className="h-9 w-9 animate-pulse rounded-full bg-gray-100 dark:bg-gray-600 sm:h-10 sm:w-10" />
+                            <div className="h-9 w-9 animate-pulse rounded-full bg-card sm:h-10 sm:w-10" />
+                            <div className="h-9 w-9 animate-pulse rounded-full bg-border sm:h-10 sm:w-10" />
                         </div>
                     </div>
                 ))}

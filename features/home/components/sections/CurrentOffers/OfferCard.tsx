@@ -17,25 +17,34 @@ function OfferWavePattern({ patternId }: { patternId: string }) {
 	);
 }
 
-export function OfferCard({ offer, index }: { offer: CurrentOffer; index: number }) {
+export function OfferCard({
+	offer,
+	index,
+	isArabic,
+}: {
+	offer: CurrentOffer;
+	index: number;
+	isArabic: boolean;
+}) {
 	const patternId = `wave-${offer.store_id}-${index}`;
 	const hasOriginalPrice = offer.original_price > offer.discounted_price;
 
 	return (
 		<Link
 			href={`/stores/${offer.store_id}`}
-			dir="rtl"
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
 			className={[
-				"group flex w-[min(44vw,200px)] min-w-[148px] shrink-0 flex-col overflow-hidden rounded-xl bg-white",
+				"group flex w-[min(44vw,200px)] min-w-[148px] shrink-0 flex-col overflow-hidden rounded-xl bg-background",
 				"shadow-[0_2px_12px_rgba(0,0,0,0.06)] outline-none",
 				"transition-transform duration-150 active:scale-[0.98]",
-				"focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
-				"sm:w-[172px] sm:min-w-[172px] md:w-[180px] lg:w-[190px] xl:w-[200px]",
+				"focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+				"sm:w-[172px] sm:min-w-[172px] md:w-[200px] md:min-w-[200px] lg:w-[220px] lg:min-w-[220px] xl:w-[240px]",
 				"sm:rounded-2xl",
 			].join(" ")}
 			aria-label={`${offer.store_name} — ${offer.offer_title}`}
 		>
-			<div className="relative aspect-[172/148] w-full shrink-0 overflow-hidden bg-[#FFF5F0] sm:aspect-auto sm:h-[148px]">
+			<div className="relative aspect-[172/148] w-full shrink-0 overflow-hidden bg-[#FFF5F0] sm:aspect-auto sm:h-[148px] md:h-[160px] lg:h-[172px]">
 				<OfferWavePattern patternId={patternId} />
 				<div className="relative flex h-full items-center justify-center px-2.5 py-3 sm:px-3 sm:py-4">
 					<Image
@@ -43,8 +52,8 @@ export function OfferCard({ offer, index }: { offer: CurrentOffer; index: number
 						alt={offer.offer_title}
 						width={140}
 						height={120}
-						className="max-h-[75%] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.04] sm:max-h-[120px]"
-						sizes="(max-width: 640px) 44vw, 200px"
+						className="max-h-[75%] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.04] sm:max-h-[120px] md:max-h-[132px]"
+						sizes="(max-width: 640px) 44vw, (max-width: 1024px) 200px, 240px"
 						priority={index < 3}
 						loading={index < 3 ? "eager" : "lazy"}
 						placeholder="blur"
@@ -53,16 +62,16 @@ export function OfferCard({ offer, index }: { offer: CurrentOffer; index: number
 				</div>
 			</div>
 
-			<div className="flex flex-1 flex-col gap-1.5 bg-white px-2.5 pb-2.5 pt-2 sm:gap-2 sm:px-3 sm:pb-3 sm:pt-2.5">
+			<div className="flex flex-1 flex-col gap-1.5 bg-background px-2.5 pb-2.5 pt-2 sm:gap-2 sm:px-3 sm:pb-3 sm:pt-2.5 md:px-3.5 md:pb-3.5">
 				<div className="flex items-center justify-start gap-2 sm:gap-2.5">
-					<div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-gray-100 sm:h-11 sm:w-11">
-						<Image src={offer.store_logo_full_url} alt={offer.store_name} fill className="object-cover" sizes="44px" loading="lazy" />
+					<div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-card sm:h-11 sm:w-11 md:h-12 md:w-12">
+						<Image src={offer.store_logo_full_url} alt={offer.store_name} fill className="object-cover" sizes="48px" loading="lazy" />
 					</div>
-					<h3 className="line-clamp-1 min-w-0 flex-1 text-sm font-bold leading-snug text-gray-900 sm:text-[15px]">
+					<h3 className="line-clamp-1 min-w-0 flex-1 text-sm font-bold leading-snug text-foreground sm:text-[15px] md:text-base">
 						{offer.store_name}
 					</h3>
 				</div>
-				<p className="line-clamp-1 text-xs leading-snug text-gray-500 sm:text-[13px]">{offer.offer_title}</p>
+				<p className="line-clamp-1 text-xs leading-snug text-muted sm:text-[13px] md:text-sm">{offer.offer_title}</p>
 				<div className="mt-auto flex flex-wrap items-baseline justify-start gap-1.5 pt-0.5 sm:gap-2">
 					<PriceTag amount={offer.discounted_price} />
 					{hasOriginalPrice && (

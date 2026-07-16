@@ -12,6 +12,7 @@ interface FilterSheetProps {
     applied: FilterState | null;
     onApply: (f: FilterState) => void;
     onClear: () => void;
+    isArabic: boolean;
 }
 
 export function FilterSheet({
@@ -21,6 +22,7 @@ export function FilterSheet({
     applied,
     onApply,
     onClear,
+    isArabic,
 }: FilterSheetProps) {
     const [draft, setDraft] = useState<FilterState>(EMPTY_FILTER);
 
@@ -54,31 +56,36 @@ export function FilterSheet({
             <div
                 role="dialog"
                 aria-modal="true"
-                aria-label="فلتر"
-                dir="rtl"
+                aria-label={isArabic ? "فلتر" : "Filter"}
+                dir={isArabic ? "rtl" : "ltr"}
+                lang={isArabic ? "ar" : "en"}
                 onClick={(e) => e.stopPropagation()}
-                className="flex max-h-[92dvh] w-full max-w-md flex-col overflow-y-auto rounded-t-3xl bg-white px-4 pt-3 pb-[calc(2.5rem+env(safe-area-inset-bottom))] shadow-2xl dark:bg-gray-900 sm:max-h-[90dvh] sm:rounded-3xl sm:px-5 sm:pb-10"
+                className="flex max-h-[92dvh] w-full max-w-md flex-col overflow-y-auto rounded-t-3xl bg-background px-4 pt-3 pb-[calc(2.5rem+env(safe-area-inset-bottom))] shadow-2xl sm:max-h-[90dvh] sm:max-w-lg sm:rounded-3xl sm:px-5 sm:pb-10 md:max-w-xl"
                 style={{
                     transform: isVisible ? "translateY(0)" : "translateY(100%)",
                     transition: "transform 350ms cubic-bezier(0.32, 0.72, 0, 1)",
                 }}
             >
-                <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-gray-200 dark:bg-gray-700" />
+                <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-border" />
 
                 <div className="relative mb-6 flex items-center justify-center">
                     <button
                         type="button"
                         onClick={onClose}
-                        aria-label="إغلاق"
-                        className="absolute start-0 flex h-8 w-8 items-center justify-center rounded-full bg-[#F6F5F8] text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700"
+                        aria-label={isArabic ? "إغلاق" : "Close"}
+                        className="absolute start-0 flex h-8 w-8 items-center justify-center rounded-full bg-card text-foreground transition-colors active:brightness-95"
                     >
                         <X className="h-4 w-4" strokeWidth={2.5} />
                     </button>
-                    <h2 className="text-[16px] font-semibold text-gray-900 dark:text-gray-50">فلتر</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">
+                        {isArabic ? "فلتر" : "Filter"}
+                    </h2>
                 </div>
 
                 <div className="mb-8">
-                    <p className="mb-3 text-[13px] font-semibold text-gray-800 dark:text-gray-200">نطاق السعر</p>
+                    <p className="mb-3 text-[13px] font-semibold text-foreground">
+                        {isArabic ? "نطاق السعر" : "Price range"}
+                    </p>
                     <div className="flex flex-wrap gap-2">
                         {PRICE_RANGES.map((range) => {
                             const isSelected = draft.priceRange?.id === range.id;
@@ -91,8 +98,8 @@ export function FilterSheet({
                                     className={[
                                         "rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors",
                                         isSelected
-                                            ? "border border-[#30913F] bg-[#EBFEEB] text-[#30913F] dark:bg-[#30913F]/15 dark:text-[#4db860]"
-                                            : "border border-gray-200 bg-white text-gray-600 active:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700",
+                                            ? "border border-brand bg-brand/10 text-brand"
+                                            : "border border-border bg-card text-muted",
                                     ].join(" ")}
                                 >
                                     {range.label}
@@ -109,16 +116,16 @@ export function FilterSheet({
                             setDraft(EMPTY_FILTER);
                             onClear();
                         }}
-                        className="flex-1 rounded-xl bg-[#F6F5F8] py-3.5 text-[14px] font-semibold text-gray-700 transition-colors active:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700"
+                        className="flex-1 rounded-xl bg-card py-3.5 text-[14px] font-semibold text-foreground transition-colors active:brightness-95"
                     >
-                        إعادة تعيين
+                        {isArabic ? "إعادة تعيين" : "Reset"}
                     </button>
                     <button
                         type="button"
                         onClick={() => onApply(draft)}
-                        className="flex-1 rounded-xl bg-[#30913F] py-3.5 text-[14px] font-semibold text-white transition-colors active:bg-[#267332] dark:active:bg-[#267332]"
+                        className="flex-1 rounded-xl bg-brand py-3.5 text-[14px] font-semibold text-brand-foreground transition-colors hover:brightness-95 active:brightness-90"
                     >
-                        تطبيق
+                        {isArabic ? "تطبيق" : "Apply"}
                     </button>
                 </div>
             </div>

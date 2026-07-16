@@ -1,26 +1,37 @@
 import { MarketsStoreProvider } from "@/features/markets/context/MarketsStoreContext";
-import { MODULE_PAGE_BG } from "@/shared/lib/page-surface";
 import { Topbar } from "./Topbar";
 
 export function MarketsShell({
-    children,
-    moduleId,
-    moduleName,
-    isAuthenticated,
+	children,
+	moduleId,
+	moduleName,
+	isAuthenticated,
+	isArabic,
 }: {
-    children: React.ReactNode;
-    moduleId: string;
-    moduleName: string;
-    isAuthenticated: boolean;
+	children: React.ReactNode;
+	moduleId: string;
+	moduleName: string;
+	isAuthenticated: boolean;
+	isArabic: boolean;
 }) {
-    return (
-        <div
-            className={`mx-auto flex min-h-dvh w-full max-w-lg flex-col gap-3 overflow-x-hidden pb-[calc(68px+env(safe-area-inset-bottom))] sm:max-w-2xl sm:gap-4 lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl ${MODULE_PAGE_BG}`}
-            dir="rtl"
-        >
-            <Topbar moduleName={moduleName} moduleId={moduleId} isAuthenticated={isAuthenticated} />
+	const lang = isArabic ? "ar" : "en";
 
-            <MarketsStoreProvider moduleId={moduleId}>{children}</MarketsStoreProvider>
-        </div>
-    );
+	return (
+		<div
+			className="mx-auto flex min-h-dvh w-full max-w-lg flex-col gap-3 overflow-x-hidden bg-background pb-[calc(68px+env(safe-area-inset-bottom))] sm:max-w-2xl sm:gap-4 md:max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl"
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={lang}
+		>
+			<Topbar
+				moduleName={moduleName}
+				moduleId={moduleId}
+				isAuthenticated={isAuthenticated}
+				isArabic={isArabic}
+			/>
+
+			<MarketsStoreProvider moduleId={moduleId} lang={lang}>
+				{children}
+			</MarketsStoreProvider>
+		</div>
+	);
 }

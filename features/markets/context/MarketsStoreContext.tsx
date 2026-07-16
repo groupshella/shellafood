@@ -8,28 +8,30 @@ type MarketsStoreContextValue = ReturnType<typeof useStores>;
 const MarketsStoreContext = createContext<MarketsStoreContextValue | null>(null);
 
 export function MarketsStoreProvider({
-    moduleId,
-    children,
+	moduleId,
+	lang,
+	children,
 }: {
-    moduleId: string;
-    children: React.ReactNode;
+	moduleId: string;
+	lang: "ar" | "en";
+	children: React.ReactNode;
 }) {
-    const value = useStores(moduleId);
+	const value = useStores(moduleId, lang);
 
-    return (
-        <MarketsStoreContext.Provider value={value}>{children}</MarketsStoreContext.Provider>
-    );
+	return (
+		<MarketsStoreContext.Provider value={value}>{children}</MarketsStoreContext.Provider>
+	);
 }
 
 export function useMarketsStore(): MarketsStoreContextValue {
-    const context = useContext(MarketsStoreContext);
-    if (!context) {
-        throw new Error("useMarketsStore must be used within MarketsStoreProvider");
-    }
-    return context;
+	const context = useContext(MarketsStoreContext);
+	if (!context) {
+		throw new Error("useMarketsStore must be used within MarketsStoreProvider");
+	}
+	return context;
 }
 
 /** Safe for components that may render outside the module page (e.g. AllCategories). */
 export function useMarketsStoreOptional(): MarketsStoreContextValue | null {
-    return useContext(MarketsStoreContext);
+	return useContext(MarketsStoreContext);
 }

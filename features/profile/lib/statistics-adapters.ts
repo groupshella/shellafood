@@ -2,6 +2,7 @@ import {
     MONTHS,
     PRODUCT_IMAGE_FALLBACK,
     WEEK_DAYS,
+    resolveLocaleLabels,
 } from "@/features/profile/constants/statistics.constants";
 import type {
     AnalyticsInsight,
@@ -91,9 +92,16 @@ export function adaptSummary(raw: unknown): SpendingSummary {
     };
 }
 
-export function adaptTrends(raw: unknown, period: ChartPeriod): SpendingTrend {
+export function adaptTrends(
+    raw: unknown,
+    period: ChartPeriod,
+    lang: "ar" | "en" = "ar",
+): SpendingTrend {
     const r = (raw ?? {}) as Record<string, unknown>;
-    const fallbackLabels = period === "week" ? WEEK_DAYS : MONTHS;
+    const fallbackLabels = resolveLocaleLabels(
+        period === "week" ? WEEK_DAYS : MONTHS,
+        lang,
+    );
 
     const points = pickFirst<Record<string, unknown>[]>(r, [
         "points",
@@ -199,7 +207,13 @@ export function emptySummary(): SpendingSummary {
     };
 }
 
-export function emptyTrend(period: ChartPeriod): SpendingTrend {
-    const labels = [...(period === "week" ? WEEK_DAYS : MONTHS)];
+export function emptyTrend(
+    period: ChartPeriod,
+    lang: "ar" | "en" = "ar",
+): SpendingTrend {
+    const labels = resolveLocaleLabels(
+        period === "week" ? WEEK_DAYS : MONTHS,
+        lang,
+    );
     return { labels, values: labels.map(() => 0) };
 }

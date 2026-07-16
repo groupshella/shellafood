@@ -1,39 +1,49 @@
 import Image from "next/image";
 import Link from "next/link";
 import { memo } from "react";
-import { Module } from "@/features/home/types/modules.types";
 import {
 	MODULE_SPEC,
-	MODULE_SPEC_BY_ID,
 	ModuleSpecKey,
 } from "@/features/home/components/shared/home.tokens";
 
-type ModuleCardModule = Pick<Module, "id" | "module_name" | "module_type" | "icon_full_url">;
+const FALLBACK_LABELS: Record<ModuleSpecKey, { ar: string; en: string }> = {
+	hypermarket: { ar: "هايبر ماركت شلة", en: "Shella Hypermarket" },
+	restaurants: { ar: "المطـــاعم", en: "Restaurants" },
+	cafe: { ar: "المقـــاهي", en: "Cafes" },
+	markets: { ar: "أسواق الحــي", en: "Neighborhood markets" },
+	pharmacy: { ar: "الصيدليات", en: "Pharmacies" },
+};
 
-export function resolveSpecKey(module: ModuleCardModule): ModuleSpecKey | null {
-	return MODULE_SPEC_BY_ID[module.id] ?? null;
-}
+const SOON_LABEL = { ar: "قريباً", en: "Coming soon" } as const;
 
-function getModuleHref(module: ModuleCardModule, key: ModuleSpecKey): string {
+function getModuleHref(
+	moduleId: number,
+	moduleName: string,
+	key: ModuleSpecKey,
+): string {
 	if (key === "hypermarket") {
-		return `/hyper-market?module_id=${module.id}`;
+		return `/hyper-market?module_id=${moduleId}`;
 	}
 
-	return `/modules/${module.id}?module_name=${encodeURIComponent(module.module_name)}`;
+	return `/modules/${moduleId}?module_name=${encodeURIComponent(moduleName)}`;
 }
 
 export const ModuleCard = memo(function ModuleCard({
-	module,
 	specKey,
+	isArabic,
 }: {
-	module?: ModuleCardModule;
 	specKey: ModuleSpecKey;
+	isArabic: boolean;
 }) {
 	const spec = MODULE_SPEC[specKey];
-	const href = module && !spec.disabled ? getModuleHref(module, specKey) : null;
-	const iconSrc = ("iconSrc" in spec ? spec.iconSrc : undefined) ?? module?.icon_full_url;
-	const label = module?.module_name || spec.label;
-	const ariaLabel = "soonLabel" in spec ? `${label} ${spec.soonLabel}` : label;
+	const fallback = FALLBACK_LABELS[specKey];
+	const label = isArabic ? fallback.ar : fallback.en;
+	const href = spec.disabled
+		? null
+		: getModuleHref(spec.id, label, specKey);
+	const iconSrc = spec.iconSrc;
+	const soonLabel = "soonLabel" in spec ? (isArabic ? SOON_LABEL.ar : SOON_LABEL.en) : null;
+	const ariaLabel = soonLabel ? `${label} ${soonLabel}` : label;
 	const content = (
 		<>
 			<span
@@ -47,9 +57,9 @@ export const ModuleCard = memo(function ModuleCard({
 				].join(" ")}
 			>
 				<span>{label}</span>
-				{"soonLabel" in spec && (
+				{soonLabel && (
 					<span className="mt-0.5 text-[10px] font-semibold leading-none opacity-75 sm:text-xs md:text-sm">
-						{spec.soonLabel}
+						{soonLabel}
 					</span>
 				)}
 			</span>
@@ -71,7 +81,7 @@ export const ModuleCard = memo(function ModuleCard({
 						fill
 						className={`object-contain ${spec.disabled ? "grayscale" : ""}`}
 						sizes={spec.tall ? "(max-width: 640px) 48px, 80px" : "(max-width: 640px) 36px, 48px"}
-						priority={specKey === "cafe"}
+						priority={specKey === "hypermarket" || specKey === "cafe"}
 					/>
 				</span>
 			)}
@@ -79,9 +89,11 @@ export const ModuleCard = memo(function ModuleCard({
 	);
 	const className = [
 		"relative block w-full min-w-0 overflow-hidden rounded-lg bg-[var(--module-bg)] outline-none dark:bg-[var(--module-dark-bg)]",
-		spec.tall ? "min-h-[76px] sm:min-h-[91px] md:min-h-[100px] lg:min-h-[110px]" : "min-h-[48px] sm:min-h-[58px] md:min-h-[64px] lg:min-h-[70px]",
+		spec.tall
+			? "min-h-[76px] sm:min-h-[91px] md:min-h-[100px] lg:min-h-[110px]"
+			: "min-h-[48px] sm:min-h-[58px] md:min-h-[64px] lg:min-h-[70px]",
 		href
-			? "transition-transform duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+			? "transition-transform duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 			: "cursor-default select-none",
 	].join(" ");
 	const style = {
@@ -116,6 +128,12 @@ export const ModuleCard = memo(function ModuleCard({
 	);
 });
 
-export function StaticModuleCard({ specKey }: { specKey: ModuleSpecKey }) {
-	return <ModuleCard specKey={specKey} />;
+export function StaticModuleCard({
+	specKey,
+	isArabic,
+}: {
+	specKey: ModuleSpecKey;
+	isArabic: boolean;
+}) {
+	return <ModuleCard specKey={specKey} isArabic={isArabic} />;
 }

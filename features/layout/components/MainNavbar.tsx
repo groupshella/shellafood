@@ -23,7 +23,7 @@ function shouldShowNavbar(pathname: string): boolean {
 }
 
 /** Persistent bottom nav for (main) routes — stays mounted across navigations. */
-export function MainNavbar() {
+export function MainNavbar({ isArabic }: { isArabic: boolean }) {
 	const pathname = usePathname();
 	const { totalCount } = useCart();
 
@@ -37,5 +37,5 @@ export function MainNavbar() {
 		return null;
 	}
 
-	return <Navbar />;
+	return <Navbar isArabic={isArabic} />;
 }

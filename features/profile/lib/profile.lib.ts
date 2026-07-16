@@ -1,5 +1,4 @@
 import type { UserGender, AuthUser } from "@/features/auth/types/auth.types";
-import { PROFILE_STRINGS } from "@/features/profile/constants/profile.strings";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 
@@ -46,10 +45,14 @@ export function normalizeLocalPhone(value: string): string {
     return value.replace(/\D/g, "").replace(/^966/, "").slice(0, 9);
 }
 
-export function getGenderLabel(gender?: UserGender | null): string {
-    if (gender === "male") return PROFILE_STRINGS.genderMale;
-    if (gender === "female") return PROFILE_STRINGS.genderFemale;
-    return PROFILE_STRINGS.selectGender;
+export function getGenderLabel(
+    gender?: UserGender | null,
+    lang: "ar" | "en" = "ar",
+): string {
+    const isArabic = lang === "ar";
+    if (gender === "male") return isArabic ? "ذكر" : "Male";
+    if (gender === "female") return isArabic ? "أنثى" : "Female";
+    return isArabic ? "اختار الجنس" : "Select gender";
 }
 
 export function isValidEmail(email: string): boolean {
@@ -121,10 +124,15 @@ function assignFieldError(
 }
 
 /** Parses Laravel-style and array validation errors from the profile API. */
-export function parseProfileFieldErrors(json: unknown): Record<string, string> {
+export function parseProfileFieldErrors(
+    json: unknown,
+    lang: "ar" | "en" = "ar",
+): Record<string, string> {
+    const fallback =
+        lang === "ar" ? "تعذر حفظ التغييرات" : "Could not save changes";
     const errors: Record<string, string> = {};
     if (!json || typeof json !== "object") {
-        return { general: "تعذر حفظ التغييرات" };
+        return { general: fallback };
     }
 
     const body = json as Record<string, unknown>;
@@ -149,7 +157,7 @@ export function parseProfileFieldErrors(json: unknown): Record<string, string> {
     }
 
     if (Object.keys(errors).length === 0) {
-        errors.general = "تعذر حفظ التغييرات";
+        errors.general = fallback;
     }
 
     return errors;

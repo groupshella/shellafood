@@ -12,8 +12,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
-const STAGE_W = 306;
-const STAGE_H = 390;
+import { setLocale } from "@/features/layout/actions/set-locale";
 
 const RING_SIZE = 87;
 const RING_STROKE = 4.5;
@@ -23,25 +22,37 @@ const INNER_BTN = 63;
 
 const LANGUAGE_STEP = {
 	id: "language",
-	title: "اختر لغتك",
-	description: "",
+	title: { ar: "اختر لغتك", en: "Choose your language" },
+	description: { ar: "", en: "" },
 } as const;
 
 const CONTENT_STEPS = [
 	{
 		id: "shopping",
-		title: "كل احتياجاتك في تطبيق واحد",
-		description: "تسوّق واطلب خدماتك اليومية من مكان واحد",
+		title: { ar: "كل احتياجاتك في تطبيق واحد", en: "Everything you need in one app" },
+		description: {
+			ar: "تسوّق واطلب خدماتك اليومية من مكان واحد",
+			en: "Shop and order your daily services from one place",
+		},
 	},
 	{
 		id: "discount",
-		title: "وفّر أكثر مع شِلّة وسجل في قيدها",
-		description: "استمتع بالخصومات مع امكانية السداد شهريآ\nمن راتبك",
+		title: {
+			ar: "وفّر أكثر مع شِلّة وسجل في قيدها",
+			en: "Save more with Shella and join Qidha",
+		},
+		description: {
+			ar: "استمتع بالخصومات مع امكانية السداد شهريآ\nمن راتبك",
+			en: "Enjoy discounts with monthly payments\nfrom your salary",
+		},
 	},
 	{
 		id: "fast",
-		title: "تجربة أسرع",
-		description: "اطلب، احجز، وتابع كل شيء بسهولة.",
+		title: { ar: "تجربة أسرع", en: "A faster experience" },
+		description: {
+			ar: "اطلب، احجز، وتابع كل شيء بسهولة.",
+			en: "Order, book, and track everything with ease.",
+		},
 	},
 ] as const;
 
@@ -74,7 +85,7 @@ const DISCOUNT_BADGES = [
 		left: 4,
 		size: 60,
 		fontSize: 30,
-		className: "bg-[#47AF57] text-[#EBFEEB] dark:bg-[#30913F]",
+		className: "bg-[#47AF57] text-[#EBFEEB] dark:bg-brand",
 	},
 	{
 		id: "b30",
@@ -83,7 +94,7 @@ const DISCOUNT_BADGES = [
 		left: 218,
 		size: 60,
 		fontSize: 25,
-		className: "bg-[#47AF57] text-[#EBFEEB] dark:bg-[#30913F]",
+		className: "bg-[#47AF57] text-[#EBFEEB] dark:bg-brand",
 	},
 ] as const;
 
@@ -151,7 +162,7 @@ function BlurredGradientBackground() {
 				animate={{ rotate: [0, -6, 0] }}
 				transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
 			/>
-			<div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/30 to-white dark:via-gray-900/40 dark:to-gray-900" />
+			<div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
 		</div>
 	);
 }
@@ -203,32 +214,28 @@ function TextEntrance({
 
 function Stage({ children }: { children: ReactNode }) {
 	return (
-		<div className="mx-auto w-full" style={{ maxWidth: STAGE_W }}>
-			<div
-				className="relative mx-auto"
-				style={{ width: STAGE_W, height: STAGE_H, maxWidth: "100%" }}
-			>
+		<div className="mx-auto w-full max-w-[306px] md:max-w-[380px] lg:max-w-[420px]">
+			<div className="relative mx-auto h-[390px] w-full md:h-[440px] lg:h-[480px]">
 				{children}
 			</div>
 			<div
 				aria-hidden
-				className="mx-auto border-t-[0.81px] border-[#213134] dark:border-gray-600"
-				style={{ width: STAGE_W, maxWidth: "100%" }}
+				className="mx-auto w-full border-t-[0.81px] border-foreground"
 			/>
 		</div>
 	);
 }
 
-function ShoppingIllustration() {
+function ShoppingIllustration({ isArabic }: { isArabic: boolean }) {
 	return (
 		<Stage>
 			<Entrance className="absolute inset-x-0 bottom-0 flex justify-center">
 				<Image
 					src="/onboarding/bag.png"
-					alt="حقيبة تسوق"
+					alt={isArabic ? "حقيبة تسوق" : "Shopping bag"}
 					width={240}
 					height={240}
-					className="h-auto w-[min(240px,70vw)] object-contain"
+					className="h-auto w-[min(240px,70vw)] object-contain md:w-[min(280px,50vw)] lg:w-[min(300px,40vw)]"
 					priority
 				/>
 			</Entrance>
@@ -236,16 +243,16 @@ function ShoppingIllustration() {
 	);
 }
 
-function DiscountIllustration() {
+function DiscountIllustration({ isArabic }: { isArabic: boolean }) {
 	return (
 		<Stage>
 			<Entrance className="absolute inset-x-0 bottom-0 flex justify-center">
 				<Image
 					src="/onboarding/discount.png"
-					alt="خصومات حصرية"
+					alt={isArabic ? "خصومات حصرية" : "Exclusive discounts"}
 					width={240}
 					height={240}
-					className="h-auto w-[min(240px,70vw)] object-contain"
+					className="h-auto w-[min(240px,70vw)] object-contain md:w-[min(280px,50vw)] lg:w-[min(300px,40vw)]"
 				/>
 			</Entrance>
 			<div className="pointer-events-none absolute inset-0 z-10" aria-hidden>
@@ -275,46 +282,46 @@ function DiscountIllustration() {
 	);
 }
 
-function FastIllustration() {
+function FastIllustration({ isArabic }: { isArabic: boolean }) {
 	return (
 		<Stage>
-			<Entrance className="absolute inset-x-0 top-8 flex justify-center">
+			<Entrance className="absolute inset-x-0 top-8 flex justify-center md:top-10">
 				<Image
 					src="/onboarding/clock.png"
-					alt="ساعة"
+					alt={isArabic ? "ساعة" : "Clock"}
 					width={230}
 					height={230}
-					className="h-auto w-[min(230px,65vw)] object-contain"
+					className="h-auto w-[min(230px,65vw)] object-contain md:w-[min(270px,45vw)] lg:w-[min(290px,38vw)]"
 				/>
 			</Entrance>
 			<Entrance delay={0.1} className="absolute inset-x-0 bottom-0 z-10 flex justify-center">
 				<Image
 					src="/onboarding/boxes.png"
-					alt="طرود"
+					alt={isArabic ? "طرود" : "Packages"}
 					width={218}
 					height={125}
-					className="h-auto w-[min(218px,60vw)] object-contain"
+					className="h-auto w-[min(218px,60vw)] object-contain md:w-[min(260px,42vw)] lg:w-[min(280px,36vw)]"
 				/>
 			</Entrance>
 		</Stage>
 	);
 }
 
-function LanguageIllustration() {
+function LanguageIllustration({ isArabic }: { isArabic: boolean }) {
 	return (
 		<Stage>
 			<Entrance className="absolute inset-x-0 bottom-0 flex justify-center">
 				<div className="relative">
 					<Image
 						src="/onboarding/world.png"
-						alt="اختر لغتك"
+						alt={isArabic ? "اختر لغتك" : "Choose your language"}
 						width={260}
 						height={260}
-						className="h-auto w-[min(260px,72vw)] object-contain"
+						className="h-auto w-[min(260px,72vw)] object-contain md:w-[min(300px,50vw)] lg:w-[min(320px,40vw)]"
 						priority
 					/>
 					<motion.span
-						className="absolute text-[28px] font-bold leading-none text-[#30913F] sm:text-[32px]"
+						className="absolute text-[28px] font-bold leading-none text-brand sm:text-[32px] md:text-[36px]"
 						style={{ right: "17%", top: "10.5%", rotate: "12.78deg" }}
 						initial={{ opacity: 0, scale: 0.8 }}
 						animate={{ opacity: 1, scale: 1 }}
@@ -324,7 +331,7 @@ function LanguageIllustration() {
 						ض
 					</motion.span>
 					<motion.span
-						className="absolute text-[28px] font-bold leading-none text-[#30913F] sm:text-[32px]"
+						className="absolute text-[28px] font-bold leading-none text-brand sm:text-[32px] md:text-[36px]"
 						style={{ left: "13%", bottom: "51%", rotate: "-26.13deg" }}
 						initial={{ opacity: 0, scale: 0.8 }}
 						animate={{ opacity: 1, scale: 1 }}
@@ -339,31 +346,39 @@ function LanguageIllustration() {
 	);
 }
 
-function StepIllustration({ stepId }: { stepId: StepId }) {
+function StepIllustration({
+	stepId,
+	isArabic,
+}: {
+	stepId: StepId;
+	isArabic: boolean;
+}) {
 	switch (stepId) {
 		case "shopping":
-			return <ShoppingIllustration />;
+			return <ShoppingIllustration isArabic={isArabic} />;
 		case "discount":
-			return <DiscountIllustration />;
+			return <DiscountIllustration isArabic={isArabic} />;
 		case "fast":
-			return <FastIllustration />;
+			return <FastIllustration isArabic={isArabic} />;
 		case "language":
-			return <LanguageIllustration />;
+			return <LanguageIllustration isArabic={isArabic} />;
 	}
 }
 
 function LanguageSelector({
 	value,
 	onChange,
+	isArabic,
 }: {
 	value: LanguageCode;
 	onChange: (code: LanguageCode) => void;
+	isArabic: boolean;
 }) {
 	return (
 		<div
-			className="mx-auto mt-4 w-full max-w-[343px]"
+			className="mx-auto mt-4 w-full max-w-[343px] md:max-w-[380px] lg:max-w-[420px]"
 			role="radiogroup"
-			aria-label="اختر لغتك"
+			aria-label={isArabic ? "اختر لغتك" : "Choose your language"}
 		>
 			{LANGUAGE_OPTIONS.map((opt, idx) => {
 				const selected = value === opt.code;
@@ -374,21 +389,19 @@ function LanguageSelector({
 						role="radio"
 						aria-checked={selected}
 						onClick={() => onChange(opt.code)}
-						className={`flex w-full items-center justify-between py-4 ${idx === 0 ? "border-b border-[#F6F5F8] dark:border-gray-700" : ""}`}
+						className={`flex w-full items-center justify-between py-4 ${idx === 0 ? "border-b border-border" : ""}`}
 					>
-						<span className="text-right text-[14px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100">
+						<span className="text-right text-[14px] font-bold leading-[160%] text-foreground md:text-[15px]">
 							{opt.label}
 						</span>
 						<span
 							className={[
 								"relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full",
-								selected
-									? "bg-[#111B18] dark:bg-gray-100"
-									: "bg-[#D1D5DB] dark:bg-gray-600",
+								selected ? "bg-foreground" : "bg-[#D1D5DB]",
 							].join(" ")}
 						>
 							<motion.span
-								className="h-2.5 w-2.5 rounded-full bg-white dark:bg-gray-900"
+								className="h-2.5 w-2.5 rounded-full bg-background"
 								initial={false}
 								animate={{ scale: selected ? 1 : 0 }}
 								transition={{ duration: 0.2 }}
@@ -404,9 +417,11 @@ function LanguageSelector({
 function ProgressRingButton({
 	progress,
 	onClick,
+	isArabic,
 }: {
 	progress: number;
 	onClick: () => void;
+	isArabic: boolean;
 }) {
 	const offset = RING_CIRCUMFERENCE - progress * RING_CIRCUMFERENCE;
 
@@ -414,12 +429,12 @@ function ProgressRingButton({
 		<motion.button
 			type="button"
 			onClick={onClick}
-			className="relative flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+			className="relative flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 			style={{ width: RING_SIZE, height: RING_SIZE }}
 			whileHover={{ scale: 1.05 }}
 			whileTap={{ scale: 0.95 }}
 			transition={{ duration: 0.2 }}
-			aria-label="التالي"
+			aria-label={isArabic ? "التالي" : "Next"}
 		>
 			<svg
 				width={RING_SIZE}
@@ -433,7 +448,7 @@ function ProgressRingButton({
 					cy={RING_SIZE / 2}
 					r={RING_RADIUS}
 					fill="none"
-					className="stroke-[#F8F8F8] dark:stroke-gray-700"
+					className="stroke-card"
 					strokeWidth={RING_STROKE}
 				/>
 				<motion.circle
@@ -441,7 +456,7 @@ function ProgressRingButton({
 					cy={RING_SIZE / 2}
 					r={RING_RADIUS}
 					fill="none"
-					stroke="#30913F"
+					stroke="var(--brand)"
 					strokeWidth={RING_STROKE}
 					strokeLinecap="round"
 					strokeDasharray={RING_CIRCUMFERENCE}
@@ -450,13 +465,13 @@ function ProgressRingButton({
 				/>
 			</svg>
 			<div
-				className="relative flex items-center justify-center rounded-full bg-[#30913F]"
+				className="relative flex items-center justify-center rounded-full bg-brand"
 				style={{ width: INNER_BTN, height: INNER_BTN }}
 			>
 				<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
 					<path
 						d="M5 2.5L10 7L5 11.5"
-						stroke="#FEFEFE"
+						stroke="var(--brand-foreground)"
 						strokeWidth="3"
 						strokeLinecap="round"
 						strokeLinejoin="round"
@@ -467,33 +482,43 @@ function ProgressRingButton({
 	);
 }
 
-const OnboardingScreens = memo(function OnboardingScreens() {
+const OnboardingScreens = memo(function OnboardingScreens({
+	isArabic,
+}: {
+	isArabic: boolean;
+}) {
 	const [step, setStep] = useState(0);
-	const [language, setLanguage] = useState<LanguageCode>("ar");
+	const [language, setLanguage] = useState<LanguageCode>(isArabic ? "ar" : "en");
 	const router = useRouter();
 
 	const current = STEPS[step];
 	const isLanguageStep = current.id === "language";
 	const isLast = step === LAST_STEP;
 	const progress = isLanguageStep ? 0 : step / CONTENT_COUNT;
+	const title = isArabic ? current.title.ar : current.title.en;
+	const description = isArabic ? current.description.ar : current.description.en;
 
 	const finish = useCallback(() => {
 		router.replace("/auth");
 	}, [router]);
+	const handleChangeLanguage = useCallback(async (code: LanguageCode) => {
+		await setLocale(code);
+		setLanguage(code);
+	}, []);
+	const handleNext = useCallback(async () => {
 
-	const handleNext = useCallback(() => {
 		if (isLast) {
 			finish();
 			return;
 		}
 		setStep((prev) => prev + 1);
-	}, [finish, isLast]);
+	}, [finish, isLanguageStep, isLast, language]);
 
 	return (
 		<div
-			className="relative flex min-h-dvh w-full flex-col overflow-hidden bg-white dark:bg-gray-900"
-			dir="rtl"
-			lang="ar"
+			className="relative flex min-h-dvh w-full flex-col overflow-hidden bg-background"
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
 		>
 			<BlurredGradientBackground />
 
@@ -501,17 +526,17 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 				<motion.button
 					type="button"
 					onClick={finish}
-					className="absolute top-6 z-20 rounded-full border border-[#F6F5F8] bg-white/25 px-6 py-2.5 text-[14px] font-medium text-[#2D2F35] backdrop-blur-sm start-6 dark:border-gray-700 dark:bg-gray-800/40 dark:text-gray-200"
+					className="absolute top-6 z-20 rounded-full border border-border bg-background/25 px-6 py-2.5 text-[14px] font-medium text-muted backdrop-blur-sm start-6 md:top-8 md:px-8 md:text-[15px] lg:start-10"
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.15 }}
-					aria-label="تخطي"
+					aria-label={isArabic ? "تخطي" : "Skip"}
 				>
-					تخطي
+					{isArabic ? "تخطي" : "Skip"}
 				</motion.button>
 			)}
 
-			<div className="relative z-10 mx-auto flex w-full max-w-lg flex-1 flex-col px-6 pb-8 pt-16 sm:px-8 sm:pt-20">
+			<div className="relative z-10 mx-auto flex w-full max-w-lg flex-1 flex-col px-6 pb-8 pt-16 sm:px-8 sm:pt-20 md:max-w-xl md:px-10 md:pt-24 lg:max-w-2xl lg:px-12">
 				<AnimatePresence mode="wait" initial={false}>
 					<motion.div
 						key={current.id}
@@ -523,43 +548,51 @@ const OnboardingScreens = memo(function OnboardingScreens() {
 						className="flex flex-1 flex-col"
 					>
 						<div className="w-full">
-							<StepIllustration stepId={current.id} />
+							<StepIllustration stepId={current.id} isArabic={isArabic} />
 						</div>
 
 						<TextEntrance
 							delay={0.2}
-							className="mx-auto mt-6 flex max-w-[300px] flex-col items-center gap-2 text-center sm:mt-8"
+							className="mx-auto mt-6 flex w-full max-w-[300px] flex-col items-center gap-2 text-center sm:mt-8 md:max-w-[360px] lg:max-w-[400px]"
 						>
-							<h1 className="w-full text-[20px] font-bold leading-6 text-black dark:text-gray-50 sm:text-[22px]">
-								{current.title}
+							<h1 className="w-full text-[20px] font-bold leading-6 text-foreground sm:text-[22px] md:text-[24px] lg:text-[26px]">
+								{title}
 							</h1>
-							{current.description ? (
-								<p className="w-full whitespace-pre-line text-[15px] font-medium leading-[18px] text-black dark:text-gray-300">
-									{current.description}
+							{description ? (
+								<p className="w-full whitespace-pre-line text-[15px] font-medium leading-[18px] text-muted md:text-[16px] md:leading-5">
+									{description}
 								</p>
 							) : null}
 						</TextEntrance>
 
 						{isLanguageStep ? (
-							<LanguageSelector value={language} onChange={setLanguage} />
+							<LanguageSelector
+								value={language}
+								onChange={handleChangeLanguage}
+								isArabic={isArabic}
+							/>
 						) : null}
 					</motion.div>
 				</AnimatePresence>
 
-				<div className="mt-auto flex flex-col items-center pt-8 sm:pt-10">
+				<div className="mt-auto flex flex-col items-center pt-8 sm:pt-10 md:pt-12">
 					{isLanguageStep ? (
 						<motion.button
 							type="button"
 							onClick={handleNext}
-							className="w-full max-w-[343px] rounded-xl bg-[#30913F] py-3 text-[16px] font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+							className="w-full max-w-[343px] rounded-xl bg-brand py-3 text-[16px] font-bold text-brand-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background md:max-w-[380px] md:py-3.5 md:text-[17px] lg:max-w-[420px]"
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
 							transition={{ duration: 0.2 }}
 						>
-							التالي
+							{isArabic ? "التالي" : "Next"}
 						</motion.button>
 					) : (
-						<ProgressRingButton progress={progress} onClick={handleNext} />
+						<ProgressRingButton
+							progress={progress}
+							onClick={handleNext}
+							isArabic={isArabic}
+						/>
 					)}
 				</div>
 			</div>

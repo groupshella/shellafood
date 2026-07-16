@@ -78,7 +78,7 @@ export interface FilterState {
 
 // ── Date group label ──────────────────────────────────────────────────────────
 
-export type DateGroupLabel = "اليوم" | "الأمس" | "الأقدم";
+export type DateGroupLabel = "today" | "yesterday" | "older";
 
 export interface OrderDateGroup {
     label: DateGroupLabel;

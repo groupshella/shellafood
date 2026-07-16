@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
 import { HelpSupportClient } from "@/features/profile/components/sections/HelpSupport/HelpSupportClient";
+import { isArabicLocale } from "@/shared/lib/locale";
 
-export const metadata: Metadata = {
-    title: "المساعدة والدعم | شيلة فود",
-    description: "تواصل مع الدعم الفني واحصل على المساعدة",
-};
+export async function generateMetadata(): Promise<Metadata> {
+	const isArabic = await isArabicLocale();
+	return {
+		title: isArabic
+			? "المساعدة والدعم | شيلة فود"
+			: "Help & support | Shella Food",
+		description: isArabic
+			? "تواصل مع الدعم الفني واحصل على المساعدة"
+			: "Contact technical support and get help",
+	};
+}
 
-export default function HelpSupportPage() {
-    return <HelpSupportClient />;
+export default async function HelpSupportPage() {
+	const isArabic = await isArabicLocale();
+	return <HelpSupportClient isArabic={isArabic} />;
 }

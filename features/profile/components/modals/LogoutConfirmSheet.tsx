@@ -10,6 +10,7 @@ interface LogoutConfirmSheetProps {
     onClose: () => void;
     onConfirm: () => void;
     isLoading?: boolean;
+    isArabic?: boolean;
 }
 
 export function LogoutConfirmSheet({
@@ -18,21 +19,30 @@ export function LogoutConfirmSheet({
     onClose,
     onConfirm,
     isLoading = false,
+    isArabic = true,
 }: LogoutConfirmSheetProps) {
     return (
         <CheckoutBottomSheet
             isOpen={isOpen}
             isVisible={isVisible}
             onClose={onClose}
-            ariaLabel={PROFILE_STRINGS.logoutConfirmTitle}
+            ariaLabel={
+                isArabic
+                    ? PROFILE_STRINGS.logoutConfirmTitle.ar
+                    : PROFILE_STRINGS.logoutConfirmTitle.en
+            }
         >
             <div className="mx-auto w-full max-w-md px-2 pb-8 pt-2 sm:px-4">
                 <h2 className="mb-6 text-center text-[17px] font-bold text-gray-900 dark:text-gray-50 sm:text-lg">
-                    {PROFILE_STRINGS.logoutConfirmTitle}
+                    {isArabic
+                        ? PROFILE_STRINGS.logoutConfirmTitle.ar
+                        : PROFILE_STRINGS.logoutConfirmTitle.en}
                 </h2>
                 <div className="flex flex-col gap-3">
                     <PrimaryButton onClick={onConfirm} disabled={isLoading}>
-                        {PROFILE_STRINGS.logoutConfirmYes}
+                        {isArabic
+                            ? PROFILE_STRINGS.logoutConfirmYes.ar
+                            : PROFILE_STRINGS.logoutConfirmYes.en}
                     </PrimaryButton>
                     <PrimaryButton
                         variant="danger-muted"
@@ -40,7 +50,7 @@ export function LogoutConfirmSheet({
                         onClick={onClose}
                         disabled={isLoading}
                     >
-                        {PROFILE_STRINGS.cancel}
+                        {isArabic ? PROFILE_STRINGS.cancel.ar : PROFILE_STRINGS.cancel.en}
                     </PrimaryButton>
                 </div>
             </div>

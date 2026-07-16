@@ -14,6 +14,8 @@ interface Props {
     product: CategoryProduct;
     layout?: "grid" | "list";
     moduleId?: string;
+    /** When omitted (external callers), defaults to Arabic to match app locale default. */
+    isArabic?: boolean;
 }
 
 function SarIcon({ size }: { size: number }) {
@@ -31,6 +33,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
     product,
     layout = "grid",
     moduleId = "3",
+    isArabic = true,
 }: Props) {
     const { success, error: notifyError } = useNotification();
     const [imgError, setImgError] = useState(false);
@@ -80,23 +83,29 @@ export const CategoryProductCard = memo(function CategoryProductCard({
     const WishlistButton = (
         <button
             type="button"
-            aria-label={wishlisted ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+            aria-label={
+                wishlisted
+                    ? isArabic
+                        ? "إزالة من المفضلة"
+                        : "Remove from favorites"
+                    : isArabic
+                      ? "إضافة إلى المفضلة"
+                      : "Add to favorites"
+            }
             aria-pressed={wishlisted}
             onClick={toggleWishlist}
             disabled={wishlistPending}
             className={[
                 "flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-9 sm:w-9",
-                "bg-white/90 shadow-[0_1px_4px_rgba(0,0,0,0.08)] ring-1 ring-black/[0.04] backdrop-blur-sm",
-                "transition-colors active:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]",
-                "disabled:opacity-60 dark:bg-gray-800/90 dark:ring-white/[0.08] dark:active:bg-gray-800",
+                "bg-background/90 shadow-[0_1px_4px_rgba(0,0,0,0.08)] ring-1 ring-border backdrop-blur-sm",
+                "transition-colors active:bg-background focus:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+                "disabled:opacity-60",
             ].join(" ")}
         >
             <Heart
                 className={[
-                    "h-4 w-4 transition-colors sm:h-[18px] sm:w-[18px]",
-                    wishlisted
-                        ? "fill-[#30913F] text-[#30913F] dark:fill-[#4db860] dark:text-[#4db860]"
-                        : "fill-none text-[#30913F] dark:text-[#4db860]",
+                    "h-4 w-4 transition-colors text-brand sm:h-[18px] sm:w-[18px]",
+                    wishlisted ? "fill-brand" : "fill-none",
                 ].join(" ")}
                 strokeWidth={wishlisted ? 0 : 1.5}
                 aria-hidden
@@ -107,19 +116,17 @@ export const CategoryProductCard = memo(function CategoryProductCard({
     if (layout === "list") {
         return (
             <div
-                dir="rtl"
+                dir={isArabic ? "rtl" : "ltr"}
+                lang={isArabic ? "ar" : "en"}
                 className={[
-                    "group flex h-full w-full min-w-0 items-center gap-3 rounded-2xl bg-white p-3",
+                    "group flex h-full w-full min-w-0 items-center gap-3 rounded-2xl bg-background p-3",
                     "shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.06)]",
-                    "ring-1 ring-black/[0.05]",
-                    "dark:bg-gray-800 dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_4px_16px_rgba(0,0,0,0.14)]",
-                    "dark:ring-white/[0.06]",
+                    "ring-1 ring-border",
                     "touch-manipulation",
                     "motion-safe:transition-[transform,box-shadow,background-color] motion-safe:duration-200",
-                    "motion-safe:active:scale-[0.99] active:bg-gray-50/80 dark:active:bg-gray-700/50",
+                    "motion-safe:active:scale-[0.99] active:bg-card",
                     "sm:gap-3.5 sm:p-3.5",
                     "md:hover:-translate-y-px md:hover:shadow-[0_2px_6px_rgba(0,0,0,0.05),0_8px_24px_rgba(0,0,0,0.08)]",
-                    "md:dark:hover:shadow-[0_2px_6px_rgba(0,0,0,0.25),0_8px_24px_rgba(0,0,0,0.2)]",
                 ].join(" ")}
             >
                 <div className="relative shrink-0">
@@ -129,13 +136,12 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                         aria-hidden
                         className={[
                             "relative block h-[4.5rem] w-[4.5rem] overflow-hidden rounded-2xl sm:h-20 sm:w-20 md:h-[5.5rem] md:w-[5.5rem]",
-                            "bg-[#F8F8FA] ring-1 ring-black/[0.06]",
+                            "bg-card ring-1 ring-border",
                             "shadow-[0_2px_8px_rgba(0,0,0,0.06)]",
-                            "dark:bg-gray-900/50 dark:ring-white/[0.08] dark:shadow-[0_2px_8px_rgba(0,0,0,0.22)]",
                         ].join(" ")}
                     >
                         {hasDiscount && (
-                            <span className="absolute start-1 top-1 z-10 rounded-md bg-[#FFDCDC] px-1.5 py-0.5 text-[10px] font-bold leading-none text-[#DB2626] sm:text-[11px] dark:bg-red-900/45 dark:text-red-300">
+                            <span className="absolute start-1 top-1 z-10 rounded-md bg-[#FFDCDC] px-1.5 py-0.5 text-[10px] font-bold leading-none text-[#DB2626] sm:text-[11px]">
                                 -{Math.round(discountPercent)}%
                             </span>
                         )}
@@ -154,15 +160,9 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                                 onError={() => setImgError(true)}
                             />
                         ) : (
-                            <div
-                                className={[
-                                    "flex h-full w-full items-center justify-center",
-                                    "bg-gradient-to-br from-[#F6F5F8] to-[#EBEBEF]",
-                                    "dark:from-gray-800 dark:to-gray-900/60",
-                                ].join(" ")}
-                            >
+                            <div className="flex h-full w-full items-center justify-center bg-card">
                                 <ShoppingBag
-                                    className="h-7 w-7 text-gray-300 dark:text-gray-600 sm:h-8 sm:w-8"
+                                    className="h-7 w-7 text-muted sm:h-8 sm:w-8"
                                     aria-hidden
                                 />
                             </div>
@@ -179,24 +179,23 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                     aria-label={product.name}
                     className={[
                         "flex min-h-11 min-w-0 flex-1 flex-col justify-center py-0.5",
-                        "outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
-                        "dark:focus-visible:ring-offset-gray-900",
+                        "outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                     ].join(" ")}
                 >
-                    <p className="line-clamp-2 text-start text-sm font-bold leading-snug text-[#111B18] dark:text-gray-50 sm:text-[15px] sm:leading-snug">
+                    <p className="line-clamp-2 text-start text-sm font-bold leading-snug text-foreground sm:text-[15px] sm:leading-snug">
                         {product.name}
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 sm:mt-2">
                         <PriceTag
                             amount={displayPrice}
                             size="sm"
-                            className="text-[15px] font-bold leading-none text-[#111B18] dark:text-gray-50 sm:text-base"
+                            className="text-[15px] font-bold leading-none text-foreground sm:text-base"
                         />
                         {hasDiscount && (
                             <PriceTag
                                 amount={product.price}
                                 size="sm"
-                                className="text-[11px] leading-none text-[#707784] line-through decoration-[#CD1625] dark:text-gray-500 sm:text-xs"
+                                className="text-[11px] leading-none text-muted line-through decoration-[#CD1625] sm:text-xs"
                             />
                         )}
                     </div>
@@ -215,23 +214,19 @@ export const CategoryProductCard = memo(function CategoryProductCard({
         );
     }
 
-    // ---- GRID LAYOUT ----
-    // Image now scales with the card (aspect-square, full width) instead of a
-    // fixed pixel box, so it stays large and sharp at any grid-column width,
-    // especially on narrow mobile columns. Content sits below in its own
-    // block so text doesn't compete with the image for horizontal space.
     return (
         <div
-            dir="rtl"
-            className="group flex h-full w-full min-w-0 flex-col overflow-hidden rounded-xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.03] transition-shadow hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] dark:bg-gray-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.2)] dark:ring-white/[0.05]"
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
+            className="group flex h-full w-full min-w-0 flex-col overflow-hidden rounded-xl bg-background shadow-[0_2px_10px_rgba(0,0,0,0.05)] ring-1 ring-border transition-shadow hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
         >
             <Link
                 href={itemHref}
                 aria-label={product.name}
-                className="relative block aspect-square w-full shrink-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-inset dark:bg-gray-900/40"
+                className="relative block aspect-square w-full shrink-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset"
             >
                 {hasDiscount && (
-                    <span className="absolute start-2 top-2 z-10 flex items-center justify-center rounded-md bg-[#FFDCDC] px-2 py-1 text-[12px] font-bold leading-none text-[#DB2626] dark:bg-red-900/50 dark:text-red-300">
+                    <span className="absolute start-2 top-2 z-10 flex items-center justify-center rounded-md bg-[#FFDCDC] px-2 py-1 text-[12px] font-bold leading-none text-[#DB2626]">
                         {Math.round(discountPercent)}%-
                     </span>
                 )}
@@ -251,7 +246,7 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                     />
                 ) : (
                     <div className="flex h-full items-center justify-center">
-                        <ShoppingBag className="h-10 w-10 text-gray-300 dark:text-gray-600" aria-hidden />
+                        <ShoppingBag className="h-10 w-10 text-muted" aria-hidden />
                     </div>
                 )}
             </Link>
@@ -260,22 +255,22 @@ export const CategoryProductCard = memo(function CategoryProductCard({
                 <Link
                     href={itemHref}
                     aria-label={product.name}
-                    className="outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]"
+                    className="outline-none focus-visible:ring-2 focus-visible:ring-brand"
                 >
-                    <p className="line-clamp-2 min-h-[2.5em] text-start text-[13px] font-bold leading-[1.4] text-[#111B18] dark:text-gray-50 sm:text-[14px]">
+                    <p className="line-clamp-2 min-h-[2.5em] text-start text-[13px] font-bold leading-[1.4] text-foreground sm:text-[14px]">
                         {product.name}
                     </p>
                 </Link>
 
                 <div className="mt-auto flex items-end justify-between gap-2">
                     <div className="flex flex-col items-start gap-0.5">
-                        <span className="inline-flex items-center gap-0.5 text-[15px] font-bold leading-[1.2] text-[#111B18] dark:text-gray-50 sm:text-[16px]">
+                        <span className="inline-flex items-center gap-0.5 text-[15px] font-bold leading-[1.2] text-foreground sm:text-[16px]">
                             {formatPrice(displayPrice)}
                             <SarIcon size={16} />
                         </span>
 
                         {hasDiscount && (
-                            <span className="relative inline-flex items-center gap-0.5 text-[11px] font-medium leading-[1.2] text-[#707784] dark:text-gray-500 sm:text-[12px]">
+                            <span className="relative inline-flex items-center gap-0.5 text-[11px] font-medium leading-[1.2] text-muted sm:text-[12px]">
                                 {formatPrice(product.price)}
                                 <SarIcon size={10} />
                                 <span

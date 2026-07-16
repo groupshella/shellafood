@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { SearchModule } from "@/features/search/types/modules.types";
 
+/** Decorative module accent palette — illustration colors, not UI chrome tokens */
 const PALETTE = [
     { bg: "#E8F5EE", text: "#2D7A4F", darkBg: "#163528", darkText: "#7BE0A0" },
     { bg: "#FEF0E6", text: "#D4724A", darkBg: "#3A2214", darkText: "#F0A57A" },
@@ -39,19 +40,19 @@ export function ModuleCard({
                 "min-w-[8.25rem] max-w-[11rem] rounded-xl px-3 py-2.5",
                 "bg-[var(--module-bg)] text-[var(--module-text)]",
                 "transition-[transform,opacity,filter,box-shadow] duration-150",
-                "outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2",
-                "dark:bg-[var(--module-dark-bg)] dark:text-[var(--module-dark-text)] dark:focus-visible:ring-offset-gray-950",
+                "outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "dark:bg-[var(--module-dark-bg)] dark:text-[var(--module-dark-text)]",
                 "sm:min-w-[9rem] sm:max-w-none sm:gap-2.5 sm:rounded-2xl sm:px-3.5 sm:py-3",
                 "md:min-w-0 md:w-full md:max-w-none md:gap-3 md:px-4",
                 isActive
                     ? [
-                        "ring-2 ring-[var(--module-text)] ring-offset-1 ring-offset-white",
-                        "dark:ring-[var(--module-dark-text)] dark:ring-offset-gray-950",
-                        "shadow-sm dark:shadow-[0_2px_10px_rgba(0,0,0,0.35)]",
+                        "ring-2 ring-[var(--module-text)] ring-offset-1 ring-offset-background",
+                        "dark:ring-[var(--module-dark-text)]",
+                        "shadow-sm",
                     ].join(" ")
                     : "active:scale-[0.97]",
                 isDisabled
-                    ? "cursor-pointer opacity-40 grayscale dark:opacity-35 dark:grayscale"
+                    ? "cursor-pointer opacity-40 grayscale"
                     : "opacity-100",
             ].join(" ")}
             style={

@@ -4,10 +4,10 @@ const BRANDS_GRID =
 export default function PopularBrandsSkeleton() {
     return (
         <div className="space-y-3 sm:space-y-4">
-            <div className="h-5 w-40 animate-pulse rounded bg-gray-200 dark:bg-gray-700 sm:h-6 sm:w-48" />
+            <div className="h-5 w-40 animate-pulse rounded bg-card sm:h-6 sm:w-48" />
             <div className={BRANDS_GRID}>
                 {Array.from({ length: 10 }).map((_, i) => (
-                    <div key={i} className="aspect-square animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700 sm:rounded-2xl" />
+                    <div key={i} className="aspect-square animate-pulse rounded-lg bg-card sm:rounded-2xl" />
                 ))}
             </div>
         </div>

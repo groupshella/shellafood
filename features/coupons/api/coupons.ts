@@ -9,7 +9,7 @@ import type { Coupon } from "@/features/coupons/types/coupon.types";
  * happens client-side via `features/coupons/lib/coupon-utils.ts` — the API
  * has no `status=expired` filter, only `expire_date`.
  */
-export async function getCoupons(): Promise<Coupon[]> {
+export async function getCoupons(lang: "ar" | "en"): Promise<Coupon[]> {
 	const cookieStore = await cookies();
 	const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
 
@@ -27,13 +27,15 @@ export async function getCoupons(): Promise<Coupon[]> {
 				Authorization: `Bearer ${token}`,
 				moduleId: process.env.MODULE_ID ?? "",
 				zoneId: process.env.ZONE_ID ?? "[1]",
-				"X-localization": "ar",
+				"Accept-Language": lang,
+				"X-localization": lang,
+				lang,
 				"Cache-Control": "no-cache",
 				Pragma: "no-cache",
 			},
 			// Coupon usability (is_used/expire) changes often — don't cache.
 			cache: "no-store",
-			next: { tags: ["coupons"] },
+			next: { tags: ["coupons", `coupons-${lang}`] },
 		}
 	);
 	if (!res.ok) {

@@ -11,6 +11,7 @@ import { PickedLocation } from "@/features/addresses/types/address.types";
 interface MapPickerClientProps {
 	onConfirm: (location: PickedLocation) => void;
 	initialPosition?: google.maps.LatLngLiteral;
+	isArabic: boolean;
 }
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
@@ -32,8 +33,6 @@ const MAP_OPTIONS: google.maps.MapOptions = {
 };
 
 const GOOGLE_MAPS_LIBRARIES: ("places" | "marker")[] = ["places", "marker"];
-
-const GEOCODER_LANGUAGE = "ar";
 const GEOCODER_REGION = "SA";
 
 function extractAddressParts(components: google.maps.GeocoderAddressComponent[]) {
@@ -54,14 +53,19 @@ interface GeocodedLocation extends PickedLocation {
 	formattedAddress: string;
 }
 
-function reverseGeocode(lat: number, lng: number): Promise<GeocodedLocation> {
+function reverseGeocode(
+	lat: number,
+	lng: number,
+	language: "ar" | "en",
+	errorMessage: string,
+): Promise<GeocodedLocation> {
 	const geocoder = new google.maps.Geocoder();
 
 	return new Promise((resolve, reject) => {
 		geocoder.geocode(
 			{
 				location: { lat, lng },
-				language: GEOCODER_LANGUAGE,
+				language,
 				region: GEOCODER_REGION,
 			},
 			(results, status) => {
@@ -81,25 +85,34 @@ function reverseGeocode(lat: number, lng: number): Promise<GeocodedLocation> {
 					return;
 				}
 
-				reject(new Error("تعذّر تحديد العنوان"));
+				reject(new Error(errorMessage));
 			},
 		);
 	});
 }
 
-function formatPickedAddress(location: GeocodedLocation): string {
+function formatPickedAddress(location: GeocodedLocation, isArabic: boolean): string {
 	if (location.formattedAddress.trim()) return location.formattedAddress.trim();
 
 	return [location.street_name, location.region, location.city]
 		.filter(Boolean)
-		.join("، ");
+		.join(isArabic ? "، " : ", ");
+}
+
+function getBrandHex(): string {
+	if (typeof window === "undefined") return "#30913F";
+	const value = getComputedStyle(document.documentElement)
+		.getPropertyValue("--brand")
+		.trim();
+	return value || "#30913F";
 }
 
 function createBrandPinElement(): HTMLElement {
+	const brand = getBrandHex();
 	const PinElement = google.maps.marker?.PinElement;
 	if (PinElement) {
 		const pin = new PinElement({
-			background: "#30913F",
+			background: brand,
 			borderColor: "#267332",
 			glyphColor: "#FFFFFF",
 			scale: 1.15,
@@ -113,7 +126,7 @@ function createBrandPinElement(): HTMLElement {
 	el.style.height = "40px";
 	el.innerHTML = `
 		<svg viewBox="0 0 36 44" width="28" height="40" aria-hidden="true">
-			<path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26S36 31.5 36 18C36 8.06 27.94 0 18 0z" fill="#30913F"/>
+			<path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26S36 31.5 36 18C36 8.06 27.94 0 18 0z" fill="${brand}"/>
 			<circle cx="18" cy="18" r="6" fill="#FFFFFF"/>
 		</svg>
 	`;
@@ -124,9 +137,11 @@ function createBrandPinElement(): HTMLElement {
 function AdvancedMapMarker({
 	map,
 	position,
+	title,
 }: {
 	map: google.maps.Map | null;
 	position: google.maps.LatLngLiteral;
+	title: string;
 }) {
 	const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
 		null,
@@ -139,7 +154,7 @@ function AdvancedMapMarker({
 			map,
 			position,
 			content: createBrandPinElement(),
-			title: "الموقع المحدد",
+			title,
 			gmpDraggable: false,
 		});
 		markerRef.current = marker;
@@ -150,7 +165,7 @@ function AdvancedMapMarker({
 		};
 		// Recreate when map instance changes; position updates separately.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [map]);
+	}, [map, title]);
 
 	useEffect(() => {
 		if (markerRef.current) {
@@ -164,19 +179,21 @@ function AdvancedMapMarker({
 type CheckState = "idle" | "checking" | "out-of-zone" | "confirmed";
 
 const confirmButtonClass =
-	"flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#30913F] to-[#267332] text-sm font-semibold text-white transition-all duration-200 hover:from-[#2a8036] hover:to-[#1f6628] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 dark:focus-visible:ring-offset-gray-900 sm:min-h-[56px]";
+	"flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-brand text-sm font-semibold text-brand-foreground transition-all duration-200 hover:brightness-95 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 sm:min-h-[56px]";
 
 export function MapPickerClient({
 	onConfirm,
 	initialPosition,
+	isArabic,
 }: MapPickerClientProps) {
 	const router = useRouter();
 	const startPos = initialPosition ?? DEFAULT_CENTER;
+	const geocoderLanguage = isArabic ? "ar" : "en";
 
 	const { isLoaded, loadError } = useJsApiLoader({
 		googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
 		libraries: GOOGLE_MAPS_LIBRARIES,
-		language: GEOCODER_LANGUAGE,
+		language: geocoderLanguage,
 		region: GEOCODER_REGION,
 	});
 
@@ -194,7 +211,12 @@ export function MapPickerClient({
 	const resolveAddressAt = useCallback(
 		async (pos: google.maps.LatLngLiteral, requestId: number) => {
 			try {
-				const location = await reverseGeocode(pos.lat, pos.lng);
+				const location = await reverseGeocode(
+					pos.lat,
+					pos.lng,
+					geocoderLanguage,
+					isArabic ? "تعذّر تحديد العنوان" : "Could not resolve address",
+				);
 				if (requestId !== geocodeRequestRef.current) return;
 				setGeocodedLocation(location);
 				setFormattedAddress(location.formattedAddress);
@@ -208,7 +230,7 @@ export function MapPickerClient({
 				}
 			}
 		},
-		[],
+		[geocoderLanguage, isArabic],
 	);
 
 	const onMapLoad = useCallback(
@@ -275,7 +297,7 @@ export function MapPickerClient({
 			return;
 		}
 
-		setFormattedAddress(formatPickedAddress(geocodedLocation));
+		setFormattedAddress(formatPickedAddress(geocodedLocation, isArabic));
 		setCheckState("confirmed");
 		onConfirm({
 			lat: geocodedLocation.lat,
@@ -284,20 +306,26 @@ export function MapPickerClient({
 			region: geocodedLocation.region,
 			street_name: geocodedLocation.street_name,
 		});
-	}, [geocodedLocation, markerPos.lat, markerPos.lng, onConfirm]);
+	}, [geocodedLocation, isArabic, markerPos.lat, markerPos.lng, onConfirm]);
 
 	if (loadError) {
 		return (
-			<div className="flex h-full min-h-[50dvh] flex-col items-center justify-center gap-3 bg-gray-50 p-4 text-center dark:bg-gray-900 sm:min-h-[55dvh] md:min-h-[60dvh] sm:p-6">
+			<div
+				dir={isArabic ? "rtl" : "ltr"}
+				lang={isArabic ? "ar" : "en"}
+				className="flex h-full min-h-[50dvh] flex-col items-center justify-center gap-3 bg-card p-4 text-center sm:min-h-[55dvh] sm:p-6 md:min-h-[60dvh]"
+			>
 				<AlertCircle
 					className="h-8 w-8 text-red-400 dark:text-red-500"
 					aria-hidden
 				/>
-				<p className="text-sm font-medium text-gray-700 dark:text-gray-200">
-					تعذّر تحميل الخريطة
+				<p className="text-sm font-medium text-foreground">
+					{isArabic ? "تعذّر تحميل الخريطة" : "Could not load the map"}
 				</p>
-				<p className="text-xs text-gray-400 dark:text-gray-500">
-					تحقق من مفتاح API أو اتصالك بالإنترنت
+				<p className="text-xs text-muted">
+					{isArabic
+						? "تحقق من مفتاح API أو اتصالك بالإنترنت"
+						: "Check your API key or internet connection"}
 				</p>
 			</div>
 		);
@@ -305,13 +333,17 @@ export function MapPickerClient({
 
 	if (!isLoaded) {
 		return (
-			<div className="flex h-full min-h-[50dvh] flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-900 sm:min-h-[55dvh] md:min-h-[60dvh]">
+			<div
+				dir={isArabic ? "rtl" : "ltr"}
+				lang={isArabic ? "ar" : "en"}
+				className="flex h-full min-h-[50dvh] flex-col items-center justify-center gap-3 bg-card sm:min-h-[55dvh] md:min-h-[60dvh]"
+			>
 				<Loader2
-					className="h-7 w-7 animate-spin text-[#30913F] dark:text-[#3da84f]"
+					className="h-7 w-7 animate-spin text-brand"
 					aria-hidden
 				/>
-				<p className="text-xs font-medium text-gray-400 dark:text-gray-500">
-					جاري تحميل الخريطة…
+				<p className="text-xs font-medium text-muted">
+					{isArabic ? "جاري تحميل الخريطة…" : "Loading map…"}
 				</p>
 			</div>
 		);
@@ -319,9 +351,14 @@ export function MapPickerClient({
 
 	const isChecking = checkState === "checking";
 	const isOutOfZone = checkState === "out-of-zone";
+	const markerTitle = isArabic ? "الموقع المحدد" : "Selected location";
 
 	return (
-		<div className="flex min-h-0 flex-1 flex-col" dir="rtl">
+		<div
+			className="flex min-h-0 flex-1 flex-col"
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
+		>
 			<div className="relative min-h-[50dvh] flex-1 sm:min-h-[55dvh] md:min-h-[min(70dvh,720px)] lg:min-h-[min(75dvh,780px)]">
 				<GoogleMap
 					mapContainerClassName="absolute inset-0 h-full w-full"
@@ -331,75 +368,92 @@ export function MapPickerClient({
 					onClick={handleMapClick}
 					options={MAP_OPTIONS}
 				>
-					<AdvancedMapMarker map={mapInstance} position={markerPos} />
+					<AdvancedMapMarker
+						map={mapInstance}
+						position={markerPos}
+						title={markerTitle}
+					/>
 				</GoogleMap>
 
 				{!isOutOfZone && (
 					<div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center px-3 pt-3 sm:px-4 sm:pt-4 md:px-6 md:pt-5">
-						<div className="flex w-full max-w-md items-center gap-2 rounded-2xl bg-white/95 px-3 py-2 shadow-md backdrop-blur-sm dark:bg-gray-800/95 dark:shadow-black/20 sm:gap-2.5 sm:px-4 sm:py-2.5 md:max-w-lg">
+						<div className="flex w-full max-w-md items-center gap-2 rounded-2xl bg-background/95 px-3 py-2 shadow-md backdrop-blur-sm sm:gap-2.5 sm:px-4 sm:py-2.5 md:max-w-lg lg:max-w-xl">
 							<MapPin
-								className="h-4 w-4 shrink-0 text-[#30913F] dark:text-[#3da84f]"
+								className="h-4 w-4 shrink-0 text-brand"
 								aria-hidden
 							/>
-							<span className="text-xs font-medium text-gray-700 dark:text-gray-200 sm:text-sm">
+							<span className="text-xs font-medium text-foreground sm:text-sm">
 								{initialPosition
-									? "يمكنك تعديل الموقع على الخريطة"
-									: "اضغط على الخريطة لتحديد موقعك"}
+									? isArabic
+										? "يمكنك تعديل الموقع على الخريطة"
+										: "You can adjust the location on the map"
+									: isArabic
+										? "اضغط على الخريطة لتحديد موقعك"
+										: "Tap the map to set your location"}
 							</span>
 						</div>
 					</div>
 				)}
 
 				{isOutOfZone && (
-					<div className="absolute inset-0 z-20 flex items-center justify-center bg-white dark:bg-gray-900">
+					<div className="absolute inset-0 z-20 flex items-center justify-center bg-background">
 						<OutOfServiceArea
 							onAutoRedirect={handleAutoRedirect}
 							onGoHome={handleGoHome}
+							isArabic={isArabic}
 						/>
 					</div>
 				)}
 
 				{!isOutOfZone && (
 					<div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center px-3 pb-3 sm:px-4 sm:pb-4 md:px-6 md:pb-6">
-						<div className="pointer-events-auto flex w-full max-w-md flex-col gap-3 rounded-2xl bg-white/95 px-3.5 py-3.5 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm dark:bg-gray-800/95 dark:shadow-[0_-4px_24px_rgba(0,0,0,0.3)] sm:gap-3 sm:px-4 sm:py-4 md:max-w-lg md:px-5 lg:max-w-xl">
+						<div className="pointer-events-auto flex w-full max-w-md flex-col gap-3 rounded-2xl bg-background/95 px-3.5 py-3.5 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm sm:gap-3 sm:px-4 sm:py-4 md:max-w-lg md:px-5 lg:max-w-xl">
 							<div className="space-y-2 px-0.5">
-								<p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-									الموقع المحدد
+								<p className="text-xs font-semibold text-muted">
+									{isArabic ? "الموقع المحدد" : "Selected location"}
 								</p>
 
 								{isResolvingAddress ? (
-									<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+									<div className="flex items-center gap-2 text-sm text-muted">
 										<Loader2
 											className="h-4 w-4 shrink-0 animate-spin"
 											aria-hidden
 										/>
-										<span>جاري تحديد العنوان…</span>
+										<span>
+											{isArabic
+												? "جاري تحديد العنوان…"
+												: "Resolving address…"}
+										</span>
 									</div>
 								) : formattedAddress ? (
-									<p className="break-words text-sm font-medium leading-relaxed text-gray-900 dark:text-gray-100">
+									<p className="break-words text-sm font-medium leading-relaxed text-foreground">
 										{formattedAddress}
 									</p>
 								) : (
-									<p className="text-sm text-gray-400 dark:text-gray-500">
-										اضغط على الخريطة لتحديد موقعك
+									<p className="text-sm text-muted">
+										{isArabic
+											? "اضغط على الخريطة لتحديد موقعك"
+											: "Tap the map to set your location"}
 									</p>
 								)}
 
 								<div className="flex items-center justify-between gap-2 pt-1">
-									<span className="font-mono text-[11px] tabular-nums text-gray-400 dark:text-gray-500">
+									<span className="font-mono text-[11px] tabular-nums text-muted">
 										{markerPos.lat.toFixed(5)}, {markerPos.lng.toFixed(5)}
 									</span>
 									{checkState === "idle" &&
 										!isResolvingAddress &&
 										formattedAddress && (
-											<span className="text-[11px] text-gray-400 dark:text-gray-500">
-												تحقق من دقة الموقع
+											<span className="text-[11px] text-muted">
+												{isArabic
+													? "تحقق من دقة الموقع"
+													: "Check location accuracy"}
 											</span>
 										)}
 									{checkState === "confirmed" && (
-										<span className="flex items-center gap-1 text-[11px] font-medium text-green-600 dark:text-green-400">
-											<CheckCircle2 className="h-3 w-3" aria-hidden /> تم
-											التأكيد
+										<span className="flex items-center gap-1 text-[11px] font-medium text-brand">
+											<CheckCircle2 className="h-3 w-3" aria-hidden />{" "}
+											{isArabic ? "تم التأكيد" : "Confirmed"}
 										</span>
 									)}
 								</div>
@@ -419,10 +473,14 @@ export function MapPickerClient({
 								{isChecking ? (
 									<>
 										<Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-										<span>جاري التحقق…</span>
+										<span>
+											{isArabic ? "جاري التحقق…" : "Checking…"}
+										</span>
 									</>
-								) : (
+								) : isArabic ? (
 									"تأكيد الموقع"
+								) : (
+									"Confirm location"
 								)}
 							</button>
 						</div>

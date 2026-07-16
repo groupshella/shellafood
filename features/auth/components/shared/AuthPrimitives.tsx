@@ -10,33 +10,23 @@ import {
 import { motion } from "framer-motion";
 import { isAccountExistsError } from "@/features/auth/lib/auth.lib";
 
-// ─── Design tokens (local hex map until theme tokens exist) ───────────────────
-export const AUTH_COLORS = {
-	primary: "#30913F",
-	textPrimary: "#111B18",
-	textSecondary: "#555555",
-	placeholder: "#707784",
-	border: "#C6C8CE",
-	disabledBg: "#E2E4E6",
-	secondaryBg: "#F6F6F6",
-	secondaryText: "#43474F",
-} as const;
-
 // ─── Page shell (full viewport, responsive) ───────────────────────────────────
 export const AuthShell = memo(function AuthShell({
 	children,
+	isArabic,
 	className = "",
 }: {
 	children: ReactNode;
+	isArabic: boolean;
 	className?: string;
 }) {
 	return (
 		<div
-			dir="rtl"
-			lang="ar"
-			className={`relative flex min-h-dvh w-full flex-col bg-white text-[#111B18] dark:bg-gray-900 dark:text-gray-100 ${className}`}
+			dir={isArabic ? "rtl" : "ltr"}
+			lang={isArabic ? "ar" : "en"}
+			className={`relative flex min-h-dvh w-full flex-col bg-background text-foreground ${className}`}
 		>
-			<div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-8 pt-4 sm:pt-16">
+			<div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-8 pt-4 sm:pt-16 md:max-w-lg md:px-6 lg:max-w-xl lg:px-8">
 				{children}
 			</div>
 		</div>
@@ -47,9 +37,11 @@ export const AuthShell = memo(function AuthShell({
 export const BackHeader = memo(function BackHeader({
 	onBack,
 	disabled,
+	isArabic,
 }: {
 	onBack: () => void;
 	disabled?: boolean;
+	isArabic: boolean;
 }) {
 	return (
 		<motion.button
@@ -58,8 +50,8 @@ export const BackHeader = memo(function BackHeader({
 			animate={{ opacity: 1 }}
 			onClick={onBack}
 			disabled={disabled}
-			aria-label="رجوع"
-			className="mb-4 -me-2 flex h-10 w-10 items-center justify-center self-start rounded-full transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-50 dark:hover:bg-gray-700 dark:focus-visible:ring-gray-500"
+			aria-label={isArabic ? "رجوع" : "Back"}
+			className="mb-4 -me-2 flex h-10 w-10 items-center justify-center self-start rounded-full transition-colors hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:opacity-50"
 		>
 			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
 				<path
@@ -81,7 +73,7 @@ export function AuthTitle({ children }: { children: ReactNode }) {
 			initial={{ y: 12, opacity: 0 }}
 			animate={{ y: 0, opacity: 1 }}
 			transition={{ duration: 0.4 }}
-			className="text-start text-[28px] font-bold leading-tight text-[#111B18] dark:text-gray-100 sm:text-[32px]"
+			className="text-start text-[28px] font-bold leading-tight text-foreground sm:text-[32px] md:text-[34px]"
 		>
 			{children}
 		</motion.h1>
@@ -94,7 +86,7 @@ export function AuthSubtitle({ children }: { children: ReactNode }) {
 			initial={{ y: 8, opacity: 0 }}
 			animate={{ y: 0, opacity: 1 }}
 			transition={{ delay: 0.1, duration: 0.4 }}
-			className="mt-2 text-start text-[16px] font-normal leading-relaxed text-[#555555] dark:text-gray-400"
+			className="mt-2 text-start text-[16px] font-normal leading-relaxed text-muted md:text-[17px]"
 		>
 			{children}
 		</motion.p>
@@ -104,7 +96,7 @@ export function AuthSubtitle({ children }: { children: ReactNode }) {
 // ─── Field label ──────────────────────────────────────────────────────────────
 export function FieldLabel({ children }: { children: ReactNode }) {
 	return (
-		<label className="mb-1.5 block text-start text-[14px] font-bold leading-[160%] text-[#111B18] dark:text-gray-100">
+		<label className="mb-1.5 block text-start text-[14px] font-bold leading-[160%] text-foreground">
 			{children}
 		</label>
 	);
@@ -120,7 +112,7 @@ export const TextField = forwardRef<
 			<FieldLabel>{label}</FieldLabel>
 			<input
 				ref={ref}
-				className={`box-border h-14 w-full rounded-xl border border-[#C6C8CE] bg-white px-4 text-start text-[14px] text-[#111B18] outline-none transition-all placeholder:text-[#707784] focus:border-[#30913F] focus:ring-1 focus:ring-[#30913F] disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-[#30913F] ${className}`}
+				className={`box-border h-14 w-full rounded-xl border border-[#C6C8CE] bg-background px-4 text-start text-[14px] text-foreground outline-none transition-all placeholder:text-muted focus:border-brand focus:ring-1 focus:ring-brand disabled:opacity-50 ${className}`}
 				{...props}
 			/>
 		</div>
@@ -153,23 +145,27 @@ export const PhoneField = memo(function PhoneField({
 	onChange,
 	onEnter,
 	disabled,
-	label = "رقم الهاتف",
+	isArabic,
+	label,
 }: {
 	value: string;
 	onChange: (v: string) => void;
 	onEnter?: () => void;
 	disabled?: boolean;
+	isArabic: boolean;
 	label?: string;
 }) {
+	const resolvedLabel = label ?? (isArabic ? "رقم الهاتف" : "Phone number");
+
 	return (
 		<div>
-			<FieldLabel>{label}</FieldLabel>
-			<div className="box-border flex h-14 w-full items-center gap-3 rounded-xl border border-[#C6C8CE] bg-white px-4 transition-all focus-within:border-[#30913F] focus-within:ring-1 focus-within:ring-[#30913F] dark:border-gray-600 dark:bg-gray-800 dark:focus-within:border-[#30913F]">
-				<div className="flex shrink-0 items-center gap-2 border-e border-[#C6C8CE] pe-3 dark:border-gray-600">
+			<FieldLabel>{resolvedLabel}</FieldLabel>
+			<div className="box-border flex h-14 w-full items-center gap-3 rounded-xl border border-[#C6C8CE] bg-background px-4 transition-all focus-within:border-brand focus-within:ring-1 focus-within:ring-brand">
+				<div className="flex shrink-0 items-center gap-2 border-e border-[#C6C8CE] pe-3">
 					<SaudiFlag />
 					<span
 						dir="ltr"
-						className="text-[14px] font-normal text-[#111B18] dark:text-gray-100"
+						className="text-[14px] font-normal text-foreground"
 					>
 						+966
 					</span>
@@ -183,8 +179,8 @@ export const PhoneField = memo(function PhoneField({
 					onKeyDown={(e) => e.key === "Enter" && onEnter?.()}
 					placeholder="12 234 5678"
 					disabled={disabled}
-					aria-label={label}
-					className="min-w-0 flex-1 bg-transparent text-start text-[14px] text-[#343434] outline-none placeholder:text-[#707784] dark:text-gray-100 dark:placeholder:text-gray-500"
+					aria-label={resolvedLabel}
+					className="min-w-0 flex-1 bg-transparent text-start text-[14px] text-foreground outline-none placeholder:text-muted"
 				/>
 			</div>
 		</div>
@@ -225,10 +221,11 @@ export const PasswordField = memo(function PasswordField({
 	onEnter,
 	disabled,
 	label,
-	placeholder = "كلمة المرور",
+	placeholder,
 	show,
 	onToggle,
 	error,
+	isArabic,
 }: {
 	value: string;
 	onChange: (v: string) => void;
@@ -239,21 +236,33 @@ export const PasswordField = memo(function PasswordField({
 	show: boolean;
 	onToggle: () => void;
 	error?: boolean;
+	isArabic: boolean;
 }) {
+	const resolvedPlaceholder =
+		placeholder ?? (isArabic ? "كلمة المرور" : "Password");
+
 	return (
 		<div>
 			<FieldLabel>{label}</FieldLabel>
 			<div
-				className={`box-border flex h-14 w-full items-center gap-3 rounded-xl border bg-white px-4 transition-all focus-within:ring-1 dark:bg-gray-800 ${error
+				className={`box-border flex h-14 w-full items-center gap-3 rounded-xl border bg-background px-4 transition-all focus-within:ring-1 ${error
 					? "border-red-400 focus-within:border-red-400 focus-within:ring-red-400"
-					: "border-[#C6C8CE] focus-within:border-[#30913F] focus-within:ring-[#30913F] dark:border-gray-600 dark:focus-within:border-[#30913F]"
+					: "border-[#C6C8CE] focus-within:border-brand focus-within:ring-brand"
 					}`}
 			>
 				<button
 					type="button"
 					onClick={onToggle}
-					className="shrink-0 rounded text-[#555555] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] dark:text-gray-400"
-					aria-label={show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+					className="shrink-0 rounded text-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+					aria-label={
+						show
+							? isArabic
+								? "إخفاء كلمة المرور"
+								: "Hide password"
+							: isArabic
+								? "إظهار كلمة المرور"
+								: "Show password"
+					}
 				>
 					{show ? <EyeIcon /> : <EyeSlashIcon />}
 				</button>
@@ -262,10 +271,16 @@ export const PasswordField = memo(function PasswordField({
 					value={value}
 					onChange={(e) => onChange(e.target.value)}
 					onKeyDown={(e) => e.key === "Enter" && onEnter?.()}
-					placeholder={placeholder}
+					placeholder={resolvedPlaceholder}
 					disabled={disabled}
-					aria-label={typeof label === "string" ? label : "كلمة المرور"}
-					className="min-w-0 flex-1 bg-transparent text-start text-[14px] text-[#111B18] outline-none placeholder:text-[#555555] dark:text-gray-100 dark:placeholder:text-gray-500"
+					aria-label={
+						typeof label === "string"
+							? label
+							: isArabic
+								? "كلمة المرور"
+								: "Password"
+					}
+					className="min-w-0 flex-1 bg-transparent text-start text-[14px] text-foreground outline-none placeholder:text-muted"
 				/>
 			</div>
 		</div>
@@ -296,7 +311,7 @@ export const PrimaryButton = memo(function PrimaryButton({
 			onClick={onClick}
 			whileTap={{ scale: disabled ? 1 : 0.98 }}
 			disabled={disabled}
-			className={`box-border flex h-12 w-full items-center justify-center rounded-xl bg-[#30913F] px-4 text-[16px] font-bold text-white transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#E2E4E6] disabled:text-[#555555] disabled:hover:bg-[#E2E4E6] dark:focus-visible:ring-offset-gray-900 dark:disabled:bg-gray-700 dark:disabled:text-gray-500 ${className}`}
+			className={`box-border flex h-12 w-full items-center justify-center rounded-xl bg-brand px-4 text-[16px] font-bold text-brand-foreground transition-colors hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:bg-[#E2E4E6] disabled:text-muted disabled:hover:bg-[#E2E4E6] disabled:hover:brightness-100 ${className}`}
 			{...rest}
 		>
 			{children}
@@ -318,7 +333,7 @@ export const SecondaryButton = memo(function SecondaryButton({
 			onClick={onClick}
 			whileTap={{ scale: disabled ? 1 : 0.98 }}
 			disabled={disabled}
-			className={`box-border flex h-12 w-full items-center justify-center rounded-xl bg-[#F6F6F6] px-4 text-[16px] font-bold text-[#43474F] transition-colors hover:bg-[#eeeeee] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:focus-visible:ring-gray-500 ${className}`}
+			className={`box-border flex h-12 w-full items-center justify-center rounded-xl bg-card px-4 text-[16px] font-bold text-muted transition-colors hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
 			{...rest}
 		>
 			{children}
@@ -346,16 +361,16 @@ export const AuthCheckbox = memo(function AuthCheckbox({
 				aria-checked={checked}
 				disabled={disabled}
 				onClick={() => onChange(!checked)}
-				className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] ${checked
-					? "border-[#30913F] bg-[#30913F]"
-					: "border-[#555555] bg-white dark:border-gray-500 dark:bg-gray-700"
+				className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand ${checked
+					? "border-brand bg-brand"
+					: "border-muted bg-background"
 					}`}
 			>
 				{checked && (
 					<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
 						<path
 							d="M2.5 7.5 5.5 10.5 11.5 3.5"
-							stroke="#fff"
+							stroke="var(--brand-foreground)"
 							strokeWidth="2"
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -363,7 +378,7 @@ export const AuthCheckbox = memo(function AuthCheckbox({
 					</svg>
 				)}
 			</button>
-			<span className="text-start text-[14px] font-normal text-[#111B18] dark:text-gray-200">{label}</span>
+			<span className="text-start text-[14px] font-normal text-foreground">{label}</span>
 		</label>
 	);
 });
@@ -381,7 +396,7 @@ export const HelperRow = memo(function HelperRow({ children }: { children: React
 					strokeLinecap="round"
 				/>
 			</svg>
-			<span className="text-start text-[14px] font-normal text-[#111B18] dark:text-gray-200">{children}</span>
+			<span className="text-start text-[14px] font-normal text-foreground">{children}</span>
 		</div>
 	);
 });
@@ -398,9 +413,11 @@ export function ErrorMessage({ children }: { children: ReactNode }) {
 export function AccountExistsErrorMessage({
 	onLogin,
 	onForgotPassword,
+	isArabic,
 }: {
 	onLogin: () => void;
 	onForgotPassword: () => void;
+	isArabic: boolean;
 }) {
 	return (
 		<div
@@ -408,23 +425,24 @@ export function AccountExistsErrorMessage({
 			className="rounded-lg bg-red-50 px-3 py-3 text-start text-[14px] leading-relaxed text-red-600 dark:bg-red-950/60 dark:text-red-400"
 		>
 			<p>
-				يوجد حساب مرتبط بهذا الرقم بالفعل. يمكنك تسجيل الدخول أو استعادة كلمة
-				المرور.
+				{isArabic
+					? "يوجد حساب مرتبط بهذا الرقم بالفعل. يمكنك تسجيل الدخول أو استعادة كلمة المرور."
+					: "An account is already linked to this number. You can sign in or reset your password."}
 			</p>
 			<div className="mt-3 flex flex-wrap items-center justify-end gap-3">
 				<button
 					type="button"
 					onClick={onForgotPassword}
-					className="rounded text-[14px] font-medium text-[#555555] underline transition-colors hover:text-[#30913F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F]/40 dark:text-gray-400 dark:hover:text-[#30913F]"
+					className="rounded text-[14px] font-medium text-muted underline transition-colors hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
 				>
-					استعادة كلمة المرور
+					{isArabic ? "استعادة كلمة المرور" : "Reset password"}
 				</button>
 				<button
 					type="button"
 					onClick={onLogin}
-					className="rounded-lg bg-[#30913F] px-4 py-2 text-[14px] font-bold text-white transition-colors hover:bg-[#2a8036] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#30913F] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+					className="rounded-lg bg-brand px-4 py-2 text-[14px] font-bold text-brand-foreground transition-colors hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 				>
-					تسجيل الدخول
+					{isArabic ? "تسجيل الدخول" : "Sign in"}
 				</button>
 			</div>
 		</div>
@@ -435,16 +453,19 @@ export function AuthErrorMessage({
 	error,
 	onLogin,
 	onForgotPassword,
+	isArabic,
 }: {
 	error: string;
 	onLogin?: () => void;
 	onForgotPassword?: () => void;
+	isArabic: boolean;
 }) {
 	if (onLogin && onForgotPassword && isAccountExistsError(error)) {
 		return (
 			<AccountExistsErrorMessage
 				onLogin={onLogin}
 				onForgotPassword={onForgotPassword}
+				isArabic={isArabic}
 			/>
 		);
 	}
@@ -454,7 +475,7 @@ export function AuthErrorMessage({
 
 export function InfoMessage({ children }: { children: ReactNode }) {
 	return (
-		<p className="rounded-lg bg-green-50 px-3 py-2 text-start text-[14px] text-[#2a8036] dark:bg-green-950/60 dark:text-green-400">
+		<p className="rounded-lg bg-green-50 px-3 py-2 text-start text-[14px] text-brand dark:bg-green-950/60 dark:text-green-400">
 			{children}
 		</p>
 	);

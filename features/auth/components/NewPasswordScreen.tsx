@@ -15,6 +15,7 @@ import {
 } from "@/features/auth/components/shared/AuthPrimitives";
 
 interface NewPasswordScreenProps {
+	isArabic: boolean;
 	isLoading?: boolean;
 	error?: string | null;
 	onBack: () => void;
@@ -22,6 +23,7 @@ interface NewPasswordScreenProps {
 }
 
 const NewPasswordScreen = memo(function NewPasswordScreen({
+	isArabic,
 	isLoading = false,
 	error,
 	onBack,
@@ -50,30 +52,37 @@ const NewPasswordScreen = memo(function NewPasswordScreen({
 	}, []);
 
 	return (
-		<AuthShell>
-			<BackHeader onBack={onBack} disabled={isLoading} />
+		<AuthShell isArabic={isArabic}>
+			<BackHeader onBack={onBack} disabled={isLoading} isArabic={isArabic} />
 
-			<AuthTitle>إنشاء كلمة مرور جديدة</AuthTitle>
-			<AuthSubtitle>ادخل كلمة المرور الجديدة</AuthSubtitle>
+			<AuthTitle>
+				{isArabic ? "إنشاء كلمة مرور جديدة" : "Create a new password"}
+			</AuthTitle>
+			<AuthSubtitle>
+				{isArabic ? "ادخل كلمة المرور الجديدة" : "Enter your new password"}
+			</AuthSubtitle>
 
 			<motion.div
 				initial={{ y: 12, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ delay: 0.15, duration: 0.4 }}
-				className="mt-8 flex flex-col gap-4"
+				className="mt-8 flex flex-col gap-4 md:mt-10"
 			>
 				<PasswordField
-					label="كلمة المرور"
+					label={isArabic ? "كلمة المرور" : "Password"}
 					value={password}
 					onChange={setPassword}
 					show={showPassword}
 					onToggle={handleTogglePassword}
 					disabled={isLoading}
+					isArabic={isArabic}
 				/>
 
 				<div>
 					<PasswordField
-						label="اعادة كتابة كلمة المرور"
+						label={
+							isArabic ? "اعادة كتابة كلمة المرور" : "Re-enter password"
+						}
 						value={confirmPassword}
 						onChange={setConfirmPassword}
 						onEnter={handleSubmit}
@@ -81,6 +90,7 @@ const NewPasswordScreen = memo(function NewPasswordScreen({
 						onToggle={handleToggleConfirm}
 						disabled={isLoading}
 						error={passwordsMismatch}
+						isArabic={isArabic}
 					/>
 					<AnimatePresence>
 						{passwordsMismatch && (
@@ -90,13 +100,19 @@ const NewPasswordScreen = memo(function NewPasswordScreen({
 								exit={{ opacity: 0, y: -4 }}
 								className="mt-1.5 text-start text-xs text-red-500 dark:text-red-400"
 							>
-								كلمتا المرور غير متطابقتين
+								{isArabic
+									? "كلمتا المرور غير متطابقتين"
+									: "Passwords do not match"}
 							</motion.p>
 						)}
 					</AnimatePresence>
 				</div>
 
-				<HelperRow>يجب أن تتكون كلمة المرور من 8 أحرف على الأقل</HelperRow>
+				<HelperRow>
+					{isArabic
+						? "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل"
+						: "Password must be at least 8 characters"}
+				</HelperRow>
 
 				<AnimatePresence>
 					{error && (
@@ -111,9 +127,15 @@ const NewPasswordScreen = memo(function NewPasswordScreen({
 				</AnimatePresence>
 			</motion.div>
 
-			<div className="mt-auto pt-8">
+			<div className="mt-auto pt-8 md:pt-10">
 				<PrimaryButton onClick={handleSubmit} disabled={!isValid || isLoading}>
-					{isLoading ? "جاري الحفظ..." : "حفظ"}
+					{isLoading
+						? isArabic
+							? "جاري الحفظ..."
+							: "Saving..."
+						: isArabic
+							? "حفظ"
+							: "Save"}
 				</PrimaryButton>
 			</div>
 		</AuthShell>

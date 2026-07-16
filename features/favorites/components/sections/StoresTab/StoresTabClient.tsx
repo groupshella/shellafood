@@ -10,13 +10,17 @@ const CONTENT_PADDING = "px-3 py-4 sm:px-4 sm:py-5 md:px-5 lg:px-6";
 const ITEMS_GRID =
     "grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:gap-5 xl:grid-cols-3 xl:gap-5";
 const SECTION_HEADING =
-    "mb-2.5 text-start text-sm font-semibold text-gray-500 dark:text-gray-400 sm:mb-3 sm:text-[15px] md:text-base";
+    "mb-2.5 text-start text-sm font-semibold text-muted sm:mb-3 sm:text-[15px] md:text-base";
 
 interface StoresTabClientProps {
     stores: FavoriteStore[];
+    isArabic: boolean;
 }
 
-export function StoresTabClient({ stores: initialStores }: StoresTabClientProps) {
+export function StoresTabClient({
+    stores: initialStores,
+    isArabic,
+}: StoresTabClientProps) {
     const [stores, setStores] = useState(initialStores);
 
     function handleRemove(storeId: number) {
@@ -24,13 +28,17 @@ export function StoresTabClient({ stores: initialStores }: StoresTabClientProps)
     }
 
     if (stores.length === 0) {
-        return <EmptyFavorites />;
+        return <EmptyFavorites isArabic={isArabic} />;
     }
 
-    const groups = groupByDate(stores);
+    const groups = groupByDate(stores, isArabic);
 
     return (
-        <div className={`space-y-5 sm:space-y-6 ${CONTENT_PADDING}`}>
+        <div
+            className={`space-y-5 sm:space-y-6 ${CONTENT_PADDING}`}
+            dir={isArabic ? "rtl" : "ltr"}
+            lang={isArabic ? "ar" : "en"}
+        >
             {groups.map((group) => (
                 <section key={group.key}>
                     <p className={SECTION_HEADING}>{group.label}</p>
@@ -41,6 +49,7 @@ export function StoresTabClient({ stores: initialStores }: StoresTabClientProps)
                                 store={store}
                                 initialFavorited
                                 onRemove={handleRemove}
+                                isArabic={isArabic}
                             />
                         ))}
                     </div>

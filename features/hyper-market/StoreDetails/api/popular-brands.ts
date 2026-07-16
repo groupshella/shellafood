@@ -4,18 +4,21 @@ import {
 } from "@/features/hyper-market/StoreDetails/types/popular-brands.types";
 
 export async function getHyperMarketPopularBrands(
-    moduleId: string
+    moduleId: string,
+    lang: "ar" | "en"
 ): Promise<HyperMarketPopularBrand[]> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v2/brands`, {
         method: "GET",
         headers: {
             Accept: "application/json",
-            "X-Localization": "ar",
+            "X-Localization": lang,
+            "Accept-Language": lang,
+            lang,
             moduleId,
         },
         next: {
             revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
-            tags: ["popular-brands", "hyper-market-data"],
+            tags: ["popular-brands", "hyper-market-data", `hyper-market-data-${lang}`],
         },
     });
 

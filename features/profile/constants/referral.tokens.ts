@@ -1,14 +1,19 @@
-/** Invite friends UI tokens — matched to Figma CSS export. */
+/**
+ * Invite friends UI tokens mapped to Tailwind design tokens.
+ * Prefer these class names over hardcoded hex in referral UI.
+ */
 export const REFERRAL_UI = {
-    textPrimary: "#111B18",
-    textInactiveTab: "#082E0A",
-    green: "#30913F",
-    greenLight: "#3EC856",
-    greenPale: "#EBFEEB",
-    graySegment: "#F6F5F8",
-    grayBorderDashed: "#C6C8CE",
-    grayLabel: "#707784",
-    purplePending: "#DFD3F5",
-    copyIcon: "#292D32",
-    iconStroke: 1.75,
+	textPrimary: "text-foreground",
+	textInactiveTab: "text-foreground",
+	green: "bg-brand",
+	textGreen: "text-brand",
+	greenLight: "bg-brand",
+	greenPale: "bg-brand/10",
+	graySegment: "bg-card",
+	grayBorderDashed: "border-border",
+	grayLabel: "text-muted",
+	/** Decorative pending chip accent (illustration), not UI chrome. */
+	purplePending: "#DFD3F5",
+	copyIcon: "text-foreground",
+	iconStroke: 1.75,
 } as const;

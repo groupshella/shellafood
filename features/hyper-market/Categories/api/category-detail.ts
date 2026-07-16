@@ -12,6 +12,7 @@ import { CategoryDetails } from "@/features/hyper-market/Categories/types/catego
 export async function getCategoryDetail(
     storeId: string,
     categoryId: string | number,
+    lang: "ar" | "en",
     limit = 20,
     offset = 1,
     options?: { cache?: RequestCache },
@@ -24,21 +25,23 @@ export async function getCategoryDetail(
         {
             headers: {
                 Accept: "application/json",
-                "Accept-Language": "ar",
-                "X-Localization": "ar",
+                "Accept-Language": lang,
+                "X-Localization": lang,
+                lang,
                 zoneId: process.env.ZONE_ID!,
             },
             ...(cache
                 ? { cache }
                 : {
-                      next: {
-                          revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
-                          tags: [
-                              "hyper-market",
-                              `store-${storeId}-category-${categoryId}`,
-                          ],
-                      },
-                  }),
+                    next: {
+                        revalidate: Number(process.env.REVALIDATE_TIME) || 3600,
+                        tags: [
+                            "hyper-market",
+                            `store-${storeId}-category-${categoryId}`,
+                            `store-${storeId}-category-${categoryId}-${lang}`,
+                        ],
+                    },
+                }),
         },
     );
 
