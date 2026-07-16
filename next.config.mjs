@@ -12,7 +12,6 @@ const nextConfig = {
   images: {
     // Vercel returns 402 when Image Optimization quota is exceeded (Hobby plan ~5K/month).
     // Serve images directly from src so they work in production without the optimizer.
-    unoptimized: true,
     formats: ['image/avif', 'image/webp'],
     // Mobile-first device sizes
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
