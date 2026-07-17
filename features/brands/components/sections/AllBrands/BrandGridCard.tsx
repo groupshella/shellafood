@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { memo, useCallback, useState } from "react";
 import { Brand } from "@/features/brands/types/brands.types";
 

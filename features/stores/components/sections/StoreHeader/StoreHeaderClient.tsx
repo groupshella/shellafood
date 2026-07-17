@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, Heart, Search, Star, Truck } from "lucide-react";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";

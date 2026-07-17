@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { PopularBrand } from "@/features/markets/types/popular-brands.types";
 
 export function BrandCard({ brand }: { brand: PopularBrand }) {

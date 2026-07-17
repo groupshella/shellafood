@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import Link from "next/link";
 import { SlidersHorizontal, X, Store, Clock, ChevronLeft } from "lucide-react";
 import type { ApiOrder, OrderStatus, FilterState, DateGroupLabel } from "@/features/my-orders/types/orders.types";

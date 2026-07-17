@@ -1,14 +1,21 @@
 "use client";
 
-import Image, { ImageProps } from "next/image";
-import { useState } from "react";
+import Image from "@/shared/components/SecureImage";
+import type { ImageProps } from "next/image";
+import { useEffect, useState } from "react";
+import { toSecureMediaUrl } from "@/shared/lib/media-url";
 
 interface ImageWithFallbackProps extends ImageProps {
     fallbackSrc?: string;
 }
 
 export function ImageWithFallback({ src, fallbackSrc = "/placeholder.png", onError, ...props }: ImageWithFallbackProps) {
-    const [imgSrc, setImgSrc] = useState(src);
+    const secureSrc = typeof src === "string" ? toSecureMediaUrl(src) : src;
+    const [imgSrc, setImgSrc] = useState(secureSrc);
+
+    useEffect(() => {
+        setImgSrc(secureSrc);
+    }, [secureSrc]);
 
     return (
         <Image

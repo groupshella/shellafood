@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { Package } from "lucide-react";
 import type { CartItem } from "@/features/cart/types/cart.types";
 

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { Notification } from "@/features/notifications/types/notifications.types";
 
 function formatTime(dateStr: string, isArabic: boolean): string {

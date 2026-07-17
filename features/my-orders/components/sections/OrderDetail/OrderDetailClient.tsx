@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import {
     ChevronRight,
     Bookmark,

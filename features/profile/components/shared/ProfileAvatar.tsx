@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { resolveProfileImageUrl } from "@/features/profile/lib/profile.lib";

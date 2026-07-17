@@ -1,7 +1,7 @@
 "use client";
 
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { useRouter } from "next/navigation";
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
 import { SupportInfoCard } from "@/features/profile/components/shared/support/SupportInfoCard";

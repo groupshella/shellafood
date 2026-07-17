@@ -39,16 +39,21 @@ function unwrapWishlistResponse(json: unknown): {
     };
 }
 
+import { toSecureMediaUrl } from "@/shared/lib/media-url";
+
 function toAbsoluteUrl(value: string | null): string {
     if (!value) return "";
-    if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("data:")) {
-        return value;
+    if (value.startsWith("data:") || value.startsWith("blob:")) return value;
+
+    if (value.startsWith("http://") || value.startsWith("https://")) {
+        return toSecureMediaUrl(value);
     }
 
     const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
     if (!base) return value;
 
-    return value.startsWith("/") ? `${base}${value}` : `${base}/${value}`;
+    const absolute = value.startsWith("/") ? `${base}${value}` : `${base}/${value}`;
+    return toSecureMediaUrl(absolute);
 }
 
 function toFavoriteProduct(

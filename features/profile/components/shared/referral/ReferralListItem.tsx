@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { Check, Timer, User } from "lucide-react";
 import type { ReferralEntry } from "@/features/profile/types/referral.types";
 

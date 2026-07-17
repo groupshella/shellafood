@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { Heart, Clock, ChevronLeft, ChevronRight, Store } from "lucide-react";
 import type { FavoriteOrder } from "@/features/favorites/types/favorites.types";
 

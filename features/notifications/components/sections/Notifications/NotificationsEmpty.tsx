@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 
 type NotificationsEmptyProps = {
 	isArabic: boolean;

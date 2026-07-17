@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import Link from "next/link";
 import { memo, useMemo } from "react";
 import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";

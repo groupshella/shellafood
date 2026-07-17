@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 
 export function ReferralInvitedEmpty({ isArabic }: { isArabic: boolean }) {
 	return (

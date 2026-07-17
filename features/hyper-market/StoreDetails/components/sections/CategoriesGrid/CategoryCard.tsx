@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useState } from "react";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import Link from "next/link";
 import { StoreCategory } from "@/features/hyper-market/Categories/types/categories.types";
 

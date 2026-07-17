@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import Link from "next/link";
 import { MODULE_SPEC } from "@/features/home/components/shared/home.tokens";
 import { StoreModule } from "@/features/hyper-market/StoreDetails/types/modules.types";

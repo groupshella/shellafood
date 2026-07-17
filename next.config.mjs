@@ -154,6 +154,21 @@ const nextConfig = {
   // Performance optimizations
   compress: true,
   productionBrowserSourceMaps: false,
+
+  // Proxy backend media over the app origin so HTTPS pages can load HTTP storage.
+  async rewrites() {
+    const apiBase =
+      (process.env.NEXT_PUBLIC_API_URL || "http://148.230.126.198").replace(
+        /\/$/,
+        "",
+      );
+    return [
+      {
+        source: "/backend-media/:path*",
+        destination: `${apiBase}/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

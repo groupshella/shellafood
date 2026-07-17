@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { ProductCard } from "@/features/hyper-market/StoreDetails/components/shared/ProductCard";
 import {
     DiscountedProduct,

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 
 import { WALLET_STRINGS } from "@/features/profile/constants/wallet.strings";
 

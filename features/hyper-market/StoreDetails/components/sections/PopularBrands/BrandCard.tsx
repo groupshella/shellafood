@@ -1,4 +1,4 @@
-﻿import Image from "next/image";
+﻿import Image from "@/shared/components/SecureImage";
 import Link from "next/link";
 import { memo } from "react";
 import { HyperMarketPopularBrand } from "@/features/hyper-market/StoreDetails/types/popular-brands.types";

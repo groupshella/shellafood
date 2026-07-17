@@ -1,5 +1,5 @@
 import { memo } from "react";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { formatPrice } from "@/features/home/components/shared/PriceTag";
 import { CartItem } from "@/features/cart/types/cart.types";

@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock, Phone } from "lucide-react";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { WalletStepper } from "@/features/profile/components/shared/wallet/WalletStepper";
 
 interface PendingStepProps {

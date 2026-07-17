@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import type { Brand } from "@/features/brands/types/brands.types";

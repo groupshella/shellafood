@@ -1,5 +1,5 @@
 import { Heart, Plus } from "lucide-react";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 
 import { TAJAWAL } from "@/features/profile/constants/statistics.constants";
 import type { StatisticsProduct } from "@/features/profile/types/statistics.types";

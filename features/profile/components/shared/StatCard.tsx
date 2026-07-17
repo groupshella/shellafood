@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import Link from "next/link";
 
 type StatCardVariant = "points" | "wallet" | "qidha";

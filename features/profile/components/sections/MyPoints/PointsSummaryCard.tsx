@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
 const AFACAD = { fontFamily: "'Afacad Flux', sans-serif" } as const;

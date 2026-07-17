@@ -7,7 +7,7 @@ import {
 	type CSSProperties,
 	type ReactNode,
 } from "react";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";

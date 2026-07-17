@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import Link from "next/link";
 import { memo, useCallback, useState } from "react";
 import { Heart, Star, Clock, Truck, Store } from "lucide-react";

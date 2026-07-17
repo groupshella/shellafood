@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft } from "lucide-react";
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { useRouter } from "next/navigation";
 
 import type { WalletHistoryItem } from "@/features/profile/types/wallet.types";

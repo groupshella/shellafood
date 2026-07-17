@@ -1,13 +1,15 @@
 import type { UserGender, AuthUser } from "@/features/auth/types/auth.types";
+import { toSecureMediaUrl } from "@/shared/lib/media-url";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 
-/** Turn API-relative profile image paths into absolute URLs the browser can load. */
+/** Turn API-relative profile image paths into absolute (proxied) URLs the browser can load. */
 export function resolveProfileImageUrl(src?: string | null): string | null {
     if (!src || src === "null") return null;
-    if (/^(https?:|blob:|data:)/.test(src)) return src;
-    if (src.startsWith("/")) return `${API_BASE}${src}`;
-    return `${API_BASE}/${src}`;
+    if (/^(blob:|data:)/.test(src)) return src;
+    if (/^https?:/.test(src)) return toSecureMediaUrl(src);
+    if (src.startsWith("/")) return toSecureMediaUrl(`${API_BASE}${src}`);
+    return toSecureMediaUrl(`${API_BASE}/${src}`);
 }
 
 export function splitFullName(fullName: string): { f_name: string; l_name: string } {

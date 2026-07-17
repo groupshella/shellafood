@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import Link from "next/link";
 import { HyperMarketBanner } from "@/features/hyper-market/StoreDetails/types/banners.types";
 

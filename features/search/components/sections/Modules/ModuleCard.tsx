@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/shared/components/SecureImage";
 import { SearchModule } from "@/features/search/types/modules.types";
 
 /** Decorative module accent palette — illustration colors, not UI chrome tokens */
