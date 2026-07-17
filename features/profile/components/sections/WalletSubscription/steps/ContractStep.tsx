@@ -1,15 +1,19 @@
 "use client";
 
 import { Phone } from "lucide-react";
+import type { NafathStatus } from "@/features/profile/types/qidha-subscription.types";
 
 interface ContractStepProps {
 	onViewContract: () => void;
 	onCheckStatus: () => void;
-	onVerify: () => void;
+	onCancel: () => void;
+	onRetry: () => void;
+	onSign: () => void;
+	code?: string;
+	status: NafathStatus;
 	isArabic: boolean;
 }
 
-const NAFATH_CODE = 54;
 const CIRCLE_RADIUS = 70;
 const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
 const PROGRESS = 0.75;
@@ -42,9 +46,30 @@ To make things easier, you now have two options to complete the process:
 export function ContractStep({
 	onViewContract,
 	onCheckStatus,
-	onVerify,
+	onCancel,
+	onRetry,
+	onSign,
+	code,
+	status,
 	isArabic,
 }: ContractStepProps) {
+	const busy = status === "initiating" || status === "signing";
+	const canCheck = status === "pending";
+	const canSign = status === "approved";
+	const canRetry = ["rejected", "expired", "cancelled", "error"].includes(status);
+	const statusText: Record<NafathStatus, { ar: string; en: string }> = {
+		idle: { ar: "جاهز لبدء التحقق", en: "Ready to start verification" },
+		initiating: { ar: "جاري بدء طلب نفاذ...", en: "Starting Nafath request..." },
+		pending: { ar: "بانتظار موافقتك في تطبيق نفاذ", en: "Waiting for approval in Nafath" },
+		approved: { ar: "تم التحقق، وقّع العقد للمتابعة", en: "Verified. Sign the contract to continue" },
+		signing: { ar: "جاري توقيع العقد...", en: "Signing the contract..." },
+		signed: { ar: "تم توقيع العقد", en: "Contract signed" },
+		rejected: { ar: "تم رفض طلب نفاذ", en: "Nafath request was rejected" },
+		expired: { ar: "انتهت صلاحية طلب نفاذ", en: "Nafath request expired" },
+		cancelled: { ar: "تم إلغاء طلب نفاذ", en: "Nafath request cancelled" },
+		error: { ar: "تعذر التحقق من نفاذ", en: "Could not verify with Nafath" },
+	};
+
 	return (
 		<div className="grid grid-cols-1 gap-4 pb-6 lg:grid-cols-[minmax(260px,0.8fr)_minmax(0,1.2fr)] lg:items-start">
 			<div className="rounded-2xl bg-background p-3 sm:p-4">
@@ -57,8 +82,8 @@ export function ContractStep({
 						viewBox="0 0 178 178"
 						aria-label={
 							isArabic
-								? `كود نفاذ: ${NAFATH_CODE}`
-								: `Nafath code: ${NAFATH_CODE}`
+								? `كود نفاذ: ${code ?? "—"}`
+								: `Nafath code: ${code ?? "—"}`
 						}
 					>
 						<defs>
@@ -103,13 +128,19 @@ export function ContractStep({
 							fill="#237D2D"
 							fontFamily="system-ui, sans-serif"
 						>
-							{NAFATH_CODE}
+							{code ?? "—"}
 						</text>
 					</svg>
 					<p className="text-center text-[14px] font-bold text-foreground sm:text-[15px]">
 						{isArabic
 							? "قم بأدخال هذا الكود إلى تطبيق نفاذ"
 							: "Enter this code in the Nafath app"}
+					</p>
+					<p
+						className="text-center text-[13px] font-medium text-muted"
+						aria-live="polite"
+					>
+						{isArabic ? statusText[status].ar : statusText[status].en}
 					</p>
 				</div>
 			</div>
@@ -133,14 +164,16 @@ export function ContractStep({
 				<button
 					type="button"
 					onClick={onCheckStatus}
-					className="min-h-[50px] w-full rounded-xl bg-card px-4 text-[16px] font-bold text-foreground transition-opacity active:brightness-95 sm:min-h-[52px]"
+					disabled={!canCheck || busy}
+					className="min-h-[50px] w-full rounded-xl bg-card px-4 text-[16px] font-bold text-foreground transition-opacity enabled:active:brightness-95 disabled:opacity-50 sm:min-h-[52px]"
 				>
 					{isArabic ? "تحقق من الحالة" : "Check status"}
 				</button>
 				<button
 					type="button"
-					onClick={onVerify}
-					className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-card px-4 text-[16px] font-bold text-foreground transition-opacity active:brightness-95 sm:col-span-2 sm:min-h-[52px] lg:col-span-1"
+					onClick={canRetry ? onRetry : onSign}
+					disabled={(!canRetry && !canSign) || busy}
+					className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-card px-4 text-[16px] font-bold text-foreground transition-opacity enabled:active:brightness-95 disabled:opacity-50 sm:col-span-2 sm:min-h-[52px] lg:col-span-1"
 				>
 					<Phone
 						className="h-6 w-6 text-foreground"
@@ -148,9 +181,24 @@ export function ContractStep({
 						aria-hidden
 					/>
 					<span>
-						{isArabic ? "التحقق من المصادقة" : "Verify authentication"}
+						{canRetry
+							? isArabic
+								? "إعادة المحاولة"
+								: "Retry"
+							: isArabic
+								? "توقيع العقد"
+								: "Sign contract"}
 					</span>
 				</button>
+				{status === "pending" ? (
+					<button
+						type="button"
+						onClick={onCancel}
+						className="min-h-[48px] w-full rounded-xl border border-destructive px-4 text-[15px] font-bold text-destructive sm:col-span-2 lg:col-span-3"
+					>
+						{isArabic ? "إلغاء طلب نفاذ" : "Cancel Nafath request"}
+					</button>
+				) : null}
 			</div>
 		</div>
 	);

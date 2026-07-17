@@ -11,9 +11,14 @@ interface ModulesClientProps {
 }
 
 export function ModulesClient({ modules, moduleId, isArabic }: ModulesClientProps) {
-    if (modules.length === 0) return null;
+    const ALLOWED_MODULE_IDS = new Set([3, 6, 9]);
+    const visibleModules = modules.filter((module) =>
+        ALLOWED_MODULE_IDS.has(Number(module.id)),
+    );
 
-    const moduleCards = modules.map((module, index) => {
+    if (visibleModules.length === 0) return null;
+
+    const moduleCards = visibleModules.map((module, index) => {
         const isActive = String(module.id) === moduleId;
 
         return (

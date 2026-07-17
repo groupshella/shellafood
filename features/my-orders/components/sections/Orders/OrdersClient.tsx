@@ -13,6 +13,21 @@ const STATUS_STYLES: Record<
     string,
     { bg: string; text: string; label: { ar: string; en: string } }
 > = {
+    pending: {
+        bg: "bg-amber-50 dark:bg-amber-950/40",
+        text: "text-amber-600 dark:text-amber-400",
+        label: { ar: "قيد الانتظار", en: "Pending" },
+    },
+    payment_pending: {
+        bg: "bg-amber-50 dark:bg-amber-950/40",
+        text: "text-amber-600 dark:text-amber-400",
+        label: { ar: "بانتظار الدفع", en: "Payment pending" },
+    },
+    accepted: {
+        bg: "bg-blue-50 dark:bg-blue-950/40",
+        text: "text-blue-600 dark:text-blue-400",
+        label: { ar: "مقبول", en: "Accepted" },
+    },
     preparing: {
         bg: "bg-amber-50 dark:bg-amber-950/40",
         text: "text-amber-600 dark:text-amber-400",
@@ -36,7 +51,12 @@ const STATUS_STYLES: Record<
     picked_up: {
         bg: "bg-indigo-50 dark:bg-indigo-950/40",
         text: "text-indigo-600 dark:text-indigo-400",
-        label: { ar: "في الطريق", en: "On the way" },
+        label: { ar: "تم الاستلام", en: "Picked up" },
+    },
+    out_for_delivery: {
+        bg: "bg-indigo-50 dark:bg-indigo-950/40",
+        text: "text-indigo-600 dark:text-indigo-400",
+        label: { ar: "في الطريق", en: "Out for delivery" },
     },
     delivered: {
         bg: "bg-emerald-50 dark:bg-emerald-950/40",
@@ -58,6 +78,16 @@ const STATUS_STYLES: Record<
         text: "text-red-500 dark:text-red-400",
         label: { ar: "ملغى", en: "Cancelled" },
     },
+    refund_requested: {
+        bg: "bg-orange-50 dark:bg-orange-950/40",
+        text: "text-orange-500 dark:text-orange-400",
+        label: { ar: "طلب استرجاع", en: "Refund requested" },
+    },
+    refunded: {
+        bg: "bg-card",
+        text: "text-muted",
+        label: { ar: "مسترجع", en: "Refunded" },
+    },
     failed: {
         bg: "bg-red-50 dark:bg-red-950/40",
         text: "text-red-500 dark:text-red-400",
@@ -69,6 +99,21 @@ const STATUS_STYLES: Record<
         label: { ar: "منتهي", en: "Expired" },
     },
 };
+
+function normalizeOrderStatus(status: string): string {
+    return status.trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+
+function getOrderStatusInfo(status: string) {
+    const key = normalizeOrderStatus(status);
+    return (
+        STATUS_STYLES[key] ?? {
+            bg: "bg-card",
+            text: "text-muted",
+            label: { ar: status, en: status },
+        }
+    );
+}
 
 const STATUS_CHIPS: { id: OrderStatus; label: { ar: string; en: string } }[] = [
     { id: "preparing", label: { ar: "تحت الإعداد", en: "Preparing" } },
@@ -474,11 +519,7 @@ const OrderCard = memo(function OrderCard({
     order: ApiOrder;
     isArabic: boolean;
 }) {
-    const statusInfo = STATUS_STYLES[order.order_status] ?? {
-        bg: "bg-card",
-        text: "text-muted",
-        label: { ar: order.order_status, en: order.order_status },
-    };
+    const statusInfo = getOrderStatusInfo(order.order_status);
     const storeName = order.store?.name ?? "—";
     const logoUrl = order.store?.logo_full_url;
     const amount =

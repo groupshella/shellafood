@@ -313,7 +313,6 @@ export function OrderDetailClient({ order, isArabic }: OrderDetailClientProps) {
                             <ChevronRight
                                 className={[
                                     "h-5 w-5 sm:h-[22px] sm:w-[22px]",
-                                    isArabic ? "" : "rotate-180",
                                 ].join(" ")}
                                 strokeWidth={2}
                                 aria-hidden
@@ -324,13 +323,7 @@ export function OrderDetailClient({ order, isArabic }: OrderDetailClientProps) {
                             {isArabic ? "تفاصيل طلبك" : "Order details"}
                         </h1>
 
-                        <button
-                            type="button"
-                            aria-label={isArabic ? "حفظ الطلب" : "Save order"}
-                            className="absolute start-3 flex h-10 w-10 items-center justify-center rounded-full bg-card text-foreground transition-colors active:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:start-4 sm:h-11 sm:w-11"
-                        >
-                            <Bookmark className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.8} aria-hidden />
-                        </button>
+
                     </div>
                 </header>
 
@@ -393,7 +386,7 @@ export function OrderDetailClient({ order, isArabic }: OrderDetailClientProps) {
                                 <div className="flex items-center gap-1">
                                     <CreditCard className="h-5 w-5 shrink-0 text-muted" strokeWidth={1.6} aria-hidden />
                                     {order.paymentMethod === "Credit Card" ||
-                                    order.paymentMethod === "بطاقة ائتمان" ? (
+                                        order.paymentMethod === "بطاقة ائتمان" ? (
                                         <span className="inline-block h-3 w-3 rounded-full bg-orange-500 opacity-80" aria-hidden />
                                     ) : null}
                                 </div>

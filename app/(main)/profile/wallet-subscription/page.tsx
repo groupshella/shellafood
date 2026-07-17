@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { WalletSubscriptionClient } from "@/features/profile/components/sections/WalletSubscription/WalletSubscriptionClient";
+import { getProfileUser } from "@/features/profile/lib/get-profile-user";
 import { isArabicLocale } from "@/shared/lib/locale";
+import { redirect } from "next/navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
 	const isArabic = await isArabicLocale();
@@ -15,6 +17,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function WalletSubscriptionPage() {
-	const isArabic = await isArabicLocale();
-	return <WalletSubscriptionClient isArabic={isArabic} />;
+	const [isArabic, user] = await Promise.all([isArabicLocale(), getProfileUser()]);
+	if (!user) redirect("/auth");
+	if (user.qidha_wallet_active) redirect("/profile/qidha");
+
+	return (
+		<WalletSubscriptionClient
+			isArabic={isArabic}
+			userId={user.id}
+			initialStep={user.qidha_wallet_signed ? "pending" : "personal-info"}
+		/>
+	);
 }

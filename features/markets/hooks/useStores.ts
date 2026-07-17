@@ -35,13 +35,21 @@ function buildParams(
 	return params;
 }
 
-export function useStores(moduleId: string, lang: "ar" | "en") {
+export function useStores(
+	moduleId: string,
+	lang: "ar" | "en",
+	initialCategoryId: number | null = null,
+) {
 	const [stores, setStores] = useState<GetStoresResponse["stores"]>([]);
 	const [totalSize, setTotalSize] = useState(0);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [filters, setFiltersState] = useState<StoreFilters>(DEFAULT_FILTERS);
+	const [filters, setFiltersState] = useState<StoreFilters>(() =>
+		initialCategoryId != null
+			? { ...DEFAULT_FILTERS, categoryId: initialCategoryId }
+			: DEFAULT_FILTERS,
+	);
 	/** 1-based page index for the next fetch (page 1 = first page). */
 	const loadedCountRef = useRef(1);
 	/** Skip the next filters-effect fetch (used after SSR hydrate). */

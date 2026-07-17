@@ -27,6 +27,8 @@ interface CartMutationResult {
 interface CartContextValue {
     items: CartItem[];
     totalCount: number;
+    /** Badge-safe count: only updates after a successful cart sync. */
+    confirmedTotalCount: number;
     totalPrice: number;
     getQuantity: (product: ProductCartMeta) => number;
     addProduct: (product: ProductCartMeta, quantity?: number) => Promise<CartMutationResult>;
@@ -49,6 +51,7 @@ interface CartProviderProps {
 export function CartProvider({ initialItems, children }: CartProviderProps) {
     const router = useRouter();
     const [items, setItems] = useState(initialItems);
+    const [confirmedItems, setConfirmedItems] = useState(initialItems);
     const [syncingIds, setSyncingIds] = useState<Set<number>>(new Set());
     const [syncErrors, setSyncErrors] = useState<Record<number, string>>({});
 
@@ -61,7 +64,11 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
 
     useEffect(() => {
         setItems(initialItems);
+        setConfirmedItems(initialItems);
         serverItemsRef.current = initialItems;
+        // Drop stale sync errors so category/item pages don't toast on enter
+        // before the user actually tries to add.
+        setSyncErrors({});
     }, [initialItems]);
 
     useEffect(() => {
@@ -73,6 +80,10 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
     }, []);
 
     const totalCount = useMemo(() => getTotalCount(items), [items]);
+    const confirmedTotalCount = useMemo(
+        () => getTotalCount(confirmedItems),
+        [confirmedItems],
+    );
     const totalPrice = useMemo(() => getTotalPrice(items), [items]);
     const getQuantity = useCallback(
         (product: ProductCartMeta) => matchCartLine(items, product)?.quantity ?? 0,
@@ -118,6 +129,7 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
     const applyServerItems = useCallback(
         (nextItems: CartItem[]) => {
             serverItemsRef.current = nextItems;
+            setConfirmedItems(nextItems);
             setItems(nextItems);
             router.refresh();
         },
@@ -180,6 +192,7 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
                         applyServerItems(result.items);
                     } else {
                         serverItemsRef.current = result.items;
+                        setConfirmedItems(result.items);
                         setItems(applyOptimisticQuantity(result.items, product, latestQuantity));
                     }
 
@@ -274,6 +287,7 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
     const clearAllProducts = useCallback(async () => {
         const previousServerItems = serverItemsRef.current;
         setItems([]);
+        setConfirmedItems([]);
         setSyncErrors({});
 
         debounceTimersRef.current.forEach((timer) => clearTimeout(timer));
@@ -285,11 +299,13 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
 
         if (result.success) {
             serverItemsRef.current = [];
+            setConfirmedItems([]);
             router.refresh();
             return { success: true };
         }
 
         setItems(previousServerItems);
+        setConfirmedItems(previousServerItems);
         return { success: false, message: result.message ?? "تعذّر تفريغ السلة" };
     }, [router]);
 
@@ -297,6 +313,7 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
         () => ({
             items,
             totalCount,
+            confirmedTotalCount,
             totalPrice,
             getQuantity,
             addProduct,
@@ -311,6 +328,7 @@ export function CartProvider({ initialItems, children }: CartProviderProps) {
         [
             items,
             totalCount,
+            confirmedTotalCount,
             totalPrice,
             getQuantity,
             addProduct,

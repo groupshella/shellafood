@@ -11,12 +11,24 @@ const STORES_SECTION_ID = "module-stores";
 interface CategoryCardProps {
 	category: Category;
 	moduleId: string;
+	moduleName?: string;
 	layout?: "scroll" | "grid";
 	mode?: "filter" | "navigate";
 }
 
 function scrollToStores() {
 	document.getElementById(STORES_SECTION_ID)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function buildModuleCategoryHref(
+	moduleId: string,
+	categoryId: number,
+	moduleName?: string,
+) {
+	const params = new URLSearchParams();
+	params.set("category_id", String(categoryId));
+	if (moduleName) params.set("module_name", moduleName);
+	return `/modules/${moduleId}?${params.toString()}`;
 }
 
 const INTERACTIVE_BASE = [
@@ -58,6 +70,7 @@ const PLACEHOLDER_CLASSES = [
 export const CategoryCard = memo(function CategoryCard({
 	category,
 	moduleId,
+	moduleName,
 	layout = "scroll",
 	mode = "navigate",
 }: CategoryCardProps) {
@@ -141,7 +154,7 @@ export const CategoryCard = memo(function CategoryCard({
 
 	return (
 		<Link
-			href={`/modules/${moduleId}`}
+			href={buildModuleCategoryHref(moduleId, category.id, moduleName)}
 			className={sharedClassName}
 			aria-label={category.name}
 		>

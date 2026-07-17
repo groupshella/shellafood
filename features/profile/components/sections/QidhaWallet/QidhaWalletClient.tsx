@@ -1,19 +1,14 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
-import { QIDHA_PAYMENT_METHODS } from "@/features/profile/constants/qidha.strings";
 import type {
 	QidhaPayOption,
-	QidhaPaymentMethodId,
 	QidhaWalletCard,
 } from "@/features/profile/types/qidha.types";
-import { useNotification } from "@/shared/components/NotificationToast";
 import { QidhaCard } from "./QidhaCard";
 import { QidhaPayOptionRow } from "./QidhaPayOptionRow";
-import { QidhaPaymentMethodCard } from "./QidhaPaymentMethodCard";
 import { SarIcon } from "./shared/SarIcon";
 
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
@@ -32,53 +27,8 @@ export function QidhaWalletClient({
 	minimumAmountDue = 0,
 	isArabic,
 }: QidhaWalletClientProps) {
-	const lang = isArabic ? "ar" : "en";
 	const [payOption, setPayOption] = useState<QidhaPayOption>("full");
 	const [customAmount, setCustomAmount] = useState("");
-	const [method, setMethod] = useState<QidhaPaymentMethodId>("stc_pay");
-	const [isPending, startTransition] = useTransition();
-	const router = useRouter();
-	const { success, error } = useNotification();
-
-	const payAmount = useMemo(() => {
-		if (payOption === "full") return fullAmountDue;
-		if (payOption === "minimum") return minimumAmountDue;
-		const parsed = Number.parseFloat(customAmount);
-		return Number.isFinite(parsed) ? parsed : 0;
-	}, [payOption, fullAmountDue, minimumAmountDue, customAmount]);
-
-	const canPay = payAmount > 0;
-
-	function handlePay() {
-		if (!canPay) return;
-		startTransition(async () => {
-			try {
-				const res = await fetch("/api/profile/qidha/pay", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						"Accept-Language": lang,
-						lang,
-					},
-					body: JSON.stringify({ amount: payAmount, payment_method: method }),
-				});
-				const json = await res.json();
-				if (!res.ok || !json.success) {
-					error(
-						json?.message ??
-							(isArabic ? "فشلت عملية الدفع" : "Payment failed"),
-					);
-					return;
-				}
-				success(
-					isArabic ? "تمت عملية الدفع بنجاح" : "Payment completed successfully",
-				);
-				router.refresh();
-			} catch {
-				error(isArabic ? "فشلت عملية الدفع" : "Payment failed");
-			}
-		});
-	}
 
 	return (
 		<ProfileSubpageShell
@@ -92,19 +42,17 @@ export function QidhaWalletClient({
 				<div className="pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
 					<button
 						type="button"
-						disabled={!canPay || isPending}
-						onClick={handlePay}
+						disabled
 						className="flex h-12 w-full items-center justify-center rounded-[12px] bg-brand text-[15px] font-bold text-brand-foreground transition-opacity enabled:active:opacity-90 disabled:opacity-50 sm:h-[52px] sm:text-[16px]"
 						style={TAJAWAL}
 					>
-						{isPending
-							? isArabic
-								? "جاري الدفع..."
-								: "Paying..."
-							: isArabic
-								? "ادفع الآن"
-								: "Pay now"}
+						{isArabic ? "السداد غير متاح حالياً" : "Payment currently unavailable"}
 					</button>
+					<p className="mt-2 text-center text-xs text-muted">
+						{isArabic
+							? "يلزم ربط الدفعة برقم طلب قبل تفعيل السداد الآمن."
+							: "A payment must be linked to an order ID before secure payment can be enabled."}
+					</p>
 				</div>
 			}
 		>
@@ -170,25 +118,11 @@ export function QidhaWalletClient({
 					</label>
 				</section>
 
-				<section className="flex flex-col gap-3">
-					<h2
-						className="text-start text-[16px] font-bold text-foreground"
-						style={TAJAWAL}
-					>
-						{isArabic ? "اختر طريقة الدفع" : "Choose payment method"}
-					</h2>
-					<div className="-mx-1 flex gap-2.5 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-						{QIDHA_PAYMENT_METHODS.map((item) => (
-							<QidhaPaymentMethodCard
-								key={item.id}
-								method={item}
-								selected={method === item.id}
-								onSelect={() => setMethod(item.id)}
-								isArabic={isArabic}
-							/>
-						))}
-					</div>
-				</section>
+				<p className="rounded-xl border border-border bg-card p-4 text-center text-sm text-muted">
+					{isArabic
+						? "طرق الدفع ستظهر بعد توفير عقد سداد المستحقات من الخدمة."
+						: "Payment methods will appear after the due-payment contract is available."}
+				</p>
 			</div>
 		</ProfileSubpageShell>
 	);

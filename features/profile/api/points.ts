@@ -1,32 +1,19 @@
-import { cookies } from "next/headers";
+import {
+    customerHeaders,
+    FINANCIAL_API,
+    getFinancialToken,
+} from "@/features/profile/lib/financial-http";
+import type {
+    PointsHistoryGroup,
+    PointsHistoryItem,
+    PointsTransactionsPage,
+} from "@/features/profile/types/points.types";
 
-import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
-import type { PointsHistoryGroup, PointsHistoryItem } from "@/features/profile/types/points.types";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
-const MODULE_ID = process.env.MODULE_ID ?? "3";
-const ZONE_ID = process.env.ZONE_ID ?? "[2]";
+const BACKEND_URL = FINANCIAL_API.baseUrl;
 
 /** Backend treats `offset` as a row offset (0, 10, 20…), not a page number. */
 const DEFAULT_OFFSET = 0;
 const DEFAULT_LIMIT = 10;
-
-async function getToken(): Promise<string | null> {
-    const store = await cookies();
-    return store.get(COOKIE_KEYS.ACCESS_TOKEN)?.value ?? null;
-}
-
-function authHeaders(token: string, lang: "ar" | "en" = "ar"): HeadersInit {
-    return {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json; charset=UTF-8",
-        "Accept-Language": lang,
-        "X-localization": lang,
-        lang,
-        moduleId: MODULE_ID,
-        zoneId: ZONE_ID,
-    };
-}
 
 // ── Raw backend shape ─────────────────────────────────────────────────────────
 interface LoyaltyTxnRaw {
@@ -130,32 +117,49 @@ function extractTxns(json: unknown): LoyaltyTxnRaw[] {
  * GET /api/v1/customer/loyalty-point/transactions
  * `offset` is a row offset: 0, 10, 20… (not page 1, 2, 3).
  */
+export async function getLoyaltyTransactionsPage(
+    offset = DEFAULT_OFFSET,
+    limit = DEFAULT_LIMIT,
+    lang: "ar" | "en" = "ar",
+): Promise<PointsTransactionsPage> {
+    const token = await getFinancialToken();
+    if (!token) throw new Error(lang === "ar" ? "غير مصرح" : "Unauthorized");
+    if (!BACKEND_URL) throw new Error("API URL not configured");
+
+    const rowOffset = Math.max(0, offset);
+    const pageLimit = Math.max(1, limit);
+
+    const params = new URLSearchParams({
+        offset: String(rowOffset),
+        limit: String(pageLimit),
+    });
+
+    const res = await fetch(
+        `${BACKEND_URL}/api/v1/customer/loyalty-point/transactions?${params}`,
+        { headers: customerHeaders(token, lang), cache: "no-store" },
+    );
+    if (!res.ok) {
+        throw new Error(
+            lang === "ar"
+                ? "تعذر تحميل تاريخ النقاط"
+                : "Could not load points history",
+        );
+    }
+
+    const json: unknown = await res.json();
+    const transactions = extractTxns(json);
+    return {
+        groups: groupByDate(transactions, lang),
+        nextOffset: rowOffset + pageLimit,
+        hasMore: transactions.length === pageLimit,
+    };
+}
+
 export async function getLoyaltyTransactions(
     offset = DEFAULT_OFFSET,
     limit = DEFAULT_LIMIT,
     lang: "ar" | "en" = "ar",
 ): Promise<PointsHistoryGroup[]> {
-    const token = await getToken();
-    if (!token || !BACKEND_URL) return [];
-
-    const rowOffset = Math.max(0, offset);
-    const pageLimit = Math.max(1, limit);
-
-    try {
-        const params = new URLSearchParams({
-            offset: String(rowOffset),
-            limit: String(pageLimit),
-        });
-
-        const res = await fetch(
-            `${BACKEND_URL}/api/v1/customer/loyalty-point/transactions?${params}`,
-            { headers: authHeaders(token, lang), cache: "no-store" },
-        );
-        if (!res.ok) return [];
-
-        const json: unknown = await res.json();
-        return groupByDate(extractTxns(json), lang);
-    } catch {
-        return [];
-    }
+    const page = await getLoyaltyTransactionsPage(offset, limit, lang);
+    return page.groups;
 }

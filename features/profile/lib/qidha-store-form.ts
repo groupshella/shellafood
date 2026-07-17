@@ -1,4 +1,7 @@
 import type { QidhaSubscriptionFormData } from "@/features/profile/types/qidha-subscription.types";
+import { normalizeSaudiPhone } from "./wallet-validation";
+
+export { normalizeSaudiPhone } from "./wallet-validation";
 
 function normalizeDate(value: string): string {
     return value.trim().replace(/\s*\/\s*/g, "-");
@@ -32,7 +35,7 @@ export function buildQidhaStoreFormData(data: QidhaSubscriptionFormData): FormDa
         number_of_family_members: data.familyCount.trim(),
         identity_card_number: idNumber,
         end_date: normalizeDate(data.idExpiryDate),
-        mobile: data.phone.trim(),
+        mobile: normalizeSaudiPhone(data.phone) ?? "",
         house_type: data.homeType.trim(),
         city: data.city.trim(),
         neighborhood: data.neighborhood.trim(),

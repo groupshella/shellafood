@@ -16,16 +16,24 @@ export const CartItemRow = memo(function CartItemRow({ item, isArabic }: CartIte
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const { error: notifyError } = useNotification();
   const lastNotifiedError = useRef<string | null>(null);
+  const wasPendingRef = useRef(false);
   const { item: liveItem, isPending, error, handleIncrease, handleDecrease, handleRemove } =
     useProductCart(item);
 
   useEffect(() => {
-    if (error && error !== lastNotifiedError.current) {
+    const justFinished = wasPendingRef.current && !isPending;
+    wasPendingRef.current = isPending;
+
+    if (!error) {
+      lastNotifiedError.current = null;
+      return;
+    }
+
+    if (justFinished && error !== lastNotifiedError.current) {
       notifyError(error);
       lastNotifiedError.current = error;
     }
-    if (!error) lastNotifiedError.current = null;
-  }, [error, notifyError]);
+  }, [error, isPending, notifyError]);
 
   const handleOpenRemove = useCallback(() => {
     setShowRemoveConfirm(true);
@@ -34,6 +42,14 @@ export const CartItemRow = memo(function CartItemRow({ item, isArabic }: CartIte
   const handleCancelRemove = useCallback(() => {
     setShowRemoveConfirm(false);
   }, []);
+
+  const handleDecreaseClick = useCallback(() => {
+    if (liveItem.quantity <= 1) {
+      setShowRemoveConfirm(true);
+      return;
+    }
+    handleDecrease();
+  }, [handleDecrease, liveItem.quantity]);
 
   const confirmRemove = useCallback(async () => {
     await handleRemove();
@@ -46,7 +62,7 @@ export const CartItemRow = memo(function CartItemRow({ item, isArabic }: CartIte
         item={liveItem}
         isUpdating={isPending}
         onIncrease={handleIncrease}
-        onDecrease={handleDecrease}
+        onDecrease={handleDecreaseClick}
         onRemove={handleOpenRemove}
         isArabic={isArabic}
       />

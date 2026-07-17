@@ -171,7 +171,11 @@ export function validatePersonalStep(
 	if (phone) {
 		errors.phone = phone;
 	} else {
-		const local = data.phone.replace(/\D/g, "").replace(/^966/, "");
+		const local = data.phone
+			.replace(/\D/g, "")
+			.replace(/^00966/, "")
+			.replace(/^966/, "")
+			.replace(/^0/, "");
 		if (!/^5\d{8}$/.test(local)) {
 			errors.phone = isArabic
 				? "أدخل رقم جوال سعودي صحيح (يبدأ بـ 5)"

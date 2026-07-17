@@ -10,13 +10,15 @@ const MarketsStoreContext = createContext<MarketsStoreContextValue | null>(null)
 export function MarketsStoreProvider({
 	moduleId,
 	lang,
+	initialCategoryId = null,
 	children,
 }: {
 	moduleId: string;
 	lang: "ar" | "en";
+	initialCategoryId?: number | null;
 	children: React.ReactNode;
 }) {
-	const value = useStores(moduleId, lang);
+	const value = useStores(moduleId, lang, initialCategoryId);
 
 	return (
 		<MarketsStoreContext.Provider value={value}>{children}</MarketsStoreContext.Provider>

@@ -26,20 +26,12 @@ export const ProductAddControl = memo(function ProductAddControl({
 }: ProductAddControlProps) {
     const { error: notifyError } = useNotification();
     const lastNotifiedError = useRef<string | null>(null);
+    const wasPendingRef = useRef(false);
     const { quantity, isPending, error, handleAdd, handleIncrease, handleDecrease } =
         useProductCart(product, isAvailable);
 
-    // The cart context updates `quantity` optimistically the instant a
-    // request fires, then rolls it back if the backend rejects it (e.g.
-    // adding a product from a different store). Reading `quantity` directly
-    // means the user sees the count bump up and then snap back the moment
-    // the error arrives - the "flash" this is meant to fix.
-    //
-    // Instead we keep showing the last CONFIRMED quantity for the entire
-    // time a request is pending (with a spinner as feedback), and only
-    // adopt the new value once the request has settled. A rejected request
-    // then never visibly changes anything - it just fires the error toast,
-    // as before.
+    // Keep showing the last confirmed quantity while a request is in flight so
+    // a rejected add (e.g. different store) doesn't flash qty 1 then snap back.
     const [confirmedQuantity, setConfirmedQuantity] = useState(quantity);
 
     useEffect(() => {
@@ -50,14 +42,24 @@ export const ProductAddControl = memo(function ProductAddControl({
 
     const displayQuantity = isPending && quantity > 1 ? quantity : confirmedQuantity;
 
+    // Only toast after THIS add/update attempt finishes with an error —
+    // never on mount from a leftover syncError.
     useEffect(() => {
         onError?.(error);
-        if (error && error !== lastNotifiedError.current) {
+
+        const justFinished = wasPendingRef.current && !isPending;
+        wasPendingRef.current = isPending;
+
+        if (!error) {
+            lastNotifiedError.current = null;
+            return;
+        }
+
+        if (justFinished && error !== lastNotifiedError.current) {
             notifyError(error);
             lastNotifiedError.current = error;
         }
-        if (!error) lastNotifiedError.current = null;
-    }, [error, notifyError, onError]);
+    }, [error, isPending, notifyError, onError]);
 
     if (displayQuantity > 0) {
         return (

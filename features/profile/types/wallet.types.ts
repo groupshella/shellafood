@@ -48,3 +48,63 @@ export interface WalletPaymentMethod {
     id: WalletPaymentMethodId;
     label: string;
 }
+
+export type WalletTransferSource = "wallet" | "wallet_qidha";
+
+export interface WalletRecipient {
+    id?: string | number;
+    recipient_id?: string | number;
+    name?: string | null;
+    recipient_name?: string | null;
+    phone?: string | null;
+    recipient_phone?: string | null;
+}
+
+export interface ValidateWalletRecipientRequest {
+    phone: string;
+}
+
+export interface ValidateWalletRecipientResponse {
+    valid?: boolean;
+    name?: string;
+    phone?: string;
+    recipient?: WalletRecipient;
+    [key: string]: unknown;
+}
+
+export interface AddWalletRecipientRequest {
+    recipient_phone: string;
+    recipient_name: string;
+}
+
+export interface WalletTransferRequest {
+    recipient_phone: string;
+    amount: number;
+    payment_source: WalletTransferSource;
+    save_recipient?: boolean;
+    recipient_nickname?: string;
+    message?: string;
+}
+
+export interface WalletTransferResponse {
+    transaction_id?: string | number;
+    message?: string;
+    [key: string]: unknown;
+}
+
+export interface WalletAddFundRequest {
+    amount: number;
+    payment_method: "myfatoorah";
+    payment_platform: "web";
+    callback: string;
+}
+
+export interface WalletAddFundResponse {
+    payment_url?: string;
+    paymentUrl?: string;
+    invoice_id?: string | number;
+    invoiceId?: string | number;
+    payment_id?: string | number;
+    paymentId?: string | number;
+    [key: string]: unknown;
+}

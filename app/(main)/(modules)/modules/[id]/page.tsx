@@ -14,7 +14,7 @@ import { isArabicLocale } from "@/shared/lib/locale";
 
 interface ModulePageRouteProps {
 	params: Promise<{ id: string }>;
-	searchParams: Promise<{ module_name?: string }>;
+	searchParams: Promise<{ module_name?: string; category_id?: string }>;
 }
 
 export async function generateMetadata({
@@ -37,9 +37,11 @@ export async function generateMetadata({
 
 export default async function ModulePageRoute({ params, searchParams }: ModulePageRouteProps) {
 	const { id } = await params;
-	const { module_name } = await searchParams;
+	const { module_name, category_id } = await searchParams;
 	const moduleName = module_name || "";
 	const isArabic = await isArabicLocale();
+	const parsedCategoryId = category_id != null ? Number(category_id) : NaN;
+	const initialCategoryId = Number.isFinite(parsedCategoryId) ? parsedCategoryId : null;
 
 	const cookieStore = await cookies();
 	const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
@@ -51,6 +53,7 @@ export default async function ModulePageRoute({ params, searchParams }: ModulePa
 			moduleName={moduleName}
 			isAuthenticated={isAuthenticated}
 			isArabic={isArabic}
+			initialCategoryId={initialCategoryId}
 		>
 			<Suspense
 				fallback={

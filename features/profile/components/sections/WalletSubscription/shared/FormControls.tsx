@@ -102,31 +102,48 @@ export function DateInput({
 	fieldId,
 	name,
 }: DateInputProps) {
+	const inputRef = useRef<HTMLInputElement>(null);
 	const errorId = `${fieldId}-error`;
+
+	const openPicker = () => {
+		const input = inputRef.current;
+		if (!input) return;
+		try {
+			input.showPicker?.();
+		} catch {
+			input.focus();
+		}
+	};
+
 	return (
 		<FormField label={label} required={required}>
 			<div
-				className={`${inputClassName} justify-between gap-2 ${errorInputClass(!!error)}`}
+				role="presentation"
+				onClick={openPicker}
+				className={`${inputClassName} relative cursor-pointer justify-between gap-2 ${errorInputClass(!!error)}`}
 				data-error={error ? "true" : undefined}
 			>
 				<Calendar
-					className="h-5 w-5 shrink-0 text-muted"
+					className="pointer-events-none relative z-10 h-5 w-5 shrink-0 text-muted"
 					strokeWidth={1.5}
 					aria-hidden
 				/>
 				<input
+					ref={inputRef}
 					id={fieldId}
 					name={name}
-					type="text"
-					inputMode="numeric"
-					placeholder="yyyy-mm-dd"
+					type="date"
 					value={value}
 					dir="ltr"
 					onChange={(e) => onChange(e.target.value)}
+					onClick={(e) => {
+						e.stopPropagation();
+						openPicker();
+					}}
 					aria-required={required}
 					aria-invalid={!!error}
 					aria-describedby={error ? errorId : undefined}
-					className="min-w-0 flex-1 bg-transparent text-start outline-none placeholder:text-muted"
+					className="relative z-0 min-w-0 flex-1 cursor-pointer bg-transparent text-start outline-none [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
 				/>
 			</div>
 			<FieldError message={error} id={errorId} />

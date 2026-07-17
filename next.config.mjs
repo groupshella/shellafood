@@ -37,7 +37,7 @@ const nextConfig = {
       {
         protocol: "http",
         hostname: "148.230.126.198",
-        pathname: "/storage/**",
+        pathname: "/**",
       },
       {
         protocol: 'https',

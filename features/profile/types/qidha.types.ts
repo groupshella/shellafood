@@ -1,5 +1,14 @@
 export type QidhaPayOption = "full" | "minimum" | "custom";
 
+export interface QidhaCreditRequest {
+	amount: number;
+}
+
+export interface QidhaDebitRequest {
+	amount: number;
+	order_id: string;
+}
+
 // ── Raw backend shape (get-wallet) ────────────────────────────────────────────
 export interface QidhaWalletApiData {
     has_wallet?: boolean;

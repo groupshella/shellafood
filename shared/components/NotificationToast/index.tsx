@@ -34,19 +34,36 @@ const DEFAULT_DURATION_MS = 3200;
 const VARIANT_STYLES = {
     success: {
         container:
-            "border-[#30913F]/25 bg-[#EBFEEB] text-[#267332] dark:border-[#4db860]/30 dark:bg-[#0d2e12] dark:text-[#4db860]",
+            "border-[#30913F]/25 bg-[#EBFEEB] text-[#267332] dark:border-[#4db860]/35 dark:bg-[#0f2918] dark:text-[#7ddea0]",
         icon: "text-[#30913F] dark:text-[#4db860]",
     },
     error: {
         container:
-            "border-[#DB2626]/20 bg-[#FFF1F1] text-[#DB2626] dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-400",
+            "border-[#DB2626]/20 bg-[#FFF1F1] text-[#DB2626] dark:border-red-500/30 dark:bg-[#2a1215] dark:text-red-300",
         icon: "text-[#DB2626] dark:text-red-400",
     },
 } as const;
 
+function useDocumentDarkMode() {
+    const [isDark, setIsDark] = useState(false);
+
+    useEffect(() => {
+        const root = document.documentElement;
+        const sync = () => setIsDark(root.classList.contains("dark"));
+        sync();
+
+        const observer = new MutationObserver(sync);
+        observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+        return () => observer.disconnect();
+    }, []);
+
+    return isDark;
+}
+
 export function NotificationProvider({ children }: { children: ReactNode }) {
     const [notification, setNotification] = useState<Notification | null>(null);
     const [mounted, setMounted] = useState(false);
+    const isDark = useDocumentDarkMode();
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const idRef = useRef(0);
 
@@ -102,7 +119,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                 styles &&
                 createPortal(
                     <div
-                        className="pointer-events-none fixed inset-x-0 top-3 z-[100] flex justify-center px-3 sm:top-4 sm:px-4"
+                        className={[
+                            "pointer-events-none fixed inset-x-0 top-3 z-[100] flex justify-center px-3 sm:top-4 sm:px-4",
+                            isDark ? "dark" : "",
+                        ].join(" ")}
                         dir="rtl"
                     >
                         <div
@@ -110,7 +130,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                             role={notification.variant === "error" ? "alert" : "status"}
                             aria-live={notification.variant === "error" ? "assertive" : "polite"}
                             className={[
-                                "pointer-events-auto flex w-full max-w-md items-start gap-2 rounded-xl border px-3.5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.12)] sm:gap-2.5 sm:px-4",
+                                "pointer-events-auto flex w-full max-w-md items-start gap-2 rounded-xl border px-3.5 py-3 sm:gap-2.5 sm:px-4",
+                                "shadow-[0_8px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_28px_rgba(0,0,0,0.55)]",
                                 "animate-in fade-in slide-in-from-top-2 duration-200",
                                 styles.container,
                             ].join(" ")}
@@ -127,7 +148,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                                 type="button"
                                 onClick={dismiss}
                                 aria-label="إغلاق"
-                                className="shrink-0 rounded-md p-0.5 opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current"
+                                className="shrink-0 rounded-md p-0.5 text-current opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current"
                             >
                                 <X className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
                             </button>

@@ -6,7 +6,7 @@ import { AlertCircle, CheckCircle2, CreditCard, Wallet } from "lucide-react";
 import { CheckoutBottomSheet } from "@/features/checkout/components/shared/CheckoutBottomSheet";
 import { useBottomSheet } from "@/features/checkout/components/shared/useBottomSheet";
 import { useCheckout } from "@/features/checkout/context/CheckoutContext";
-import { isEmptyBalance } from "@/features/checkout/lib/balance";
+import { isEmptyBalance, parseAmount } from "@/features/checkout/lib/balance";
 import type {
 	ElectronicPaymentType,
 	PaymentMethodType,
@@ -195,7 +195,7 @@ const EMPTY_BALANCE_SHEETS: Record<
 			en: "To use Qidha wallet, subscribe and activate it first",
 		},
 		actionLabel: { ar: "اشترك الآن", en: "Subscribe now" },
-		href: "/profile/qidha",
+		href: "/profile/wallet-subscription",
 	},
 };
 
@@ -209,8 +209,7 @@ function getSelectedPaymentLabel(
 		? PAYMENT_METHOD_LABELS[selected].ar
 		: PAYMENT_METHOD_LABELS[selected].en;
 	if (selected === "electronic") {
-		const option = ELECTRONIC_OPTIONS.find((o) => o.id === electronicMethod);
-		return option ? `${methodLabel} · ${option.label}` : methodLabel;
+		return methodLabel;
 	}
 	return methodLabel;
 }
@@ -345,10 +344,13 @@ export function PaymentMethodClient({ isArabic }: { isArabic: boolean }) {
 	const emptyBalanceSheet = useBottomSheet();
 	const electronicSheet = useBottomSheet();
 	const [emptySheetKind, setEmptySheetKind] = useState<BalanceWalletKind | null>(null);
+	const [balanceIssue, setBalanceIssue] = useState<"empty" | "insufficient">("empty");
 
 	const handleSelectPayment = (id: PaymentMethodType) => {
 		if (id === "my-wallet" || id === "qidha-wallet") {
-			if (isEmptyBalance(getWalletBalance(id, data))) {
+			const balance = getWalletBalance(id, data);
+			if (isEmptyBalance(balance) || parseAmount(balance) < parseAmount(invoice.total)) {
+				setBalanceIssue(isEmptyBalance(balance) ? "empty" : "insufficient");
 				setEmptySheetKind(id);
 				emptyBalanceSheet.open();
 				return;
@@ -358,7 +360,7 @@ export function PaymentMethodClient({ isArabic }: { isArabic: boolean }) {
 		setSelected(id);
 
 		if (id === "electronic") {
-			electronicSheet.open();
+			setElectronicMethod("apple-pay");
 		}
 	};
 
@@ -437,9 +439,23 @@ export function PaymentMethodClient({ isArabic }: { isArabic: boolean }) {
 			>
 				{emptySheet && (
 					<WalletSheetContent
-						title={isArabic ? emptySheet.title.ar : emptySheet.title.en}
+						title={
+							balanceIssue === "insufficient"
+								? isArabic
+									? "الرصيد غير كافٍ"
+									: "Insufficient balance"
+								: isArabic
+									? emptySheet.title.ar
+									: emptySheet.title.en
+						}
 						description={
-							isArabic ? emptySheet.description.ar : emptySheet.description.en
+							balanceIssue === "insufficient"
+								? isArabic
+									? "الرصيد الحالي لا يغطي إجمالي الطلب. أضف رصيدًا ثم حاول مرة أخرى."
+									: "Your current balance does not cover the order total. Add funds and try again."
+								: isArabic
+									? emptySheet.description.ar
+									: emptySheet.description.en
 						}
 						actionLabel={
 							isArabic ? emptySheet.actionLabel.ar : emptySheet.actionLabel.en

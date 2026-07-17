@@ -2,7 +2,7 @@
 
 import { ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import { QIDHA_BFF } from "@/features/profile/constants/qidha.constants";
 import { buildQidhaStoreFormData } from "@/features/profile/lib/qidha-store-form";
@@ -22,6 +22,10 @@ import { IncomeStep } from "./steps/IncomeStep";
 import { ContractStep } from "./steps/ContractStep";
 import { PendingStep } from "./steps/PendingStep";
 import type { WalletFormData } from "./types";
+import type {
+	NafathResponseData,
+	NafathStatus,
+} from "@/features/profile/types/qidha-subscription.types";
 
 const PERSONAL_FORM_ID = "qidha-personal-form";
 const INCOME_FORM_ID = "qidha-income-form";
@@ -64,18 +68,155 @@ const STEP_TITLES: Record<WalletStep, { ar: string; en: string }> = {
 
 export function WalletSubscriptionClient({
 	isArabic,
+	userId,
+	initialStep = "personal-info",
 }: {
 	isArabic: boolean;
+	userId: number;
+	initialStep?: WalletStep;
 }) {
 	const router = useRouter();
 	const lang = isArabic ? "ar" : "en";
 	const { error: notifyError, success: notifySuccess } = useNotification();
 	const formAreaRef = useRef<HTMLDivElement>(null);
 
-	const [currentStep, setCurrentStep] = useState<WalletStep>("personal-info");
+	const [currentStep, setCurrentStep] = useState<WalletStep>(initialStep);
 	const [formData, setFormData] = useState<WalletFormData>(initialFormData);
 	const [errors, setErrors] = useState<QidhaFieldErrors>({});
 	const [isSubmitting, startSubmit] = useTransition();
+	const [nafathStatus, setNafathStatus] = useState<NafathStatus>("idle");
+	const [nafathCode, setNafathCode] = useState<string>();
+
+	const identityPayload = useMemo(
+		() => ({
+			national_id: formData.idNumber.replace(/\D/g, ""),
+			user_id: userId,
+		}),
+		[formData.idNumber, userId],
+	);
+
+	const applyNafathResponse = useCallback((data: NafathResponseData) => {
+		const code = data.code ?? data.random;
+		if (code != null) setNafathCode(String(code));
+		const raw = String(
+			data.status ?? data.nafath_status ?? data.verification_status ?? "",
+		).toLowerCase();
+		if (["approved", "completed", "success", "verified"].includes(raw)) {
+			setNafathStatus("approved");
+			return "approved";
+		}
+		if (["rejected", "declined", "failed"].includes(raw)) {
+			setNafathStatus("rejected");
+			return "rejected";
+		}
+		if (["expired", "timeout"].includes(raw)) {
+			setNafathStatus("expired");
+			return "expired";
+		}
+		setNafathStatus("pending");
+		return "pending";
+	}, []);
+
+	const callNafath = useCallback(
+		async (
+			path: string,
+			body: Record<string, unknown>,
+			signal?: AbortSignal,
+		): Promise<NafathResponseData> => {
+			const response = await fetch(path, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Accept-Language": lang,
+					lang,
+				},
+				body: JSON.stringify(body),
+				signal,
+			});
+			const json = await response.json().catch(() => ({}));
+			if (!response.ok || !json.success) {
+				throw new Error(
+					json.message ??
+						(isArabic ? "تعذر إكمال طلب نفاذ" : "Could not complete Nafath request"),
+				);
+			}
+			return (json.data ?? {}) as NafathResponseData;
+		},
+		[isArabic, lang],
+	);
+
+	const initiateNafath = useCallback(
+		async (retry = false) => {
+			setNafathStatus("initiating");
+			try {
+				const data = await callNafath(
+					retry ? QIDHA_BFF.nafath.retry : QIDHA_BFF.nafath.initiate,
+					identityPayload,
+				);
+				applyNafathResponse(data);
+			} catch (error) {
+				setNafathStatus("error");
+				notifyError(
+					error instanceof Error
+						? error.message
+						: isArabic
+							? "تعذر بدء طلب نفاذ"
+							: "Could not start Nafath request",
+				);
+			}
+		},
+		[
+			applyNafathResponse,
+			callNafath,
+			identityPayload,
+			isArabic,
+			notifyError,
+		],
+	);
+
+	const checkNafathStatus = useCallback(
+		async (signal?: AbortSignal, showError = true) => {
+			try {
+				const data = await callNafath(
+					QIDHA_BFF.nafath.checkStatus,
+					identityPayload,
+					signal,
+				);
+				return applyNafathResponse(data);
+			} catch (error) {
+				if (signal?.aborted) return "pending";
+				if (showError) {
+					notifyError(
+						error instanceof Error
+							? error.message
+							: isArabic
+								? "تعذر التحقق من الحالة"
+								: "Could not check status",
+					);
+				}
+				return "pending";
+			}
+		},
+		[
+			applyNafathResponse,
+			callNafath,
+			identityPayload,
+			isArabic,
+			notifyError,
+		],
+	);
+
+	useEffect(() => {
+		if (currentStep !== "contract" || nafathStatus !== "pending") return;
+		const controller = new AbortController();
+		const timer = window.setInterval(() => {
+			void checkNafathStatus(controller.signal, false);
+		}, 5000);
+		return () => {
+			controller.abort();
+			window.clearInterval(timer);
+		};
+	}, [checkNafathStatus, currentStep, nafathStatus]);
 
 	const handleUpdate = (updates: Partial<WalletFormData>) => {
 		setFormData((prev) => ({ ...prev, ...updates }));
@@ -162,6 +303,7 @@ export function WalletSubscriptionClient({
 				);
 				setErrors({});
 				setCurrentStep("contract");
+				await initiateNafath();
 			} catch {
 				const message = isArabic
 					? "فشل في إرسال طلب محفظة قيدها"
@@ -170,6 +312,51 @@ export function WalletSubscriptionClient({
 				notifyError(message);
 			}
 		});
+	};
+
+	const handleCancelNafath = async () => {
+		try {
+			await callNafath(QIDHA_BFF.nafath.cancel, identityPayload);
+			setNafathStatus("cancelled");
+			notifySuccess(
+				isArabic ? "تم إلغاء طلب نفاذ" : "Nafath request cancelled",
+			);
+		} catch (error) {
+			notifyError(
+				error instanceof Error
+					? error.message
+					: isArabic
+						? "تعذر إلغاء الطلب"
+						: "Could not cancel request",
+			);
+		}
+	};
+
+	const handleSign = async () => {
+		setNafathStatus("signing");
+		try {
+			await callNafath(QIDHA_BFF.nafath.sign, {
+				national_id: identityPayload.national_id,
+				city: formData.city,
+				neighborhood: formData.neighborhood,
+				house_type: formData.homeType,
+			});
+			setNafathStatus("signed");
+			notifySuccess(
+				isArabic ? "تم توقيع العقد بنجاح" : "Contract signed successfully",
+			);
+			setCurrentStep("pending");
+			router.refresh();
+		} catch (error) {
+			setNafathStatus("approved");
+			notifyError(
+				error instanceof Error
+					? error.message
+					: isArabic
+						? "تعذر توقيع العقد"
+						: "Could not sign contract",
+			);
+		}
 	};
 
 	const showStepper = currentStep !== "pending";
@@ -250,24 +437,26 @@ export function WalletSubscriptionClient({
 					{currentStep === "contract" && (
 						<ContractStep
 							isArabic={isArabic}
-							onViewContract={() => {
-								// TODO: open contract preview
-							}}
-							onCheckStatus={() => {
-								// TODO: check Nafath status
-							}}
-							onVerify={() => setCurrentStep("pending")}
+							code={nafathCode}
+							status={nafathStatus}
+							onViewContract={() =>
+								notifyError(
+									isArabic
+										? "سيصبح العقد متاحاً بعد اكتمال التحقق"
+										: "The contract will be available after verification",
+								)
+							}
+							onCheckStatus={() => void checkNafathStatus()}
+							onCancel={() => void handleCancelNafath()}
+							onRetry={() => void initiateNafath(true)}
+							onSign={() => void handleSign()}
 						/>
 					)}
 					{currentStep === "pending" && (
 						<PendingStep
 							isArabic={isArabic}
-							onViewContract={() => {
-								// TODO: open contract preview
-							}}
-							onContactSupport={() => {
-								// TODO: open customer support
-							}}
+							onViewContract={() => router.push("/profile/qidha")}
+							onContactSupport={() => router.push("/profile/live-chat")}
 						/>
 					)}
 				</div>

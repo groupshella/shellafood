@@ -1,42 +1,29 @@
-import { cookies } from "next/headers";
+import type { NextRequest } from "next/server";
 
-import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
-import { apiError, apiSuccess, extractBackendError } from "@/shared/lib/api-response";
+import {
+	customerHeaders,
+	fetchCustomerInfo,
+	FINANCIAL_API,
+	getFinancialToken,
+	resolveFinancialLang,
+} from "@/features/profile/lib/financial-http";
+import {
+	apiError,
+	apiSuccess,
+	extractBackendError,
+	isBackendFailure,
+} from "@/shared/lib/api-response";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
-const MODULE_ID = process.env.MODULE_ID ?? "3";
-const ZONE_ID = process.env.ZONE_ID ?? "[2]";
-
-function resolveLang(req: Request): "ar" | "en" {
-	const header =
-		req.headers.get("lang") ??
-		req.headers.get("Accept-Language") ??
-		req.headers.get("X-localization") ??
-		"";
-	return header.toLowerCase().startsWith("en") ? "en" : "ar";
-}
-
-function authHeaders(token: string, lang: "ar" | "en"): HeadersInit {
-	return {
-		Authorization: `Bearer ${token}`,
-		"Content-Type": "application/json; charset=UTF-8",
-		"Accept-Language": lang,
-		"X-localization": lang,
-		lang,
-		moduleId: MODULE_ID,
-		zoneId: ZONE_ID,
-	};
-}
+const BACKEND_URL = FINANCIAL_API.baseUrl;
 
 /**
  * POST /api/v1/customer/loyalty-point/point-transfer
  * Body: { point: number }
  */
-export async function POST(req: Request) {
-	const lang = resolveLang(req);
+export async function POST(req: NextRequest) {
+	const lang = resolveFinancialLang(req);
 	const isArabic = lang === "ar";
-	const cookieStore = await cookies();
-	const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
+	const token = await getFinancialToken();
 	if (!token) return apiError("Unauthorized", 401);
 	if (!BACKEND_URL) return apiError("API URL not configured", 500);
 
@@ -58,11 +45,30 @@ export async function POST(req: Request) {
 	}
 
 	try {
+		const customer = await fetchCustomerInfo(token, null, lang);
+		if (!customer) {
+			return apiError(
+				isArabic
+					? "تعذر التحقق من رصيد النقاط"
+					: "Could not verify points balance",
+				502,
+			);
+		}
+		const available = Number(customer.loyalty_point ?? 0);
+		if (!Number.isFinite(available) || point > available) {
+			return apiError(
+				isArabic
+					? "رصيد النقاط المتاح غير كافٍ"
+					: "Insufficient available points",
+				400,
+			);
+		}
+
 		const res = await fetch(
 			`${BACKEND_URL}/api/v1/customer/loyalty-point/point-transfer`,
 			{
 				method: "POST",
-				headers: authHeaders(token, lang),
+				headers: customerHeaders(token, lang),
 				body: JSON.stringify({ point }),
 			},
 		);
@@ -75,6 +81,16 @@ export async function POST(req: Request) {
 					isArabic ? "فشل في تحويل النقاط" : "Failed to convert points",
 				),
 				res.status,
+			);
+		}
+		if (isBackendFailure(json)) {
+			return apiError(
+				extractBackendError(
+					json,
+					isArabic ? "فشل في تحويل النقاط" : "Failed to convert points",
+				),
+				400,
+				json.errors,
 			);
 		}
 

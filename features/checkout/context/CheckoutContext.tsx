@@ -18,6 +18,7 @@ import type {
 import type { AddressListItem } from "@/features/addresses/types/address.types";
 import { formatAddressLine } from "@/features/addresses/lib/format-address-line";
 import { useNotification } from "@/shared/components/NotificationToast";
+import { refreshCustomerInfo } from "@/features/profile/actions/profile.actions";
 
 function parseInvoiceAmount(formatted: string): number {
 	return Number(formatted.replace(/[^\d.]/g, "")) || 0;
@@ -28,13 +29,18 @@ async function qidhaDebit(
 	orderId: number,
 	isArabic: boolean,
 ): Promise<void> {
-	const res = await fetch("/api/profile/qidha/pay", {
+	const lang = isArabic ? "ar" : "en";
+	const res = await fetch("/api/profile/qidha/debit", {
 		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ amount, order_id: orderId }),
+		headers: {
+			"Content-Type": "application/json",
+			"Accept-Language": lang,
+			lang,
+		},
+		body: JSON.stringify({ amount, order_id: String(orderId) }),
 	});
-	if (!res.ok) {
-		const json = await res.json().catch(() => ({}));
+	const json = await res.json().catch(() => ({}));
+	if (!res.ok || !(json as { success?: boolean }).success) {
 		throw new Error(
 			(json as { message?: string }).message ??
 				(isArabic
@@ -177,6 +183,20 @@ export function CheckoutProvider({ data, isArabic, children }: CheckoutProviderP
 			return;
 		}
 
+		if (selected === "my-wallet" || selected === "qidha-wallet") {
+			const available = parseInvoiceAmount(
+				selected === "my-wallet" ? data.myWalletBalance : data.walletBalance,
+			);
+			if (available < payload.order_amount) {
+				const message = isArabic
+					? "الرصيد غير كافٍ لإتمام هذا الطلب"
+					: "Your balance is insufficient to complete this order";
+				setOrderError(message);
+				notifyError(message);
+				return;
+			}
+		}
+
 		setOrderError(null);
 
 		if (selected === "my-wallet") {
@@ -185,6 +205,7 @@ export function CheckoutProvider({ data, isArabic, children }: CheckoutProviderP
 					{ ...payload, payment_method: "wallet" },
 					lang,
 				);
+				await refreshCustomerInfo(lang);
 				notifySuccess(
 					isArabic ? "تم تأكيد طلبك بنجاح 🎉" : "Your order was confirmed 🎉",
 				);
@@ -198,24 +219,31 @@ export function CheckoutProvider({ data, isArabic, children }: CheckoutProviderP
 		}
 
 		if (selected === "qidha-wallet") {
+			let placedOrderId: number | null = null;
 			try {
 				const { order_id } = await placeOrder(
 					{ ...payload, payment_method: "wallet" },
 					lang,
 				);
-				try {
-					await qidhaDebit(payload.order_amount, order_id, isArabic);
-				} catch {
-					// Qidha debit failed — order is already placed, navigate and let backend reconcile
-				}
+				placedOrderId = order_id;
+				await qidhaDebit(payload.order_amount, order_id, isArabic);
+				await refreshCustomerInfo(lang);
 				notifySuccess(
-					isArabic ? "تم تأكيد طلبك بنجاح 🎉" : "Your order was confirmed 🎉",
+					isArabic
+						? "تم تأكيد الطلب والخصم من محفظة قيدها"
+						: "Order confirmed and Qidha wallet debited",
 				);
 				router.push(`/my-orders/${order_id}`);
 			} catch (err) {
-				const message = err instanceof Error ? err.message : fallbackError;
+				const reason = err instanceof Error ? err.message : fallbackError;
+				const message = placedOrderId
+					? isArabic
+						? `تم إنشاء الطلب #${placedOrderId} لكن لم يكتمل الخصم من قيدها: ${reason}`
+						: `Order #${placedOrderId} was created, but the Qidha debit was not completed: ${reason}`
+					: reason;
 				setOrderError(message);
 				notifyError(message);
+				if (placedOrderId) router.push(`/my-orders/${placedOrderId}`);
 			}
 			return;
 		}
@@ -239,6 +267,8 @@ export function CheckoutProvider({ data, isArabic, children }: CheckoutProviderP
 		invoice.belowMinimumOrder,
 		invoice.minimumOrder,
 		invoice.total,
+		data.myWalletBalance,
+		data.walletBalance,
 		isArabic,
 		lang,
 		notifyError,

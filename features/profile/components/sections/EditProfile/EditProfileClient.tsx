@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Plus } from "lucide-react";
+import { ChevronLeft, Pencil, Plus } from "lucide-react";
 import type { AuthUser, UserGender } from "@/features/auth/types/auth.types";
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
 import { PrimaryButton } from "@/features/profile/components/shared/PrimaryButton";
@@ -378,8 +378,12 @@ export function EditProfileClient({ user, isArabic }: EditProfileClientProps) {
 									fieldErrors.image ? "border-red-500" : "border-border",
 								].join(" ")}
 							/>
-							<span className="absolute bottom-0 end-0 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-brand text-brand-foreground shadow-sm ring-2 ring-background transition-colors group-hover:brightness-95">
-								<Plus className="h-3 w-3" strokeWidth={1.5} />
+							<span className="absolute bottom-0 start-0 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-brand text-brand-foreground shadow-sm ring-2 ring-background transition-colors group-hover:brightness-95">
+								{draft.imagePreview ? (
+									<Pencil className="h-3 w-3" strokeWidth={1.5} />
+								) : (
+									<Plus className="h-3 w-3" strokeWidth={1.5} />
+								)}
 							</span>
 						</button>
 						<FieldError message={fieldErrors.image} />
@@ -451,16 +455,14 @@ export function EditProfileClient({ user, isArabic }: EditProfileClientProps) {
 							className={`${inputClassName} justify-between`}
 						>
 							<span
-								className={`text-[14px] font-medium leading-[160%] ${
-									draft.gender ? "text-foreground" : "text-muted"
-								}`}
+								className={`text-[14px] font-medium leading-[160%] ${draft.gender ? "text-foreground" : "text-muted"
+									}`}
 							>
 								{genderLabel(draft.gender, isArabic)}
 							</span>
 							<ChevronLeft
-								className={`h-5 w-5 shrink-0 text-muted ${
-									isArabic ? "" : "rotate-180"
-								}`}
+								className={`h-5 w-5 shrink-0 text-muted ${isArabic ? "" : "rotate-180"
+									}`}
 								strokeWidth={1.5}
 							/>
 						</button>

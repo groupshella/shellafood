@@ -9,11 +9,11 @@ interface AddToCartProps {
 }
 
 function AddToCartBar({ moduleId }: AddToCartProps) {
-    const { totalCount } = useCart();
+    const { confirmedTotalCount: totalCount } = useCart();
     const searchHref = moduleId ? `/search?module_id=${moduleId}` : "/search";
 
     return (
-        <div className="pointer-events-none fixed inset-x-0 z-50 flex justify-center bottom-[calc(1.25rem+env(safe-area-inset-bottom))] sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]">
+        <div className={`pointer-events-none ${totalCount > 0 ? 'flex' : 'hidden'} fixed inset-x-0 z-[10] justify-center bottom-[calc(1.25rem+env(safe-area-inset-bottom))] sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]`}>
             <div className="pointer-events-auto flex items-center gap-4 rounded-full bg-[#30913F] px-6 py-3 shadow-[0_8px_24px_rgba(48,145,63,0.35)] sm:gap-5 sm:px-7 sm:py-3.5">
                 <Link
                     href="/cart"

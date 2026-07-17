@@ -4,28 +4,33 @@ import {
 	getWalletTransactions,
 	isWalletHistoryFilter,
 } from "@/features/profile/api/wallet";
+import { resolveFinancialLang } from "@/features/profile/lib/financial-http";
+import {
+	isValidWalletPagination,
+	WALLET_TRANSACTION_PAGE_SIZE,
+} from "@/features/profile/lib/wallet-validation";
 import type { WalletHistoryFilter } from "@/features/profile/types/wallet.types";
 import { apiError, apiSuccess } from "@/shared/lib/api-response";
-
-function resolveLang(req: NextRequest): "ar" | "en" {
-	const header =
-		req.headers.get("lang") ??
-		req.headers.get("Accept-Language") ??
-		req.headers.get("X-localization") ??
-		"";
-	return header.toLowerCase().startsWith("en") ? "en" : "ar";
-}
 
 /**
  * BFF for wallet history filters.
  * Proxies to GET /api/v1/customer/wallet/transactions?offset&limit&type
  */
 export async function GET(req: NextRequest) {
-	const lang = resolveLang(req);
+	const lang = resolveFinancialLang(req);
 	const isArabic = lang === "ar";
 	const offset = Number(req.nextUrl.searchParams.get("offset") ?? 0);
-	const limit = Number(req.nextUrl.searchParams.get("limit") ?? 10);
+	const limit = Number(
+		req.nextUrl.searchParams.get("limit") ?? WALLET_TRANSACTION_PAGE_SIZE,
+	);
 	const typeParam = req.nextUrl.searchParams.get("type") ?? "all";
+
+	if (!isValidWalletPagination(offset, limit)) {
+		return apiError(
+			isArabic ? "قيم ترقيم سجل المحفظة غير صالحة" : "Invalid wallet pagination",
+			400,
+		);
+	}
 
 	if (!isWalletHistoryFilter(typeParam)) {
 		return apiError(
@@ -38,10 +43,11 @@ export async function GET(req: NextRequest) {
 
 	try {
 		const groups = await getWalletTransactions(
-			Number.isFinite(offset) ? offset : 0,
-			Number.isFinite(limit) ? limit : 10,
+			offset,
+			limit,
 			type,
 			lang,
+			true,
 		);
 		return apiSuccess(groups);
 	} catch {

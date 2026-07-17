@@ -5,11 +5,14 @@ import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import type { AuthUser } from "@/features/auth/types/auth.types";
 import type { UpdateProfileResult } from "@/features/profile/types/profile.types";
 import {
-    mapCustomerInfoToAuthUser,
+    fetchCustomerInfo,
+    FINANCIAL_API,
+} from "@/features/profile/lib/financial-http";
+import {
     parseProfileFieldErrors,
 } from "@/features/profile/lib/profile.lib";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
+const BACKEND_URL = FINANCIAL_API.baseUrl;
 const IS_PROD = process.env.NODE_ENV === "production";
 const COOKIE_OPTS = {
     path: "/",
@@ -40,29 +43,30 @@ async function persistUser(user: AuthUser) {
     cookieStore.set(COOKIE_KEYS.USER, JSON.stringify(user), COOKIE_OPTS);
 }
 
-async function fetchCustomerInfo(
-    token: string,
-    current: AuthUser | null,
+export async function refreshCustomerInfo(
     lang: "ar" | "en" = "ar",
-): Promise<AuthUser | null> {
-    const res = await fetch(`${BACKEND_URL}/api/v1/customer/info`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-            "Accept-Language": lang,
-            "X-localization": lang,
-            lang,
-        },
-        cache: "no-store",
-    });
+): Promise<
+    | { success: true; user: AuthUser }
+    | { success: false; message: string }
+> {
+    const token = await getToken();
+    const fallback = lang === "ar" ? "تعذر تحديث الرصيد" : "Could not refresh balance";
+    if (!token || !BACKEND_URL) {
+        return {
+            success: false,
+            message: lang === "ar" ? "غير مصرح" : "Unauthorized",
+        };
+    }
 
-    if (!res.ok) return null;
-
-    const json = await res.json();
-    const data = (json?.data ?? json?.user ?? json) as Record<string, unknown>;
-    if (!data || typeof data !== "object") return null;
-
-    return mapCustomerInfoToAuthUser(data, current);
+    try {
+        const current = await getCurrentUser();
+        const user = await fetchCustomerInfo(token, current, lang);
+        if (!user) return { success: false, message: fallback };
+        await persistUser(user);
+        return { success: true, user };
+    } catch {
+        return { success: false, message: fallback };
+    }
 }
 
 export async function updateProfile(

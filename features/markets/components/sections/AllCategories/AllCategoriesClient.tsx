@@ -74,6 +74,7 @@ export function AllCategoriesClient({
 							key={category.id}
 							category={category}
 							moduleId={moduleId}
+							moduleName={moduleName}
 							mode="filter"
 							layout="grid"
 						/>

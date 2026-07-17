@@ -55,7 +55,12 @@ export function CategoriesClient({
 			<ScrollContainer className="px-3 sm:px-5 lg:px-6 [&>div]:mx-auto [&>div]:max-w-lg sm:[&>div]:max-w-2xl md:[&>div]:max-w-3xl lg:[&>div]:max-w-4xl xl:[&>div]:max-w-5xl 2xl:[&>div]:max-w-6xl">
 				{categories.map((category) => (
 					<div key={category.id} className="snap-start">
-						<CategoryCard category={category} moduleId={moduleId} mode="filter" />
+						<CategoryCard
+							category={category}
+							moduleId={moduleId}
+							moduleName={moduleName}
+							mode="filter"
+						/>
 					</div>
 				))}
 			</ScrollContainer>

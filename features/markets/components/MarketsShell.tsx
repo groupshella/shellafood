@@ -7,12 +7,14 @@ export function MarketsShell({
 	moduleName,
 	isAuthenticated,
 	isArabic,
+	initialCategoryId = null,
 }: {
 	children: React.ReactNode;
 	moduleId: string;
 	moduleName: string;
 	isAuthenticated: boolean;
 	isArabic: boolean;
+	initialCategoryId?: number | null;
 }) {
 	const lang = isArabic ? "ar" : "en";
 
@@ -29,7 +31,11 @@ export function MarketsShell({
 				isArabic={isArabic}
 			/>
 
-			<MarketsStoreProvider moduleId={moduleId} lang={lang}>
+			<MarketsStoreProvider
+				moduleId={moduleId}
+				lang={lang}
+				initialCategoryId={initialCategoryId}
+			>
 				{children}
 			</MarketsStoreProvider>
 		</div>

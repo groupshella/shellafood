@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LayoutGrid, List, SlidersHorizontal } from "lucide-react";
 import type {
     CategoryDetails,
     CategoryProduct,
@@ -22,6 +21,118 @@ const CATEGORY_NAV_H = 44;
 const SUB_NAV_H = 48;
 const TOOLBAR_H = 52;
 const LOAD_MORE_LIMIT = 20;
+
+function GridViewIcon({ className }: { className?: string }) {
+    return (
+        <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            aria-hidden
+        >
+            <path
+                d="M15 22.75H9C3.57 22.75 1.25 20.43 1.25 15V9C1.25 3.57 3.57 1.25 9 1.25H15C20.43 1.25 22.75 3.57 22.75 9V15C22.75 20.43 20.43 22.75 15 22.75ZM9 2.75C4.39 2.75 2.75 4.39 2.75 9V15C2.75 19.61 4.39 21.25 9 21.25H15C19.61 21.25 21.25 19.61 21.25 15V9C21.25 4.39 19.61 2.75 15 2.75H9Z"
+                fill="currentColor"
+            />
+            <path
+                d="M12 22.75C11.59 22.75 11.25 22.41 11.25 22V2C11.25 1.59 11.59 1.25 12 1.25C12.41 1.25 12.75 1.59 12.75 2V22C12.75 22.41 12.41 22.75 12 22.75Z"
+                fill="currentColor"
+            />
+            <path
+                d="M22 12.75H2C1.59 12.75 1.25 12.41 1.25 12C1.25 11.59 1.59 11.25 2 11.25H22C22.41 11.25 22.75 11.59 22.75 12C22.75 12.41 22.41 12.75 22 12.75Z"
+                fill="currentColor"
+            />
+        </svg>
+    );
+}
+
+function ListViewIcon({ className }: { className?: string }) {
+    return (
+        <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            aria-hidden
+        >
+            <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M4.28571 15.4286C4.62671 15.4286 4.95373 15.5641 5.19485 15.8052C5.43597 16.0463 5.57143 16.3733 5.57143 16.7143C5.57143 17.0553 5.43597 17.3823 5.19485 17.6235C4.95373 17.8646 4.62671 18 4.28571 18C3.94472 18 3.6177 17.8646 3.37658 17.6235C3.13546 17.3823 3 17.0553 3 16.7143C3 16.3733 3.13546 16.0463 3.37658 15.8052C3.6177 15.5641 3.94472 15.4286 4.28571 15.4286ZM19.7134 15.8572C20.1874 15.8572 20.5714 16.2377 20.5714 16.7143C20.5714 17.1879 20.19 17.5715 19.7134 17.5715H7.71514C7.60245 17.5718 7.49079 17.5499 7.3866 17.5069C7.2824 17.464 7.18772 17.4009 7.10799 17.3212C7.02826 17.2416 6.96506 17.147 6.92201 17.0428C6.87896 16.9386 6.85692 16.827 6.85714 16.7143C6.85714 16.2407 7.23857 15.8572 7.71514 15.8572H19.7134ZM4.28571 11.1429C4.62671 11.1429 4.95373 11.2784 5.19485 11.5195C5.43597 11.7606 5.57143 12.0876 5.57143 12.4286C5.57143 12.7696 5.43597 13.0966 5.19485 13.3377C4.95373 13.5789 4.62671 13.7143 4.28571 13.7143C3.94472 13.7143 3.6177 13.5789 3.37658 13.3377C3.13546 13.0966 3 12.7696 3 12.4286C3 12.0876 3.13546 11.7606 3.37658 11.5195C3.6177 11.2784 3.94472 11.1429 4.28571 11.1429ZM19.7134 11.5715C20.1874 11.5715 20.5714 11.952 20.5714 12.4286C20.5714 12.9022 20.19 13.2857 19.7134 13.2857H7.71514C7.60245 13.2861 7.49079 13.2642 7.3866 13.2212C7.2824 13.1783 7.18772 13.1152 7.10799 13.0355C7.02826 12.9559 6.96506 12.8612 6.92201 12.7571C6.87896 12.6529 6.85692 12.5413 6.85714 12.4286C6.85714 11.955 7.23857 11.5715 7.71514 11.5715H19.7134ZM4.28571 6.85718C4.62671 6.85718 4.95373 6.99264 5.19485 7.23375C5.43597 7.47487 5.57143 7.8019 5.57143 8.14289C5.57143 8.48388 5.43597 8.81091 5.19485 9.05203C4.95373 9.29315 4.62671 9.42861 4.28571 9.42861C3.94472 9.42861 3.6177 9.29315 3.37658 9.05203C3.13546 8.81091 3 8.48388 3 8.14289C3 7.8019 3.13546 7.47487 3.37658 7.23375C3.6177 6.99264 3.94472 6.85718 4.28571 6.85718ZM19.7134 7.28575C20.1874 7.28575 20.5714 7.66632 20.5714 8.14289C20.5714 8.61646 20.19 9.00003 19.7134 9.00003H7.71514C7.60245 9.00037 7.49079 8.97844 7.3866 8.9355C7.2824 8.89255 7.18772 8.82944 7.10799 8.74979C7.02826 8.67014 6.96506 8.57552 6.92201 8.47137C6.87896 8.36722 6.85692 8.25559 6.85714 8.14289C6.85714 7.66932 7.23857 7.28575 7.71514 7.28575H19.7134Z"
+                fill="currentColor"
+            />
+        </svg>
+    );
+}
+
+function FilterIcon({ className }: { className?: string }) {
+    return (
+        <svg
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            aria-hidden
+        >
+            <rect width="32" height="32" rx="4" fill="#EBFEEB" />
+            <path
+                d="M26 21.5H19"
+                stroke="#30913F"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M9 21.5H6"
+                stroke="#30913F"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M26 10.5H23"
+                stroke="#30913F"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M13 10.5H6"
+                stroke="#30913F"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M11 18.5H17C18.1 18.5 19 19 19 20.5V22.5C19 24 18.1 24.5 17 24.5H11C9.9 24.5 9 24 9 22.5V20.5C9 19 9.9 18.5 11 18.5Z"
+                stroke="#30913F"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M15 7.5H21C22.1 7.5 23 8 23 9.5V11.5C23 13 22.1 13.5 21 13.5H15C13.9 13.5 13 13 13 11.5V9.5C13 8 13.9 7.5 15 7.5Z"
+                stroke="#30913F"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+}
 
 type SubCategoryState = {
     products: CategoryProduct[];
@@ -108,12 +219,15 @@ function ToolbarBtn({
     onClick,
     active = false,
     indicator = false,
+    bare = false,
     children,
 }: {
     label: string;
     onClick: () => void;
     active?: boolean;
     indicator?: boolean;
+    /** When true, skip the soft/solid brand chip — icon brings its own background. */
+    bare?: boolean;
     children: React.ReactNode;
 }) {
     return (
@@ -123,17 +237,21 @@ function ToolbarBtn({
             aria-pressed={active}
             onClick={onClick}
             className={[
-                "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]",
-                "transition-colors active:scale-95",
+                "relative flex shrink-0 items-center justify-center transition-colors active:scale-95",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                active
-                    ? "bg-brand text-brand-foreground"
-                    : "bg-brand/10 text-brand",
+                bare
+                    ? "h-8 w-8 rounded sm:h-9 sm:w-9 md:h-10 md:w-10 lg:h-11 lg:w-11"
+                    : [
+                          "h-9 w-9 rounded-[10px] sm:h-10 sm:w-10 sm:rounded-xl md:h-11 md:w-11 lg:h-12 lg:w-12",
+                          active
+                              ? "bg-brand text-brand-foreground"
+                              : "bg-brand/10 text-brand",
+                      ].join(" "),
             ].join(" ")}
         >
             {children}
             {indicator && (
-                <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand ring-2 ring-background" />
+                <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand ring-2 ring-background sm:h-3 sm:w-3" />
             )}
         </button>
     );
@@ -158,10 +276,10 @@ function ProductsToolbar({
 }) {
     return (
         <div
-            className="sticky z-20 flex items-center justify-between gap-3 border-b border-border bg-background px-3 py-2.5 sm:px-5 lg:px-6"
+            className="sticky z-20 flex items-center justify-between gap-3 border-b border-border bg-background px-3 py-2.5 sm:px-5 sm:py-3 md:py-3.5 lg:px-6"
             style={{ top: stickyTop }}
         >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
                 <ToolbarBtn
                     label={
                         viewMode === "grid"
@@ -176,9 +294,9 @@ function ProductsToolbar({
                     active={viewMode === "list"}
                 >
                     {viewMode === "grid" ? (
-                        <List className="h-[18px] w-[18px]" strokeWidth={2.25} />
+                        <ListViewIcon className="h-[18px] w-[18px] sm:h-5 sm:w-5 md:h-6 md:w-6 lg:h-7 lg:w-7" />
                     ) : (
-                        <LayoutGrid className="h-[18px] w-[18px]" strokeWidth={2.25} />
+                        <GridViewIcon className="h-[18px] w-[18px] sm:h-5 sm:w-5 md:h-6 md:w-6 lg:h-7 lg:w-7" />
                     )}
                 </ToolbarBtn>
 
@@ -186,12 +304,13 @@ function ProductsToolbar({
                     label={isArabic ? "تصفية المنتجات" : "Filter products"}
                     onClick={onOpenFilter}
                     indicator={hasActiveFilter}
+                    bare
                 >
-                    <SlidersHorizontal className="h-[18px] w-[18px]" strokeWidth={2.25} />
+                    <FilterIcon className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 lg:h-11 lg:w-11" />
                 </ToolbarBtn>
             </div>
 
-            <p className="text-sm font-medium text-muted">
+            <p className="text-sm font-medium text-muted sm:text-[15px] md:text-base">
                 <span className="tabular-nums">
                     {totalProducts.toLocaleString("en-US")}
                 </span>{" "}

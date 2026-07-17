@@ -32,7 +32,7 @@ export function ChatInputBar({
 				className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand py-3 pe-3 ps-[9px] text-brand-foreground transition-opacity disabled:opacity-40 active:opacity-80 sm:h-[52px] sm:w-[52px]"
 			>
 				<Send
-					className="h-5 w-5 -rotate-45 text-brand-foreground"
+					className="h-5 w-5 rotate-45 text-brand-foreground"
 					strokeWidth={1.5}
 				/>
 			</button>

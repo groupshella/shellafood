@@ -416,6 +416,17 @@ export function StoresClient({
 		hydrateFromServer(initialStores);
 	}, [hydrateFromServer, initialStores]);
 
+	const landedWithCategory = filters.categoryId !== null;
+	useEffect(() => {
+		if (!landedWithCategory) return;
+		const frame = window.requestAnimationFrame(() => {
+			document
+				.getElementById("module-stores")
+				?.scrollIntoView({ behavior: "smooth", block: "start" });
+		});
+		return () => window.cancelAnimationFrame(frame);
+	}, [landedWithCategory]);
+
 	const filtersActive = hasActiveFilters(filters);
 
 	return (

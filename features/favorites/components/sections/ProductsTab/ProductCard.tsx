@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { memo, useCallback, useState } from "react";
-import { Heart, ShoppingBag, Plus } from "lucide-react";
+import { memo, useCallback, useMemo, useState } from "react";
+import { Heart, ShoppingBag } from "lucide-react";
 import { PriceTag } from "@/features/home/components/shared/PriceTag";
+import { ProductAddControl } from "@/features/cart/components/shared/ProductAddControl";
 import { addToWishlist, removeFromWishlist } from "@/features/favorites/actions/wishlist";
 import { useNotification } from "@/shared/components/NotificationToast";
 import type { FavoriteProduct } from "@/features/favorites/types/favorites.types";
@@ -35,6 +36,21 @@ export const ProductCard = memo(function ProductCard({
         hasDiscount && product.discount != null ? Math.round(product.discount) : null;
     const imageUrl = product.image_full_url || product.image;
     const showImage = !imgError && !!imageUrl;
+
+    const cartProduct = useMemo(
+        () => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            discount: discountPercent ?? product.discount ?? 0,
+        }),
+        [product.id, product.name, product.price, product.discount, discountPercent],
+    );
+
+    const isAvailable =
+        product.availability?.is_available_now ??
+        product.availability?.is_available ??
+        product.status === 1;
 
     const handleImgError = useCallback(() => {
         setImgError(true);
@@ -144,8 +160,8 @@ export const ProductCard = memo(function ProductCard({
                                 ? "إزالة من المفضلة"
                                 : "Remove from favorites"
                             : isArabic
-                              ? "إضافة إلى المفضلة"
-                              : "Add to favorites"
+                                ? "إضافة إلى المفضلة"
+                                : "Add to favorites"
                     }
                     aria-pressed={favorited}
                     onClick={toggleFavorite}
@@ -162,17 +178,13 @@ export const ProductCard = memo(function ProductCard({
                     />
                 </button>
 
-                <button
-                    type="button"
-                    aria-label={
-                        isArabic
-                            ? `إضافة ${product.name} إلى السلة`
-                            : `Add ${product.name} to cart`
-                    }
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-brand/20 transition-colors active:bg-brand/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:h-10 sm:w-10"
-                >
-                    <Plus className="h-4 w-4 text-brand sm:h-[18px] sm:w-[18px]" strokeWidth={2.5} aria-hidden />
-                </button>
+                <ProductAddControl
+                    product={cartProduct}
+                    isAvailable={isAvailable}
+                    size="sm"
+                    variant="soft"
+                    className="h-9 w-9 sm:h-10 sm:w-1"
+                />
             </div>
         </div>
     );

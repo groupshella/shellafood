@@ -13,7 +13,14 @@ interface ModulesClientProps {
 export function ModulesClient({ modules, isArabic }: ModulesClientProps) {
     const { moduleId, setModuleId } = useSearchContext();
 
-    const moduleCards = modules.map((module, index) => {
+    const ALLOWED_MODULE_IDS = new Set([3, 6, 9]);
+    const visibleModules = modules.filter((module) =>
+        ALLOWED_MODULE_IDS.has(Number(module.id)),
+    );
+
+    if (visibleModules.length === 0) return null;
+
+    const moduleCards = visibleModules.map((module, index) => {
         const id = String(module.id);
         const isActive = id === moduleId;
 

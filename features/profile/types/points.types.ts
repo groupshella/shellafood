@@ -13,6 +13,12 @@ export interface PointsHistoryGroup {
     items: PointsHistoryItem[];
 }
 
+export interface PointsTransactionsPage {
+    groups: PointsHistoryGroup[];
+    nextOffset: number;
+    hasMore: boolean;
+}
+
 export interface MyPointsData {
     convertiblePoints: number;
     history: PointsHistoryGroup[];

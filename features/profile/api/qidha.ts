@@ -1,7 +1,9 @@
-import { cookies } from "next/headers";
-
-import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import { QIDHA_ENDPOINTS } from "@/features/profile/constants/qidha.constants";
+import {
+    customerHeaders,
+    FINANCIAL_API,
+    getFinancialToken,
+} from "@/features/profile/lib/financial-http";
 import {
     adaptMonthlyTrends,
     adaptQidhaCard,
@@ -21,36 +23,15 @@ import type {
     StatisticsMonthTrend,
 } from "@/features/profile/types/statistics.types";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
-const MODULE_ID = process.env.MODULE_ID ?? "3";
-const ZONE_ID = process.env.ZONE_ID ?? "[2]";
-const LATITUDE = process.env.NEXT_PUBLIC_LATITUDE ?? "24.7136";
-const LONGITUDE = process.env.NEXT_PUBLIC_LONGITUDE ?? "46.6753";
-
-async function getToken(): Promise<string | null> {
-    try {
-        const store = await cookies();
-        return store.get(COOKIE_KEYS.ACCESS_TOKEN)?.value ?? null;
-    } catch {
-        return null;
-    }
-}
+const BACKEND_URL = FINANCIAL_API.baseUrl;
 
 /** GET headers for Qidha APIs (Accept is used on Qidha, unlike most customer APIs). */
 function qidhaGetHeaders(token: string, lang: "ar" | "en" = "ar"): HeadersInit {
-    return {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-        "Accept-Language": lang,
-        "X-localization": lang,
-        lang,
-        moduleId: MODULE_ID,
-        "module-id": MODULE_ID,
-        zoneId: ZONE_ID,
-        "zone-id": ZONE_ID,
-        latitude: LATITUDE,
-        longitude: LONGITUDE,
-    };
+    return customerHeaders(token, lang, {
+        contentType: false,
+        dualModuleZone: true,
+        includeGeo: true,
+    });
 }
 
 /**
@@ -112,7 +93,7 @@ export async function getQidhaWallet(
     userId?: number,
     lang: "ar" | "en" = "ar",
 ): Promise<QidhaWalletResult | null> {
-    const token = await getToken();
+    const token = await getFinancialToken();
     if (!token) return null;
 
     const raw = await fetchQidhaData(QIDHA_ENDPOINTS.wallet, token, lang);
@@ -202,7 +183,7 @@ function buildTransactions(raw: unknown): QidhaTransactionItem[] {
 export async function getRecordedAnalytics(
     lang: "ar" | "en" = "ar",
 ): Promise<RecordedAnalyticsInitialData> {
-    const token = await getToken();
+    const token = await getFinancialToken();
     if (!token) return emptyRecorded(lang);
 
     const [

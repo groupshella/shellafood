@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { getCart } from "@/features/cart/api/cart";
 import { getAddresses } from "@/features/addresses/api/addresses";
 import { formatAddressLine } from "@/features/addresses/lib/format-address-line";
@@ -16,9 +15,9 @@ import { PaymentMethod } from "@/features/checkout/components/sections/PaymentMe
 import { DiscountCode } from "@/features/checkout/components/sections/DiscountCode";
 import { AdditionalNote } from "@/features/checkout/components/sections/AdditionalNote";
 import { InvoiceDetails } from "@/features/checkout/components/sections/InvoiceDetails";
-import { COOKIE_KEYS, type AuthUser } from "@/features/auth/types/auth.types";
 import { formatSar } from "@/features/checkout/lib/balance";
 import type { CheckoutData } from "@/features/checkout/types/checkout.types";
+import { getLiveCustomerInfo } from "@/features/profile/api/customer";
 import { AuthRequiredScreen } from "@/features/layout/components/AuthRequiredScreen";
 import { isAuthenticated } from "@/features/layout/lib/is-authenticated";
 import { isArabicLocale } from "@/shared/lib/locale";
@@ -35,10 +34,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function buildCheckoutData(isArabic: boolean): Promise<CheckoutData> {
 	const lang = isArabic ? "ar" : "en";
-	const [items, addresses, cookieStore] = await Promise.all([
+	const [items, addresses, user] = await Promise.all([
 		getCart(lang),
 		getAddresses(lang),
-		cookies(),
+		getLiveCustomerInfo(lang),
 	]);
 
 	const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -49,17 +48,11 @@ async function buildCheckoutData(isArabic: boolean): Promise<CheckoutData> {
 	let contactPhone = "";
 	let myWalletAmount = 0;
 	let qidhaWalletAmount = 0;
-	try {
-		const raw = cookieStore.get(COOKIE_KEYS.USER)?.value;
-		if (raw) {
-			const user: AuthUser = JSON.parse(raw);
-			contactName = `${user.f_name} ${user.l_name}`.trim() || contactName;
-			contactPhone = user.phone || contactPhone;
-			myWalletAmount = Number(user.wallet_balance ?? 0) || 0;
-			qidhaWalletAmount = Number(user.qidha_wallet_balance ?? 0) || 0;
-		}
-	} catch {
-		// cookie parse failure — defaults are fine
+	if (user) {
+		contactName = `${user.f_name} ${user.l_name}`.trim() || contactName;
+		contactPhone = user.phone || contactPhone;
+		myWalletAmount = Number(user.wallet_balance ?? 0) || 0;
+		qidhaWalletAmount = Number(user.qidha_wallet_balance ?? 0) || 0;
 	}
 
 	const defaultAddress = addresses[0] ?? null;

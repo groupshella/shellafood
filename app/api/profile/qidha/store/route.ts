@@ -1,18 +1,21 @@
-import { cookies } from "next/headers";
-
-import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import { QIDHA_ENDPOINTS } from "@/features/profile/constants/qidha.constants";
+import {
+    FINANCIAL_API,
+    getFinancialToken,
+    qidhaStoreHeaders,
+    resolveFinancialLang,
+} from "@/features/profile/lib/financial-http";
 import { apiError, apiSuccess, extractBackendError } from "@/shared/lib/api-response";
+import type { NextRequest } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+const BACKEND_URL = FINANCIAL_API.baseUrl;
 
 /**
  * BFF for POST /api/qidha-wallet/store (multipart/form-data).
  * Flutter headers: Authorization + Accept only (no moduleId / zoneId / Content-Type).
  */
-export async function POST(req: Request) {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_KEYS.ACCESS_TOKEN)?.value;
+export async function POST(req: NextRequest) {
+    const token = await getFinancialToken();
     if (!token) return apiError("Unauthorized", 401);
     if (!BACKEND_URL) return apiError("API URL not configured", 500);
 
@@ -23,24 +26,14 @@ export async function POST(req: Request) {
         return apiError("Invalid form data", 400);
     }
 
-    const langHeader =
-        req.headers.get("lang") ??
-        req.headers.get("Accept-Language") ??
-        "ar";
-    const lang = langHeader.toLowerCase().startsWith("en") ? "en" : "ar";
+    const lang = resolveFinancialLang(req);
     const isArabic = lang === "ar";
 
     try {
         const res = await fetch(`${BACKEND_URL}${QIDHA_ENDPOINTS.store}`, {
             method: "POST",
-            headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${token}`,
-                "Accept-Language": lang,
-                "X-localization": lang,
-                lang,
-                // Do not set Content-Type — fetch sets multipart boundary automatically.
-            },
+            // Do not set Content-Type — fetch sets the multipart boundary.
+            headers: qidhaStoreHeaders(token, lang),
             body: formData,
         });
 
@@ -59,7 +52,13 @@ export async function POST(req: Request) {
             : "Failed to create Qidha wallet";
 
         if (!res.ok) {
-            return apiError(extractBackendError(json, fallback), res.status);
+            return apiError(
+                extractBackendError(json, fallback),
+                res.status,
+                json && typeof json === "object"
+                    ? (json as { errors?: unknown }).errors
+                    : undefined,
+            );
         }
 
         if (
@@ -68,7 +67,11 @@ export async function POST(req: Request) {
             "success" in json &&
             (json as { success: unknown }).success === false
         ) {
-            return apiError(extractBackendError(json, fallback), 400);
+            return apiError(
+                extractBackendError(json, fallback),
+                400,
+                (json as { errors?: unknown }).errors,
+            );
         }
 
         const data =

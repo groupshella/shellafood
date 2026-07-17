@@ -1,70 +1,24 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 import { ProfileSubpageShell } from "@/features/profile/components/ProfileSubpageShell";
 import {
-    WALLET_PAYMENT_METHODS,
     WALLET_QUICK_AMOUNTS,
     WALLET_STRINGS,
 } from "@/features/profile/constants/wallet.strings";
-import type { WalletPaymentMethodId } from "@/features/profile/types/wallet.types";
+import type { WalletAddFundResponse } from "@/features/profile/types/wallet.types";
+import type { ApiResponse } from "@/shared/lib/api-response";
 import { useNotification } from "@/shared/components/NotificationToast";
 import { SarIcon } from "./shared/SarIcon";
 
 const TAJAWAL = { fontFamily: "'Tajawal', sans-serif" } as const;
 const AFACAD = { fontFamily: "'Afacad Flux', sans-serif" } as const;
 
-function PaymentLogo({ id }: { id: WalletPaymentMethodId }) {
-    if (id === "visa_master") {
-        return (
-            <div className="flex items-center gap-1" aria-hidden>
-                <span className="flex h-5 w-8 items-center justify-center rounded-[3px] bg-[#EB001B]/15 text-[8px] font-black text-[#EB001B]">
-                    MC
-                </span>
-                <span className="flex h-5 w-8 items-center justify-center rounded-[3px] bg-[#1A1F71]/10 text-[8px] font-black text-[#1A1F71]">
-                    VISA
-                </span>
-            </div>
-        );
-    }
-    if (id === "stc_pay") {
-        return (
-            <span
-                className="rounded-[4px] bg-[#4F008C] px-1.5 py-0.5 text-[9px] font-bold text-white"
-                aria-hidden
-            >
-                stc
-            </span>
-        );
-    }
-    if (id === "mada") {
-        return (
-            <span
-                className="rounded-[4px] bg-[#00A651] px-1.5 py-0.5 text-[9px] font-bold text-white"
-                aria-hidden
-            >
-                mada
-            </span>
-        );
-    }
-    return (
-        <span
-            className="rounded-[4px] bg-black px-1.5 py-0.5 text-[9px] font-bold text-white dark:bg-gray-100 dark:text-black"
-            aria-hidden
-        >
-            Pay
-        </span>
-    );
-}
-
 export function AddBalanceClient({ isArabic = true }: { isArabic?: boolean }) {
     const [amount, setAmount] = useState(0);
-    const [method, setMethod] = useState<WalletPaymentMethodId>("visa_master");
     const [isPending, startTransition] = useTransition();
-    const router = useRouter();
-    const { success, error } = useNotification();
+    const { error } = useNotification();
 
     function handleAddFund() {
         if (amount <= 0) return;
@@ -72,19 +26,59 @@ export function AddBalanceClient({ isArabic = true }: { isArabic?: boolean }) {
             try {
                 const res = await fetch("/api/profile/wallet/add-fund", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ amount, payment_method: method }),
+                    headers: {
+                        "Content-Type": "application/json",
+                        lang: isArabic ? "ar" : "en",
+                    },
+                    body: JSON.stringify({
+                        amount,
+                        payment_method: "myfatoorah",
+                        payment_platform: "web",
+                        callback: `${window.location.origin}/profile/wallet/payment/return`,
+                    }),
                 });
-                const json = await res.json();
-                if (!res.ok || !json.success) {
-                    error(json?.message ?? "فشل في إضافة الرصيد");
+                const fallback = isArabic
+                    ? "تعذر إكمال إضافة الرصيد حالياً. حاول مرة أخرى."
+                    : "Could not start wallet top-up right now. Please try again.";
+                let json: ApiResponse<WalletAddFundResponse> | null = null;
+                try {
+                    json = (await res.json()) as ApiResponse<WalletAddFundResponse>;
+                } catch {
+                    error(fallback);
                     return;
                 }
-                success("تمت إضافة الرصيد بنجاح");
-                router.push("/profile/wallet");
-                router.refresh();
+                if (!json || !res.ok || !json.success) {
+                    const apiMessage =
+                        json && !json.success && typeof json.message === "string"
+                            ? json.message.trim()
+                            : "";
+                    error(apiMessage || fallback);
+                    return;
+                }
+                const paymentUrl = json.data.payment_url ?? json.data.paymentUrl;
+                if (!paymentUrl) {
+                    error(isArabic ? "لم يتم استلام رابط الدفع" : "Payment URL was not returned");
+                    return;
+                }
+                let redirectUrl: URL;
+                try {
+                    redirectUrl = new URL(paymentUrl);
+                    if (!["http:", "https:"].includes(redirectUrl.protocol)) throw new Error();
+                } catch {
+                    error(isArabic ? "رابط الدفع المستلم غير صالح" : "The returned payment URL is invalid");
+                    return;
+                }
+                const invoiceId = json.data.invoice_id ?? json.data.invoiceId;
+                const paymentId = json.data.payment_id ?? json.data.paymentId;
+                if (invoiceId != null) sessionStorage.setItem("wallet_invoice_id", String(invoiceId));
+                if (paymentId != null) sessionStorage.setItem("wallet_payment_id", String(paymentId));
+                window.location.assign(redirectUrl.href);
             } catch {
-                error("فشل في إضافة الرصيد");
+                error(
+                    isArabic
+                        ? "تعذر إكمال إضافة الرصيد حالياً. حاول مرة أخرى."
+                        : "Could not start wallet top-up right now. Please try again.",
+                );
             }
         });
     }
@@ -182,54 +176,11 @@ export function AddBalanceClient({ isArabic = true }: { isArabic?: boolean }) {
                     </div>
                 </section>
 
-                <section className="flex flex-col gap-3">
-                    <h2
-                        className="text-start text-[16px] font-bold text-[#111B18] dark:text-gray-100"
-                        style={TAJAWAL}
-                    >
-                        {isArabic
-                            ? WALLET_STRINGS.paymentMethods.ar
-                            : WALLET_STRINGS.paymentMethods.en}
-                    </h2>
-
-                    <div className="flex flex-col gap-2.5">
-                        {WALLET_PAYMENT_METHODS.map((option) => {
-                            const selected = method === option.id;
-                            return (
-                                <button
-                                    key={option.id}
-                                    type="button"
-                                    onClick={() => setMethod(option.id)}
-                                    className="flex w-full items-center gap-3 rounded-[12px] border border-[#F6F5F8] bg-white px-3 py-3.5 text-start transition-colors dark:border-gray-700 dark:bg-gray-800 sm:px-4"
-                                    aria-pressed={selected}
-                                >
-                                    <span
-                                        className={[
-                                            "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
-                                            selected
-                                                ? "border-[#111B18] dark:border-gray-100"
-                                                : "border-[#C6C8CE] dark:border-gray-500",
-                                        ].join(" ")}
-                                        aria-hidden
-                                    >
-                                        {selected && (
-                                            <span className="h-2.5 w-2.5 rounded-full bg-[#111B18] dark:bg-gray-100" />
-                                        )}
-                                    </span>
-
-                                    <span
-                                        className="min-w-0 flex-1 text-[14px] font-bold text-[#111B18] dark:text-gray-100 sm:text-[15px]"
-                                        style={TAJAWAL}
-                                    >
-                                        {option.label}
-                                    </span>
-
-                                    <PaymentLogo id={option.id} />
-                                </button>
-                            );
-                        })}
-                    </div>
-                </section>
+                <p className="rounded-[12px] bg-[#F6F5F8] p-4 text-center text-sm text-[#707784] dark:bg-gray-800 dark:text-gray-300">
+                    {isArabic
+                        ? "سيتم تحويلك إلى بوابة MyFatoorah الآمنة لإكمال الدفع."
+                        : "You will be redirected to the secure MyFatoorah gateway to complete payment."}
+                </p>
             </div>
         </ProfileSubpageShell>
     );

@@ -1,7 +1,13 @@
-import { cookies } from "next/headers";
-
-import { COOKIE_KEYS } from "@/features/auth/types/auth.types";
 import { WALLET_TRANSACTION_TYPES } from "@/features/profile/constants/wallet.strings";
+import {
+	customerHeaders,
+	FINANCIAL_API,
+	getFinancialToken,
+} from "@/features/profile/lib/financial-http";
+import {
+	isValidWalletPagination,
+	WALLET_TRANSACTION_PAGE_SIZE,
+} from "@/features/profile/lib/wallet-validation";
 import type {
 	WalletHistoryFilter,
 	WalletHistoryGroup,
@@ -9,33 +15,14 @@ import type {
 	WalletTransactionRaw,
 } from "@/features/profile/types/wallet.types";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
-const MODULE_ID = process.env.MODULE_ID ?? "3";
-const ZONE_ID = process.env.ZONE_ID ?? "[2]";
+const BACKEND_URL = FINANCIAL_API.baseUrl;
 
 /** Backend treats `offset` as a row offset (0, 10, 20…), not a page number. */
 const DEFAULT_OFFSET = 0;
-const DEFAULT_LIMIT = 10;
+const DEFAULT_LIMIT = WALLET_TRANSACTION_PAGE_SIZE;
 const DEFAULT_TYPE: WalletHistoryFilter = "all";
 
 type Lang = "ar" | "en";
-
-async function getToken(): Promise<string | null> {
-	const store = await cookies();
-	return store.get(COOKIE_KEYS.ACCESS_TOKEN)?.value ?? null;
-}
-
-function authHeaders(token: string, lang: Lang = "ar"): HeadersInit {
-	return {
-		Authorization: `Bearer ${token}`,
-		"Content-Type": "application/json; charset=UTF-8",
-		"Accept-Language": lang,
-		"X-localization": lang,
-		lang,
-		moduleId: MODULE_ID,
-		zoneId: ZONE_ID,
-	};
-}
 
 export function isWalletHistoryFilter(value: string): value is WalletHistoryFilter {
 	return (WALLET_TRANSACTION_TYPES as readonly string[]).includes(value);
@@ -170,50 +157,63 @@ export async function getWalletTransactions(
 	limit = DEFAULT_LIMIT,
 	type: WalletHistoryFilter = DEFAULT_TYPE,
 	lang: Lang = "ar",
+	throwOnError = false,
 ): Promise<WalletHistoryGroup[]> {
-	const token = await getToken();
+	if (!isValidWalletPagination(offset, limit)) {
+		if (throwOnError) throw new Error("Invalid wallet transaction pagination");
+		return [];
+	}
+
+	const token = await getFinancialToken();
 	if (!token || !BACKEND_URL) return [];
 
-	const rowOffset = Math.max(0, offset);
-	const pageLimit = Math.max(1, limit);
 	const txnType = isWalletHistoryFilter(type) ? type : DEFAULT_TYPE;
 
 	try {
 		const params = new URLSearchParams({
-			offset: String(rowOffset),
-			limit: String(pageLimit),
+			offset: String(offset),
+			limit: String(limit),
 			type: txnType,
 		});
 
 		const res = await fetch(
 			`${BACKEND_URL}/api/v1/customer/wallet/transactions?${params}`,
-			{ headers: authHeaders(token, lang), cache: "no-store" },
+			{ headers: customerHeaders(token, lang), cache: "no-store" },
 		);
-		if (!res.ok) return [];
+		if (!res.ok) {
+			if (throwOnError) throw new Error("Wallet transactions request failed");
+			return [];
+		}
 
 		const json: unknown = await res.json();
 		return groupByDate(extractTxns(json), lang);
-	} catch {
+	} catch (error) {
+		if (throwOnError) throw error;
 		return [];
 	}
 }
 
 export async function getWalletBonuses(
 	lang: Lang = "ar",
+	throwOnError = false,
 ): Promise<WalletHistoryGroup[]> {
-	const token = await getToken();
+	const token = await getFinancialToken();
 	if (!token || !BACKEND_URL) return [];
 
 	try {
 		const res = await fetch(`${BACKEND_URL}/api/v1/customer/wallet/bonuses`, {
-			headers: authHeaders(token, lang),
+			headers: customerHeaders(token, lang),
 			cache: "no-store",
 		});
-		if (!res.ok) return [];
+		if (!res.ok) {
+			if (throwOnError) throw new Error("Wallet bonuses request failed");
+			return [];
+		}
 
 		const json: unknown = await res.json();
 		return groupByDate(extractTxns(json), lang);
-	} catch {
+	} catch (error) {
+		if (throwOnError) throw error;
 		return [];
 	}
 }
