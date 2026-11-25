@@ -14,11 +14,19 @@ const PROSE_CLASS = [
 	"[&_li]:mb-1",
 ].join(" ");
 
+function sanitizeStaticHtml(html: string): string {
+	return html
+		.replace(/<\s*(script|iframe|object|embed|style|link|meta)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
+		.replace(/<\s*(script|iframe|object|embed|style|link|meta)[^>]*\/?>/gi, "")
+		.replace(/\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+		.replace(/(href|src)\s*=\s*(?:"\s*(?:javascript|vbscript):[^"]*"|'\s*(?:javascript|vbscript):[^']*')/gi, '$1="#"');
+}
+
 export function StaticContentBody({ content }: StaticContentBodyProps) {
 	return (
 		<article
 			className={PROSE_CLASS}
-			dangerouslySetInnerHTML={{ __html: content }}
+			dangerouslySetInnerHTML={{ __html: sanitizeStaticHtml(content) }}
 		/>
 	);
 }

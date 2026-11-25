@@ -155,6 +155,21 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: false,
 
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
+        ],
+      },
+    ];
+  },
+
   // Proxy backend media over the app origin so HTTPS pages can load HTTP storage.
   async rewrites() {
     const apiBase =
