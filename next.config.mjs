@@ -155,17 +155,35 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: false,
 
-  // Proxy backend media over the app origin so HTTPS pages can load HTTP storage.
-  async rewrites() {
-    const apiBase =
-      (process.env.NEXT_PUBLIC_API_URL || "http://148.230.126.198").replace(
-        /\/$/,
-        "",
-      );
+  // Security headers
+  async headers() {
     return [
       {
-        source: "/backend-media/:path*",
-        destination: `${apiBase}/:path*`,
+        source: "/(.*)",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
+        ],
+      },
+    ];
+  },
+
+  // Proxy ONLY backend storage media over the app origin (prevents proxying /api or /admin).
+  async rewrites() {
+    const rawApiBase = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/$/, "");
+    if (!rawApiBase) return [];
+    try {
+      const parsed = new URL(rawApiBase);
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return [];
+    } catch {
+      return [];
+    }
+    return [
+      {
+        source: "/backend-media/storage/:path*",
+        destination: `${rawApiBase}/storage/:path*`,
       },
     ];
   },

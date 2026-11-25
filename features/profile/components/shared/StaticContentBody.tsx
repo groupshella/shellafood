@@ -1,10 +1,12 @@
+import sanitizeHtml from "sanitize-html";
+
 interface StaticContentBodyProps {
 	content: string;
 }
 
 const PROSE_CLASS = [
 	"static-content-prose mx-auto w-full max-w-3xl text-start lg:max-w-4xl",
-	"text-[14px] font-normal leading-[170%] text-foreground sm:text-[15px]",
+	"text-[14px] font-normal leading-[170%] text-foreground sm:[15px]",
 	"[&_p]:mb-4 sm:[&_p]:mb-5 [&_p:last-child]:mb-0",
 	"[&_p:first-child]:text-[15px] [&_p:first-child]:font-bold [&_p:first-child]:text-foreground sm:[&_p:first-child]:text-[16px]",
 	"[&_a]:text-brand [&_a]:underline-offset-2 [&_a]:hover:underline",
@@ -14,11 +16,42 @@ const PROSE_CLASS = [
 	"[&_li]:mb-1",
 ].join(" ");
 
+export function sanitizeStaticHtml(html: string): string {
+	return sanitizeHtml(html, {
+		allowedTags: [
+			"p",
+			"br",
+			"b",
+			"i",
+			"em",
+			"strong",
+			"a",
+			"ul",
+			"ol",
+			"li",
+			"h1",
+			"h2",
+			"h3",
+			"h4",
+			"span",
+		],
+		allowedAttributes: {
+			a: ["href", "target", "rel"],
+		},
+		allowedSchemes: ["https", "mailto", "tel"],
+		transformTags: {
+			a: sanitizeHtml.simpleTransform("a", {
+				rel: "noopener noreferrer",
+			}),
+		},
+	});
+}
+
 export function StaticContentBody({ content }: StaticContentBodyProps) {
 	return (
 		<article
 			className={PROSE_CLASS}
-			dangerouslySetInnerHTML={{ __html: content }}
+			dangerouslySetInnerHTML={{ __html: sanitizeStaticHtml(content) }}
 		/>
 	);
 }
