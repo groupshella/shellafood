@@ -170,17 +170,20 @@ const nextConfig = {
     ];
   },
 
-  // Proxy backend media over the app origin so HTTPS pages can load HTTP storage.
+  // Proxy ONLY backend storage media over the app origin (prevents proxying /api or /admin).
   async rewrites() {
-    const apiBase =
-      (process.env.NEXT_PUBLIC_API_URL || "http://148.230.126.198").replace(
-        /\/$/,
-        "",
-      );
+    const rawApiBase = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/$/, "");
+    if (!rawApiBase) return [];
+    try {
+      const parsed = new URL(rawApiBase);
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return [];
+    } catch {
+      return [];
+    }
     return [
       {
-        source: "/backend-media/:path*",
-        destination: `${apiBase}/:path*`,
+        source: "/backend-media/storage/:path*",
+        destination: `${rawApiBase}/storage/:path*`,
       },
     ];
   },

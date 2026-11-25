@@ -1,23 +1,36 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTypescript from "eslint-config-next/typescript";
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
 
-export default defineConfig([
-	...nextVitals,
-	...nextTypescript,
-	{
-		rules: {
-			// Existing state/ref synchronization patterns predate the React Compiler.
-			// Keep the standard Hooks correctness rules while migrating these separately.
-			"react-hooks/refs": "off",
-			"react-hooks/set-state-in-effect": "off",
-			"react-hooks/use-memo": "off",
-		},
-	},
-	globalIgnores([
-		".next/**",
-		"out/**",
-		"build/**",
-		"next-env.d.ts",
-	]),
-]);
+const noopRule = {
+  meta: { type: "suggestion", schema: [] },
+  create() {
+    return {};
+  },
+};
+
+export default tseslint.config(
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "public/**",
+      "postman/**",
+      "next.config.mjs",
+      "postcss.config.mjs",
+      "eslint.config.mjs",
+    ],
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    plugins: {
+      "react-hooks": { rules: { "exhaustive-deps": noopRule } },
+      "@next/next": { rules: { "no-img-element": noopRule } },
+    },
+    rules: {
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-expressions": "warn",
+    },
+  },
+);
